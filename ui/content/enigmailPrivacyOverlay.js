@@ -26,7 +26,7 @@ var EnigmailPrefOverlay = {
     document.getElementById("enigmail_juniorMode").value = jm;
 
     let prefWindow = document.getElementById("MailPreferences");
-    if (this._windowResized === 0 && prefWindow.currentPane.id === "panePrivacy") {
+    if (this._windowResized === 0 && ("currentPane" in prefWindow) && prefWindow.currentPane.id === "panePrivacy") {
       window.resizeBy(0, prefGroup.clientHeight);
     }
 
