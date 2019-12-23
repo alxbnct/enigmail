@@ -255,9 +255,9 @@ Enigmail.hdrView = {
         statusFlags |= EnigmailConstants.DECRYPTION_INCOMPLETE;
     }
 
-    if (!(statusFlags & EnigmailConstants.PGP_MIME_ENCRYPTED)) {
-      encMimePartNumber = "";
-    }
+    // if (!(statusFlags & EnigmailConstants.PGP_MIME_ENCRYPTED)) {
+    //   encMimePartNumber = "";
+    // }
 
     if (!EnigmailPrefs.getPref("displayPartiallySigned")) {
       if ((statusFlags & (EnigmailConstants.PARTIALLY_PGP)) &&
@@ -727,10 +727,6 @@ Enigmail.hdrView = {
 
     if (EnigmailCompat.isPostbox()) {
       let doc = document.getElementById("messagepane").contentDocument;
-      let sigNodes = doc.getElementsByClassName("hdr-signed-button");
-      if (sigNodes && sigNodes.length > 0) {
-        signedUINode = sigNodes[0];
-      }
 
       let encNodes = doc.getElementsByClassName("hdr-encrypted-button");
       if (encNodes && encNodes.length > 0) {
@@ -741,9 +737,10 @@ Enigmail.hdrView = {
     }
     else {
       sMimeContainer = gSMIMEContainer;
-      signedUINode = gSignedUINode;
       encryptedUINode = gEncryptedUINode;
     }
+
+    signedUINode = this.getSignedIcon();
 
     /* eslint block-scoped-var: 0*/
     if (typeof(sMimeContainer) !== "object")
@@ -822,8 +819,24 @@ Enigmail.hdrView = {
     }
   },
 
-  dispSecurityContext: function() {
+  getSignedIcon: function() {
+    let signedUINode = null;
 
+    if (EnigmailCompat.isPostbox()) {
+      let doc = document.getElementById("messagepane").contentDocument;
+      let sigNodes = doc.getElementsByClassName("hdr-signed-button");
+      if (sigNodes && sigNodes.length > 0) {
+        signedUINode = sigNodes[0];
+      }
+    }
+    else {
+      signedUINode = gSignedUINode;
+    }
+
+    return signedUINode;
+  },
+
+  dispSecurityContext: function() {
     try {
       if (Enigmail.msg.securityInfo) {
         if ((Enigmail.msg.securityInfo.statusFlags & EnigmailConstants.NODATA) &&

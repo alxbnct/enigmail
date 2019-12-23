@@ -10,7 +10,7 @@
 /* global ReloadMessage: false, gDBView: false, gSignatureStatus: false, gEncryptionStatus: false, showMessageReadSecurityInfo: false */
 /* global gFolderDisplay: false, messenger: false, currentAttachments: false, msgWindow: false, PanelUI: false */
 /* global currentHeaderData: false, gViewAllHeaders: false, gExpandedHeaderList: false, goDoCommand: false, HandleSelectedAttachments: false */
-/* global statusFeedback: false, displayAttachmentsForExpandedView: false, gMessageListeners: false, gExpandedHeaderView */
+/* global statusFeedback: false, displayAttachmentsForExpandedView: false, gMessageListeners: false, gExpandedHeaderView: false, gSignedUINode: false */
 
 var EnigmailCompat = ChromeUtils.import("chrome://enigmail/content/modules/compat.jsm").EnigmailCompat;
 var EnigmailCore = ChromeUtils.import("chrome://enigmail/content/modules/core.jsm").EnigmailCore;
@@ -733,6 +733,8 @@ Enigmail.msg = {
         };
       }
 
+      this.hideNonStandardMimeStructure(mimeMsg);
+
       // Copy selected headers
       Enigmail.msg.savedHeaders = {
         autocrypt: []
@@ -919,6 +921,27 @@ Enigmail.msg = {
     }
     else
       return -1;
+  },
+
+  hideNonStandardMimeStructure: function(mimeMsg) {
+    if (Enigmail.msg.securityInfo === null) return;
+    if (Enigmail.msg.securityInfo.encryptedMimePart === "1") return;
+    if (!((Enigmail.msg.securityInfo.statusFlags & EnigmailConstants.PGP_MIME_SIGNED) !== 0 &&
+        (Enigmail.msg.securityInfo.statusFlags & EnigmailConstants.DECRYPTION_OKAY) === 0)) return;
+
+    if (Enigmail.msg.securityInfo.encryptedMimePart === "1.1" &&
+      mimeMsg.subParts.length === 2 &&
+      mimeMsg.headers.contentType.type === "multipart/mixed" &&
+      mimeMsg.subParts[1].headers.contentType.type === "text/plain") return;
+
+    // Hide status bar for PGP/MIME signed messages, if we found a non-standard message structure
+    Enigmail.msg.securityInfo.statusFlags = 0;
+    Enigmail.msg.securityInfo.statusLine = "";
+    Enigmail.msg.securityInfo.statusInfo = "";
+    Enigmail.hdrView.displayStatusBar();
+    let signedUINode = Enigmail.hdrView.getSignedIcon();
+    signedUINode.removeAttribute("signed");
+    signedUINode.collapsed = true;
   },
 
   // display header about reparing buggy MS-Exchange messages
