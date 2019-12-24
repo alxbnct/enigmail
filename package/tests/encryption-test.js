@@ -105,7 +105,6 @@ test(withTestGpgHome(withEnigmail(function shouldEncryptFile() {
     outputFile
   ).then(res => {
     Assert.equal(0, res.exitCode);
-    Assert.equal("", res.errorMsg);
 
     inspector.exitNestedEventLoop();
   }).catch(x => {
