@@ -4051,15 +4051,15 @@ Enigmail.msg = {
           // dialog cancelled
           return null;
         }
-        else if (resultObj.selected == 1) {
+        else if (resultObj.selected === 1) {
           // encrypt attachments
           inlineEncAttach = true;
         }
-        else if (resultObj.selected == 2) {
+        else if (resultObj.selected === 2) {
           // send as PGP/MIME
           sendFlags |= EnigmailConstants.SEND_PGP_MIME;
         }
-        else if (resultObj.selected == 3) {
+        else if (resultObj.selected === 3) {
           // cancel the encryption/signing for the whole message
           sendFlags &= ~EnigmailConstants.SEND_ENCRYPTED;
           sendFlags &= ~EnigmailConstants.SEND_SIGNED;
@@ -4076,7 +4076,8 @@ Enigmail.msg = {
     }
 
     return {
-      inlineEncAttach: inlineEncAttach
+      inlineEncAttach: inlineEncAttach,
+      sendFlags: sendFlags
     };
   },
 
@@ -4264,6 +4265,7 @@ Enigmail.msg = {
       let attach = this.appendInlineAttachments(sendFlags);
       if (!attach) return false;
       let inlineEncAttach = attach.inlineEncAttach;
+      sendFlags = attach.sendFlags;
 
       var usingPGPMime = (sendFlags & EnigmailConstants.SEND_PGP_MIME) &&
         (sendFlags & (ENCRYPT | SIGN));
