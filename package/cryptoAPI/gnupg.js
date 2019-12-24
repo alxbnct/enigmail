@@ -604,9 +604,10 @@ class GnuPGCryptoAPI extends OpenPGPjsCryptoAPI {
    * @param {nsIWindow} parentWindow: [OPTIONAL] window on top of which to display modal dialogs
    *
    * @returns {Object}:
-   *     - {Number} exitCode: 0 = success / other values: error
-   *     - {String} data:     encrypted data
-   *     - {String} errorMsg: error message in case exitCode !== 0
+   *     - {Number} exitCode:    0 = success / other values: error
+   *     - {String} data:        encrypted data
+   *     - {String} errorMsg:    error message in case exitCode !== 0
+   *     - {Number} statusFlags: Status flags for result
    */
   encryptMessage(from, recipients, hiddenRecipients, encryptionFlags, plainText, hashAlgorithm = null, parentWindow = null) {
     return new Promise((resolve, reject) => {
@@ -662,7 +663,12 @@ class GnuPGCryptoAPI extends OpenPGPjsCryptoAPI {
         hashAlgorithm, encryptionFlags, listener, statusFlagsObj, errorMsgObj);
 
       if (!proc) {
-        resolve(null);
+        resolve({
+          exitCode: -1,
+          data: "",
+          errorMsg: errorMsgObj.value,
+          statusFlags: statusFlagsObj.value
+        });
       }
     });
   }
