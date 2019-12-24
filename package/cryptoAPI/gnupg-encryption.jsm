@@ -255,12 +255,26 @@ var GnuPG_Encryption = {
     return "";
   },
 
-  encryptAttachment: function(parent, fromMailAddr, toMailAddr, bccMailAddr, sendFlags, inFile, outFile,
-    exitCodeObj, statusFlagsObj, errorMsgObj) {
-    EnigmailLog.DEBUG("encryption.jsm: GnuPG_Encryption.encryptAttachment infileName=" + inFile.path + "\n");
+  /**
+   * Encrypt Files
+   *
+   * @param {String} from: keyID or email address of sender/signer
+   * @param {String} recipients: keyIDs or email addresses of recipients, separated by spaces
+   * @param {String} hiddenRecipients: keyIDs or email addresses of hidden recipients (bcc), separated by spaces
+   * @param {Number} encryptionFlags: Flags for Signed/encrypted/PGP-MIME etc.
+   * @param {nsIFile} inputFile: source file to encrypt
+   * @param {nsIFile} outputFile: target file containing encrypted data
+   *
+   * @return {Object}:
+   *     - {Number} exitCode:    0 = success / other values: error
+   *     - {String} errorMsg:    error message in case exitCode !== 0
+   *     - {Number} statusFlags: Status flags for result
+   */
 
-    statusFlagsObj.value = 0;
-    sendFlags |= EnigmailConstants.SEND_ATTACHMENT;
+  encryptFile: async function(from, recipients, hiddenRecipients, encryptionFlags, inputFile, outputFile) {
+    EnigmailLog.DEBUG("encryption.jsm: encryptFile infileName=" + inputFile.path + "\n");
+
+    encryptionFlags |= EnigmailConstants.SEND_ATTACHMENT;
 
     let asciiArmor = false;
     try {
@@ -269,41 +283,42 @@ var GnuPG_Encryption = {
     catch (ex) {}
 
     const asciiFlags = (asciiArmor ? ENC_TYPE_ATTACH_ASCII : ENC_TYPE_ATTACH_BINARY);
-    let args = getEncryptCommand(fromMailAddr, toMailAddr, bccMailAddr, "", sendFlags, asciiFlags, errorMsgObj);
+    let errorMsgObj = {};
+    let args = getEncryptCommand(from, recipients, hiddenRecipients, "", encryptionFlags, asciiFlags, errorMsgObj);
 
     if (!args) {
-      return null;
+      return {
+        errorMsg: errorMsgObj.value,
+        exitCode: -1,
+        statusFlags: 0
+      };
     }
 
-    const signMessage = (sendFlags & EnigmailConstants.SEND_SIGNED);
+    const signMessage = (encryptionFlags & EnigmailConstants.SEND_SIGNED);
 
     if (signMessage) {
       args = args.concat(EnigmailPassword.command());
     }
 
     //const inFilePath = EnigmailFiles.getEscapedFilename(EnigmailFiles.getFilePathReadonly(inFile.QueryInterface(Ci.nsIFile)));
-    const fileContents = EnigmailFiles.readBinaryFile(inFile.QueryInterface(Ci.nsIFile));
-    const inFileName = inFile.QueryInterface(Ci.nsIFile).leafName;
-    const outFilePath = EnigmailFiles.getEscapedFilename(EnigmailFiles.getFilePathReadonly(outFile.QueryInterface(Ci.nsIFile)));
+    const fileContents = EnigmailFiles.readBinaryFile(inputFile.QueryInterface(Ci.nsIFile));
+    const inFileName = inputFile.QueryInterface(Ci.nsIFile).leafName;
+    const outFilePath = EnigmailFiles.getEscapedFilename(EnigmailFiles.getFilePathReadonly(outputFile.QueryInterface(Ci.nsIFile)));
 
     args = args.concat(["--yes", "-o", outFilePath, "--set-filename", inFileName]);
 
-    let cmdErrorMsgObj = {};
+    let ret = await EnigmailExecution.execAsync(EnigmailGpgAgent.agentPath, args, fileContents);
 
-    const msg = EnigmailExecution.execCmd(EnigmailGpgAgent.agentPath, args, fileContents, exitCodeObj, statusFlagsObj, {}, cmdErrorMsgObj);
-    if (exitCodeObj.value !== 0) {
-      if (cmdErrorMsgObj.value) {
-        errorMsgObj.value = EnigmailFiles.formatCmdLine(EnigmailGpgAgent.agentPath, args);
-        errorMsgObj.value += "\n" + cmdErrorMsgObj.value;
+    if (ret.exitCode !== 0) {
+      if (ret.errorMsg) {
+        ret.errorMsg = EnigmailFiles.formatCmdLine(EnigmailGpgAgent.agentPath, args) + "\n" + ret.errorMsg;
       }
       else {
-        errorMsgObj.value = "An unknown error has occurred";
+        ret.errorMsg = "An unknown error has occurred";
       }
-
-      return "";
     }
 
-    return msg;
+    return ret;
   }
 };
 

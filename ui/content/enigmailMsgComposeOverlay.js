@@ -34,7 +34,6 @@ var EnigmailURIs = ChromeUtils.import("chrome://enigmail/content/modules/uris.js
 var EnigmailConstants = ChromeUtils.import("chrome://enigmail/content/modules/constants.jsm").EnigmailConstants;
 var EnigmailPassword = ChromeUtils.import("chrome://enigmail/content/modules/passwords.jsm").EnigmailPassword;
 var EnigmailDecryption = ChromeUtils.import("chrome://enigmail/content/modules/decryption.jsm").EnigmailDecryption;
-var GnuPG_Encryption = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/gnupg-encryption.jsm").GnuPG_Encryption;
 var EnigmailCryptoAPI = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI.jsm").EnigmailCryptoAPI;
 var EnigmailRules = ChromeUtils.import("chrome://enigmail/content/modules/rules.jsm").EnigmailRules;
 var EnigmailClipboard = ChromeUtils.import("chrome://enigmail/content/modules/clipboard.jsm").EnigmailClipboard;
@@ -3367,7 +3366,6 @@ Enigmail.msg = {
   saveDraftMessage: function() {
     EnigmailLog.DEBUG("enigmailMsgComposeOverlay.js: saveDraftMessage()\n");
 
-
     let doEncrypt = this.isEnigmailEnabled() && this.identity.getBoolAttribute("autoEncryptDrafts");
 
     this.setDraftStatus(doEncrypt);
@@ -3385,6 +3383,7 @@ Enigmail.msg = {
       return true;
     }
 
+    const cApi = EnigmailCryptoAPI();
     let sendFlags = EnigmailConstants.SEND_PGP_MIME | EnigmailConstants.SEND_ENCRYPTED | EnigmailConstants.SAVE_MESSAGE | EnigmailConstants.SEND_ALWAYS_TRUST;
 
     if (this.protectHeaders) {
@@ -3403,30 +3402,19 @@ Enigmail.msg = {
     if (this.preferPgpOverSmime(sendFlags) === 0) return true; // use S/MIME
 
     // Try to save draft
-
-    var testCipher = null;
-    var testExitCodeObj = {};
-    var testStatusFlagsObj = {};
-    var testErrorMsgObj = {};
-
     // encrypt test message for test recipients
-    var testPlain = "Test Message";
+    const testPlain = "Test Message";
     var testUiFlags = EnigmailConstants.UI_TEST;
     EnigmailLog.DEBUG("enigmailMsgComposeOverlay.js: Enigmail.msg.saveDraft(): call encryptMessage() for fromAddr=\"" + fromAddr + "\"\n");
-    testCipher = GnuPG_Encryption.encryptMessage(null, testUiFlags, testPlain,
-      fromAddr, fromAddr, "",
-      sendFlags | EnigmailConstants.SEND_TEST,
-      testExitCodeObj,
-      testStatusFlagsObj,
-      testErrorMsgObj);
+    let testResult = cApi.sync(cApi.encryptMessage(fromAddr, fromAddr, "", sendFlags | EnigmailConstants.SEND_TEST, testPlain, null));
 
-    if (testStatusFlagsObj.value & (EnigmailConstants.INVALID_RECIPIENT | EnigmailConstants.NO_SECKEY)) {
+    if (testResult.statusFlags & (EnigmailConstants.INVALID_RECIPIENT | EnigmailConstants.NO_SECKEY)) {
       // check if own key is invalid
-      if (testErrorMsgObj.value && testErrorMsgObj.value.length > 0) {
+      if (testResult.errorMsg && testResult.errorMsg.length > 0) {
         ++this.saveDraftError;
         if (this.saveDraftError === 1) {
           this.notifyUser(3, EnigmailLocale.getString("msgCompose.cannotSaveDraft"), "saveDraftFailed",
-            testErrorMsgObj.value);
+          testResult.errorMsg);
         }
         return false;
       }
@@ -4464,10 +4452,8 @@ Enigmail.msg = {
       }
     }
 
-    var exitCodeObj = {};
-    var statusFlagsObj = {};
-    var errorMsgObj = {};
-    var exitCode;
+    let exitCode;
+    let errorMsgObj = {};
 
     // Get plain text
     // (Do we need to set the nsIDocumentEncoder.* flags?)
@@ -4514,16 +4500,15 @@ Enigmail.msg = {
         EnigmailData.convertFromUnicode(origText, charset) :
         EnigmailData.convertFromUnicode(escText, charset);
 
-      var cipherText = GnuPG_Encryption.encryptMessage(window, sendInfo.uiFlags, plainText,
-        sendInfo.fromAddr, sendInfo.toAddr, sendInfo.bccAddr,
-        sendInfo.sendFlags,
-        exitCodeObj, statusFlagsObj,
-        errorMsgObj);
+      const cApi = EnigmailCryptoAPI();
+      let res = cApi.sync(cApi.encryptMessage(sendInfo.fromAddr, sendInfo.toAddr, sendInfo.bccAddr,
+        sendInfo.sendFlags, plainText, null, window));
 
-      exitCode = exitCodeObj.value;
+      exitCode = res.exitCode;
+      let cipherText = res.data;
 
       //EnigmailLog.DEBUG("enigmailMsgComposeOverlay.js: cipherText = '"+cipherText+"'\n");
-      if (cipherText && (exitCode === 0)) {
+      if (cipherText && cipherText.length > 0 && (exitCode === 0)) {
         // Encryption/signing succeeded; overwrite plaintext
 
         if (gMsgCompose.composeHTML) {
@@ -4566,7 +4551,7 @@ Enigmail.msg = {
             }
           }*/
 
-          this.sendAborted(window, errorMsgObj);
+          this.sendAborted(window, res.errorMsg);
           return false;
         }
       }
@@ -4850,6 +4835,7 @@ Enigmail.msg = {
 
     const SIGN = EnigmailConstants.SEND_SIGNED;
     const ENCRYPT = EnigmailConstants.SEND_ENCRYPTED;
+    const cApi = EnigmailCryptoAPI();
 
     var ioServ;
     var fileTemplate;
@@ -4885,9 +4871,6 @@ Enigmail.msg = {
     if (!enigmailSvc)
       return null;
 
-    var exitCodeObj = {};
-    var statusFlagsObj = {};
-
     var node = bucketList.firstChild;
     while (node) {
       var origUrl = node.attachment.url;
@@ -4910,18 +4893,16 @@ Enigmail.msg = {
       }
 
       var newFile = fileTemplate.clone();
-      var txtMessage;
+      var ret;
       try {
         newFile.createUnique(Components.interfaces.nsIFile.NORMAL_FILE_TYPE, 0x180);
-        txtMessage = GnuPG_Encryption.encryptAttachment(window, fromAddr, toAddr, bccAddr, sendFlags,
-          origFile.file, newFile,
-          exitCodeObj, statusFlagsObj,
-          errorMsgObj);
+        ret = cApi.sync(cApi.encryptFile(fromAddr, toAddr, bccAddr, sendFlags, origFile.file, newFile));
+        errorMsgObj.value = ret.errorMsg;
       }
       catch (ex) {}
 
-      if (exitCodeObj.value !== 0) {
-        return exitCodeObj.value;
+      if (ret.exitCode !== 0) {
+        return ret.exitCode;
       }
 
       var fileInfo = {

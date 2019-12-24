@@ -82,6 +82,42 @@ test(withTestGpgHome(withEnigmail(function shouldEncryptMessage() {
   Assert.equal(r.keyId, "65537E212DC19025AD38EDB2781617319CE311C4");
 })));
 
+test(withTestGpgHome(withEnigmail(function shouldEncryptFile() {
+  const publicKey = do_get_file("resources/dev-strike.asc", false);
+  const secretKey = do_get_file("resources/dev-strike.sec", false);
+  const errorMsgObj = {};
+  const importedKeysObj = {};
+  EnigmailKeyRing.importKeyFromFile(publicKey, errorMsgObj, importedKeysObj);
+  EnigmailKeyRing.importKeyFromFile(secretKey, errorMsgObj, importedKeysObj);
+  const strikeAccount = "strike.devtest@gmail.com";
+  const inputFile = do_get_file("resources/rules.xml", false);
+  const outputFile = JSUnit.getTempDir();
+  const inspector = Cc["@mozilla.org/jsinspector;1"].createInstance(Ci.nsIJSInspector);
+  outputFile.append("test-enc.gpg");
+  outputFile.createUnique(Components.interfaces.nsIFile.NORMAL_FILE_TYPE, 384);
+
+  GnuPG_Encryption.encryptFile(
+    strikeAccount,
+    strikeAccount,
+    "",
+    EnigmailConstants.SEND_ENCRYPTED | EnigmailConstants.SEND_ALWAYS_TRUST,
+    inputFile,
+    outputFile
+  ).then(res => {
+    Assert.equal(0, res.exitCode);
+    Assert.equal("", res.errorMsg);
+
+    inspector.exitNestedEventLoop();
+  }).catch(x => {
+    Assert.ok(false, `Got exception ${x}`);
+    inspector.exitNestedEventLoop();
+  });
+  inspector.enterNestedEventLoop(0);
+
+  Assert.ok(outputFile.fileSize > 800, `File size ${outputFile.fileSize} should be > 800`);
+})));
+
+
 test(withTestGpgHome(withEnigmail(function shouldGetErrorReason() {
   let r = determineOwnKeyUsability(EnigmailConstants.SEND_SIGNED | EnigmailConstants.SEND_ENCRYPTED, "nobody@notfound.net");
   let expected = EnigmailLocale.getString("errorOwnKeyUnusable", "nobody@notfound.net");
