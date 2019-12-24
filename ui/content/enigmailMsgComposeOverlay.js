@@ -35,6 +35,7 @@ var EnigmailConstants = ChromeUtils.import("chrome://enigmail/content/modules/co
 var EnigmailPassword = ChromeUtils.import("chrome://enigmail/content/modules/passwords.jsm").EnigmailPassword;
 var EnigmailDecryption = ChromeUtils.import("chrome://enigmail/content/modules/decryption.jsm").EnigmailDecryption;
 var GnuPG_Encryption = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/gnupg-encryption.jsm").GnuPG_Encryption;
+var EnigmailCryptoAPI = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI.jsm").EnigmailCryptoAPI;
 var EnigmailRules = ChromeUtils.import("chrome://enigmail/content/modules/rules.jsm").EnigmailRules;
 var EnigmailClipboard = ChromeUtils.import("chrome://enigmail/content/modules/clipboard.jsm").EnigmailClipboard;
 var EnigmailPEPAdapter = ChromeUtils.import("chrome://enigmail/content/modules/pEpAdapter.jsm").EnigmailPEPAdapter;
@@ -2549,7 +2550,7 @@ Enigmail.msg = {
       success: false,
       resetDefaults: false
     };
-    window.openDialog("chrome://enigmail/content/ui/GnuPG_EncryptionDlg.xul", "", "dialog,modal,centerscreen", inputObj);
+    window.openDialog("chrome://enigmail/content/ui/enigmailEncryptionDlg.xul", "", "dialog,modal,centerscreen", inputObj);
 
     if (!inputObj.success) return; // Cancel pressed
 
@@ -3086,17 +3087,12 @@ Enigmail.msg = {
     const SIGN = EnigmailConstants.SEND_SIGNED;
     const ENCRYPT = EnigmailConstants.SEND_ENCRYPTED;
 
-    var testCipher = null;
-    var testExitCodeObj = {};
-    var testStatusFlagsObj = {};
-    var testErrorMsgObj = {};
-
     // get keys for remaining email addresses
     // - NOTE: This should not be necessary; however, in GPG there is a problem:
     //         Only the first key found for an email is used.
     //         If this is invalid, no other keys are tested.
     //         Thus, WE make it better here in enigmail until the bug is fixed.
-    var details = {}; // will contain msgList[] afterwards
+    let details = {}; // will contain msgList[] afterwards
     if (EnigmailPrefs.getPref("assignKeysByEmailAddr")) {
       var validKeyList = Enigmail.hlp.validKeysForAllRecipients(toAddrStr, details);
       if (validKeyList) {
@@ -3105,21 +3101,28 @@ Enigmail.msg = {
     }
 
     // encrypt test message for test recipients
-    var testPlain = "Test Message";
-    var testUiFlags = EnigmailConstants.UI_TEST;
-    var testSendFlags = EnigmailConstants.SEND_TEST | ENCRYPT | optSendFlags;
+    const testPlain = "Test Message";
+    const testSendFlags = EnigmailConstants.SEND_TEST | ENCRYPT | optSendFlags;
     EnigmailLog.DEBUG("enigmailMsgComposeOverlay.js: Enigmail.msg.encryptTestMessage(): call encryptMessage() for fromAddr=\"" + fromAddr + "\" toAddrStr=\"" + toAddrStr + "\" bccAddrStr=\"" +
       bccAddrStr + "\"\n");
-    testCipher = GnuPG_Encryption.encryptMessage(window, testUiFlags, testPlain,
-      fromAddr, toAddrStr, bccAddrStr,
-      testSendFlags,
-      testExitCodeObj,
-      testStatusFlagsObj,
-      testErrorMsgObj);
 
-    if (testStatusFlagsObj.value & (EnigmailConstants.INVALID_RECIPIENT | EnigmailConstants.NO_SECKEY)) {
+    let ret = {
+      statusFlags: 0,
+      exitCode: -1,
+      errorMsg: "",
+      data: null
+    };
+    const cApi = EnigmailCryptoAPI();
+    try {
+      // from, recipients, hiddenRecipients, encryptionFlags, plainText
+      ret = cApi.sync(cApi.encryptMessage(fromAddr, toAddrStr, bccAddrStr, testSendFlags, testPlain));
+    }
+    catch(x) {}
+
+    let testCipher = ret.data;
+    if (ret.statusFlags & (EnigmailConstants.INVALID_RECIPIENT | EnigmailConstants.NO_SECKEY)) {
       // check if own key is invalid
-      EnigmailDialog.alert(window, testErrorMsgObj.value);
+      EnigmailDialog.alert(window, ret.errorMsg);
       return null;
     }
 
@@ -3131,7 +3134,7 @@ Enigmail.msg = {
     //     (due to disabled "assignKeysByEmailAddr"" or multiple keys with same trust for a recipient)
     // start the dialog for user selected keys
     if (EnigmailPrefs.getPref("assignKeysManuallyAlways") ||
-      (((testStatusFlagsObj.value & EnigmailConstants.INVALID_RECIPIENT) ||
+      (((ret.statusFlags & EnigmailConstants.INVALID_RECIPIENT) ||
           toAddrStr.indexOf('@') >= 0) &&
         EnigmailPrefs.getPref("assignKeysManuallyIfMissing")) ||
       (details && details.errArray && details.errArray.length > 0)
@@ -3143,7 +3146,7 @@ Enigmail.msg = {
       };
       var inputObj = {};
       inputObj.toAddr = toAddrStr;
-      inputObj.invalidAddr = Enigmail.hlp.getInvalidAddress(testErrorMsgObj.value);
+      inputObj.invalidAddr = Enigmail.hlp.getInvalidAddress(ret.errorMsg);
       if (details && details.errArray && details.errArray.length > 0) {
         inputObj.errArray = details.errArray;
       }
@@ -3228,7 +3231,7 @@ Enigmail.msg = {
           sendFlags &= ~SIGN;
         }
         testCipher = "ok";
-        testExitCodeObj.value = 0;
+        ret.exitCode = 0;
       }
       catch (ex) {
         // cancel pressed -> don't send mail
@@ -3236,7 +3239,7 @@ Enigmail.msg = {
       }
     }
     // If test encryption failed and never ask manually, turn off default encryption
-    if ((!testCipher || (testExitCodeObj.value !== 0)) &&
+    if ((!testCipher || (ret.exitCode !== 0)) &&
       !EnigmailPrefs.getPref("assignKeysManuallyIfMissing") &&
       !EnigmailPrefs.getPref("assignKeysManuallyAlways")) {
       sendFlags &= ~ENCRYPT;
