@@ -67,7 +67,7 @@ class GnuPGCryptoAPI extends OpenPGPjsCryptoAPI {
    * @param {String } preferredPath: try to use specific path to locate tool (gpg)
    */
   initialize(parentWindow, enigSvc, preferredPath) {
-    const EnigmailGpgAgent = ChromeUtils.import("chrome://enigmail/content/modules/gpgAgent.jsm").EnigmailGpgAgent;
+    const EnigmailGpgAgent = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/gnupg-agent.jsm").EnigmailGpgAgent;
 
     EnigmailGpgAgent.setAgentPath(parentWindow, enigSvc, preferredPath);
     EnigmailGpgAgent.detectGpgAgent(parentWindow, enigSvc);
@@ -78,7 +78,7 @@ class GnuPGCryptoAPI extends OpenPGPjsCryptoAPI {
    * Close/shutdown anything related to the functionality
    */
   finalize() {
-    const EnigmailGpgAgent = ChromeUtils.import("chrome://enigmail/content/modules/gpgAgent.jsm").EnigmailGpgAgent;
+    const EnigmailGpgAgent = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/gnupg-agent.jsm").EnigmailGpgAgent;
     EnigmailGpgAgent.finalize();
   }
 
@@ -709,7 +709,7 @@ class GnuPGCryptoAPI extends OpenPGPjsCryptoAPI {
    */
   async clearPassphrase() {
 
-    const EnigmailGpgAgent = ChromeUtils.import("chrome://enigmail/content/modules/gpgAgent.jsm").EnigmailGpgAgent;
+    const EnigmailGpgAgent = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/gnupg-agent.jsm").EnigmailGpgAgent;
 
     const input = "RELOADAGENT\n/bye\n";
 

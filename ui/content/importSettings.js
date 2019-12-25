@@ -15,7 +15,7 @@ var EnigmailLocale = ChromeUtils.import("chrome://enigmail/content/modules/local
 var EnigmailDialog = ChromeUtils.import("chrome://enigmail/content/modules/dialog.jsm").EnigmailDialog;
 var EnigmailFiles = ChromeUtils.import("chrome://enigmail/content/modules/files.jsm").EnigmailFiles;
 var EnigmailConfigBackup = ChromeUtils.import("chrome://enigmail/content/modules/configBackup.jsm").EnigmailConfigBackup;
-var EnigmailGpgAgent = ChromeUtils.import("chrome://enigmail/content/modules/gpgAgent.jsm").EnigmailGpgAgent;
+var EnigmailGpgAgent = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/gnupg-agent.jsm").EnigmailGpgAgent;
 var EnigmailKeyRing = ChromeUtils.import("chrome://enigmail/content/modules/keyRing.jsm").EnigmailKeyRing;
 
 var gImportFile = null;

@@ -112,12 +112,12 @@ var EnigmailGpgAgent = {
   },
 
   resetGpgAgent: function() {
-    EnigmailLog.DEBUG("gpgAgent.jsm: resetGpgAgent\n");
+    EnigmailLog.DEBUG("gnupg-agent.jsm: resetGpgAgent\n");
     gIsGpgAgent = -1;
   },
 
   isCmdGpgAgent: function(pid) {
-    EnigmailLog.DEBUG("gpgAgent.jsm: isCmdGpgAgent:\n");
+    EnigmailLog.DEBUG("gnupg-agent.jsm: isCmdGpgAgent:\n");
 
     const environment = Cc["@mozilla.org/process/environment;1"].getService(Ci.nsIEnvironment);
     let ret = false;
@@ -143,7 +143,7 @@ var EnigmailGpgAgent = {
     try {
       subprocess.call(proc).wait();
 
-      EnigmailLog.DEBUG("gpgAgent.jsm: isCmdGpgAgent: got data: '" + outStr + "'\n");
+      EnigmailLog.DEBUG("gnupg-agent.jsm: isCmdGpgAgent: got data: '" + outStr + "'\n");
       var data = outStr.replace(/[\r\n]/g, " ");
       if (data.search(/gpg-agent/) >= 0) {
         ret = true;
@@ -158,7 +158,7 @@ var EnigmailGpgAgent = {
   isAgentTypeGpgAgent: function() {
     // determine if the used agent is a gpg-agent
 
-    EnigmailLog.DEBUG("gpgAgent.jsm: isAgentTypeGpgAgent:\n");
+    EnigmailLog.DEBUG("gnupg-agent.jsm: isAgentTypeGpgAgent:\n");
 
     // to my knowledge there is no other agent than gpg-agent on Windows
     if (EnigmailOS.getOS() == "WINNT") return true;
@@ -200,7 +200,7 @@ var EnigmailGpgAgent = {
     }
     catch (ex) {}
 
-    EnigmailLog.DEBUG("gpgAgent.jsm: isAgentTypeGpgAgent: pid=" + pid + "\n");
+    EnigmailLog.DEBUG("gnupg-agent.jsm: isAgentTypeGpgAgent: pid=" + pid + "\n");
 
     EnigmailGpgAgent.isCmdGpgAgent(pid);
     let isAgent = false;
@@ -215,7 +215,7 @@ var EnigmailGpgAgent = {
   },
 
   getAgentMaxIdle: function() {
-    EnigmailLog.DEBUG("gpgAgent.jsm: getAgentMaxIdle:\n");
+    EnigmailLog.DEBUG("gnupg-agent.jsm: getAgentMaxIdle:\n");
     let maxIdle = -1;
 
     if (!EnigmailCore.getService()) return maxIdle;
@@ -239,7 +239,7 @@ var EnigmailGpgAgent = {
     const lines = outStr.split(/[\r\n]/);
 
     for (let i = 0; i < lines.length; i++) {
-      EnigmailLog.DEBUG("gpgAgent.jsm: getAgentMaxIdle: line: " + lines[i] + "\n");
+      EnigmailLog.DEBUG("gnupg-agent.jsm: getAgentMaxIdle: line: " + lines[i] + "\n");
 
       if (lines[i].search(/^default-cache-ttl:/) === 0) {
         const m = lines[i].split(/:/);
@@ -257,7 +257,7 @@ var EnigmailGpgAgent = {
   },
 
   setAgentMaxIdle: function(idleMinutes) {
-    EnigmailLog.DEBUG("gpgAgent.jsm: setAgentMaxIdle:\n");
+    EnigmailLog.DEBUG("gnupg-agent.jsm: setAgentMaxIdle:\n");
     if (!EnigmailCore.getService()) return;
 
     const RUNTIME = 8;
@@ -274,16 +274,16 @@ var EnigmailGpgAgent = {
         pipe.close();
       },
       stdout: function(data) {
-        EnigmailLog.DEBUG("gpgAgent.jsm: setAgentMaxIdle.stdout: " + data + "\n");
+        EnigmailLog.DEBUG("gnupg-agent.jsm: setAgentMaxIdle.stdout: " + data + "\n");
       }
     };
 
     try {
       let exitCode = subprocess.call(proc);
-      EnigmailLog.DEBUG("gpgAgent.jsm: setAgentMaxIdle.stdout: gpgconf exitCode=" + exitCode + "\n");
+      EnigmailLog.DEBUG("gnupg-agent.jsm: setAgentMaxIdle.stdout: gpgconf exitCode=" + exitCode + "\n");
     }
     catch (ex) {
-      EnigmailLog.DEBUG("gpgAgent.jsm: setAgentMaxIdle: exception: " + ex.toString() + "\n");
+      EnigmailLog.DEBUG("gnupg-agent.jsm: setAgentMaxIdle: exception: " + ex.toString() + "\n");
     }
   },
 
@@ -341,7 +341,7 @@ var EnigmailGpgAgent = {
 
     let exitCode = -1;
     let outStr = "";
-    EnigmailLog.DEBUG("gpgAgent.jsm: getGpgHomeDir: calling subprocess with '" + command.path + "'\n");
+    EnigmailLog.DEBUG("gnupg-agent.jsm: getGpgHomeDir: calling subprocess with '" + command.path + "'\n");
 
     EnigmailLog.CONSOLE("enigmail> " + EnigmailFiles.formatCmdLine(command, args) + "\n");
 
@@ -360,7 +360,7 @@ var EnigmailGpgAgent = {
       exitCode = subprocess.call(proc).wait();
     }
     catch (ex) {
-      EnigmailLog.ERROR("gpgAgent.jsm: getGpgHomeDir: subprocess.call failed with '" + ex.toString() + "'\n");
+      EnigmailLog.ERROR("gnupg-agent.jsm: getGpgHomeDir: subprocess.call failed with '" + ex.toString() + "'\n");
       EnigmailLog.DEBUG("  enigmail> DONE with FAILURE\n");
       throw ex;
     }
@@ -379,7 +379,7 @@ var EnigmailGpgAgent = {
    * @param preferredPath: String - try to use specific path to locate gpg
    */
   setAgentPath: function(domWindow, esvc, preferredPath) {
-    EnigmailLog.DEBUG("gpgAgent.jsm: setAgentPath()\n");
+    EnigmailLog.DEBUG("gnupg-agent.jsm: setAgentPath()\n");
     let agentPath = "";
     try {
       if (preferredPath) {
@@ -435,7 +435,7 @@ var EnigmailGpgAgent = {
       }
       catch (ex) {
         esvc.initializationError = EnigmailLocale.getString("gpgNotFound", [agentPath]);
-        EnigmailLog.ERROR("gpgAgent.jsm: initialize: Error - " + esvc.initializationError + "\n");
+        EnigmailLog.ERROR("gnupg-agent.jsm: initialize: Error - " + esvc.initializationError + "\n");
         throw Components.results.NS_ERROR_FAILURE;
       }
     }
@@ -443,7 +443,7 @@ var EnigmailGpgAgent = {
       agentPath = this.resolveGpgPath(esvc.environment);
       if (!agentPath) {
         esvc.initializationError = EnigmailLocale.getString("gpgNotInPath");
-        EnigmailLog.ERROR("gpgAgent.jsm: Error - " + esvc.initializationError + "\n");
+        EnigmailLog.ERROR("gnupg-agent.jsm: Error - " + esvc.initializationError + "\n");
         throw Components.results.NS_ERROR_FAILURE;
       }
     }
@@ -465,7 +465,7 @@ var EnigmailGpgAgent = {
     let exitCode = -1;
     let outStr = "";
     let errStr = "";
-    EnigmailLog.DEBUG("gpgAgent.jsm: setAgentPath: calling subprocess with '" + command.path + "'\n");
+    EnigmailLog.DEBUG("gnupg-agent.jsm: setAgentPath: calling subprocess with '" + command.path + "'\n");
 
     EnigmailLog.CONSOLE("enigmail> " + EnigmailFiles.formatCmdLine(command, args) + "\n");
 
@@ -487,7 +487,7 @@ var EnigmailGpgAgent = {
       exitCode = subprocess.call(proc).wait();
     }
     catch (ex) {
-      EnigmailLog.ERROR("gpgAgent.jsm: setAgentPath: subprocess.call failed with '" + ex.toString() + "'\n");
+      EnigmailLog.ERROR("gnupg-agent.jsm: setAgentPath: subprocess.call failed with '" + ex.toString() + "'\n");
       EnigmailLog.DEBUG("  enigmail> DONE with FAILURE\n");
       throw ex;
     }
@@ -496,7 +496,7 @@ var EnigmailGpgAgent = {
     outStr = EnigmailSystem.convertNativeToUnicode(outStr);
 
     if (exitCode !== 0) {
-      EnigmailLog.ERROR("gpgAgent.jsm: setAgentPath: gpg failed with exitCode " + exitCode + " msg='" + outStr + " " + errStr + "'\n");
+      EnigmailLog.ERROR("gnupg-agent.jsm: setAgentPath: gpg failed with exitCode " + exitCode + " msg='" + outStr + " " + errStr + "'\n");
       throw Components.results.NS_ERROR_FAILURE;
     }
 
@@ -516,7 +516,7 @@ var EnigmailGpgAgent = {
     const versionParts = outStr.replace(/[\r\n].*/g, "").replace(/ *\(gpg4win.*\)/i, "").split(/ /);
     const gpgVersion = versionParts[versionParts.length - 1];
 
-    EnigmailLog.DEBUG("gpgAgent.jsm: detected GnuPG version '" + gpgVersion + "'\n");
+    EnigmailLog.DEBUG("gnupg-agent.jsm: detected GnuPG version '" + gpgVersion + "'\n");
     getEnigmailGpg().agentVersion = gpgVersion;
 
     if (!getEnigmailGpg().getGpgFeature("version-supported")) {
@@ -532,7 +532,7 @@ var EnigmailGpgAgent = {
 
     EnigmailGpgAgent.checkGpgHomeDir(domWindow, esvc);
 
-    EnigmailLog.DEBUG("gpgAgent.jsm: setAgentPath: gpgconf found: " + (EnigmailGpgAgent.gpgconfPath ? "yes" : "no") + "\n");
+    EnigmailLog.DEBUG("gnupg-agent.jsm: setAgentPath: gpgconf found: " + (EnigmailGpgAgent.gpgconfPath ? "yes" : "no") + "\n");
   },
 
 
@@ -544,7 +544,7 @@ var EnigmailGpgAgent = {
    * @return Object: nsIFile pointing to gpg, or NULL
    */
   resolveGpgPath: function(env) {
-    EnigmailLog.DEBUG("gpgAgent.jsm: resolveGpgPath()\n");
+    EnigmailLog.DEBUG("gnupg-agent.jsm: resolveGpgPath()\n");
 
     let agentName = "";
     if (EnigmailOS.isDosLike) {
@@ -633,23 +633,23 @@ var EnigmailGpgAgent = {
   },
 
   detectGpgAgent: function(domWindow, esvc) {
-    EnigmailLog.DEBUG("gpgAgent.jsm: detectGpgAgent\n");
+    EnigmailLog.DEBUG("gnupg-agent.jsm: detectGpgAgent\n");
 
     var gpgAgentInfo = esvc.environment.get("GPG_AGENT_INFO");
     if (gpgAgentInfo && gpgAgentInfo.length > 0) {
-      EnigmailLog.DEBUG("gpgAgent.jsm: detectGpgAgent: GPG_AGENT_INFO variable available\n");
+      EnigmailLog.DEBUG("gnupg-agent.jsm: detectGpgAgent: GPG_AGENT_INFO variable available\n");
       // env. variable suggests running gpg-agent
       EnigmailGpgAgent.gpgAgentInfo.preStarted = true;
       EnigmailGpgAgent.gpgAgentInfo.envStr = gpgAgentInfo;
       EnigmailGpgAgent.gpgAgentIsOptional = false;
     }
     else {
-      EnigmailLog.DEBUG("gpgAgent.jsm: detectGpgAgent: no GPG_AGENT_INFO variable set\n");
+      EnigmailLog.DEBUG("gnupg-agent.jsm: detectGpgAgent: no GPG_AGENT_INFO variable set\n");
       EnigmailGpgAgent.gpgAgentInfo.preStarted = false;
 
       if (!getEnigmailGpg().getGpgFeature("supports-gpg-agent")) {
         esvc.initializationError = EnigmailLocale.getString("gpgAgent.noAutostart", getEnigmailGpg().agentVersion);
-        EnigmailLog.ERROR("gpgAgent.jsm: Error - " + esvc.initializationError + "\n");
+        EnigmailLog.ERROR("gnupg-agent.jsm: Error - " + esvc.initializationError + "\n");
         throw Components.results.NS_ERROR_FAILURE;
       }
 
@@ -666,7 +666,7 @@ var EnigmailGpgAgent = {
       envFile.append("gpg-agent.conf");
 
       if (!envFile.exists()) {
-        EnigmailLog.DEBUG("gpgAgent.jsm: detectGpgAgent: writing gpg-agent.conf file\n");
+        EnigmailLog.DEBUG("gnupg-agent.jsm: detectGpgAgent: writing gpg-agent.conf file\n");
         let data = "default-cache-ttl " + (EnigmailPassword.getMaxIdleMinutes() * 60) + "\n";
         data += "max-cache-ttl 999999\n";
         try {
@@ -681,7 +681,7 @@ var EnigmailGpgAgent = {
       }
 
     }
-    EnigmailLog.DEBUG("gpgAgent.jsm: detectGpgAgent: GPG_AGENT_INFO='" + EnigmailGpgAgent.gpgAgentInfo.envStr + "'\n");
+    EnigmailLog.DEBUG("gnupg-agent.jsm: detectGpgAgent: GPG_AGENT_INFO='" + EnigmailGpgAgent.gpgAgentInfo.envStr + "'\n");
   },
 
   /**
@@ -723,12 +723,12 @@ var EnigmailGpgAgent = {
    * Throw exception if directory cannot be created or adjusted.
    */
   checkGpgHomeDir: function(domWindow, esvc) {
-    EnigmailLog.DEBUG("gpgAgent.jsm: checkGpgHomeDir:\n");
+    EnigmailLog.DEBUG("gnupg-agent.jsm: checkGpgHomeDir:\n");
 
     let homeDir = EnigmailGpgAgent.getGpgHomeDir();
     if (!homeDir) homeDir = EnigmailGpgAgent.determineGpgHomeDir(esvc);
 
-    EnigmailLog.DEBUG("gpgAgent.jsm: checkGpgHomeDir: got homedir = '" + homeDir + "'\n");
+    EnigmailLog.DEBUG("gnupg-agent.jsm: checkGpgHomeDir: got homedir = '" + homeDir + "'\n");
 
     let homeDirObj = Components.classes[NS_LOCAL_FILE_CONTRACTID].createInstance(Ci.nsIFile);
     EnigmailFiles.initPath(homeDirObj, homeDir);
@@ -762,7 +762,7 @@ var EnigmailGpgAgent = {
 
   finalize: function() {
     if (EnigmailGpgAgent.gpgAgentProcess) {
-      EnigmailLog.DEBUG("gpgAgent.jsm: EnigmailGpgAgent.finalize: stopping gpg-agent\n");
+      EnigmailLog.DEBUG("gnupg-agent.jsm: EnigmailGpgAgent.finalize: stopping gpg-agent\n");
       try {
         const proc = {
           command: EnigmailGpgAgent.connGpgAgentPath,
@@ -773,7 +773,7 @@ var EnigmailGpgAgent = {
         subprocess.call(proc).wait();
       }
       catch (ex) {
-        EnigmailLog.ERROR("gpgAgent.jsm: EnigmailGpgAgent.finalize ERROR: " + ex + "\n");
+        EnigmailLog.ERROR("gnupg-agent.jsm: EnigmailGpgAgent.finalize ERROR: " + ex + "\n");
       }
     }
   }

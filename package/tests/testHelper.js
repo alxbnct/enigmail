@@ -340,7 +340,7 @@ function withEnigmail(f) {
 }
 
 function shutdownGpgAgent() {
-  const EnigmailGpgAgent = ChromeUtils.import("chrome://enigmail/content/modules/gpgAgent.jsm").EnigmailGpgAgent;
+  const EnigmailGpgAgent = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/gnupg-agent.jsm").EnigmailGpgAgent;
   const subprocess = ChromeUtils.import("chrome://enigmail/content/modules/subprocess.jsm").subprocess;
 
   if (EnigmailGpgAgent.gpgconfPath) {

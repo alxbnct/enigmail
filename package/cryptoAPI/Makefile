@@ -11,6 +11,7 @@ GENDIR = $(DIST)/chrome/content/modules/cryptoAPI
 
 MODFILES = \
 	gnupg.js \
+	gnupg-agent.jsm \
 	gnupg-core.jsm \
 	gnupg-decryption.jsm \
 	gnupg-encryption.jsm \

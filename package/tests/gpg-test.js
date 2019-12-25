@@ -17,7 +17,7 @@ const EnigmailExecution = component("enigmail/execution.jsm").EnigmailExecution;
 const subprocess = component("enigmail/subprocess.jsm").subprocess;
 const EnigmailFiles = component("enigmail/files.jsm").EnigmailFiles;
 const EnigmailOS = component("enigmail/os.jsm").EnigmailOS;
-const EnigmailGpgAgent = component("enigmail/gpgAgent.jsm").EnigmailGpgAgent;
+const EnigmailGpgAgent = component("enigmail/cryptoAPI/gnupg-agent.jsm").EnigmailGpgAgent;
 const EnigmailVersioning = component("enigmail/versioning.jsm").EnigmailVersioning;
 
 function withStubFormatCmdLine(f) {

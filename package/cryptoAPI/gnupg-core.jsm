@@ -19,7 +19,7 @@ const EnigmailCore = ChromeUtils.import("chrome://enigmail/content/modules/core.
 const EnigmailOS = ChromeUtils.import("chrome://enigmail/content/modules/os.jsm").EnigmailOS;
 const EnigmailVersioning = ChromeUtils.import("chrome://enigmail/content/modules/versioning.jsm").EnigmailVersioning;
 const EnigmailLazy = ChromeUtils.import("chrome://enigmail/content/modules/lazy.jsm").EnigmailLazy;
-const getGpgAgent = EnigmailLazy.loader("enigmail/gpgAgent.jsm", "EnigmailGpgAgent");
+const getGpgAgent = EnigmailLazy.loader("enigmail/cryptoAPI/gnupg-agent.jsm", "EnigmailGpgAgent");
 const getDialog = EnigmailLazy.loader("enigmail/dialog.jsm", "EnigmailDialog");
 
 const MINIMUM_GPG_VERSION = "2.0.14";

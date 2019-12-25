@@ -14,15 +14,11 @@
 
 var EXPORTED_SYMBOLS = ["EnigmailWks"];
 
-
-
-
-
 const EnigmailFiles = ChromeUtils.import("chrome://enigmail/content/modules/files.jsm").EnigmailFiles;
 const EnigmailLog = ChromeUtils.import("chrome://enigmail/content/modules/log.jsm").EnigmailLog;
 const EnigmailCore = ChromeUtils.import("chrome://enigmail/content/modules/core.jsm").EnigmailCore;
 const EnigmailExecution = ChromeUtils.import("chrome://enigmail/content/modules/execution.jsm").EnigmailExecution;
-const EnigmailGpgAgent = ChromeUtils.import("chrome://enigmail/content/modules/gpgAgent.jsm").EnigmailGpgAgent;
+const EnigmailGpgAgent = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/gnupg-agent.jsm").EnigmailGpgAgent;
 const EnigmailStdlib = ChromeUtils.import("chrome://enigmail/content/modules/stdlib.jsm").EnigmailStdlib;
 const EnigmailSend = ChromeUtils.import("chrome://enigmail/content/modules/send.jsm").EnigmailSend;
 const EnigmailMimeEncrypt = ChromeUtils.import("chrome://enigmail/content/modules/mimeEncrypt.jsm").EnigmailMimeEncrypt;

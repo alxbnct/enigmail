@@ -11,7 +11,7 @@
 do_load_module("file://" + do_get_cwd().path + "/testHelper.js");
 /*global withEnigmail: false, component: false,  withTestGpgHome: false, osUtils: false, EnigmailFiles */
 
-testing("gpgAgent.jsm"); /*global EnigmailGpgAgent: false, EnigmailOS: false, getHomedirFromParam: false, EnigmailPrefs: false */
+testing("cryptoAPI/gnupg-agent.jsm"); /*global EnigmailGpgAgent: false, EnigmailOS: false, getHomedirFromParam: false, EnigmailPrefs: false */
 const EnigmailGpg = component("enigmail/cryptoAPI/gnupg-core.jsm").EnigmailGpg;
 
 // testing: determineGpgHomeDir
