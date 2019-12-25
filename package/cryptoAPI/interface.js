@@ -137,7 +137,7 @@ class CryptoAPI {
    *
    * @return {Array of KeyObject} with type = "grp"
    */
-  getGroups() {
+  getGroupList() {
     return [];
   }
 
@@ -432,6 +432,15 @@ class CryptoAPI {
    */
   async clearPassphrase() {
     return null;
+  }
+
+  /**
+   * Return an array containing the aliases and the email addresses
+   *
+   * @return {Array<{Alias,KeyList}>} <{String,String}>
+   */
+  getGroups() {
+    return [];
   }
 
   /***

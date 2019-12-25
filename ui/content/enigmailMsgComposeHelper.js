@@ -17,7 +17,7 @@ var EnigmailLog = ChromeUtils.import("chrome://enigmail/content/modules/log.jsm"
 var EnigmailPrefs = ChromeUtils.import("chrome://enigmail/content/modules/prefs.jsm").EnigmailPrefs;
 var EnigmailLocale = ChromeUtils.import("chrome://enigmail/content/modules/locale.jsm").EnigmailLocale;
 var EnigmailDialog = ChromeUtils.import("chrome://enigmail/content/modules/dialog.jsm").EnigmailDialog;
-var EnigmailGpg = ChromeUtils.import("chrome://enigmail/content/modules/gpg.jsm").EnigmailGpg;
+var EnigmailCryptoAPI = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI.jsm").EnigmailCryptoAPI;
 var EnigmailTrust = ChromeUtils.import("chrome://enigmail/content/modules/trust.jsm").EnigmailTrust;
 var EnigmailKeyRing = ChromeUtils.import("chrome://enigmail/content/modules/keyRing.jsm").EnigmailKeyRing;
 var EnigmailConstants = ChromeUtils.import("chrome://enigmail/content/modules/constants.jsm").EnigmailConstants;
@@ -74,7 +74,7 @@ Enigmail.hlp = {
       } catch (ex) {}
 
       // resolve GnuPG groups
-      let gpgGroups = EnigmailGpg.getGpgGroups();
+      let gpgGroups = EnigmailCryptoAPI().getGroups();
       for (let i = 0; i < addresses.length; i++) {
         let addr = addresses[i].toLowerCase();
         for (let j = 0; j < gpgGroups.length; j++) {

@@ -98,7 +98,7 @@ class GnuPGCryptoAPI extends OpenPGPjsCryptoAPI {
    *
    * @return {Array of KeyObject} with type = "grp"
    */
-  getGroups() {
+  getGroupList() {
     let groups = EnigmailGpg.getGpgGroups();
 
     let r = [];
@@ -726,6 +726,10 @@ class GnuPGCryptoAPI extends OpenPGPjsCryptoAPI {
    */
   getKeyManagement() {
     return ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/gnupg-keyEditor.jsm").EnigmailKeyEditor;
+  }
+
+  getGroups() {
+    return EnigmailGpg.getGpgGroups();
   }
 }
 

@@ -339,52 +339,6 @@ var EnigmailGpg = {
     }
   },
 
-  signingAlgIdToString: function(id) {
-    // RFC 4880 Sec. 9.1, RFC 6637 Sec. 5 and draft-koch-eddsa-for-openpgp-03 Sec. 8
-    switch (parseInt(id, 10)) {
-      case 1:
-      case 2:
-      case 3:
-        return "RSA";
-      case 16:
-        return "Elgamal";
-      case 17:
-        return "DSA";
-      case 18:
-        return "ECDH";
-      case 19:
-        return "ECDSA";
-      case 20:
-        return "ELG";
-      case 22:
-        return "EDDSA";
-      default:
-        return EnigmailLocale.getString("unknownSigningAlg", [parseInt(id, 10)]);
-    }
-  },
-
-  hashAlgIdToString: function(id) {
-    // RFC 4880 Sec. 9.4
-    switch (parseInt(id, 10)) {
-      case 1:
-        return "MD5";
-      case 2:
-        return "SHA-1";
-      case 3:
-        return "RIPE-MD/160";
-      case 8:
-        return "SHA256";
-      case 9:
-        return "SHA384";
-      case 10:
-        return "SHA512";
-      case 11:
-        return "SHA224";
-      default:
-        return EnigmailLocale.getString("unknownHashAlg", [parseInt(id, 10)]);
-    }
-  },
-
   /**
    * For versions of GPG 2.1 and higher, checks to see if the dirmngr is configured to use Tor
    *

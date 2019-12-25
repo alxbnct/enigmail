@@ -13,8 +13,8 @@ var Cc = Components.classes;
 var Ci = Components.interfaces;
 
 // modules
-/* global EnigmailData: false, EnigmailLog: false, EnigmailLocale: false, EnigmailGpg: false, EnigmailKeyManagement: false */
-/* global EnigmailOS: false, EnigmailPrefs: false, EnigmailGpgAgent: false, EnigmailApp: false, EnigmailKeyRing: false */
+/* global EnigmailData: false, EnigmailLog: false, EnigmailLocale: false, EnigmailCryptoAPI: false, EnigmailKeyManagement: false */
+/* global EnigmailOS: false, EnigmailPrefs: false, EnigmailApp: false, EnigmailKeyRing: false */
 /* global EnigmailDialog: false, EnigmailFuncs: false */
 
 // from enigmailCommon.js:
@@ -42,18 +42,20 @@ const KEYGEN_CANCELLED = "cancelled";
 function enigmailKeygenLoad() {
   EnigmailLog.DEBUG("enigmailKeygen.js: Load\n");
 
+  const cApi = EnigmailCryptoAPI();
+
   gUserIdentityList = document.getElementById("userIdentity");
   gUserIdentityListPopup = document.getElementById("userIdentityPopup");
   gUseForSigning = document.getElementById("useForSigning");
 
   var noPassphrase = document.getElementById("noPassphrase");
 
-  if (!EnigmailGpg.getGpgFeature("keygen-passphrase")) {
+  if (!cApi.supportsFeature("keygen-passphrase")) {
     document.getElementById("passphraseRow").setAttribute("collapsed", "true");
     noPassphrase.setAttribute("collapsed", "true");
   }
 
-  if (EnigmailGpg.getGpgFeature("supports-ecc-keys")) {
+  if (cApi.supportsFeature("supports-ecc-keys")) {
     let eccElem = document.getElementById("keyType_ecc");
     eccElem.removeAttribute("hidden");
     updateKeySizeSel(eccElem);
@@ -80,11 +82,6 @@ function enigmailKeygenLoad() {
   var enigmailSvc = GetEnigmailSvc();
   if (!enigmailSvc) {
     EnigAlert(EnigGetString("accessError"));
-  }
-
-  if (EnigmailGpgAgent.agentType != "gpg") {
-    EnigAlert(EnigGetString("onlyGPG"));
-    return;
   }
 }
 
@@ -304,9 +301,11 @@ function enigmailKeygenStart() {
     return;
   }
 
+  const cApi = EnigmailCryptoAPI();
+
   var passphrase;
-  // gpg >= 2.1 queries passphrase using gpg-agent only
-  if (EnigmailGpg.getGpgFeature("keygen-passphrase")) {
+  // some versions of query passphrases only using gpg-agent
+  if (cApi.supportsFeature("keygen-passphrase")) {
     var noPassphraseElement = document.getElementById("noPassphrase");
     var passphraseElement = document.getElementById("passphrase");
 
