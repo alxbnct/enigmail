@@ -15,6 +15,7 @@ MODFILES = \
 	gnupg-encryption.jsm \
 	gnupg-keylist.jsm \
 	gnupg-key.jsm \
+	gnupg-keyEditor.jsm \
 	openpgp-js.js \
 	interface.js
 

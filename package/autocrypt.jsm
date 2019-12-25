@@ -33,7 +33,6 @@ const EnigmailStreams = ChromeUtils.import("chrome://enigmail/content/modules/st
 const EnigmailArmor = ChromeUtils.import("chrome://enigmail/content/modules/armor.jsm").EnigmailArmor;
 const EnigmailData = ChromeUtils.import("chrome://enigmail/content/modules/data.jsm").EnigmailData;
 const EnigmailRules = ChromeUtils.import("chrome://enigmail/content/modules/rules.jsm").EnigmailRules;
-const EnigmailKeyEditor = ChromeUtils.import("chrome://enigmail/content/modules/keyEditor.jsm").EnigmailKeyEditor;
 const EnigmailStdlib = ChromeUtils.import("chrome://enigmail/content/modules/stdlib.jsm").EnigmailStdlib;
 const EnigmailPrefs = ChromeUtils.import("chrome://enigmail/content/modules/prefs.jsm").EnigmailPrefs;
 const EnigmailConstants = ChromeUtils.import("chrome://enigmail/content/modules/constants.jsm").EnigmailConstants;
@@ -594,6 +593,9 @@ var EnigmailAutocrypt = {
   handleBackupMessage: function(passwd, attachmentData, fromAddr) {
     EnigmailLog.DEBUG("autocrypt.jsm: handleBackupMessage()\n");
 
+    const cApi = EnigmailCryptoAPI();
+    const keyManagement = cApi.getKeyManagement();
+
     return new Promise((resolve, reject) => {
       let start = {},
         end = {};
@@ -613,7 +615,7 @@ var EnigmailAutocrypt = {
 
           let setupData = importSetupKey(msg.data);
           if (setupData) {
-            EnigmailKeyEditor.setKeyTrust(null, "0x" + setupData.fpr, "5", function(returnCode) {
+            keyManagement.setKeyTrust(null, "0x" + setupData.fpr, "5", function(returnCode) {
               if (returnCode === 0) {
                 let id = EnigmailStdlib.getIdentityForEmail(EnigmailFuncs.stripEmail(fromAddr).toLowerCase());
                 let ac = EnigmailFuncs.getAccountForIdentity(id.identity);

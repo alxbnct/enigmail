@@ -13,7 +13,7 @@ var Cc = Components.classes;
 var Ci = Components.interfaces;
 
 // modules
-/* global EnigmailData: false, EnigmailLog: false, EnigmailLocale: false, EnigmailGpg: false, EnigmailKeyEditor: false */
+/* global EnigmailData: false, EnigmailLog: false, EnigmailLocale: false, EnigmailGpg: false, EnigmailKeyManagement: false */
 /* global EnigmailOS: false, EnigmailPrefs: false, EnigmailGpgAgent: false, EnigmailApp: false, EnigmailKeyRing: false */
 /* global EnigmailDialog: false, EnigmailFuncs: false */
 
@@ -204,7 +204,7 @@ function genAndSaveRevCert(keyId, uid) {
       keyFile.append("0x" + keyId + "_rev.asc");
 
       // create a revokation cert in the TB profile directoy
-      EnigmailKeyEditor.genRevokeCert(window, "0x" + keyId, keyFile, "1", "",
+      EnigmailKeyManagement.genRevokeCert(window, "0x" + keyId, keyFile, "1", "",
         function _revokeCertCb(exitCode, errorMsg) {
           if (exitCode !== 0) {
             EnigAlert(EnigGetString("revokeCertFailed") + "\n\n" + errorMsg);

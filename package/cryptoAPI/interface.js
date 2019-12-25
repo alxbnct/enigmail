@@ -463,4 +463,11 @@ class CryptoAPI {
   supportsFeature(featureName) {
     return false;
   }
+
+  /**
+   * Return the key management functions (sub-API)
+   */
+  getKeyManagement() {
+    return null;
+  }
 }

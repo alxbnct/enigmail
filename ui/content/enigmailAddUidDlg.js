@@ -11,7 +11,7 @@ var Cc = Components.classes;
 var Ci = Components.interfaces;
 
 var EnigmailCore = ChromeUtils.import("chrome://enigmail/content/modules/core.jsm").EnigmailCore;
-var EnigmailKeyEditor = ChromeUtils.import("chrome://enigmail/content/modules/keyEditor.jsm").EnigmailKeyEditor;
+var EnigmailCryptoAPI = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI.jsm").EnigmailCryptoAPI;
 var EnigmailLocale = ChromeUtils.import("chrome://enigmail/content/modules/locale.jsm").EnigmailLocale;
 var EnigmailData = ChromeUtils.import("chrome://enigmail/content/modules/data.jsm").EnigmailData;
 var EnigmailDialog = ChromeUtils.import("chrome://enigmail/content/modules/dialog.jsm").EnigmailDialog;
@@ -41,7 +41,8 @@ function onAccept() {
     return true;
   }
 
-  EnigmailKeyEditor.addUid(window,
+  const keyMgmt = EnigmailCryptoAPI().getKeyManagement();
+  keyMgmt.addUid(window,
     window.arguments[0].keyId,
     EnigmailData.convertFromUnicode(name.value),
     EnigmailData.convertFromUnicode(email.value),

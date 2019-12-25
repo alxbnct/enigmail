@@ -11,12 +11,13 @@ var Cc = Components.classes;
 var Ci = Components.interfaces;
 
 var EnigmailCore = ChromeUtils.import("chrome://enigmail/content/modules/core.jsm").EnigmailCore;
-var EnigmailKeyEditor = ChromeUtils.import("chrome://enigmail/content/modules/keyEditor.jsm").EnigmailKeyEditor;
 var EnigmailLog = ChromeUtils.import("chrome://enigmail/content/modules/log.jsm").EnigmailLog;
 var EnigmailLocale = ChromeUtils.import("chrome://enigmail/content/modules/locale.jsm").EnigmailLocale;
 var EnigmailDialog = ChromeUtils.import("chrome://enigmail/content/modules/dialog.jsm").EnigmailDialog;
 var EnigmailKeyRing = ChromeUtils.import("chrome://enigmail/content/modules/keyRing.jsm").EnigmailKeyRing;
 var EnigmailTrust = ChromeUtils.import("chrome://enigmail/content/modules/trust.jsm").EnigmailTrust;
+var EnigmailCryptoAPI = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI.jsm").EnigmailCryptoAPI;
+var EnigmailKeyManagement = EnigmailCryptoAPI().getKeyManagement();
 
 var gExportableSignatureList = null;
 var gLocalSignatureList = null;
@@ -132,7 +133,7 @@ function onAccept() {
     return true;
   }
 
-  EnigmailKeyEditor.signKey(window,
+  EnigmailKeyManagement.signKey(window,
     "0x" + signWithKey.selectedItem.value,
     window.arguments[0].keyId,
     localSig.checked,

@@ -21,7 +21,7 @@ var Ci = Components.interfaces;
 /* global ENIG_KEY_DISABLED: false, ENIG_KEY_NOT_VALID: false, IOSERVICE_CONTRACTID: false, ENIG_LOCAL_FILE_CONTRACTID: false */
 
 // imported packages
-/* global EnigmailLog: false, EnigmailEvents: false, EnigmailKeyRing: false, EnigmailWindows: false, EnigmailKeyEditor: false */
+/* global EnigmailLog: false, EnigmailEvents: false, EnigmailKeyRing: false, EnigmailWindows: false, EnigmailKeyManagement: false */
 /* global EnigmailKey: false, EnigmailLocale: false, EnigmailPrefs: false, EnigmailConstants: false */
 
 // Initialize enigmailCommon
@@ -429,7 +429,7 @@ function enigmailDeleteKey() {
     fprArr.push("0x" + gKeyList[keyList[j]].fpr);
   }
 
-  EnigmailKeyEditor.deleteKey(window, fprArr.join(" "), deleteSecret,
+  EnigmailKeyManagement.deleteKey(window, fprArr.join(" "), deleteSecret,
     function(exitCode, errorMsg) {
       if (exitCode !== 0) {
         EnigAlert(EnigGetString("deleteKeyFailed") + "\n\n" + errorMsg);
@@ -452,7 +452,7 @@ function enigmailEnableKey() {
   var keyIndex = 0;
 
   function processNextKey() {
-    EnigmailKeyEditor.enableDisableKey(window, "0x" + gKeyList[keyList[keyIndex]].keyId, disableKey, function _enDisCb(exitCode, errorMsg) {
+    EnigmailKeyManagement.enableDisableKey(window, "0x" + gKeyList[keyList[keyIndex]].keyId, disableKey, function _enDisCb(exitCode, errorMsg) {
       if (exitCode === 0) {
         ++keyIndex;
         if (keyIndex < keyList.length) {
@@ -549,7 +549,7 @@ function keyMgrAddPhoto(userId, keyId) {
 
   if (!argsObj.okPressed) return;
 
-  EnigmailKeyEditor.addPhoto(window, "0x" + keyId, inFile,
+  EnigmailKeyManagement.addPhoto(window, "0x" + keyId, inFile,
     function(exitCode, errorMsg) {
       if (exitCode !== 0) {
         EnigAlert(EnigGetString("keyMan.addphoto.failed") + "\n\n" + errorMsg);

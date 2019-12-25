@@ -9,7 +9,7 @@
 
 // modules (loaded via enigmailCommon.js):
 /* global EnigmailLog: false, EnigmailCore: false, EnigmailDialog: false, EnigmailLocale: false, EnigmailKeyRing: false*/
-/* global EnigmailKeyEditor: false, EnigmailTimer: false */
+/* global EnigmailKeyManagement: false, EnigmailTimer: false */
 
 // enigmailCommon.js:
 /* global EnigSetActive: false, createCell */
@@ -226,7 +226,7 @@ function processKey(subKeys) {
   var expiryTime = Number(document.getElementById("expireInput").value);
   var timeScale = document.getElementById("timeScale").value;
 
-  EnigmailKeyEditor.setKeyExpiration(
+  EnigmailKeyManagement.setKeyExpiration(
     window,
     window.arguments[0].keyId[0],
     subKeys,

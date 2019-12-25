@@ -23,7 +23,6 @@ var Ci = Components.interfaces;
 // Many of these components are not used in this file, but are instead used in other files that are loaded together with EnigmailCommon
 var EnigmailCore = ChromeUtils.import("chrome://enigmail/content/modules/core.jsm").EnigmailCore;
 var EnigmailFuncs = ChromeUtils.import("chrome://enigmail/content/modules/funcs.jsm").EnigmailFuncs;
-var EnigmailKeyEditor = ChromeUtils.import("chrome://enigmail/content/modules/keyEditor.jsm").EnigmailKeyEditor;
 var EnigmailKey = ChromeUtils.import("chrome://enigmail/content/modules/key.jsm").EnigmailKey;
 var EnigmailLog = ChromeUtils.import("chrome://enigmail/content/modules/log.jsm").EnigmailLog;
 var EnigmailPrefs = ChromeUtils.import("chrome://enigmail/content/modules/prefs.jsm").EnigmailPrefs;
@@ -45,7 +44,8 @@ var EnigmailEvents = ChromeUtils.import("chrome://enigmail/content/modules/event
 var EnigmailGpg = ChromeUtils.import("chrome://enigmail/content/modules/gpg.jsm").EnigmailGpg;
 var EnigmailGpgAgent = ChromeUtils.import("chrome://enigmail/content/modules/gpgAgent.jsm").EnigmailGpgAgent;
 var EnigmailStreams = ChromeUtils.import("chrome://enigmail/content/modules/streams.jsm").EnigmailStreams;
-
+var EnigmailCryptoAPI = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI.jsm").EnigmailCryptoAPI;
+var EnigmailKeyManagement = EnigmailCryptoAPI().getKeyManagement();
 
 // The compatible Enigmime version
 var gEnigmailSvc;
@@ -476,7 +476,7 @@ function EnigChangeKeyPwd(keyId, userId) {
     keyId = "0x" + keyId;
   }
 
-  EnigmailKeyEditor.changePassphrase(window, keyId, "", "",
+  EnigmailKeyManagement.changePassphrase(window, keyId, "", "",
     function _changePwdCb(exitCode, errorMsg) {
       if (exitCode !== 0) {
         EnigAlert(EnigGetString("changePassFailed") + "\n\n" + errorMsg);
@@ -509,7 +509,7 @@ function EnigRevokeKey(keyId, userId, callbackFunc) {
   } catch (ex) {}
   revFile.append("revkey.asc");
 
-  EnigmailKeyEditor.genRevokeCert(window, keyId, revFile, "0", "",
+  EnigmailKeyManagement.genRevokeCert(window, keyId, revFile, "0", "",
     function _revokeCertCb(exitCode, errorMsg) {
       if (exitCode !== 0) {
         revFile.remove(false);
@@ -559,7 +559,7 @@ function EnigCreateRevokeCert(keyId, userId, callbackFunc) {
   if (!enigmailSvc)
     return -1;
 
-  EnigmailKeyEditor.genRevokeCert(window, keyId, outFile, "1", "",
+  EnigmailKeyManagement.genRevokeCert(window, keyId, outFile, "1", "",
     function _revokeCertCb(exitCode, errorMsg) {
       if (exitCode !== 0) {
         EnigAlert(EnigGetString("revokeCertFailed") + "\n\n" + errorMsg);

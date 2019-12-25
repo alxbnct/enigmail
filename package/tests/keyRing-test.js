@@ -16,7 +16,7 @@ let GnuPGKeyList = {};
 do_load_module("chrome://enigmail/content/modules/cryptoAPI/gnupg-keylist.jsm", GnuPGKeyList); /*global appendKeyItems: false */
 /*global createAndSortKeyList: false */
 
-const EnigmailKeyEditor = ChromeUtils.import("chrome://enigmail/content/modules/keyEditor.jsm").EnigmailKeyEditor;
+const EnigmailKeyEditor = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/gnupg-keyEditor.jsm").EnigmailKeyEditor;
 
 testing("keyRing.jsm"); /*global EnigmailKeyRing: false, EnigmailTrust: false, EnigmailLocale: false */
 

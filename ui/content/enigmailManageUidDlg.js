@@ -11,13 +11,14 @@ var Cc = Components.classes;
 var Ci = Components.interfaces;
 
 var EnigmailFuncs = ChromeUtils.import("chrome://enigmail/content/modules/funcs.jsm").EnigmailFuncs;
-var EnigmailKeyEditor = ChromeUtils.import("chrome://enigmail/content/modules/keyEditor.jsm").EnigmailKeyEditor;
 var EnigmailLocale = ChromeUtils.import("chrome://enigmail/content/modules/locale.jsm").EnigmailLocale;
 var EnigmailData = ChromeUtils.import("chrome://enigmail/content/modules/data.jsm").EnigmailData;
 var EnigmailDialog = ChromeUtils.import("chrome://enigmail/content/modules/dialog.jsm").EnigmailDialog;
 var EnigmailKeyRing = ChromeUtils.import("chrome://enigmail/content/modules/keyRing.jsm").EnigmailKeyRing;
 var EnigmailCore = ChromeUtils.import("chrome://enigmail/content/modules/core.jsm").EnigmailCore;
 var EnigmailWindows = ChromeUtils.import("chrome://enigmail/content/modules/windows.jsm").EnigmailWindows;
+var EnigmailCryptoAPI = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI.jsm").EnigmailCryptoAPI;
+var EnigmailKeyManagement =  EnigmailCryptoAPI().getKeyManagement();
 
 var gUserId;
 var gEnigmailUid;
@@ -143,7 +144,7 @@ function setPrimaryUid() {
   var uidList = document.getElementById("uidList");
   if (uidList.selectedItem.value.substr(0, 3) == "uid") {
 
-    EnigmailKeyEditor.setPrimaryUid(window,
+    EnigmailKeyManagement.setPrimaryUid(window,
       "0x" + window.arguments[0].keyId,
       uidList.selectedItem.value.substr(4),
       function _cb(exitCode, errorMsg) {
@@ -164,7 +165,7 @@ function revokeUid() {
   var uidList = document.getElementById("uidList");
   if (!EnigmailDialog.confirmDlg(window, EnigmailLocale.getString("revokeUidQuestion", uidList.selectedItem.label))) return;
   if (uidList.selectedItem.value.substr(4) != "1") {
-    EnigmailKeyEditor.revokeUid(window,
+    EnigmailKeyManagement.revokeUid(window,
       "0x" + window.arguments[0].keyId,
       uidList.selectedItem.value.substr(4),
       function _cb(exitCode, errorMsg) {

@@ -10,7 +10,7 @@
 
 do_load_module("file://" + do_get_cwd().path + "/testHelper.js"); /*global withEnigmail: false */
 
-testing("keyEditor.jsm"); /*global editKey: false, EnigmailKeyRing: false */
+testing("cryptoAPI/gnupg-keyEditor.jsm"); /*global editKey: false, EnigmailKeyRing: false */
 var EnigmailTime = component("enigmail/time.jsm").EnigmailTime;
 
 test(withTestGpgHome(withEnigmail(function shouldEditKey() {

@@ -11,11 +11,12 @@ var Cc = Components.classes;
 var Ci = Components.interfaces;
 
 var EnigmailCore = ChromeUtils.import("chrome://enigmail/content/modules/core.jsm").EnigmailCore;
-var EnigmailKeyEditor = ChromeUtils.import("chrome://enigmail/content/modules/keyEditor.jsm").EnigmailKeyEditor;
 var EnigmailLog = ChromeUtils.import("chrome://enigmail/content/modules/log.jsm").EnigmailLog;
 var EnigmailLocale = ChromeUtils.import("chrome://enigmail/content/modules/locale.jsm").EnigmailLocale;
 var EnigmailDialog = ChromeUtils.import("chrome://enigmail/content/modules/dialog.jsm").EnigmailDialog;
 var EnigmailKeyRing = ChromeUtils.import("chrome://enigmail/content/modules/keyRing.jsm").EnigmailKeyRing;
+var EnigmailCryptoAPI = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI.jsm").EnigmailCryptoAPI;
+var EnigmailKeyManagement =  EnigmailCryptoAPI().getKeyManagement();
 
 var gKeyList = [];
 
@@ -72,7 +73,7 @@ function processNextKey(index) {
 
   var t = document.getElementById("trustLevelGroup");
 
-  EnigmailKeyEditor.setKeyTrust(window,
+  EnigmailKeyManagement.setKeyTrust(window,
     gKeyList[index].keyId,
     Number(t.selectedItem.value),
     function(exitCode, errorMsg) {

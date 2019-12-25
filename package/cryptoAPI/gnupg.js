@@ -720,6 +720,13 @@ class GnuPGCryptoAPI extends OpenPGPjsCryptoAPI {
   supportsFeature(featureName) {
     return EnigmailGpg.getGpgFeature(featureName);
   }
+
+  /**
+   * Return the key management functions (sub-API)
+   */
+  getKeyManagement() {
+    return ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/gnupg-keyEditor.jsm").EnigmailKeyEditor;
+  }
 }
 
 

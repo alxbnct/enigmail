@@ -58,7 +58,6 @@ MODFILES = \
            installGnuPG.jsm \
            installPep.jsm \
            key.jsm \
-           keyEditor.jsm \
            keyRing.jsm \
            keyObj.jsm \
            keyUsability.jsm \

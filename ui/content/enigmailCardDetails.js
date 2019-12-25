@@ -13,7 +13,7 @@ var Ci = Components.interfaces;
 
 var EnigmailFuncs = ChromeUtils.import("chrome://enigmail/content/modules/funcs.jsm").EnigmailFuncs;
 var EnigmailCore = ChromeUtils.import("chrome://enigmail/content/modules/core.jsm").EnigmailCore;
-var EnigmailKeyEditor = ChromeUtils.import("chrome://enigmail/content/modules/keyEditor.jsm").EnigmailKeyEditor;
+var EnigmailCryptoAPI = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI.jsm").EnigmailCryptoAPI;
 var EnigmailKey = ChromeUtils.import("chrome://enigmail/content/modules/key.jsm").EnigmailKey;
 var EnigmailKeyRing = ChromeUtils.import("chrome://enigmail/content/modules/keyRing.jsm").EnigmailKeyRing;
 var EnigmailPrefs = ChromeUtils.import("chrome://enigmail/content/modules/prefs.jsm").EnigmailPrefs;
@@ -141,6 +141,8 @@ function doSaveChanges() {
     return;
   }
 
+  const keyMgmt = EnigmailCryptoAPI().getKeyManagement();
+
   var forcepin = (getSelection("forcepin") == gCardData.forcepin ? 0 : 1);
   var dialogname = getValue("name");
   var dialogfirstname = getValue("firstname");
@@ -149,7 +151,7 @@ function doSaveChanges() {
     onLoad();
     doEditData();
   } else {
-    EnigmailKeyEditor.cardAdminData(window,
+    keyMgmt.cardAdminData(window,
       EnigmailData.convertFromUnicode(dialogname),
       EnigmailData.convertFromUnicode(dialogfirstname),
       getValue("lang"),
