@@ -406,4 +406,13 @@ class CryptoAPI {
   async encryptFile(from, recipients, hiddenRecipients, encryptionFlags, inputFile, outputFile, parentWindow = null) {
     return null;
   }
+
+  /**
+   * Clear any cached passwords
+   *
+   * @return {Boolean} true if successful, false otherwise
+   */
+  async clearPassphrase() {
+    return null;
+  }
 }

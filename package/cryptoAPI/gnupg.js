@@ -678,7 +678,23 @@ class GnuPGCryptoAPI extends OpenPGPjsCryptoAPI {
 
     return ret;
   }
+
+  /**
+   * Clear any cached passwords
+   *
+   * @return {Boolean} true if successful, false otherwise
+   */
+  async clearPassphrase() {
+
+    const EnigmailGpgAgent = ChromeUtils.import("chrome://enigmail/content/modules/gpgAgent.jsm").EnigmailGpgAgent;
+
+    const input = "RELOADAGENT\n/bye\n";
+
+    let res = await EnigmailExecution.execAsync(EnigmailGpgAgent.connGpgAgentPath, [], input);
+    return (res.stdoutData.search(/^ERR/m) < 0);
+  }
 }
+
 
 function getGnuPGAPI() {
   return new GnuPGCryptoAPI();
