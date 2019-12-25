@@ -9,10 +9,6 @@
 
 const EXPORTED_SYMBOLS = ["EnigmailGpg"];
 
-
-
-
-
 const EnigmailFiles = ChromeUtils.import("chrome://enigmail/content/modules/files.jsm").EnigmailFiles;
 const EnigmailLog = ChromeUtils.import("chrome://enigmail/content/modules/log.jsm").EnigmailLog;
 const EnigmailLocale = ChromeUtils.import("chrome://enigmail/content/modules/locale.jsm").EnigmailLocale;
@@ -318,7 +314,7 @@ var EnigmailGpg = {
    * no return value
    */
   recalcTrustDb: function() {
-    EnigmailLog.DEBUG("enigmailCommon.jsm: recalcTrustDb:\n");
+    EnigmailLog.DEBUG("gnupg-core.jsm: recalcTrustDb:\n");
 
     const command = EnigmailGpg.agentPath;
     const args = EnigmailGpg.getStandardArgs(false).

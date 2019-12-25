@@ -24,7 +24,7 @@ const EnigmailPassword = ChromeUtils.import("chrome://enigmail/content/modules/p
 const EnigmailSystem = ChromeUtils.import("chrome://enigmail/content/modules/system.jsm").EnigmailSystem;
 const EnigmailData = ChromeUtils.import("chrome://enigmail/content/modules/data.jsm").EnigmailData;
 const EnigmailLazy = ChromeUtils.import("chrome://enigmail/content/modules/lazy.jsm").EnigmailLazy;
-const getEnigmailGpg = EnigmailLazy.loader("enigmail/gpg.jsm", "EnigmailGpg");
+const getEnigmailGpg = EnigmailLazy.loader("enigmail/cryptoAPI/gnupg-core.jsm", "EnigmailGpg");
 const getDialog = EnigmailLazy.loader("enigmail/dialog.jsm", "EnigmailDialog");
 
 const NS_LOCAL_FILE_CONTRACTID = "@mozilla.org/file/local;1";

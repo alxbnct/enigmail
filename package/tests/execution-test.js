@@ -11,7 +11,7 @@ do_load_module("file://" + do_get_cwd().path + "/testHelper.js"); /*global withE
 
 testing("execution.jsm"); /*global EnigmailExecution: false */
 const EnigmailGpgAgent = component("enigmail/gpgAgent.jsm").EnigmailGpgAgent;
-const EnigmailGpg = component("enigmail/gpg.jsm").EnigmailGpg;
+const EnigmailGpg = component("enigmail/cryptoAPI/gnupg-core.jsm").EnigmailGpg;
 
 test(withTestGpgHome(withEnigmail(function shouldExecCmd() {
   const command = EnigmailGpgAgent.agentPath;

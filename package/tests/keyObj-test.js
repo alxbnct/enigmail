@@ -12,7 +12,7 @@
 do_load_module("file://" + do_get_cwd().path + "/testHelper.js"); /*global withEnigmail: false, withTestGpgHome: false, gKeyListObj: true */
 
 /*global createAndSortKeyList: false */
-const EnigmailGpg = component("enigmail/gpg.jsm").EnigmailGpg;
+const EnigmailGpg = component("enigmail/cryptoAPI/gnupg-core.jsm").EnigmailGpg;
 const EnigmailKeyRing = component("enigmail/keyRing.jsm").EnigmailKeyRing;
 
 testing("keyObj.jsm"); /*global EnigmailKeyObj: false */

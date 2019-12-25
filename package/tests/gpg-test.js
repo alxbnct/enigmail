@@ -12,7 +12,7 @@ do_load_module("file://" + do_get_cwd().path + "/testHelper.js");
 /*global withEnigmail: false, component: false, withTestGpgHome: false, osUtils: false */
 /*global MINIMUM_GPG_VERSION: false */
 
-testing("gpg.jsm"); /*global EnigmailGpg: false, getGpgFeature: false, lazyEnv: true, usesDirmngr: false, dirmngrConfiguredWithTor: false */
+testing("cryptoAPI/gnupg-core.jsm"); /*global EnigmailGpg: false, getGpgFeature: false, lazyEnv: true, usesDirmngr: false, dirmngrConfiguredWithTor: false */
 const EnigmailExecution = component("enigmail/execution.jsm").EnigmailExecution;
 const subprocess = component("enigmail/subprocess.jsm").subprocess;
 const EnigmailFiles = component("enigmail/files.jsm").EnigmailFiles;

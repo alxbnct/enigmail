@@ -15,7 +15,7 @@ var EXPORTED_SYMBOLS = ["obtainKeyList", "createKeyObj",
 ];
 
 const EnigmailTime = ChromeUtils.import("chrome://enigmail/content/modules/time.jsm").EnigmailTime;
-const EnigmailGpg = ChromeUtils.import("chrome://enigmail/content/modules/gpg.jsm").EnigmailGpg;
+const EnigmailGpg = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/gnupg-core.jsm").EnigmailGpg;
 const EnigmailExecution = ChromeUtils.import("chrome://enigmail/content/modules/execution.jsm").EnigmailExecution;
 const EnigmailLog = ChromeUtils.import("chrome://enigmail/content/modules/log.jsm").EnigmailLog;
 const EnigmailTrust = ChromeUtils.import("chrome://enigmail/content/modules/trust.jsm").EnigmailTrust;
@@ -254,7 +254,7 @@ function appendUnkownSecretKey(keyId, aKeyList, startIndex, keyList) {
 
 /**
  * Extract a photo ID from a key, store it as file and return the file object.
- 
+
  * @param {String} keyId:       Key ID / fingerprint
  * @param {Number} photoNumber: number of the photo on the key, starting with 0
  *
