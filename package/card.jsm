@@ -12,10 +12,19 @@ var EXPORTED_SYMBOLS = ["EnigmailCard"];
 const EnigmailLog = ChromeUtils.import("chrome://enigmail/content/modules/log.jsm").EnigmailLog;
 const EnigmailExecution = ChromeUtils.import("chrome://enigmail/content/modules/execution.jsm").EnigmailExecution;
 const EnigmailGpg = ChromeUtils.import("chrome://enigmail/content/modules/gpg.jsm").EnigmailGpg;
+const EnigmailCryptoAPI = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI.jsm").EnigmailCryptoAPI;
 
 var EnigmailCard = {
   getCardStatus: function(exitCodeObj, errorMsgObj) {
     EnigmailLog.DEBUG("card.jsm: EnigmailCard.getCardStatus\n");
+    const cApi = EnigmailCryptoAPI();
+
+    if (!cApi.supportsFeature("smartcard")) {
+      exitCodeObj.value = -1;
+      errorMsgObj.value = "";
+      return "";
+    }
+
     const GPG_ADDITIONAL_OPTIONS=["--no-verbose", "--status-fd", "2", "--fixed-list-mode", "--with-colons", "--card-status"];
     const args = EnigmailGpg.getStandardArgs(false).concat(GPG_ADDITIONAL_OPTIONS);
     const statusMsgObj = {};

@@ -60,6 +60,29 @@ class GnuPGCryptoAPI extends OpenPGPjsCryptoAPI {
   }
 
   /**
+   * Initialize the tools/functions required to run the API
+   *
+   * @param {nsIWindow} parentWindow: parent window, may be NULL
+   * @param {Object} enigSvc: Enigmail service object
+   * @param {String } preferredPath: try to use specific path to locate tool (gpg)
+   */
+  initialize(parentWindow, enigSvc, preferredPath) {
+    const EnigmailGpgAgent = ChromeUtils.import("chrome://enigmail/content/modules/gpgAgent.jsm").EnigmailGpgAgent;
+
+    EnigmailGpgAgent.setAgentPath(parentWindow, enigSvc, preferredPath);
+    EnigmailGpgAgent.detectGpgAgent(parentWindow, enigSvc);
+    EnigmailGpgAgent.setDummyAgentInfo();
+  }
+
+  /**
+   * Close/shutdown anything related to the functionality
+   */
+  finalize() {
+    const EnigmailGpgAgent = ChromeUtils.import("chrome://enigmail/content/modules/gpgAgent.jsm").EnigmailGpgAgent;
+    EnigmailGpgAgent.finalize();
+  }
+
+  /**
    * Get the list of all knwn keys (including their secret keys)
    * @param {Array of String} onlyKeys: [optional] only load data for specified key IDs
    *
@@ -692,6 +715,10 @@ class GnuPGCryptoAPI extends OpenPGPjsCryptoAPI {
 
     let res = await EnigmailExecution.execAsync(EnigmailGpgAgent.connGpgAgentPath, [], input);
     return (res.stdoutData.search(/^ERR/m) < 0);
+  }
+
+  supportsFeature(featureName) {
+    return EnigmailGpg.getGpgFeature(featureName);
   }
 }
 

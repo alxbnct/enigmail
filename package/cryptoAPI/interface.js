@@ -22,6 +22,24 @@ class CryptoAPI {
   }
 
   /**
+   * Initialize the tools/functions required to run the API
+   *
+   * @param {nsIWindow} parentWindow: parent window, may be NULL
+   * @param {Object} esvc: Enigmail service object
+   * @param {String } preferredPath: try to use specific path to locate tool (gpg)
+   */
+  initialize(parentWindow, esvc, preferredPath) {
+    return null;
+  }
+
+  /**
+   * Close/shutdown anything related to the functionality
+   */
+  finalize() {
+    return null;
+  }
+
+  /**
    * Synchronize on a Promise: wait synchonously until a promise has completed and return
    * the value that the promise returned.
    *
@@ -414,5 +432,35 @@ class CryptoAPI {
    */
   async clearPassphrase() {
     return null;
+  }
+
+  /***
+   * Determine if a specific feature is available by the used toolset
+   *
+   * @param {String} featureName:  String; one of the following values:
+   *    version-supported    - is the gpg version supported at all (true for gpg >= 2.0.10)
+   *    supports-gpg-agent   - is gpg-agent is auto-started (true for gpg >= 2.0.16)
+   *    keygen-passphrase    - can the passphrase be specified when generating keys (false for gpg 2.1 and 2.1.1)
+   *    windows-photoid-bug  - is there a bug in gpg with the output of photoid on Windows (true for gpg < 2.0.16)
+   *    genkey-no-protection - is "%no-protection" supported for generting keys (true for gpg >= 2.1)
+   *    search-keys-cmd      - what command to use to terminate the --search-key operation. ("save" for gpg > 2.1; "quit" otherwise)
+   *    socks-on-windows     - is SOCKS proxy supported on Windows (true for gpg >= 2.0.20)
+   *    supports-dirmngr     - is dirmngr supported (true for gpg >= 2.1)
+   *    supports-ecc-keys    - are ECC (elliptic curve) keys supported (true for gpg >= 2.1)
+   *    supports-sender      - does gnupg understand the --sender argument (true for gpg >= 2.1.15)
+   *    supports-wkd         - does gpg support wkd (web key directory) (true for gpg >= 2.1.19)
+   *    export-result        - does gpg print EXPORTED when exporting keys (true for gpg >= 2.1.10)
+   *    decryption-info      - does gpg print DECRYPTION_INFO (true for gpg >= 2.0.19)
+   *    export-specific-uid  - does gpg support exporting a key with a specific UID (true for gpg >= 2.2.8)
+   *    supports-show-only   - does gpg support --import-options show-only (true for gpg >= 2.1.14)
+   *    handles-huge-keys    - can gpg deal with huge keys without aborting (true for gpg >= 2.2.17)
+   *    smartcard            - does the library support smartcards
+   *
+   * @return: depending on featureName - Boolean unless specified differently:
+   *    (true if feature is available / false otherwise)
+   *   If the feature cannot be found, undefined is returned
+   */
+  supportsFeature(featureName) {
+    return false;
   }
 }

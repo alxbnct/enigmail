@@ -147,7 +147,7 @@ function onAccept() {
     }
   );
 
-  return false; // wait with closing until subprocess terminated
+  return false; // wait with closing until task terminated
 }
 
 function enigKeySelCb() {

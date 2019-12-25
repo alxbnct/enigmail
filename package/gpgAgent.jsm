@@ -9,8 +9,6 @@
 
 var EXPORTED_SYMBOLS = ["EnigmailGpgAgent"];
 
-
-
 const ctypes = ChromeUtils.import("resource://gre/modules/ctypes.jsm").ctypes;
 const subprocess = ChromeUtils.import("chrome://enigmail/content/modules/subprocess.jsm").subprocess;
 const EnigmailCore = ChromeUtils.import("chrome://enigmail/content/modules/core.jsm").EnigmailCore;
@@ -28,10 +26,6 @@ const EnigmailData = ChromeUtils.import("chrome://enigmail/content/modules/data.
 const EnigmailLazy = ChromeUtils.import("chrome://enigmail/content/modules/lazy.jsm").EnigmailLazy;
 const getEnigmailGpg = EnigmailLazy.loader("enigmail/gpg.jsm", "EnigmailGpg");
 const getDialog = EnigmailLazy.loader("enigmail/dialog.jsm", "EnigmailDialog");
-
-
-
-
 
 const NS_LOCAL_FILE_CONTRACTID = "@mozilla.org/file/local;1";
 const DIR_SERV_CONTRACTID = "@mozilla.org/file/directory_service;1";
@@ -109,6 +103,12 @@ var EnigmailGpgAgent = {
 
   isDummy: function() {
     return EnigmailGpgAgent.gpgAgentInfo.envStr === DUMMY_AGENT_INFO;
+  },
+
+  setDummyAgentInfo: function() {
+    if (!EnigmailOS.isDosLike && !this.isDummy()) {
+      EnigmailCore.addToEnvList("GPG_AGENT_INFO=" + EnigmailGpgAgent.gpgAgentInfo.envStr);
+    }
   },
 
   resetGpgAgent: function() {
