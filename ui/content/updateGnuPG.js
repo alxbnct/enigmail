@@ -12,7 +12,6 @@ var Ci = Components.interfaces;
 
 const EnigmailLocalizeHtml = ChromeUtils.import("chrome://enigmail/content/modules/localizeHtml.jsm").EnigmailLocalizeHtml;
 const EnigmailGnuPGUpdate = ChromeUtils.import("chrome://enigmail/content/modules/gnupgUpdate.jsm").EnigmailGnuPGUpdate;
-const InstallGnuPG = ChromeUtils.import("chrome://enigmail/content/modules/installGnuPG.jsm").InstallGnuPG;
 const EnigmailDialog = ChromeUtils.import("chrome://enigmail/content/modules/dialog.jsm").EnigmailDialog;
 const EnigmailLocale = ChromeUtils.import("chrome://enigmail/content/modules/locale.jsm").EnigmailLocale;
 const EnigmailPrefs = ChromeUtils.import("chrome://enigmail/content/modules/prefs.jsm").EnigmailPrefs;
@@ -65,7 +64,9 @@ function installUpdate() {
   btnInstallGnupg.setAttribute("disabled", true);
   progressBox.classList.remove("hidden");
 
-  InstallGnuPG.startInstaller({
+  let requireKeysUpgrade = EnigmailGnuPGUpdate.requireKeyRingUpgrade();
+
+  EnigmailGnuPGUpdate.performUpdate({
     onStart: function(reqObj) {
       gDownoadObj = reqObj;
     },
@@ -121,7 +122,7 @@ function installUpdate() {
       installProgressBox.classList.add("hidden");
     },
 
-    onLoaded: function() {
+    onLoaded: async function() {
       installProgress.setAttribute("value", 100);
 
       let origPath = EnigmailPrefs.getPref("agentPath");
@@ -135,6 +136,10 @@ function installUpdate() {
         EnigmailDialog.alert(window, EnigmailLocale.getString("setupWizard.installFailed"));
       } else {
         document.getElementById("updateComplete").classList.remove("hidden");
+      }
+
+      if (requireKeysUpgrade) {
+        EnigmailGnuPGUpdate.triggerKeyringConversion();
       }
     }
   });
