@@ -13,10 +13,15 @@ const EnigmailPrefs = ChromeUtils.import("chrome://enigmail/content/modules/pref
 const InstallGnuPG = ChromeUtils.import("chrome://enigmail/content/modules/installGnuPG.jsm").InstallGnuPG;
 const EnigmailOS = ChromeUtils.import("chrome://enigmail/content/modules/os.jsm").EnigmailOS;
 const EnigmailGpg = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/gnupg-core.jsm").EnigmailGpg;
+const EnigmailGpgAgent = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/gnupg-agent.jsm").EnigmailGpgAgent;
 const EnigmailLog = ChromeUtils.import("chrome://enigmail/content/modules/log.jsm").EnigmailLog;
 const EnigmailVersioning = ChromeUtils.import("chrome://enigmail/content/modules/versioning.jsm").EnigmailVersioning;
 const EnigmailTimer = ChromeUtils.import("chrome://enigmail/content/modules/timer.jsm").EnigmailTimer;
 const EnigmailDialog = ChromeUtils.import("chrome://enigmail/content/modules/dialog.jsm").EnigmailDialog;
+const EnigmailFiles = ChromeUtils.import("chrome://enigmail/content/modules/files.jsm").EnigmailFiles;
+const EnigmailOpenPGP = ChromeUtils.import("chrome://enigmail/content/modules/openpgp.jsm").EnigmailOpenPGP;
+const EnigmailKeyRing = ChromeUtils.import("chrome://enigmail/content/modules/keyRing.jsm").EnigmailKeyRing;
+const EnigmailLocale = ChromeUtils.import("chrome://enigmail/content/modules/locale.jsm").EnigmailLocale;
 
 var EnigmailGnuPGUpdate = {
   isUpdateAvailable: async function() {
@@ -71,7 +76,8 @@ var EnigmailGnuPGUpdate = {
         case "WINNT":
           return isGpg4WinInstalled();
       }
-    } catch (x) {}
+    }
+    catch (x) {}
 
     return false;
   },
@@ -99,6 +105,38 @@ var EnigmailGnuPGUpdate = {
         w.openGnuPGUpdate();
       }
     }, timeoutSec * 1000);
+  },
+
+  /**
+   * Is is required to upgrade the keyring from GnuPG 2.0 to 2.2
+   *
+   * @return {Boolean}: true if upgrade required
+   */
+  requireKeyRingUpgrade: function() {
+    return EnigmailVersioning.greaterThan("2.1", EnigmailGpg.agentVersion);
+  },
+
+  /**
+   * Perform Update of GnuPG.
+   *
+   * @param {Object} progressListener: same structure as InstallGnuPG progressListener
+   */
+  performUpdate: function(progressListener) {
+    InstallGnuPG.startInstaller(progressListener);
+  },
+
+  /**
+   * Trigger conversion of GnuPG 2.0 keyring to GnuPG 2.2.
+   *
+   * This is done by (re-)reading the secret keys, after the file gpg-v21-migrated was deleted.
+   */
+  triggerKeyringConversion: async function() {
+    EnigmailLog.DEBUG(`gnupgUpdate.jsm: importKeysFromOldGnupg()\n`);
+
+    prepareKeyringConversion();
+
+    EnigmailKeyRing.clearCache();
+    EnigmailKeyRing.getAllKeys();
   }
 };
 
@@ -118,9 +156,19 @@ function isGpgOsxInstalled() {
   return (EnigmailGpg.agentPath.path.search(/^\/usr\/local\/gnupg-2.[12]\//) === 0);
 }
 
+function prepareKeyringConversion() {
+  // delete gpg-v21-migrated in GnuPG profile if existing
+  EnigmailLog.DEBUG(`gnupgUpdate.jsm: prepareKeyringConversion()\n`);
+  let homeDir = EnigmailGpgAgent.getGpgHomeDir();
+  let gpgMigrationFile = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
 
-function performUpdate() {
-  EnigmailDialog.info(null, "GnuPG will be downloaded in the background. Once complete, the setup process will start automatically");
+  try {
+    EnigmailFiles.initPath(gpgMigrationFile, homeDir);
+    gpgMigrationFile.append("gpg-v21-migrated");
 
-  InstallGnuPG.startInstaller(null);
+    if (gpgMigrationFile.exists()) {
+      gpgMigrationFile.remove(false);
+    }
+  }
+  catch (ex) {}
 }
