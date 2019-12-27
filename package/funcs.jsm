@@ -269,18 +269,6 @@ var EnigmailFuncs = {
     return res;
   },
 
-  /***
-   * Get the text for the encrypted subject (either configured by user or default)
-   */
-  getProtectedSubjectText: function() {
-    if (EnigmailPrefs.getPref("protectedSubjectText").length > 0) {
-      return EnigmailData.convertToUnicode(EnigmailPrefs.getPref("protectedSubjectText"), "utf-8");
-    }
-    else {
-      return "...";
-    }
-  },
-
   cloneObj: function(orig) {
     let newObj;
 

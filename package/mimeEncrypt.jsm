@@ -422,7 +422,7 @@ PgpMimeEncrypt.prototype = {
     let subj = "";
 
     if (this.sendFlags & EnigmailConstants.ENCRYPT_HEADERS) {
-      subj = jsmime.headeremitter.emitStructuredHeader("subject", EnigmailFuncs.getProtectedSubjectText(), {});
+      subj = jsmime.headeremitter.emitStructuredHeader("subject", EnigmailConstants.PROTECTED_SUBJECT, {});
     }
 
     this.writeOut(subj +
