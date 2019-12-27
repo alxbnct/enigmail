@@ -221,7 +221,6 @@ pref("extensions.enigmail.pEpAutoUpdate", 0);
 // enable encryption/signing of headers like subject, from, to
 // 1: default: ask user at 1st time use / 0: off /  2: on
 pref("extensions.enigmail.protectedHeaders", 1);
-pref("extensions.enigmail.protectedSubjectText", "");
 
 // do reset the "references" and "in-reply-to" headers?
 pref("extensions.enigmail.protectReferencesHdr", false);
