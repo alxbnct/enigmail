@@ -292,47 +292,9 @@ var EnigmailMime = {
     headers.initialize(contentBody);
 
     let innerCt = headers.extractHeader("content-type", false) || "";
-
-    if (innerCt.search(/^text\/rfc822-headers/i) === 0) {
-
-      let charset = EnigmailMime.getCharset(innerCt);
-      let ctt = headers.extractHeader("content-transfer-encoding", false) || "";
-
-      // determine where the headers end and the MIME-subpart body starts
-      let bodyStartPos = contentBody.search(/\r?\n\s*\r?\n/) + 1;
-
-      if (bodyStartPos < 10) return null;
-
-      bodyStartPos += contentBody.substr(bodyStartPos).search(/^[A-Za-z]/m);
-
-      let ctBodyData = contentBody.substr(bodyStartPos);
-
-      if (ctt.search(/^base64/i) === 0) {
-        ctBodyData = EnigmailData.decodeBase64(ctBodyData) + "\n";
-      }
-      else if (ctt.search(/^quoted-printable/i) === 0) {
-        ctBodyData = EnigmailData.decodeQuotedPrintable(ctBodyData) + "\n";
-      }
-
-      if (charset) {
-        ctBodyData = EnigmailData.convertToUnicode(ctBodyData, charset);
-      }
-
-      // get the headers of the MIME-subpart body --> that's the ones we need
-      let bodyHdr = Cc["@mozilla.org/messenger/mimeheaders;1"].createInstance(Ci.nsIMimeHeaders);
-      bodyHdr.initialize(ctBodyData);
-
-      for (let i in protectedHdr) {
-        if (bodyHdr.hasHeader(protectedHdr[i])) {
-          newHeaders[protectedHdr[i]] = jsmime.headerparser.decodeRFC2047Words(bodyHdr.extractHeader(protectedHdr[i], true)) || undefined;
-        }
-      }
-    }
-    else {
-      if (!(innerCt.search(/^text\/plain/i) === 0 && innerCt.search(/; *protected-headers="v1"/i) > 0)) {
-        startPos = -1;
-        endPos = -1;
-      }
+    if (!(innerCt.search(/^text\/(plain|rfc822-headers)/i) === 0 && innerCt.search(/; *protected-headers="v1"/i) > 0)) {
+      startPos = -1;
+      endPos = -1;
     }
 
     return {
