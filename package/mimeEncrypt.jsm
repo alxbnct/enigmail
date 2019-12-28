@@ -26,6 +26,7 @@ const EnigmailConstants = ChromeUtils.import("chrome://enigmail/content/modules/
 const EnigmailPEPAdapter = ChromeUtils.import("chrome://enigmail/content/modules/pEpAdapter.jsm").EnigmailPEPAdapter;
 const EnigmailKeyRing = ChromeUtils.import("chrome://enigmail/content/modules/keyRing.jsm").EnigmailKeyRing;
 const EnigmailLocale = ChromeUtils.import("chrome://enigmail/content/modules/locale.jsm").EnigmailLocale;
+const EnigmailPrefs = ChromeUtils.import("chrome://enigmail/content/modules/prefs.jsm").EnigmailPrefs;
 
 // our own contract IDs
 const PGPMIME_ENCRYPT_CID = Components.ID("{96fe88f9-d2cd-466f-93e0-3a351df4c6d2}");
@@ -394,7 +395,18 @@ PgpMimeEncrypt.prototype = {
     w += this.getAutocryptGossip() + `\r\n--${this.encHeader}\r\n`;
     this.writeToPipe(w);
 
-    if (this.cryptoMode == MIME_SIGNED) this.writeOut(w);
+    if (this.cryptoMode == MIME_SIGNED) {
+      this.writeOut(w);
+    }
+    else if (EnigmailPrefs.getPref("protectedHeadersLegacyPart") &&
+      this.originalSubject && this.originalSubject.length > 0 &&
+      (this.sendFlags & EnigmailConstants.ENCRYPT_HEADERS)) {
+      w = 'Content-Type: text/plain; charset=utf-8; protected-headers="v1"\r\n' +
+        'Content-Disposition: inline\r\n\r\n' +
+        'Subject: ' + EnigmailData.convertFromUnicode(this.originalSubject, "utf-8") + "\r\n\r\n" +
+        `--${this.encHeader}\r\n`;
+      this.writeToPipe(w);
+    }
   },
 
   getAutocryptGossip: function() {

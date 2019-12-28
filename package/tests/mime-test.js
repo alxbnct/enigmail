@@ -34,28 +34,26 @@ test(function getBoundaryTest() {
 const msg1 = 'Content-Type: multipart/mixed; boundary="OuterBoundary";\r\n' +
   '  protected-headers="v1"\r\n' +
   'References: <some@msg.id>\r\n' +
-  'Subject: Outer hidden subject\r\n' +
+  'Subject: The hidden subject\r\n' +
+  'From: Starworks <strikefreedom@enigmail.invalid>\r\n' +
+  'To: Alan <alan@enigmail.invalid>, Bingo <bingo@enigmail.invalid>\r\n' +
+  'Cc: Alan <alan2@enigmail.invalid>, Bingo <bingo2@enigmail.invalid>\r\n' +
+  'Reply-To: Starworks alternative <alternative@enigmail.invalid>\r\n' +
+  'Date: Sun, 21 Jun 2015 15:19:32 +0200\r\n' +
   '\r\n' +
   '--OuterBoundary\r\n' +
-  'Content-Transfer-Encoding: base64\r\n' +
-  'Content-Type: text/rfc822-headers; charset="us-ascii";\r\n' +
+  'Content-Type: text/plain; charset="us-ascii"; protected-headers="v1"\r\n' +
   'Content-Disposition: inline\r\n' +
   '\r\n' +
-  'U3ViamVjdDogVGhlIGhpZGRlbiBzdWJqZWN0CkRhdGU6IFN1biwgMjEgSnVuIDIwMTUgMT\r\n' +
-  'U6MTk6MzIgKzAyMDAKRnJvbTogU3RhcndvcmtzIDxzdHJpa2VmcmVlZG9tQGVuaWdtYWls\r\n' +
-  'LXRlc3QubmV0PgpUbzogUGF0cmljayA8cGF0cmlja0BlbmlnbWFpbC10ZXN0Lm5ldD4sIE\r\n' +
-  'JpbmdvIDxiaW5nb0BlbmlnbWFpbC10ZXN0Lm5ldD4KQ2M6IFBhdHJpY2sgPHBhdHJpY2sy\r\n' +
-  'QGVuaWdtYWlsLXRlc3QubmV0PiwgQmluZ28gPDJiaW5nb0BlbmlnbWFpbC10ZXN0Lm5ldD\r\n' +
-  '4KUmVwbHktVG86IFN0YXJ3b3JrcyBhbHRlcm5hdGl2ZSA8YWx0ZXJuYXRpdmVAZW5pZ21h\r\n' +
-  'aWwtdGVzdC5uZXQ+Cg==\r\n' +
+  'Subject: The hidden subject\r\n' +
   '\r\n' +
   '--OuterBoundary\r\n' +
   'Content-Type: multipart/mixed; boundary="innerContent"\r\n' +
   '\r\n' +
   '--innerContent\r\n' +
-  'Content-Type: text/plain; charset="us-ascii"\r\n' +
+  'Content-Type: text/html; charset="us-ascii"\r\n' +
   '\r\n' +
-  'Hello World!\r\n' +
+  '<p>Hello World!</p>\r\n' +
   '\r\n' +
   '--innerContent--\r\n' +
   '--OuterBoundary--\r\n\r\n';
@@ -83,29 +81,29 @@ test(function extractProtectedHeadersTest() {
   var expected = msg2;
 
   var got = r.startPos;
-  Assert.equal(got, 144, "startPos of removed data");
+  Assert.equal(got, 429, "startPos of removed data");
 
   got = r.endPos;
-  Assert.equal(got, 739, "endPos of removed data");
+  Assert.equal(got, 578, "endPos of removed data");
 
   got = r.newHeaders.subject;
   expected = "The hidden subject";
   Assert.equal(got, expected, "subject");
 
   got = r.newHeaders.from;
-  expected = "Starworks <strikefreedom@enigmail-test.net>";
+  expected = "Starworks <strikefreedom@enigmail.invalid>";
   Assert.equal(got, expected, "from");
 
   got = r.newHeaders.to;
-  expected = "Patrick <patrick@enigmail-test.net>, Bingo <bingo@enigmail-test.net>";
+  expected = "Alan <alan@enigmail.invalid>, Bingo <bingo@enigmail.invalid>";
   Assert.equal(got, expected, "to");
 
   got = r.newHeaders.cc;
-  expected = "Patrick <patrick2@enigmail-test.net>, Bingo <2bingo@enigmail-test.net>";
+  expected = "Alan <alan2@enigmail.invalid>, Bingo <bingo2@enigmail.invalid>";
   Assert.equal(got, expected, "cc");
 
   got = r.newHeaders["reply-to"];
-  expected = "Starworks alternative <alternative@enigmail-test.net>";
+  expected = "Starworks alternative <alternative@enigmail.invalid>";
   Assert.equal(got, expected, "reply-to");
 
   got = r.newHeaders.date;
@@ -122,7 +120,7 @@ test(function getMimeTreeTest() {
   let tree = EnigmailMime.getMimeTree(msg1);
 
   Assert.ok(tree.headers.contentType.type, "multipart/mixed");
-  Assert.equal(tree.subParts[0].headers.contentType.type, "text/rfc822-headers");
+  Assert.equal(tree.subParts[0].headers.contentType.type, "text/plain");
   Assert.equal(tree.subParts[0].headers.charset, "us-ascii");
-  Assert.equal(tree.subParts[1].subParts[0].headers.contentType.type, "text/plain");
+  Assert.equal(tree.subParts[1].subParts[0].headers.contentType.type, "text/html");
 });
