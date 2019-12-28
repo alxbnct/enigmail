@@ -222,6 +222,10 @@ pref("extensions.enigmail.pEpAutoUpdate", 0);
 // 1: default: ask user at 1st time use / 0: off /  2: on
 pref("extensions.enigmail.protectedHeaders", 1);
 
+// Create the Legacy Display part of Protected headers
+// false: off / true: on
+pref("extensions.enigmail.protectedHeadersLegacyPart", false);
+
 // do reset the "references" and "in-reply-to" headers?
 pref("extensions.enigmail.protectReferencesHdr", false);
 

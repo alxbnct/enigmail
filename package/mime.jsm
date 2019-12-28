@@ -292,7 +292,7 @@ var EnigmailMime = {
     headers.initialize(contentBody);
 
     let innerCt = headers.extractHeader("content-type", false) || "";
-    if (!(innerCt.search(/^text\/(plain|rfc822-headers)/i) === 0 && innerCt.search(/; *protected-headers="v1"/i) > 0)) {
+    if (!(innerCt.search(/^text\/(plain|rfc822-headers)/i) === 0 && innerCt.search(/; *protected-headers="?v1"?/i) > 0)) {
       startPos = -1;
       endPos = -1;
     }

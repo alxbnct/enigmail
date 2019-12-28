@@ -14,10 +14,10 @@ do_load_module("file://" + do_get_cwd().path + "/testHelper.js");
 testing("mimeEncrypt.jsm");
 /* global EnigmailMimeEncrypt: false, PgpMimeEncrypt: false
  EnigmailConstants: false, EnigmailKeyRing: false,
+ EnigmailPrefs: false,
  MIME_SIGNED: false, MIME_ENCRYPTED: false */
 
 const EnigmailFiles = component("enigmail/files.jsm").EnigmailFiles;
-const EnigmailPrefs = component("enigmail/prefs.jsm").EnigmailPrefs;
 
 test(function testSignedMessage() {
   const e = new PgpMimeEncrypt(null);
@@ -109,3 +109,69 @@ test(withTestGpgHome(withEnigmail(function testBeginCryptoEncapsulation() {
   Assert.equal(e.hashAlgorithm, "sha512");
   EnigmailPrefs.setPref("agentAdditionalParam", "");
 })));
+
+test(function testWriteSecureHeaders() {
+  const e = new PgpMimeEncrypt(null);
+  const SUBJECT = "Some subject with umlauts like ä and é";
+  e.msgCompFields = {
+    from: "Sender <from@somewhere.invalid>",
+    to: "Recipient <to@somewhere.invalid>"
+  };
+  e.getAutocryptGossip = function() {
+    return "";
+  };
+  e.encHeader = null;
+  e.cryptoMode = MIME_ENCRYPTED;
+  e.originalSubject = SUBJECT;
+
+  e.sendFlags = EnigmailConstants.SEND_PGP_MIME | EnigmailConstants.SEND_SIGNED;
+  EnigmailPrefs.setPref("protectedHeadersLegacyPart", false);
+  e.pipeQueue = "";
+  e.writeSecureHeaders();
+  Assert.equal(e.pipeQueue, `Content-Type: multipart/mixed; boundary="${e.encHeader}"\r\n\r\n--${e.encHeader}\r\n`);
+
+  e.sendFlags = EnigmailConstants.SEND_PGP_MIME | EnigmailConstants.SEND_SIGNED;
+  EnigmailPrefs.setPref("protectedHeadersLegacyPart", true);
+  e.pipeQueue = "";
+  e.writeSecureHeaders();
+  Assert.equal(e.pipeQueue, `Content-Type: multipart/mixed; boundary="${e.encHeader}"\r\n\r\n--${e.encHeader}\r\n`);
+
+  e.sendFlags = EnigmailConstants.SEND_PGP_MIME | EnigmailConstants.SEND_SIGNED | EnigmailConstants.ENCRYPT_HEADERS;
+  EnigmailPrefs.setPref("protectedHeadersLegacyPart", false);
+  e.pipeQueue = "";
+  e.writeSecureHeaders();
+  let expected = `Content-Type: multipart/mixed; boundary="${e.encHeader}";\r\n protected-headers="v1"\r\n` +
+    `From: ${e.msgCompFields.from}\r\n` +
+    `To: ${e.msgCompFields.to}\r\n` +
+    `Subject: =?UTF-8?Q?Some_subject_with_umlauts_like_=c3=a4_and_=c3=a9?=\r\n\r\n` +
+    `--${e.encHeader}\r\n`;
+  Assert.equal(e.pipeQueue, expected);
+
+  e.sendFlags = EnigmailConstants.SEND_PGP_MIME | EnigmailConstants.SEND_SIGNED | EnigmailConstants.ENCRYPT_HEADERS;
+  EnigmailPrefs.setPref("protectedHeadersLegacyPart", true);
+  e.pipeQueue = "";
+  e.writeSecureHeaders();
+  expected = `Content-Type: multipart/mixed; boundary="${e.encHeader}";\r\n protected-headers="v1"\r\n` +
+    `From: ${e.msgCompFields.from}\r\n` +
+    `To: ${e.msgCompFields.to}\r\n` +
+    `Subject: =?UTF-8?Q?Some_subject_with_umlauts_like_=c3=a4_and_=c3=a9?=\r\n\r\n` +
+    `--${e.encHeader}\r\n` +
+    'Content-Type: text/plain; charset=utf-8; protected-headers="v1"\r\n' +
+    'Content-Disposition: inline\r\n\r\n' +
+    `Subject: Some subject with umlauts like Ã¤ and Ã©\r\n\r\n` +
+    `--${e.encHeader}\r\n`;
+  Assert.equal(e.pipeQueue, expected);
+
+  e.originalSubject = null;
+  e.sendFlags = EnigmailConstants.SEND_PGP_MIME | EnigmailConstants.SEND_SIGNED | EnigmailConstants.ENCRYPT_HEADERS;
+  EnigmailPrefs.setPref("protectedHeadersLegacyPart", true);
+  e.pipeQueue = "";
+  e.writeSecureHeaders();
+  expected = `Content-Type: multipart/mixed; boundary="${e.encHeader}";\r\n protected-headers="v1"\r\n` +
+    `From: ${e.msgCompFields.from}\r\n` +
+    `To: ${e.msgCompFields.to}\r\n\r\n` +
+    `--${e.encHeader}\r\n`;
+  Assert.equal(e.pipeQueue, expected);
+
+  EnigmailPrefs.setPref("protectedHeadersLegacyPart", false);
+});
