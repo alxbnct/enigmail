@@ -293,6 +293,9 @@ var EnigmailKeyRing = {
       EnigmailKeyRing.clearCache();
     }
 
+    if (errorMsgObj) {
+      errorMsgObj.value = res.errorMsg;
+    }
     return res.exitCode;
   },
 
