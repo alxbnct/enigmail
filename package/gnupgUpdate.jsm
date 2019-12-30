@@ -130,10 +130,12 @@ var EnigmailGnuPGUpdate = {
    *
    * This is done by (re-)reading the secret keys, after the file gpg-v21-migrated was deleted.
    */
-  triggerKeyringConversion: async function() {
+  triggerKeyringConversion: function() {
     EnigmailLog.DEBUG(`gnupgUpdate.jsm: importKeysFromOldGnupg()\n`);
 
-    prepareKeyringConversion();
+    if (prepareKeyringConversion()) {
+      importKeysFromOldGnuPG();
+    }
 
     EnigmailKeyRing.clearCache();
     EnigmailKeyRing.getAllKeys();
@@ -156,19 +158,61 @@ function isGpgOsxInstalled() {
   return (EnigmailGpg.agentPath.path.search(/^\/usr\/local\/gnupg-2.[12]\//) === 0);
 }
 
+/**
+ * Prepare conversion of keyring
+ *
+ * @return {Boolean}: true - need to import keys / false: key import not needed
+ */
 function prepareKeyringConversion() {
   // delete gpg-v21-migrated in GnuPG profile if existing
   EnigmailLog.DEBUG(`gnupgUpdate.jsm: prepareKeyringConversion()\n`);
   let homeDir = EnigmailGpgAgent.getGpgHomeDir();
-  let gpgMigrationFile = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
+  let gpgHomeDir = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
+  EnigmailFiles.initPath(gpgHomeDir, homeDir);
 
   try {
-    EnigmailFiles.initPath(gpgMigrationFile, homeDir);
+    let gpgMigrationFile = gpgHomeDir.clone();
     gpgMigrationFile.append("gpg-v21-migrated");
 
     if (gpgMigrationFile.exists()) {
       gpgMigrationFile.remove(false);
     }
+  }
+  catch (ex) {}
+
+  try {
+    // if pubring.kbx is present, then re-import all keys from pubring.gpg and secring.gpg
+    let pubring = gpgHomeDir.clone();
+    pubring.append("pubring.kbx");
+
+    if (pubring.exists()) {
+      return true;
+    }
+  }
+  catch(ex) {}
+
+  return false;
+}
+
+
+function importKeysFromOldGnuPG() {
+  EnigmailLog.DEBUG(`gnupgUpdate.jsm: importKeysFromOldGnuPG()\n`);
+
+  let homeDir = EnigmailGpgAgent.getGpgHomeDir();
+  let gpgHomeDir = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
+  EnigmailFiles.initPath(gpgHomeDir, homeDir);
+
+  let keyRing = gpgHomeDir.clone();
+  try {
+    keyRing.append("secring.gpg");
+    if (keyRing.exists()) EnigmailKeyRing.importKeyFromFile(keyRing);
+  }
+  catch (ex) {}
+
+  keyRing = gpgHomeDir.clone();
+  try {
+    keyRing.append("pubring.gpg");
+    if (keyRing.exists()) EnigmailKeyRing.importKeyFromFile(keyRing);
   }
   catch (ex) {}
 }

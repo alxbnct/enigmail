@@ -135,11 +135,14 @@ function installUpdate() {
         this.returnToDownload();
         EnigmailDialog.alert(window, EnigmailLocale.getString("setupWizard.installFailed"));
       } else {
-        document.getElementById("updateComplete").classList.remove("hidden");
-      }
+        if (requireKeysUpgrade) {
+          document.getElementById("convertKeyring").classList.remove("hidden");
+          EnigmailGnuPGUpdate.triggerKeyringConversion();
+          document.getElementById("importingKeysProgress").classList.add("hidden");
+          document.getElementById("importingKeysDone").classList.remove("hidden");
+        }
 
-      if (requireKeysUpgrade) {
-        EnigmailGnuPGUpdate.triggerKeyringConversion();
+        document.getElementById("updateComplete").classList.remove("hidden");
       }
     }
   });
