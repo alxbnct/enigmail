@@ -630,6 +630,16 @@ function getStreamedHeaders(msgURI, mms) {
   return new Promise((resolve, reject) => {
     let headers = Cc["@mozilla.org/messenger/mimeheaders;1"].createInstance(Ci.nsIMimeHeaders);
     let headerObj = {};
+    let done = false;
+
+    EnigmailTimer.setTimeout(function _f() {
+      // Stream did not do anyting after 5 seconds, skip message
+      if (!done) {
+        EnigmailLog.DEBUG(`autoSetup.jsm: getStreamedHeaders: no response after 5 seconds\n`);
+        resolve(headerObj);
+      }
+    }, 5000); // return after 5 seconds of inactivity
+
     try {
       mms.streamHeaders(msgURI, EnigmailStreams.newStringStreamListener(aRawString => {
         try {
@@ -661,9 +671,11 @@ function getStreamedHeaders(msgURI, mms) {
           }
         }
         catch (e) {
+          done = true;
           reject({});
           EnigmailLog.DEBUG("autoSetup.jsm: getStreamedHeaders: Error: " + e + "\n");
         }
+        done = true;
         resolve(headerObj);
       }), null, false);
     }
