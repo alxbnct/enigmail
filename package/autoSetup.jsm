@@ -72,6 +72,19 @@ var EnigmailAutoSetup = {
     return new Promise(async (resolve, reject) => {
       EnigmailLog.DEBUG("autoSetup.jsm: determinePreviousInstallType()\n");
 
+      let resolved = false;
+
+      function doResolve(value) {
+        if (resolved) return;
+        resolved = true;
+        resolve(value);
+      }
+
+      // if after task runs for more than 3 minutes, then return whatever has been found (or not found) so far
+      EnigmailTimer.setTimeout(function _f() {
+        doResolve(gDeterminedSetupType);
+      }, 3 * 60 * 1000); // 3 minutes
+
       try {
         let msgAccountManager = Cc["@mozilla.org/messenger/account-manager;1"].getService(nsIMsgAccountManager);
         let folderService = Cc["@mozilla.org/mail/folder-lookup;1"].getService(nsIFolderLookupService);
@@ -87,7 +100,7 @@ var EnigmailAutoSetup = {
         // If no account, except Local Folders is configured
         if (accounts.length <= 1) {
           gDeterminedSetupType.value = EnigmailConstants.AUTOSETUP_NO_ACCOUNT;
-          resolve(gDeterminedSetupType);
+          doResolve(gDeterminedSetupType);
           return;
         }
 
@@ -168,7 +181,7 @@ var EnigmailAutoSetup = {
         if (returnMsgValue.acSetupMessage) {
           EnigmailLog.DEBUG(`autoSetup.jsm: determinePreviousInstallType: found AC-Setup message\n`);
           gDeterminedSetupType = returnMsgValue;
-          resolve(gDeterminedSetupType);
+          doResolve(gDeterminedSetupType);
         }
         else {
           EnigmailLog.DEBUG(`msgHeaders.length: ${msgHeaders.length}\n`);
@@ -212,7 +225,7 @@ var EnigmailAutoSetup = {
 
           gDeterminedSetupType = returnMsgValue;
           EnigmailLog.DEBUG(`autoSetup.jsm: determinePreviousInstallType: found type: ${returnMsgValue.value}\n`);
-          resolve(returnMsgValue);
+          doResolve(returnMsgValue);
         }
       }
       catch (x) {
