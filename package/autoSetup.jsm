@@ -73,6 +73,7 @@ var EnigmailAutoSetup = {
       EnigmailLog.DEBUG("autoSetup.jsm: determinePreviousInstallType()\n");
 
       let resolved = false;
+      const currDateInSeconds = getCurrentTime();
 
       function doResolve(value) {
         if (resolved) return;
@@ -161,12 +162,12 @@ var EnigmailAutoSetup = {
               let mms = messenger.messageServiceFromURI(msgURI).QueryInterface(nsIMsgMessageService);
 
               let headerObj = await getStreamedHeaders(msgURI, mms);
-              let checkHeaderValues = await checkHeaders(headerObj, msgHeader, msgAuthor, account.defaultIdentity.email, msgFolder, returnMsgValue, msgHeaders);
+              if (headerObj) {
+                let checkHeaderValues = await checkHeaders(headerObj, msgHeader, msgAuthor, account.defaultIdentity.email, msgFolder, returnMsgValue, msgHeaders);
 
-              msgHeaders = checkHeaderValues.msgHeaders;
-              returnMsgValue = checkHeaderValues.returnMsgValue;
-
-              const currDateInSeconds = getCurrentTime();
+                msgHeaders = checkHeaderValues.msgHeaders;
+                returnMsgValue = checkHeaderValues.returnMsgValue;
+              }
               const diffSecond = currDateInSeconds - msgHeader.dateInSeconds;
 
               /**
@@ -636,7 +637,7 @@ function getStreamedHeaders(msgURI, mms) {
       // Stream did not do anyting after 5 seconds, skip message
       if (!done) {
         EnigmailLog.DEBUG(`autoSetup.jsm: getStreamedHeaders: no response after 5 seconds\n`);
-        resolve(headerObj);
+        resolve(null);
       }
     }, 5000); // return after 5 seconds of inactivity
 
