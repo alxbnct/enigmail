@@ -83,6 +83,9 @@ var EnigmailAutoSetup = {
 
       // if after task runs for more than 3 minutes, then return whatever has been found (or not found) so far
       EnigmailTimer.setTimeout(function _f() {
+        if (!resolved) {
+          EnigmailLog.DEBUG(`autoSetup.jsm: determinePreviousInstallType: timeout after 3 minutes\n`);
+        }
         doResolve(gDeterminedSetupType);
       }, 3 * 60 * 1000); // 3 minutes
 
