@@ -82,6 +82,8 @@ function onLoadAsync() {
 
   Promise.all([installPromise, pepPromise, setupPromise]).then(r => {
     displayExistingEmails();
+  }).catch(err => {
+    displayExistingEmails();
   });
 }
 
