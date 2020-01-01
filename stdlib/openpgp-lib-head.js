@@ -89,6 +89,9 @@ function getOpenPGPLibrary() {
   window.navigator = navigator;
   window.crypto = crypto;
 
+  // no idea why, but oenpgp.js won't load without this defined
+  let self = window;
+
   const console = {
     assert: function() {},
     log: function() {},
@@ -96,9 +99,5 @@ function getOpenPGPLibrary() {
     table: function() {},
     warn: function() {}
   };
-
-  function require(x) {
-    return x;
-  }
 
   /* OpenPGP-LS library code will be copied below this line */
