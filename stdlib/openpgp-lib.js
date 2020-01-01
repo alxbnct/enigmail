@@ -1,3 +1,9 @@
+/**
+ * OpenPGP.js version 4.7.2
+ *
+ * License: LGPL v3.0
+ */
+
 (function(f) {
   if (typeof exports === "object" && typeof module !== "undefined") {
     module.exports = f()
@@ -51,2005 +57,1661 @@
   })()({
     1: [function(require, module, exports) {
       (function(global) {
-        ! function(e, r) {
-          "object" == typeof exports && "undefined" != typeof module ? r(exports) : "function" == typeof define && define.amd ? define(["exports"], r) : r(e.WebStreamsPolyfill = {})
-        }(this, function(e) {
-          "use strict";
+        "use strict";
 
-          function r(e, r) {
-            for (var t = 0; t < r.length; t++) {
-              var o = r[t];
-              o.enumerable = o.enumerable || !1, o.configurable = !0, "value" in o && (o.writable = !0), Object.defineProperty(e, o.key, o)
+        ! function(e, t) {
+          "object" == typeof exports && "undefined" != typeof module ? t(exports) : "function" == typeof define && define.amd ? define(["exports"], t) : t((e = e || self).WebStreamsPolyfill = {});
+        }(undefined, function(e) {
+          "use strict";
+          const t = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? Symbol : e => `Symbol(${e})`;
+          const r = "undefined" != typeof self ? self : "undefined" != typeof window ? window : "undefined" != typeof global ? global : void 0,
+            o = Number.isNaN || function(e) {
+              return e != e;
+            };
+
+          function n(e) {
+            return "object" == typeof e && null !== e || "function" == typeof e;
+          }
+
+          function i(e, t, r) {
+            Object.defineProperty(e, t, {
+              value: r,
+              writable: !0,
+              enumerable: !0,
+              configurable: !0
+            });
+          }
+
+          function a(e) {
+            return e.slice();
+          }
+
+          function s(e, t, r, o, n) {
+            new Uint8Array(e).set(new Uint8Array(r, o, n), t);
+          }
+
+          function l(e) {
+            return !1 !== function(e) {
+              if ("number" != typeof e) return !1;
+              if (o(e)) return !1;
+              if (e < 0) return !1;
+              return !0;
+            }(e) && e !== 1 / 0;
+          }
+
+          function c(e, t, r) {
+            if ("function" != typeof e) throw new TypeError("Argument is not a function");
+            return Function.prototype.apply.call(e, t, r);
+          }
+
+          function u(e, t, r, o) {
+            const n = e[t];
+            if (void 0 !== n) {
+              if ("function" != typeof n) throw new TypeError(`${n} is not a method`);
+              switch (r) {
+                case 0:
+                  return () => f(n, e, o);
+                case 1:
+                  return t => {
+                    const r = [t].concat(o);
+                    return f(n, e, r);
+                  };
+              }
+            }
+            return () => Promise.resolve();
+          }
+
+          function d(e, t, r) {
+            const o = e[t];
+            if (void 0 !== o) return c(o, e, r);
+          }
+
+          function f(e, t, r) {
+            try {
+              return Promise.resolve(c(e, t, r));
+            }
+            catch (e) {
+              return Promise.reject(e);
             }
           }
 
-          function t(e, t, o) {
-            return t && r(e.prototype, t), o && r(e, o), e
+          function _(e) {
+            return e;
           }
 
-          function o() {
-            return (o = Object.assign || function(e) {
-              for (var r = 1; r < arguments.length; r++) {
-                var t = arguments[r];
-                for (var o in t) Object.prototype.hasOwnProperty.call(t, o) && (e[o] = t[o])
-              }
-              return e
-            }).apply(this, arguments)
+          function h(e) {
+            if (e = Number(e), o(e) || e < 0) throw new RangeError("highWaterMark property of a queuing strategy must be non-negative and non-NaN");
+            return e;
           }
-          var n = Number.isInteger || function(e) {
-              return "number" == typeof e && isFinite(e) && Math.floor(e) === e
-            },
-            i = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? Symbol : function(e) {
-              return "Symbol(" + e + ")"
-            };
 
-          function a() {}
-          var s = "undefined" != typeof self ? self : "undefined" != typeof window ? window : "undefined" != typeof global ? global : void 0,
-            l = Number.isNaN || function(e) {
-              return e != e
-            };
-          var u = function(e, r) {
-              return e(r = {
-                exports: {}
-              }, r.exports), r.exports
-            }(function(e, r) {
-              var t = i('is "detached" for our purposes');
+          function b(e) {
+            if (void 0 === e) return () => 1;
+            if ("function" != typeof e) throw new TypeError("size property of a queuing strategy must be a function");
+            return t => e(t);
+          }
 
-              function o(e, r, t) {
-                if ("function" != typeof e) throw new TypeError("Argument is not a function");
-                return Function.prototype.apply.call(e, r, t)
+          function m(e, t, r) {
+            return Promise.prototype.then.call(e, t, r);
+          }
+
+          function y(e, t, r) {
+            let o, n;
+            const i = new Promise((e, t) => {
+              o = e, n = t;
+            });
+            void 0 === r && (r = e => {
+              throw e;
+            });
+            return function(e, t, r) {
+              let o = !1;
+              const n = e => {
+                !1 === o && (o = !0, r(e));
+              };
+              let i = 0,
+                a = 0;
+              const s = e.length,
+                l = new Array(s);
+              for (const r of e) {
+                const e = i;
+                m(r, r => {
+                  l[e] = r, ++a === s && t(l);
+                }, n), ++i;
               }
+            }(e, e => {
+              try {
+                const r = t(e);
+                o(r);
+              }
+              catch (e) {
+                n(e);
+              }
+            }, e => {
+              try {
+                const t = r(e);
+                o(t);
+              }
+              catch (e) {
+                n(e);
+              }
+            }), i;
+          }
 
-              function n(e, r, t) {
+          function p(e) {}
+
+          function w(e) {
+            e && e instanceof p.AssertionError && setTimeout(() => {
+              throw e;
+            }, 0);
+          }
+
+          function g(e) {
+            const t = e._queue.shift();
+            return e._queueTotalSize -= t.size, e._queueTotalSize < 0 && (e._queueTotalSize = 0), t.value;
+          }
+
+          function S(e, t, r) {
+            if (!l(r = Number(r))) throw new RangeError("Size must be a finite, non-NaN, non-negative number.");
+            e._queue.push({
+              value: t,
+              size: r
+            }), e._queueTotalSize += r;
+          }
+
+          function v(e) {
+            e._queue = [], e._queueTotalSize = 0;
+          }
+          p.AssertionError = function() {};
+          const R = t("[[AbortSteps]]"),
+            P = t("[[ErrorSteps]]");
+          class WritableStream {
+            constructor(e = {}, t = {}) {
+              q(this);
+              const r = t.size;
+              let o = t.highWaterMark;
+              if (void 0 !== e.type) throw new RangeError("Invalid type is specified");
+              const n = b(r);
+              void 0 === o && (o = 1),
+                function(e, t, r, o) {
+                  const n = Object.create(WritableStreamDefaultController.prototype);
+                  const i = u(t, "write", 1, [n]),
+                    a = u(t, "close", 0, []),
+                    s = u(t, "abort", 1, []);
+                  $(e, n, function() {
+                    return d(t, "start", [n]);
+                  }, i, a, s, r, o);
+                }(this, e, o = h(o), n);
+            }
+            get locked() {
+              if (!1 === E(this)) throw G("locked");
+              return C(this);
+            }
+            abort(e) {
+              return !1 === E(this) ? Promise.reject(G("abort")) : !0 === C(this) ? Promise.reject(new TypeError("Cannot abort a stream that already has a writer")) : j(this, e);
+            }
+            getWriter() {
+              if (!1 === E(this)) throw G("getWriter");
+              return T(this);
+            }
+          }
+
+          function T(e) {
+            return new WritableStreamDefaultWriter(e);
+          }
+
+          function q(e) {
+            e._state = "writable", e._storedError = void 0, e._writer = void 0, e._writableStreamController = void 0, e._writeRequests = [], e._inFlightWriteRequest = void 0, e._closeRequest = void 0, e._inFlightCloseRequest = void 0, e._pendingAbortRequest = void 0, e._backpressure = !1;
+          }
+
+          function E(e) {
+            return !!n(e) && !!Object.prototype.hasOwnProperty.call(e, "_writableStreamController");
+          }
+
+          function C(e) {
+            return void 0 !== e._writer;
+          }
+
+          function j(e, t) {
+            const r = e._state;
+            if ("closed" === r || "errored" === r) return Promise.resolve(void 0);
+            if (void 0 !== e._pendingAbortRequest) return e._pendingAbortRequest._promise;
+            let o = !1;
+            "erroring" === r && (o = !0, t = void 0);
+            const n = new Promise((r, n) => {
+              e._pendingAbortRequest = {
+                _promise: void 0,
+                _resolve: r,
+                _reject: n,
+                _reason: t,
+                _wasAlreadyErroring: o
+              };
+            });
+            return e._pendingAbortRequest._promise = n, !1 === o && W(e, t), n;
+          }
+
+          function A(e, t) {
+            "writable" !== e._state ? B(e) : W(e, t);
+          }
+
+          function W(e, t) {
+            const r = e._writableStreamController;
+            e._state = "erroring", e._storedError = t;
+            const o = e._writer;
+            void 0 !== o && D(o, t), !1 === function(e) {
+              if (void 0 === e._inFlightWriteRequest && void 0 === e._inFlightCloseRequest) return !1;
+              return !0;
+            }(e) && !0 === r._started && B(e);
+          }
+
+          function B(e) {
+            e._state = "errored", e._writableStreamController[P]();
+            const t = e._storedError;
+            for (const r of e._writeRequests) r._reject(t);
+            if (e._writeRequests = [], void 0 === e._pendingAbortRequest) return void z(e);
+            const r = e._pendingAbortRequest;
+            if (e._pendingAbortRequest = void 0, !0 === r._wasAlreadyErroring) return r._reject(t), void z(e);
+            e._writableStreamController[R](r._reason).then(() => {
+              r._resolve(), z(e);
+            }, t => {
+              r._reject(t), z(e);
+            });
+          }
+
+          function O(e) {
+            return void 0 !== e._closeRequest || void 0 !== e._inFlightCloseRequest;
+          }
+
+          function z(e) {
+            void 0 !== e._closeRequest && (e._closeRequest._reject(e._storedError), e._closeRequest = void 0);
+            const t = e._writer;
+            void 0 !== t && ee(t, e._storedError);
+          }
+
+          function k(e, t) {
+            const r = e._writer;
+            void 0 !== r && t !== e._backpressure && (!0 === t ? function(e) {
+              re(e);
+            }(r) : ae(r)), e._backpressure = t;
+          }
+          class WritableStreamDefaultWriter {
+            constructor(e) {
+              if (!1 === E(e)) throw new TypeError("WritableStreamDefaultWriter can only be constructed with a WritableStream instance");
+              if (!0 === C(e)) throw new TypeError("This stream has already been locked for exclusive writing by another writer");
+              this._ownerWritableStream = e, e._writer = this;
+              const t = e._state;
+              if ("writable" === t) !1 === O(e) && !0 === e._backpressure ? re(this) : ne(this), X(this);
+              else if ("erroring" === t) oe(this, e._storedError), X(this);
+              else if ("closed" === t) ne(this),
+                function(e) {
+                  X(e), te(e);
+                }(this);
+              else {
+                const t = e._storedError;
+                oe(this, t), Z(this, t);
+              }
+            }
+            get closed() {
+              return !1 === F(this) ? Promise.reject(J("closed")) : this._closedPromise;
+            }
+            get desiredSize() {
+              if (!1 === F(this)) throw J("desiredSize");
+              if (void 0 === this._ownerWritableStream) throw K("desiredSize");
+              return function(e) {
+                const t = e._ownerWritableStream,
+                  r = t._state;
+                if ("errored" === r || "erroring" === r) return null;
+                if ("closed" === r) return 0;
+                return Q(t._writableStreamController);
+              }(this);
+            }
+            get ready() {
+              return !1 === F(this) ? Promise.reject(J("ready")) : this._readyPromise;
+            }
+            abort(e) {
+              return !1 === F(this) ? Promise.reject(J("abort")) : void 0 === this._ownerWritableStream ? Promise.reject(K("abort")) : function(e, t) {
+                return j(e._ownerWritableStream, t);
+              }(this, e);
+            }
+            close() {
+              if (!1 === F(this)) return Promise.reject(J("close"));
+              const e = this._ownerWritableStream;
+              return void 0 === e ? Promise.reject(K("close")) : !0 === O(e) ? Promise.reject(new TypeError("cannot close an already-closing stream")) : L(this);
+            }
+            releaseLock() {
+              if (!1 === F(this)) throw J("releaseLock");
+              void 0 !== this._ownerWritableStream && M(this);
+            }
+            write(e) {
+              return !1 === F(this) ? Promise.reject(J("write")) : void 0 === this._ownerWritableStream ? Promise.reject(K("write to")) : Y(this, e);
+            }
+          }
+
+          function F(e) {
+            return !!n(e) && !!Object.prototype.hasOwnProperty.call(e, "_ownerWritableStream");
+          }
+
+          function L(e) {
+            const t = e._ownerWritableStream,
+              r = t._state;
+            if ("closed" === r || "errored" === r) return Promise.reject(new TypeError(`The stream (in ${r} state) is not in the writable state and cannot be closed`));
+            const o = new Promise((e, r) => {
+              const o = {
+                _resolve: e,
+                _reject: r
+              };
+              t._closeRequest = o;
+            });
+            return !0 === t._backpressure && "writable" === r && ae(e),
+              function(e) {
+                S(e, "close", 0), x(e);
+              }(t._writableStreamController), o;
+          }
+
+          function I(e, t) {
+            "pending" === e._closedPromiseState ? ee(e, t) : function(e, t) {
+              Z(e, t);
+            }(e, t);
+          }
+
+          function D(e, t) {
+            "pending" === e._readyPromiseState ? ie(e, t) : function(e, t) {
+              oe(e, t);
+            }(e, t);
+          }
+
+          function M(e) {
+            const t = e._ownerWritableStream,
+              r = new TypeError("Writer was released and can no longer be used to monitor the stream's closedness");
+            D(e, r), I(e, r), t._writer = void 0, e._ownerWritableStream = void 0;
+          }
+
+          function Y(e, t) {
+            const r = e._ownerWritableStream,
+              o = r._writableStreamController,
+              n = function(e, t) {
                 try {
-                  return Promise.resolve(o(e, r, t))
+                  return e._strategySizeAlgorithm(t);
                 }
-                catch (e) {
-                  return Promise.reject(e)
+                catch (t) {
+                  return H(e, t), 1;
                 }
-              }
-              r.typeIsObject = function(e) {
-                return "object" == typeof e && null !== e || "function" == typeof e
-              }, r.createDataProperty = function(e, r, t) {
-                Object.defineProperty(e, r, {
-                  value: t,
-                  writable: !0,
-                  enumerable: !0,
-                  configurable: !0
-                })
-              }, r.createArrayFromList = function(e) {
-                return e.slice()
-              }, r.ArrayBufferCopy = function(e, r, t, o, n) {
-                new Uint8Array(e).set(new Uint8Array(t, o, n), r)
-              }, r.CreateIterResultObject = function(e, r) {
-                var t = {};
-                return Object.defineProperty(t, "value", {
-                  value: e,
-                  enumerable: !0,
-                  writable: !0,
-                  configurable: !0
-                }), Object.defineProperty(t, "done", {
-                  value: r,
-                  enumerable: !0,
-                  writable: !0,
-                  configurable: !0
-                }), t
-              }, r.IsFiniteNonNegativeNumber = function(e) {
-                return !1 !== r.IsNonNegativeNumber(e) && e !== 1 / 0
-              }, r.IsNonNegativeNumber = function(e) {
-                return "number" == typeof e && (!l(e) && !(e < 0))
-              }, r.Call = o, r.CreateAlgorithmFromUnderlyingMethod = function(e, r, t, o) {
-                var i = e[r];
-                if (void 0 !== i) {
-                  if ("function" != typeof i) throw new TypeError(i + " is not a method");
-                  switch (t) {
-                    case 0:
-                      return function() {
-                        return n(i, e, o)
-                      };
-                    case 1:
-                      return function(r) {
-                        var t = [r].concat(o);
-                        return n(i, e, t)
-                      }
-                  }
-                }
-                return function() {
-                  return Promise.resolve()
-                }
-              }, r.InvokeOrNoop = function(e, r, t) {
-                var n = e[r];
-                if (void 0 !== n) return o(n, e, t)
-              }, r.PromiseCall = n, r.TransferArrayBuffer = function(e) {
-                var r = e.slice();
-                return Object.defineProperty(e, "byteLength", {
-                  get: function() {
-                    return 0
-                  }
-                }), e[t] = !0, r
-              }, r.IsDetachedBuffer = function(e) {
-                return t in e
-              }, r.ValidateAndNormalizeHighWaterMark = function(e) {
-                if (e = Number(e), l(e) || e < 0) throw new RangeError("highWaterMark property of a queuing strategy must be non-negative and non-NaN");
-                return e
-              }, r.MakeSizeAlgorithmFromSizeFunction = function(e) {
-                if (void 0 === e) return function() {
-                  return 1
+              }(o, t);
+            if (r !== e._ownerWritableStream) return Promise.reject(K("write to"));
+            const i = r._state;
+            if ("errored" === i) return Promise.reject(r._storedError);
+            if (!0 === O(r) || "closed" === i) return Promise.reject(new TypeError("The stream is closing or closed and cannot be written to"));
+            if ("erroring" === i) return Promise.reject(r._storedError);
+            const a = function(e) {
+              return new Promise((t, r) => {
+                const o = {
+                  _resolve: t,
+                  _reject: r
                 };
-                if ("function" != typeof e) throw new TypeError("size property of a queuing strategy must be a function");
-                return function(r) {
-                  return e(r)
-                }
+                e._writeRequests.push(o);
+              });
+            }(r);
+            return function(e, t, r) {
+              const o = {
+                chunk: t
+              };
+              try {
+                S(e, o, r);
               }
-            }),
-            c = {
-              default: u,
-              __moduleExports: u,
-              typeIsObject: u.typeIsObject,
-              createDataProperty: u.createDataProperty,
-              createArrayFromList: u.createArrayFromList,
-              ArrayBufferCopy: u.ArrayBufferCopy,
-              CreateIterResultObject: u.CreateIterResultObject,
-              IsFiniteNonNegativeNumber: u.IsFiniteNonNegativeNumber,
-              IsNonNegativeNumber: u.IsNonNegativeNumber,
-              Call: u.Call,
-              CreateAlgorithmFromUnderlyingMethod: u.CreateAlgorithmFromUnderlyingMethod,
-              InvokeOrNoop: u.InvokeOrNoop,
-              PromiseCall: u.PromiseCall,
-              TransferArrayBuffer: u.TransferArrayBuffer,
-              IsDetachedBuffer: u.IsDetachedBuffer,
-              ValidateAndNormalizeHighWaterMark: u.ValidateAndNormalizeHighWaterMark,
-              MakeSizeAlgorithmFromSizeFunction: u.MakeSizeAlgorithmFromSizeFunction
-            };
-
-          function d() {}
-          d.AssertionError = a;
-          var f = {
-              default: d
-            },
-            _ = f && d || f,
-            m = function(e) {
-              e && e instanceof _.AssertionError && setTimeout(function() {
-                throw e
-              }, 0)
-            },
-            h = {
-              rethrowAssertionErrorRejection: m
-            },
-            b = {
-              default: h,
-              __moduleExports: h,
-              rethrowAssertionErrorRejection: m
-            },
-            v = c && u || c,
-            y = v.IsFiniteNonNegativeNumber,
-            p = function(e) {
-              var r = e._queue.shift();
-              return e._queueTotalSize -= r.size, e._queueTotalSize < 0 && (e._queueTotalSize = 0), r.value
-            },
-            w = function(e, r, t) {
-              if (t = Number(t), !y(t)) throw new RangeError("Size must be a finite, non-NaN, non-negative number.");
-              e._queue.push({
-                value: r,
-                size: t
-              }), e._queueTotalSize += t
-            },
-            g = function(e) {
-              return e._queue[0].value
-            },
-            S = function(e) {
-              e._queue = [], e._queueTotalSize = 0
-            },
-            P = {
-              DequeueValue: p,
-              EnqueueValueWithSize: w,
-              PeekQueueValue: g,
-              ResetQueue: S
-            },
-            R = {
-              default: P,
-              __moduleExports: P,
-              DequeueValue: p,
-              EnqueueValueWithSize: w,
-              PeekQueueValue: g,
-              ResetQueue: S
-            },
-            q = {
-              default: a
-            },
-            T = q && a || q,
-            j = b && h || b,
-            C = R && P || R,
-            E = (T("streams:writable-stream:verbose"), v.CreateAlgorithmFromUnderlyingMethod),
-            W = v.InvokeOrNoop,
-            A = v.ValidateAndNormalizeHighWaterMark,
-            k = (v.IsNonNegativeNumber, v.MakeSizeAlgorithmFromSizeFunction),
-            O = v.typeIsObject,
-            z = j.rethrowAssertionErrorRejection,
-            B = C.DequeueValue,
-            I = C.EnqueueValueWithSize,
-            F = C.PeekQueueValue,
-            N = C.ResetQueue,
-            D = i("[[AbortSteps]]"),
-            M = i("[[ErrorSteps]]"),
-            L = function() {
-              function e(e, r) {
-                void 0 === e && (e = {});
-                var t = void 0 === r ? {} : r,
-                  o = t.size,
-                  n = t.highWaterMark,
-                  i = void 0 === n ? 1 : n;
-                if (x(this), void 0 !== e.type) throw new RangeError("Invalid type is specified");
-                var a = k(o);
-                ! function(e, r, t, o) {
-                  var n = Object.create(le.prototype);
-                  var i = E(r, "write", 1, [n]),
-                    a = E(r, "close", 0, []),
-                    s = E(r, "abort", 1, []);
-                  ue(e, n, function() {
-                    return W(r, "start", [n])
-                  }, i, a, s, t, o)
-                }(this, e, i = A(i), a)
+              catch (t) {
+                return void H(e, t);
               }
-              var r = e.prototype;
-              return r.abort = function(e) {
-                return !1 === Q(this) ? Promise.reject(he("abort")) : !0 === Y(this) ? Promise.reject(new TypeError("Cannot abort a stream that already has a writer")) : U(this, e)
-              }, r.getWriter = function() {
-                if (!1 === Q(this)) throw he("getWriter");
-                return H(this)
-              }, t(e, [{
-                key: "locked",
-                get: function() {
-                  if (!1 === Q(this)) throw he("locked");
-                  return Y(this)
-                }
-              }]), e
-            }(),
-            V = {
-              AcquireWritableStreamDefaultWriter: H,
-              CreateWritableStream: function(e, r, t, o, n, i) {
-                void 0 === n && (n = 1);
-                void 0 === i && (i = function() {
-                  return 1
-                });
-                var a = Object.create(L.prototype);
-                x(a);
-                var s = Object.create(le.prototype);
-                return ue(a, s, e, r, t, o, n, i), a
-              },
-              IsWritableStream: Q,
-              IsWritableStreamLocked: Y,
-              WritableStream: L,
-              WritableStreamAbort: U,
-              WritableStreamDefaultControllerErrorIfNeeded: fe,
-              WritableStreamDefaultWriterCloseWithErrorPropagation: function(e) {
-                var r = e._ownerWritableStream,
-                  t = r._state;
-                if (!0 === Z(r) || "closed" === t) return Promise.resolve();
-                if ("errored" === t) return Promise.reject(r._storedError);
-                return oe(e)
-              },
-              WritableStreamDefaultWriterRelease: ae,
-              WritableStreamDefaultWriterWrite: se,
-              WritableStreamCloseQueuedOrInFlight: Z
-            };
-
-          function H(e) {
-            return new re(e)
+              const n = e._controlledWritableStream;
+              if (!1 === O(n) && "writable" === n._state) {
+                const t = U(e);
+                k(n, t);
+              }
+              x(e);
+            }(o, t, n), a;
+          }
+          class WritableStreamDefaultController {
+            constructor() {
+              throw new TypeError("WritableStreamDefaultController cannot be constructed explicitly");
+            }
+            error(e) {
+              if (!1 === function(e) {
+                  if (!n(e)) return !1;
+                  if (!Object.prototype.hasOwnProperty.call(e, "_controlledWritableStream")) return !1;
+                  return !0;
+                }(this)) throw new TypeError("WritableStreamDefaultController.prototype.error can only be used on a WritableStreamDefaultController");
+              "writable" === this._controlledWritableStream._state && V(this, e);
+            } [R](e) {
+              const t = this._abortAlgorithm(e);
+              return N(this), t;
+            } [P]() {
+              v(this);
+            }
           }
 
-          function x(e) {
-            e._state = "writable", e._storedError = void 0, e._writer = void 0, e._writableStreamController = void 0, e._writeRequests = [], e._inFlightWriteRequest = void 0, e._closeRequest = void 0, e._inFlightCloseRequest = void 0, e._pendingAbortRequest = void 0, e._backpressure = !1
+          function $(e, t, r, o, n, i, a, s) {
+            t._controlledWritableStream = e, e._writableStreamController = t, t._queue = void 0, t._queueTotalSize = void 0, v(t), t._started = !1, t._strategySizeAlgorithm = s, t._strategyHWM = a, t._writeAlgorithm = o, t._closeAlgorithm = n, t._abortAlgorithm = i;
+            const l = U(t);
+            k(e, l);
+            const c = r();
+            Promise.resolve(c).then(() => {
+              t._started = !0, x(t);
+            }, r => {
+              t._started = !0, A(e, r);
+            }).catch(w);
+          }
+
+          function N(e) {
+            e._writeAlgorithm = void 0, e._closeAlgorithm = void 0, e._abortAlgorithm = void 0, e._strategySizeAlgorithm = void 0;
           }
 
           function Q(e) {
-            return !!O(e) && !!Object.prototype.hasOwnProperty.call(e, "_writableStreamController")
+            return e._strategyHWM - e._queueTotalSize;
           }
 
-          function Y(e) {
-            return void 0 !== e._writer
+          function x(e) {
+            const t = e._controlledWritableStream;
+            if (!1 === e._started) return;
+            if (void 0 !== t._inFlightWriteRequest) return;
+            const r = t._state;
+            if ("closed" === r || "errored" === r) return;
+            if ("erroring" === r) return void B(t);
+            if (0 === e._queue.length) return;
+            const o = function(e) {
+              return e._queue[0].value;
+            }(e);
+            "close" === o ? function(e) {
+              const t = e._controlledWritableStream;
+              (function(e) {
+                e._inFlightCloseRequest = e._closeRequest, e._closeRequest = void 0;
+              })(t), g(e);
+              const r = e._closeAlgorithm();
+              N(e), r.then(() => {
+                ! function(e) {
+                  e._inFlightCloseRequest._resolve(void 0), e._inFlightCloseRequest = void 0, "erroring" === e._state && (e._storedError = void 0, void 0 !== e._pendingAbortRequest && (e._pendingAbortRequest._resolve(), e._pendingAbortRequest = void 0)), e._state = "closed";
+                  const t = e._writer;
+                  void 0 !== t && te(t);
+                }(t);
+              }, e => {
+                ! function(e, t) {
+                  e._inFlightCloseRequest._reject(t), e._inFlightCloseRequest = void 0, void 0 !== e._pendingAbortRequest && (e._pendingAbortRequest._reject(t), e._pendingAbortRequest = void 0), A(e, t);
+                }(t, e);
+              }).catch(w);
+            }(e) : function(e, t) {
+              const r = e._controlledWritableStream;
+              (function(e) {
+                e._inFlightWriteRequest = e._writeRequests.shift();
+              })(r), e._writeAlgorithm(t).then(() => {
+                ! function(e) {
+                  e._inFlightWriteRequest._resolve(void 0), e._inFlightWriteRequest = void 0;
+                }(r);
+                const t = r._state;
+                if (g(e), !1 === O(r) && "writable" === t) {
+                  const t = U(e);
+                  k(r, t);
+                }
+                x(e);
+              }, t => {
+                "writable" === r._state && N(e),
+                  function(e, t) {
+                    e._inFlightWriteRequest._reject(t), e._inFlightWriteRequest = void 0, A(e, t);
+                  }(r, t);
+              }).catch(w);
+            }(e, o.chunk);
           }
 
-          function U(e, r) {
-            var t = e._state;
-            if ("closed" === t || "errored" === t) return Promise.resolve(void 0);
-            if (void 0 !== e._pendingAbortRequest) return e._pendingAbortRequest._promise;
-            var o = !1;
-            "erroring" === t && (o = !0, r = void 0);
-            var n = new Promise(function(t, n) {
-              e._pendingAbortRequest = {
-                _resolve: t,
-                _reject: n,
-                _reason: r,
-                _wasAlreadyErroring: o
-              }
-            });
-            return e._pendingAbortRequest._promise = n, !1 === o && J(e, r), n
+          function H(e, t) {
+            "writable" === e._controlledWritableStream._state && V(e, t);
           }
 
-          function G(e, r) {
-            "writable" !== e._state ? K(e) : J(e, r)
+          function U(e) {
+            return Q(e) <= 0;
           }
 
-          function J(e, r) {
-            var t = e._writableStreamController;
-            e._state = "erroring", e._storedError = r;
-            var o = e._writer;
-            void 0 !== o && ie(o, r), !1 === function(e) {
-              if (void 0 === e._inFlightWriteRequest && void 0 === e._inFlightCloseRequest) return !1;
-              return !0
-            }(e) && !0 === t._started && K(e)
+          function V(e, t) {
+            const r = e._controlledWritableStream;
+            N(e), W(r, t);
+          }
+
+          function G(e) {
+            return new TypeError(`WritableStream.prototype.${e} can only be used on a WritableStream`);
+          }
+
+          function J(e) {
+            return new TypeError(`WritableStreamDefaultWriter.prototype.${e} can only be used on a WritableStreamDefaultWriter`);
           }
 
           function K(e) {
-            e._state = "errored", e._writableStreamController[M]();
-            for (var r = e._storedError, t = 0, o = e._writeRequests; t < o.length; t++) {
-              o[t]._reject(r)
-            }
-            if (e._writeRequests = [], void 0 !== e._pendingAbortRequest) {
-              var n = e._pendingAbortRequest;
-              if (e._pendingAbortRequest = void 0, !0 === n._wasAlreadyErroring) return n._reject(r), void $(e);
-              e._writableStreamController[D](n._reason).then(function() {
-                n._resolve(), $(e)
-              }, function(r) {
-                n._reject(r), $(e)
-              })
-            }
-            else $(e)
+            return new TypeError("Cannot " + e + " a stream using a released writer");
           }
 
           function X(e) {
-            e._inFlightCloseRequest._resolve(void 0), e._inFlightCloseRequest = void 0, "erroring" === e._state && (e._storedError = void 0, void 0 !== e._pendingAbortRequest && (e._pendingAbortRequest._resolve(), e._pendingAbortRequest = void 0)), e._state = "closed";
-            var r = e._writer;
-            void 0 !== r && function(e) {
-              e._closedPromise_resolve(void 0), e._closedPromise_resolve = void 0, e._closedPromise_reject = void 0, e._closedPromiseState = "resolved"
-            }(r)
+            e._closedPromise = new Promise((t, r) => {
+              e._closedPromise_resolve = t, e._closedPromise_reject = r, e._closedPromiseState = "pending";
+            });
           }
 
-          function Z(e) {
-            return void 0 !== e._closeRequest || void 0 !== e._inFlightCloseRequest
+          function Z(e, t) {
+            X(e), ee(e, t);
           }
 
-          function $(e) {
-            void 0 !== e._closeRequest && (e._closeRequest._reject(e._storedError), e._closeRequest = void 0);
-            var r = e._writer;
-            void 0 !== r && (pe(r, e._storedError), r._closedPromise.catch(function() {}))
+          function ee(e, t) {
+            e._closedPromise.catch(() => {}), e._closedPromise_reject(t), e._closedPromise_resolve = void 0, e._closedPromise_reject = void 0, e._closedPromiseState = "rejected";
           }
-
-          function ee(e, r) {
-            var t = e._writer;
-            void 0 !== t && r !== e._backpressure && (!0 === r ? function(e) {
-              e._readyPromise = new Promise(function(r, t) {
-                e._readyPromise_resolve = r, e._readyPromise_reject = t
-              }), e._readyPromiseState = "pending"
-            }(t) : Se(t)), e._backpressure = r
-          }
-          var re = function() {
-            function e(e) {
-              if (!1 === Q(e)) throw new TypeError("WritableStreamDefaultWriter can only be constructed with a WritableStream instance");
-              if (!0 === Y(e)) throw new TypeError("This stream has already been locked for exclusive writing by another writer");
-              this._ownerWritableStream = e, e._writer = this;
-              var r = e._state;
-              if ("writable" === r) !1 === Z(e) && !0 === e._backpressure ? function(e) {
-                e._readyPromise = new Promise(function(r, t) {
-                  e._readyPromise_resolve = r, e._readyPromise_reject = t
-                }), e._readyPromiseState = "pending"
-              }(this) : ge(this), ye(this);
-              else if ("erroring" === r) we(this, e._storedError), this._readyPromise.catch(function() {}), ye(this);
-              else if ("closed" === r) ge(this),
-                function(e) {
-                  e._closedPromise = Promise.resolve(void 0), e._closedPromise_resolve = void 0, e._closedPromise_reject = void 0, e._closedPromiseState = "resolved"
-                }(this);
-              else {
-                var t = e._storedError;
-                we(this, t), this._readyPromise.catch(function() {}),
-                  function(e, r) {
-                    e._closedPromise = Promise.reject(r), e._closedPromise_resolve = void 0, e._closedPromise_reject = void 0, e._closedPromiseState = "rejected"
-                  }(this, t), this._closedPromise.catch(function() {})
-              }
-            }
-            var r = e.prototype;
-            return r.abort = function(e) {
-              return !1 === te(this) ? Promise.reject(be("abort")) : void 0 === this._ownerWritableStream ? Promise.reject(ve("abort")) : function(e, r) {
-                return U(e._ownerWritableStream, r)
-              }(this, e)
-            }, r.close = function() {
-              if (!1 === te(this)) return Promise.reject(be("close"));
-              var e = this._ownerWritableStream;
-              return void 0 === e ? Promise.reject(ve("close")) : !0 === Z(e) ? Promise.reject(new TypeError("cannot close an already-closing stream")) : oe(this)
-            }, r.releaseLock = function() {
-              if (!1 === te(this)) throw be("releaseLock");
-              void 0 !== this._ownerWritableStream && ae(this)
-            }, r.write = function(e) {
-              return !1 === te(this) ? Promise.reject(be("write")) : void 0 === this._ownerWritableStream ? Promise.reject(ve("write to")) : se(this, e)
-            }, t(e, [{
-              key: "closed",
-              get: function() {
-                return !1 === te(this) ? Promise.reject(be("closed")) : this._closedPromise
-              }
-            }, {
-              key: "desiredSize",
-              get: function() {
-                if (!1 === te(this)) throw be("desiredSize");
-                if (void 0 === this._ownerWritableStream) throw ve("desiredSize");
-                return function(e) {
-                  var r = e._ownerWritableStream,
-                    t = r._state;
-                  if ("errored" === t || "erroring" === t) return null;
-                  if ("closed" === t) return 0;
-                  return ce(r._writableStreamController)
-                }(this)
-              }
-            }, {
-              key: "ready",
-              get: function() {
-                return !1 === te(this) ? Promise.reject(be("ready")) : this._readyPromise
-              }
-            }]), e
-          }();
 
           function te(e) {
-            return !!O(e) && !!Object.prototype.hasOwnProperty.call(e, "_ownerWritableStream")
+            e._closedPromise_resolve(void 0), e._closedPromise_resolve = void 0, e._closedPromise_reject = void 0, e._closedPromiseState = "resolved";
           }
 
-          function oe(e) {
-            var r = e._ownerWritableStream,
-              t = r._state;
-            if ("closed" === t || "errored" === t) return Promise.reject(new TypeError("The stream (in " + t + " state) is not in the writable state and cannot be closed"));
-            var o = new Promise(function(e, t) {
-              var o = {
-                _resolve: e,
-                _reject: t
-              };
-              r._closeRequest = o
-            });
-            return !0 === r._backpressure && "writable" === t && Se(e),
-              function(e) {
-                I(e, "close", 0), de(e)
-              }(r._writableStreamController), o
+          function re(e) {
+            e._readyPromise = new Promise((t, r) => {
+              e._readyPromise_resolve = t, e._readyPromise_reject = r;
+            }), e._readyPromiseState = "pending";
           }
 
-          function ne(e, r) {
-            "pending" === e._closedPromiseState ? pe(e, r) : function(e, r) {
-              e._closedPromise = Promise.reject(r), e._closedPromiseState = "rejected"
-            }(e, r), e._closedPromise.catch(function() {})
+          function oe(e, t) {
+            re(e), ie(e, t);
           }
 
-          function ie(e, r) {
-            "pending" === e._readyPromiseState ? function(e, r) {
-              e._readyPromise_reject(r), e._readyPromise_resolve = void 0, e._readyPromise_reject = void 0, e._readyPromiseState = "rejected"
-            }(e, r) : function(e, r) {
-              e._readyPromise = Promise.reject(r), e._readyPromiseState = "rejected"
-            }(e, r), e._readyPromise.catch(function() {})
+          function ne(e) {
+            re(e), ae(e);
+          }
+
+          function ie(e, t) {
+            e._readyPromise.catch(() => {}), e._readyPromise_reject(t), e._readyPromise_resolve = void 0, e._readyPromise_reject = void 0, e._readyPromiseState = "rejected";
           }
 
           function ae(e) {
-            var r = e._ownerWritableStream,
-              t = new TypeError("Writer was released and can no longer be used to monitor the stream's closedness");
-            ie(e, t), ne(e, t), r._writer = void 0, e._ownerWritableStream = void 0
+            e._readyPromise_resolve(void 0), e._readyPromise_resolve = void 0, e._readyPromise_reject = void 0, e._readyPromiseState = "fulfilled";
           }
-
-          function se(e, r) {
-            var t = e._ownerWritableStream,
-              o = t._writableStreamController,
-              n = function(e, r) {
-                try {
-                  return e._strategySizeAlgorithm(r)
+          const se = Number.isInteger || function(e) {
+              return "number" == typeof e && isFinite(e) && Math.floor(e) === e;
+            },
+            le = t("[[CancelSteps]]"),
+            ce = t("[[PullSteps]]");
+          class ReadableStream {
+            constructor(e = {}, t = {}) {
+              fe(this);
+              const r = t.size;
+              let o = t.highWaterMark;
+              const n = e.type;
+              if ("bytes" === String(n)) {
+                if (void 0 !== r) throw new RangeError("The strategy for a byte stream cannot have a size function");
+                void 0 === o && (o = 0),
+                  function(e, t, r) {
+                    const o = Object.create(ReadableByteStreamController.prototype);
+                    const n = u(t, "pull", 0, [o]),
+                      i = u(t, "cancel", 1, []);
+                    let a = t.autoAllocateChunkSize;
+                    if (void 0 !== a && (a = Number(a), !1 === se(a) || a <= 0)) throw new RangeError("autoAllocateChunkSize must be a positive integer");
+                    ! function(e, t, r, o, n, i, a) {
+                      t._controlledReadableByteStream = e, t._pullAgain = !1, t._pulling = !1, He(t), t._queue = t._queueTotalSize = void 0, v(t), t._closeRequested = !1, t._started = !1, t._strategyHWM = h(i), t._pullAlgorithm = o, t._cancelAlgorithm = n, t._autoAllocateChunkSize = a, t._pendingPullIntos = [], e._readableStreamController = t;
+                      const s = r();
+                      Promise.resolve(s).then(() => {
+                        t._started = !0, xe(t);
+                      }, e => {
+                        nt(t, e);
+                      }).catch(w);
+                    }(e, o, function() {
+                      return d(t, "start", [o]);
+                    }, n, i, r, a);
+                  }(this, e, o = h(o));
+              }
+              else {
+                if (void 0 !== n) throw new RangeError("Invalid type is specified"); {
+                  const t = b(r);
+                  void 0 === o && (o = 1),
+                    function(e, t, r, o) {
+                      const n = Object.create(ReadableStreamDefaultController.prototype);
+                      const i = u(t, "pull", 0, [n]),
+                        a = u(t, "cancel", 1, []);
+                      $e(e, n, function() {
+                        return d(t, "start", [n]);
+                      }, i, a, r, o);
+                    }(this, e, o = h(o), t);
                 }
-                catch (r) {
-                  return fe(e, r), 1
-                }
-              }(o, r);
-            if (t !== e._ownerWritableStream) return Promise.reject(ve("write to"));
-            var i = t._state;
-            if ("errored" === i) return Promise.reject(t._storedError);
-            if (!0 === Z(t) || "closed" === i) return Promise.reject(new TypeError("The stream is closing or closed and cannot be written to"));
-            if ("erroring" === i) return Promise.reject(t._storedError);
-            var a = function(e) {
-              return new Promise(function(r, t) {
-                var o = {
-                  _resolve: r,
-                  _reject: t
-                };
-                e._writeRequests.push(o)
-              })
-            }(t);
-            return function(e, r, t) {
-              var o = {
-                chunk: r
-              };
-              try {
-                I(e, o, t)
               }
-              catch (r) {
-                return void fe(e, r)
-              }
-              var n = e._controlledWritableStream;
-              if (!1 === Z(n) && "writable" === n._state) {
-                var i = _e(e);
-                ee(n, i)
-              }
-              de(e)
-            }(o, r, n), a
-          }
-          var le = function() {
-            function e() {
-              throw new TypeError("WritableStreamDefaultController cannot be constructed explicitly")
             }
-            var r = e.prototype;
-            return r.error = function(e) {
-              if (!1 === function(e) {
-                  if (!O(e)) return !1;
-                  if (!Object.prototype.hasOwnProperty.call(e, "_controlledWritableStream")) return !1;
-                  return !0
-                }(this)) throw new TypeError("WritableStreamDefaultController.prototype.error can only be used on a WritableStreamDefaultController");
-              "writable" === this._controlledWritableStream._state && me(this, e)
-            }, r[D] = function(e) {
-              return this._abortAlgorithm(e)
-            }, r[M] = function() {
-              N(this)
-            }, e
-          }();
+            get locked() {
+              if (!1 === _e(this)) throw st("locked");
+              return he(this);
+            }
+            cancel(e) {
+              return !1 === _e(this) ? Promise.reject(st("cancel")) : !0 === he(this) ? Promise.reject(new TypeError("Cannot cancel a stream that already has a reader")) : pe(this, e);
+            }
+            getReader({
+              mode: e
+            } = {}) {
+              if (!1 === _e(this)) throw st("getReader");
+              if (void 0 === e) return ue(this);
+              if ("byob" === (e = String(e))) return function(e) {
+                return new ReadableStreamBYOBReader(e);
+              }(this);
+              throw new RangeError("Invalid mode is specified");
+            }
+            pipeThrough({
+              writable: e,
+              readable: t
+            }, {
+              preventClose: r,
+              preventAbort: o,
+              preventCancel: n,
+              signal: i
+            } = {}) {
+              if (!1 === _e(this)) throw st("pipeThrough");
+              if (!1 === E(e)) throw new TypeError("writable argument to pipeThrough must be a WritableStream");
+              if (!1 === _e(t)) throw new TypeError("readable argument to pipeThrough must be a ReadableStream");
+              if (r = Boolean(r), o = Boolean(o), n = Boolean(n), void 0 !== i && !at(i)) throw new TypeError("ReadableStream.prototype.pipeThrough's signal option must be an AbortSignal");
+              if (!0 === he(this)) throw new TypeError("ReadableStream.prototype.pipeThrough cannot be used on a locked ReadableStream");
+              if (!0 === C(e)) throw new TypeError("ReadableStream.prototype.pipeThrough cannot be used on a locked WritableStream");
+              return be(this, e, r, o, n, i).catch(() => {}), t;
+            }
+            pipeTo(e, {
+              preventClose: t,
+              preventAbort: r,
+              preventCancel: o,
+              signal: n
+            } = {}) {
+              return !1 === _e(this) ? Promise.reject(st("pipeTo")) : !1 === E(e) ? Promise.reject(new TypeError("ReadableStream.prototype.pipeTo's first argument must be a WritableStream")) : (t = Boolean(t), r = Boolean(r), o = Boolean(o), void 0 === n || at(n) ? !0 === he(this) ? Promise.reject(new TypeError("ReadableStream.prototype.pipeTo cannot be used on a locked ReadableStream")) : !0 === C(e) ? Promise.reject(new TypeError("ReadableStream.prototype.pipeTo cannot be used on a locked WritableStream")) : be(this, e, t, r, o, n) : Promise.reject(new TypeError("ReadableStream.prototype.pipeTo's signal option must be an AbortSignal")));
+            }
+            tee() {
+              if (!1 === _e(this)) throw st("tee");
+              const e = function(e, t) {
+                const r = ue(e);
+                let o,
+                  n,
+                  i,
+                  s,
+                  l,
+                  c = !1,
+                  u = !1,
+                  d = !1;
+                const f = new Promise(e => {
+                  l = e;
+                });
 
-          function ue(e, r, t, o, n, i, a, s) {
-            r._controlledWritableStream = e, e._writableStreamController = r, r._queue = void 0, r._queueTotalSize = void 0, N(r), r._started = !1, r._strategySizeAlgorithm = s, r._strategyHWM = a, r._writeAlgorithm = o, r._closeAlgorithm = n, r._abortAlgorithm = i;
-            var l = _e(r);
-            ee(e, l);
-            var u = t();
-            Promise.resolve(u).then(function() {
-              r._started = !0, de(r)
-            }, function(t) {
-              r._started = !0, G(e, t)
-            }).catch(z)
-          }
+                function _() {
+                  return Be(r).then(e => {
+                    const t = e.value,
+                      r = e.done;
+                    if (!0 === r && !1 === c && (!1 === u && Le(i._readableStreamController), !1 === d && Le(s._readableStreamController), c = !0), !0 === c) return;
+                    const o = t,
+                      n = t;
+                    !1 === u && Ie(i._readableStreamController, o), !1 === d && Ie(s._readableStreamController, n);
+                  });
+                }
 
-          function ce(e) {
-            return e._strategyHWM - e._queueTotalSize
-          }
-
-          function de(e) {
-            var r = e._controlledWritableStream;
-            if (!1 !== e._started && void 0 === r._inFlightWriteRequest) {
-              var t = r._state;
-              if ("closed" !== t && "errored" !== t)
-                if ("erroring" !== t) {
-                  if (0 !== e._queue.length) {
-                    var o = F(e);
-                    "close" === o ? function(e) {
-                      var r = e._controlledWritableStream;
-                      (function(e) {
-                        e._inFlightCloseRequest = e._closeRequest, e._closeRequest = void 0
-                      })(r), B(e), e._closeAlgorithm().then(function() {
-                        X(r)
-                      }, function(e) {
-                        ! function(e, r) {
-                          e._inFlightCloseRequest._reject(r), e._inFlightCloseRequest = void 0, void 0 !== e._pendingAbortRequest && (e._pendingAbortRequest._reject(r), e._pendingAbortRequest = void 0), G(e, r)
-                        }(r, e)
-                      }).catch(z)
-                    }(e) : function(e, r) {
-                      var t = e._controlledWritableStream;
-                      (function(e) {
-                        e._inFlightWriteRequest = e._writeRequests.shift()
-                      })(t), e._writeAlgorithm(r).then(function() {
-                        ! function(e) {
-                          e._inFlightWriteRequest._resolve(void 0), e._inFlightWriteRequest = void 0
-                        }(t);
-                        var r = t._state;
-                        if (B(e), !1 === Z(t) && "writable" === r) {
-                          var o = _e(e);
-                          ee(t, o)
-                        }
-                        de(e)
-                      }, function(e) {
-                        ! function(e, r) {
-                          e._inFlightWriteRequest._reject(r), e._inFlightWriteRequest = void 0, G(e, r)
-                        }(t, e)
-                      }).catch(z)
-                    }(e, o.chunk)
+                function h() {}
+                return i = de(h, _, function(t) {
+                  if (u = !0, o = t, !0 === d) {
+                    const t = a([o, n]),
+                      r = pe(e, t);
+                    l(r);
                   }
-                }
-              else K(r)
+                  return f;
+                }), s = de(h, _, function(t) {
+                  if (d = !0, n = t, !0 === u) {
+                    const t = a([o, n]),
+                      r = pe(e, t);
+                    l(r);
+                  }
+                  return f;
+                }), r._closedPromise.catch(e => {
+                  !0 !== c && (De(i._readableStreamController, e), De(s._readableStreamController, e), c = !0);
+                }), [i, s];
+              }(this);
+              return a(e);
             }
           }
 
-          function fe(e, r) {
-            "writable" === e._controlledWritableStream._state && me(e, r)
+          function ue(e) {
+            return new ReadableStreamDefaultReader(e);
+          }
+
+          function de(e, t, r, o = 1, n = () => 1) {
+            const i = Object.create(ReadableStream.prototype);
+            return fe(i), $e(i, Object.create(ReadableStreamDefaultController.prototype), e, t, r, o, n), i;
+          }
+
+          function fe(e) {
+            e._state = "readable", e._reader = void 0, e._storedError = void 0, e._disturbed = !1;
           }
 
           function _e(e) {
-            return ce(e) <= 0
-          }
-
-          function me(e, r) {
-            J(e._controlledWritableStream, r)
+            return !!n(e) && !!Object.prototype.hasOwnProperty.call(e, "_readableStreamController");
           }
 
           function he(e) {
-            return new TypeError("WritableStream.prototype." + e + " can only be used on a WritableStream")
+            return void 0 !== e._reader;
           }
 
-          function be(e) {
-            return new TypeError("WritableStreamDefaultWriter.prototype." + e + " can only be used on a WritableStreamDefaultWriter")
-          }
-
-          function ve(e) {
-            return new TypeError("Cannot " + e + " a stream using a released writer")
-          }
-
-          function ye(e) {
-            e._closedPromise = new Promise(function(r, t) {
-              e._closedPromise_resolve = r, e._closedPromise_reject = t, e._closedPromiseState = "pending"
-            })
-          }
-
-          function pe(e, r) {
-            e._closedPromise_reject(r), e._closedPromise_resolve = void 0, e._closedPromise_reject = void 0, e._closedPromiseState = "rejected"
-          }
-
-          function we(e, r) {
-            e._readyPromise = Promise.reject(r), e._readyPromise_resolve = void 0, e._readyPromise_reject = void 0, e._readyPromiseState = "rejected"
-          }
-
-          function ge(e) {
-            e._readyPromise = Promise.resolve(void 0), e._readyPromise_resolve = void 0, e._readyPromise_reject = void 0, e._readyPromiseState = "fulfilled"
-          }
-
-          function Se(e) {
-            e._readyPromise_resolve(void 0), e._readyPromise_resolve = void 0, e._readyPromise_reject = void 0, e._readyPromiseState = "fulfilled"
-          }
-          var Pe = V.WritableStream,
-            Re = v.ArrayBufferCopy,
-            qe = v.CreateAlgorithmFromUnderlyingMethod,
-            Te = v.CreateIterResultObject,
-            je = v.IsFiniteNonNegativeNumber,
-            Ce = v.InvokeOrNoop,
-            Ee = v.IsDetachedBuffer,
-            We = v.TransferArrayBuffer,
-            Ae = v.ValidateAndNormalizeHighWaterMark,
-            ke = (v.IsNonNegativeNumber, v.MakeSizeAlgorithmFromSizeFunction),
-            Oe = v.createArrayFromList,
-            ze = v.typeIsObject,
-            Be = j.rethrowAssertionErrorRejection,
-            Ie = C.DequeueValue,
-            Fe = C.EnqueueValueWithSize,
-            Ne = C.ResetQueue,
-            De = V.AcquireWritableStreamDefaultWriter,
-            Me = V.IsWritableStream,
-            Le = V.IsWritableStreamLocked,
-            Ve = V.WritableStreamAbort,
-            He = V.WritableStreamDefaultWriterCloseWithErrorPropagation,
-            xe = V.WritableStreamDefaultWriterRelease,
-            Qe = V.WritableStreamDefaultWriterWrite,
-            Ye = V.WritableStreamCloseQueuedOrInFlight,
-            Ue = i("[[CancelSteps]]"),
-            Ge = i("[[PullSteps]]"),
-            Je = function() {
-              function e(e, r) {
-                void 0 === e && (e = {});
-                var t = void 0 === r ? {} : r,
-                  o = t.size,
-                  i = t.highWaterMark;
-                $e(this);
-                var a = e.type;
-                if ("bytes" === String(a)) {
-                  if (void 0 === i && (i = 0), i = Ae(i), void 0 !== o) throw new RangeError("The strategy for a byte stream cannot have a size function");
-                  ! function(e, r, t) {
-                    var o = Object.create(Ar.prototype);
-                    var i = qe(r, "pull", 0, [o]),
-                      a = qe(r, "cancel", 1, []),
-                      s = r.autoAllocateChunkSize;
-                    if (void 0 !== s && (!1 === n(s) || s <= 0)) throw new RangeError("autoAllocateChunkSize must be a positive integer");
-                    Gr(e, o, function() {
-                      return Ce(r, "start", [o])
-                    }, i, a, t, s)
-                  }(this, e, i)
-                }
-                else {
-                  if (void 0 !== a) throw new RangeError("Invalid type is specified");
-                  void 0 === i && (i = 1),
-                    function(e, r, t, o) {
-                      var n = Object.create(wr.prototype);
-                      var i = qe(r, "pull", 0, [n]),
-                        a = qe(r, "cancel", 1, []);
-                      Er(e, n, function() {
-                        return Ce(r, "start", [n])
-                      }, i, a, t, o)
-                    }(this, e, i = Ae(i), ke(o))
-                }
+          function be(e, t, r, o, n, i) {
+            const a = ue(e),
+              s = T(t);
+            let l = !1,
+              c = Promise.resolve();
+            return new Promise((u, d) => {
+              let f;
+              if (void 0 !== i) {
+                if (f = () => {
+                    const r = new DOMException("Aborted", "AbortError"),
+                      i = [];
+                    !1 === o && i.push(() => "writable" === t._state ? j(t, r) : Promise.resolve()), !1 === n && i.push(() => "readable" === e._state ? pe(e, r) : Promise.resolve()), b(() => y(i.map(e => e()), e => e), !0, r);
+                  }, !0 === i.aborted) return void f();
+                i.addEventListener("abort", f);
               }
-              var r = e.prototype;
-              return r.cancel = function(e) {
-                return !1 === er(this) ? Promise.reject(Jr("cancel")) : !0 === rr(this) ? Promise.reject(new TypeError("Cannot cancel a stream that already has a reader")) : nr(this, e)
-              }, r.getReader = function(e) {
-                var r = (void 0 === e ? {} : e).mode;
-                if (!1 === er(this)) throw Jr("getReader");
-                if (void 0 === r) return Xe(this);
-                if ("byob" === (r = String(r))) return function(e) {
-                  return new _r(e)
-                }(this);
-                throw new RangeError("Invalid mode is specified")
-              }, r.pipeThrough = function(e, r) {
-                var t = e.writable,
-                  o = e.readable;
-                if (void 0 === t || void 0 === o) throw new TypeError("readable and writable arguments must be defined");
-                return function(e) {
-                  try {
-                    Promise.prototype.then.call(e, void 0, function() {})
-                  }
-                  catch (e) {}
-                }(this.pipeTo(t, r)), o
-              }, r.pipeTo = function(e, r) {
-                var t = this,
-                  o = void 0 === r ? {} : r,
-                  n = o.preventClose,
-                  i = o.preventAbort,
-                  a = o.preventCancel;
-                if (!1 === er(this)) return Promise.reject(Jr("pipeTo"));
-                if (!1 === Me(e)) return Promise.reject(new TypeError("ReadableStream.prototype.pipeTo's first argument must be a WritableStream"));
-                if (n = Boolean(n), i = Boolean(i), a = Boolean(a), !0 === rr(this)) return Promise.reject(new TypeError("ReadableStream.prototype.pipeTo cannot be used on a locked ReadableStream"));
-                if (!0 === Le(e)) return Promise.reject(new TypeError("ReadableStream.prototype.pipeTo cannot be used on a locked WritableStream"));
-                var s = Xe(this),
-                  l = De(e),
-                  u = !1,
-                  c = Promise.resolve();
-                return new Promise(function(r, o) {
-                  if (_(t, s._closedPromise, function(r) {
-                      !1 === i ? m(function() {
-                        return Ve(e, r)
-                      }, !0, r) : h(!0, r)
-                    }), _(e, l._closedPromise, function(e) {
-                      !1 === a ? m(function() {
-                        return nr(t, e)
-                      }, !0, e) : h(!0, e)
-                    }), function(e, r, t) {
-                      "closed" === e._state ? t() : r.then(t).catch(Be)
-                    }(t, s._closedPromise, function() {
-                      !1 === n ? m(function() {
-                        return He(l)
-                      }) : h()
-                    }), !0 === Ye(e) || "closed" === e._state) {
-                    var d = new TypeError("the destination writable stream closed before all data could be piped to it");
-                    !1 === a ? m(function() {
-                      return nr(t, d)
-                    }, !0, d) : h(!0, d)
-                  }
+              if (h(e, a._closedPromise, e => {
+                  !1 === o ? b(() => j(t, e), !0, e) : m(!0, e);
+                }), h(t, s._closedPromise, t => {
+                  !1 === n ? b(() => pe(e, t), !0, t) : m(!0, t);
+                }), function(e, t, r) {
+                  "closed" === e._state ? r() : t.then(r).catch(w);
+                }(e, a._closedPromise, () => {
+                  !1 === r ? b(() => function(e) {
+                    const t = e._ownerWritableStream,
+                      r = t._state;
+                    return !0 === O(t) || "closed" === r ? Promise.resolve() : "errored" === r ? Promise.reject(t._storedError) : L(e);
+                  }(s)) : m();
+                }), !0 === O(t) || "closed" === t._state) {
+                const t = new TypeError("the destination writable stream closed before all data could be piped to it");
+                !1 === n ? b(() => pe(e, t), !0, t) : m(!0, t);
+              }
 
-                  function f() {
-                    var e = c;
-                    return c.then(function() {
-                      return e !== c ? f() : void 0
-                    })
-                  }
+              function _() {
+                const e = c;
+                return c.then(() => e !== c ? _() : void 0);
+              }
 
-                  function _(e, r, t) {
-                    "errored" === e._state ? t(e._storedError) : r.catch(t).catch(Be)
-                  }
+              function h(e, t, r) {
+                "errored" === e._state ? r(e._storedError) : t.catch(r).catch(w);
+              }
 
-                  function m(r, t, o) {
-                    function n() {
-                      r().then(function() {
-                        return b(t, o)
-                      }, function(e) {
-                        return b(!0, e)
-                      }).catch(Be)
-                    }!0 !== u && (u = !0, "writable" === e._state && !1 === Ye(e) ? f().then(n) : n())
-                  }
+              function b(e, r, o) {
+                function n() {
+                  e().then(() => p(r, o), e => p(!0, e)).catch(w);
+                }!0 !== l && (l = !0, "writable" === t._state && !1 === O(t) ? _().then(n) : n());
+              }
 
-                  function h(r, t) {
-                    !0 !== u && (u = !0, "writable" === e._state && !1 === Ye(e) ? f().then(function() {
-                      return b(r, t)
-                    }).catch(Be) : b(r, t))
-                  }
+              function m(e, r) {
+                !0 !== l && (l = !0, "writable" === t._state && !1 === O(t) ? _().then(() => p(e, r)).catch(w) : p(e, r));
+              }
 
-                  function b(e, t) {
-                    xe(l), yr(s), e ? o(t) : r(void 0)
-                  }(function e() {
-                    return !0 === u ? Promise.resolve() : l._readyPromise.then(function() {
-                      return pr(s).then(function(e) {
-                        var r = e.value;
-                        !0 !== e.done && (c = Qe(l, r).catch(function() {}))
-                      })
-                    }).then(e)
-                  })().catch(function(e) {
-                    c = Promise.resolve(), Be(e)
-                  })
-                })
-              }, r.tee = function() {
-                if (!1 === er(this)) throw Jr("tee");
-                var e = function(e, r) {
-                  var t, o, n, i, a, s = Xe(e),
-                    l = !1,
-                    u = !1,
-                    c = !1,
-                    d = new Promise(function(e) {
-                      a = e
-                    });
-
-                  function f() {
-                    return pr(s).then(function(e) {
-                      var r = e.value,
-                        t = e.done;
-                      if (!0 === t && !1 === l && (!1 === u && Rr(n._readableStreamController), !1 === c && Rr(i._readableStreamController), l = !0), !0 !== l) {
-                        var o = r,
-                          a = r;
-                        !1 === u && qr(n._readableStreamController, o), !1 === c && qr(i._readableStreamController, a)
-                      }
-                    })
-                  }
-
-                  function _() {}
-                  return n = Ze(_, f, function(r) {
-                    if (u = !0, t = r, !0 === c) {
-                      var n = Oe([t, o]),
-                        i = nr(e, n);
-                      a(i)
-                    }
-                    return d
-                  }), i = Ze(_, f, function(r) {
-                    if (c = !0, o = r, !0 === u) {
-                      var n = Oe([t, o]),
-                        i = nr(e, n);
-                      a(i)
-                    }
-                    return d
-                  }), s._closedPromise.catch(function(e) {
-                    !0 !== l && (Tr(n._readableStreamController, e), Tr(i._readableStreamController, e), l = !0)
-                  }), [n, i]
-                }(this);
-                return Oe(e)
-              }, t(e, [{
-                key: "locked",
-                get: function() {
-                  if (!1 === er(this)) throw Jr("locked");
-                  return rr(this)
-                }
-              }]), e
-            }(),
-            Ke = {
-              CreateReadableByteStream: function(e, r, t, o, n) {
-                void 0 === o && (o = 0);
-                void 0 === n && (n = void 0);
-                var i = Object.create(Je.prototype);
-                $e(i);
-                var a = Object.create(Ar.prototype);
-                return Gr(i, a, e, r, t, o, n), i
-              },
-              CreateReadableStream: Ze,
-              ReadableStream: Je,
-              IsReadableStreamDisturbed: function(e) {
-                return e._disturbed
-              },
-              ReadableStreamDefaultControllerClose: Rr,
-              ReadableStreamDefaultControllerEnqueue: qr,
-              ReadableStreamDefaultControllerError: Tr,
-              ReadableStreamDefaultControllerGetDesiredSize: jr,
-              ReadableStreamDefaultControllerHasBackpressure: function(e) {
-                if (!0 === Pr(e)) return !1;
-                return !0
-              },
-              ReadableStreamDefaultControllerCanCloseOrEnqueue: Cr
-            };
-
-          function Xe(e) {
-            return new fr(e)
-          }
-
-          function Ze(e, r, t, o, n) {
-            void 0 === o && (o = 1), void 0 === n && (n = function() {
-              return 1
+              function p(e, t) {
+                M(s), We(a), void 0 !== i && i.removeEventListener("abort", f), e ? d(t) : u(void 0);
+              }
+              new Promise((e, t) => {
+                ! function r(o) {
+                  o ? e() : (!0 === l ? Promise.resolve(!0) : s._readyPromise.then(() => Be(a).then(({
+                    value: e,
+                    done: t
+                  }) => !0 === t || (c = Y(s, e).catch(() => {}), !1)))).then(r, t);
+                }(!1);
+              }).catch(e => {
+                c = Promise.resolve(), w(e);
+              });
             });
-            var i = Object.create(Je.prototype);
-            return $e(i), Er(i, Object.create(wr.prototype), e, r, t, o, n), i
           }
 
-          function $e(e) {
-            e._state = "readable", e._reader = void 0, e._storedError = void 0, e._disturbed = !1
-          }
-
-          function er(e) {
-            return !!ze(e) && !!Object.prototype.hasOwnProperty.call(e, "_readableStreamController")
-          }
-
-          function rr(e) {
-            return void 0 !== e._reader
-          }
-
-          function tr(e) {
-            return new Promise(function(r, t) {
-              var o = {
+          function me(e, t) {
+            return new Promise((r, o) => {
+              const n = {
                 _resolve: r,
-                _reject: t
+                _reject: o,
+                _forAuthorCode: t
               };
-              e._reader._readIntoRequests.push(o)
-            })
+              e._reader._readIntoRequests.push(n);
+            });
           }
 
-          function or(e) {
-            return new Promise(function(r, t) {
-              var o = {
+          function ye(e, t) {
+            return new Promise((r, o) => {
+              const n = {
                 _resolve: r,
-                _reject: t
+                _reject: o,
+                _forAuthorCode: t
               };
-              e._reader._readRequests.push(o)
-            })
+              e._reader._readRequests.push(n);
+            });
           }
 
-          function nr(e, r) {
-            return e._disturbed = !0, "closed" === e._state ? Promise.resolve(void 0) : "errored" === e._state ? Promise.reject(e._storedError) : (ir(e), e._readableStreamController[Ue](r).then(function() {}))
+          function pe(e, t) {
+            if (e._disturbed = !0, "closed" === e._state) return Promise.resolve(void 0);
+            if ("errored" === e._state) return Promise.reject(e._storedError);
+            return we(e), e._readableStreamController[le](t).then(() => void 0);
           }
 
-          function ir(e) {
+          function we(e) {
             e._state = "closed";
-            var r = e._reader;
-            if (void 0 !== r) {
-              if (!0 === hr(r)) {
-                for (var t = 0, o = r._readRequests; t < o.length; t++) {
-                  (0, o[t]._resolve)(Te(void 0, !0))
+            const t = e._reader;
+            if (void 0 !== t) {
+              if (Ce(t)) {
+                for (const _ref of t._readRequests) {
+                  const e = _ref._resolve;
+                  const r = _ref._forAuthorCode;
+                  e(ge(void 0, !0, r));
                 }
-                r._readRequests = []
-              }! function(e) {
-                e._closedPromise_resolve(void 0), e._closedPromise_resolve = void 0, e._closedPromise_reject = void 0
-              }(r)
+                t._readRequests = [];
+              }
+              _t(t);
             }
           }
 
-          function ar(e, r) {
-            e._state = "errored", e._storedError = r;
-            var t = e._reader;
-            if (void 0 !== t) {
-              if (!0 === hr(t)) {
-                for (var o = 0, n = t._readRequests; o < n.length; o++) {
-                  n[o]._reject(r)
-                }
-                t._readRequests = []
+          function ge(e, t, r) {
+            let o = null;
+            !0 === r && (o = Object.prototype);
+            const n = Object.create(o);
+            return Object.defineProperty(n, "value", {
+              value: e,
+              enumerable: !0,
+              writable: !0,
+              configurable: !0
+            }), Object.defineProperty(n, "done", {
+              value: t,
+              enumerable: !0,
+              writable: !0,
+              configurable: !0
+            }), n;
+          }
+
+          function Se(e, t) {
+            e._state = "errored", e._storedError = t;
+            const r = e._reader;
+            if (void 0 !== r) {
+              if (Ce(r)) {
+                for (const e of r._readRequests) e._reject(t);
+                r._readRequests = [];
               }
               else {
-                for (var i = 0, a = t._readIntoRequests; i < a.length; i++) {
-                  a[i]._reject(r)
-                }
-                t._readIntoRequests = []
+                for (const e of r._readIntoRequests) e._reject(t);
+                r._readIntoRequests = [];
               }
-              Zr(t, r), t._closedPromise.catch(function() {})
+              ft(r, t);
             }
           }
 
-          function sr(e, r, t) {
-            e._reader._readRequests.shift()._resolve(Te(r, t))
+          function ve(e, t, r) {
+            const o = e._reader._readRequests.shift();
+            o._resolve(ge(t, r, o._forAuthorCode));
           }
 
-          function lr(e) {
-            return e._reader._readIntoRequests.length
+          function Re(e) {
+            return e._reader._readIntoRequests.length;
           }
 
-          function ur(e) {
-            return e._reader._readRequests.length
+          function Pe(e) {
+            return e._reader._readRequests.length;
           }
 
-          function cr(e) {
-            var r = e._reader;
-            return void 0 !== r && !1 !== mr(r)
+          function Te(e) {
+            const t = e._reader;
+            return void 0 !== t && !!Ee(t);
           }
 
-          function dr(e) {
-            var r = e._reader;
-            return void 0 !== r && !1 !== hr(r)
+          function qe(e) {
+            const t = e._reader;
+            return void 0 !== t && !!Ce(t);
           }
-          var fr = function() {
-              function e(e) {
-                if (!1 === er(e)) throw new TypeError("ReadableStreamDefaultReader can only be constructed with a ReadableStream instance");
-                if (!0 === rr(e)) throw new TypeError("This stream has already been locked for exclusive reading by another reader");
-                br(this, e), this._readRequests = []
-              }
-              var r = e.prototype;
-              return r.cancel = function(e) {
-                return !1 === hr(this) ? Promise.reject(Xr("cancel")) : void 0 === this._ownerReadableStream ? Promise.reject(Kr("cancel")) : vr(this, e)
-              }, r.read = function() {
-                return !1 === hr(this) ? Promise.reject(Xr("read")) : void 0 === this._ownerReadableStream ? Promise.reject(Kr("read from")) : pr(this)
-              }, r.releaseLock = function() {
-                if (!1 === hr(this)) throw Xr("releaseLock");
-                if (void 0 !== this._ownerReadableStream) {
-                  if (this._readRequests.length > 0) throw new TypeError("Tried to release a reader lock when that reader has pending read() calls un-settled");
-                  yr(this)
-                }
-              }, t(e, [{
-                key: "closed",
-                get: function() {
-                  return !1 === hr(this) ? Promise.reject(Xr("closed")) : this._closedPromise
-                }
-              }]), e
-            }(),
-            _r = function() {
-              function e(e) {
-                if (!er(e)) throw new TypeError("ReadableStreamBYOBReader can only be constructed with a ReadableStream instance given a byte source");
-                if (!1 === kr(e._readableStreamController)) throw new TypeError("Cannot construct a ReadableStreamBYOBReader for a stream not constructed with a byte source");
-                if (rr(e)) throw new TypeError("This stream has already been locked for exclusive reading by another reader");
-                br(this, e), this._readIntoRequests = []
-              }
-              var r = e.prototype;
-              return r.cancel = function(e) {
-                return mr(this) ? void 0 === this._ownerReadableStream ? Promise.reject(Kr("cancel")) : vr(this, e) : Promise.reject($r("cancel"))
-              }, r.read = function(e) {
-                return mr(this) ? void 0 === this._ownerReadableStream ? Promise.reject(Kr("read from")) : ArrayBuffer.isView(e) ? !0 === Ee(e.buffer) ? Promise.reject(new TypeError("Cannot read into a view onto a detached ArrayBuffer")) : 0 === e.byteLength ? Promise.reject(new TypeError("view must have non-zero byteLength")) : function(e, r) {
-                  var t = e._ownerReadableStream;
-                  if (t._disturbed = !0, "errored" === t._state) return Promise.reject(t._storedError);
-                  return function(e, r) {
-                    var t = e._controlledReadableByteStream,
-                      o = 1;
-                    r.constructor !== DataView && (o = r.constructor.BYTES_PER_ELEMENT);
-                    var n = r.constructor,
-                      i = {
-                        buffer: We(r.buffer),
-                        byteOffset: r.byteOffset,
-                        byteLength: r.byteLength,
-                        bytesFilled: 0,
-                        elementSize: o,
-                        ctor: n,
-                        readerType: "byob"
-                      };
-                    if (e._pendingPullIntos.length > 0) return e._pendingPullIntos.push(i), tr(t);
-                    if ("closed" === t._state) {
-                      var a = new r.constructor(i.buffer, i.byteOffset, 0);
-                      return Promise.resolve(Te(a, !0))
-                    }
-                    if (e._queueTotalSize > 0) {
-                      if (!0 === Dr(e, i)) {
-                        var s = Fr(i);
-                        return Lr(e), Promise.resolve(Te(s, !1))
-                      }
-                      if (!0 === e._closeRequested) {
-                        var l = new TypeError("Insufficient bytes to fill elements in the given buffer");
-                        return Yr(e, l), Promise.reject(l)
-                      }
-                    }
-                    e._pendingPullIntos.push(i);
-                    var u = tr(t);
-                    return zr(e), u
-                  }(t._readableStreamController, r)
-                }(this, e) : Promise.reject(new TypeError("view must be an array buffer view")) : Promise.reject($r("read"))
-              }, r.releaseLock = function() {
-                if (!mr(this)) throw $r("releaseLock");
-                if (void 0 !== this._ownerReadableStream) {
-                  if (this._readIntoRequests.length > 0) throw new TypeError("Tried to release a reader lock when that reader has pending read() calls un-settled");
-                  yr(this)
-                }
-              }, t(e, [{
-                key: "closed",
-                get: function() {
-                  return mr(this) ? this._closedPromise : Promise.reject($r("closed"))
-                }
-              }]), e
-            }();
-
-          function mr(e) {
-            return !!ze(e) && !!Object.prototype.hasOwnProperty.call(e, "_readIntoRequests")
-          }
-
-          function hr(e) {
-            return !!ze(e) && !!Object.prototype.hasOwnProperty.call(e, "_readRequests")
-          }
-
-          function br(e, r) {
-            e._ownerReadableStream = r, r._reader = e, "readable" === r._state ? function(e) {
-              e._closedPromise = new Promise(function(r, t) {
-                e._closedPromise_resolve = r, e._closedPromise_reject = t
-              })
-            }(e) : "closed" === r._state ? function(e) {
-              e._closedPromise = Promise.resolve(void 0), e._closedPromise_resolve = void 0, e._closedPromise_reject = void 0
-            }(e) : (! function(e, r) {
-              e._closedPromise = Promise.reject(r), e._closedPromise_resolve = void 0, e._closedPromise_reject = void 0
-            }(e, r._storedError), e._closedPromise.catch(function() {}))
-          }
-
-          function vr(e, r) {
-            return nr(e._ownerReadableStream, r)
-          }
-
-          function yr(e) {
-            "readable" === e._ownerReadableStream._state ? Zr(e, new TypeError("Reader was released and can no longer be used to monitor the stream's closedness")) : function(e, r) {
-              e._closedPromise = Promise.reject(r)
-            }(e, new TypeError("Reader was released and can no longer be used to monitor the stream's closedness")), e._closedPromise.catch(function() {}), e._ownerReadableStream._reader = void 0, e._ownerReadableStream = void 0
-          }
-
-          function pr(e) {
-            var r = e._ownerReadableStream;
-            return r._disturbed = !0, "closed" === r._state ? Promise.resolve(Te(void 0, !0)) : "errored" === r._state ? Promise.reject(r._storedError) : r._readableStreamController[Ge]()
-          }
-          var wr = function() {
-            function e() {
-              throw new TypeError
+          class ReadableStreamDefaultReader {
+            constructor(e) {
+              if (!1 === _e(e)) throw new TypeError("ReadableStreamDefaultReader can only be constructed with a ReadableStream instance");
+              if (!0 === he(e)) throw new TypeError("This stream has already been locked for exclusive reading by another reader");
+              je(this, e), this._readRequests = [];
             }
-            var r = e.prototype;
-            return r.close = function() {
-              if (!1 === gr(this)) throw et("close");
-              if (!1 === Cr(this)) throw new TypeError("The stream is not in a state that permits close");
-              Rr(this)
-            }, r.enqueue = function(e) {
-              if (!1 === gr(this)) throw et("enqueue");
-              if (!1 === Cr(this)) throw new TypeError("The stream is not in a state that permits enqueue");
-              return qr(this, e)
-            }, r.error = function(e) {
-              if (!1 === gr(this)) throw et("error");
-              Tr(this, e)
-            }, r[Ue] = function(e) {
-              return Ne(this), this._cancelAlgorithm(e)
-            }, r[Ge] = function() {
-              var e = this._controlledReadableStream;
+            get closed() {
+              return Ce(this) ? this._closedPromise : Promise.reject(ct("closed"));
+            }
+            cancel(e) {
+              return Ce(this) ? void 0 === this._ownerReadableStream ? Promise.reject(lt("cancel")) : Ae(this, e) : Promise.reject(ct("cancel"));
+            }
+            read() {
+              return Ce(this) ? void 0 === this._ownerReadableStream ? Promise.reject(lt("read from")) : Be(this, !0) : Promise.reject(ct("read"));
+            }
+            releaseLock() {
+              if (!Ce(this)) throw ct("releaseLock");
+              if (void 0 !== this._ownerReadableStream) {
+                if (this._readRequests.length > 0) throw new TypeError("Tried to release a reader lock when that reader has pending read() calls un-settled");
+                We(this);
+              }
+            }
+          }
+          class ReadableStreamBYOBReader {
+            constructor(e) {
+              if (!_e(e)) throw new TypeError("ReadableStreamBYOBReader can only be constructed with a ReadableStream instance given a byte source");
+              if (!1 === Ne(e._readableStreamController)) throw new TypeError("Cannot construct a ReadableStreamBYOBReader for a stream not constructed with a byte source");
+              if (he(e)) throw new TypeError("This stream has already been locked for exclusive reading by another reader");
+              je(this, e), this._readIntoRequests = [];
+            }
+            get closed() {
+              return Ee(this) ? this._closedPromise : Promise.reject(ht("closed"));
+            }
+            cancel(e) {
+              return Ee(this) ? void 0 === this._ownerReadableStream ? Promise.reject(lt("cancel")) : Ae(this, e) : Promise.reject(ht("cancel"));
+            }
+            read(e) {
+              return Ee(this) ? void 0 === this._ownerReadableStream ? Promise.reject(lt("read from")) : ArrayBuffer.isView(e) ? (e.buffer, 0 === e.byteLength ? Promise.reject(new TypeError("view must have non-zero byteLength")) : function(e, t, r = !1) {
+                const o = e._ownerReadableStream;
+                if (o._disturbed = !0, "errored" === o._state) return Promise.reject(o._storedError);
+                return function(e, t, r) {
+                  const o = e._controlledReadableByteStream;
+                  let n = 1;
+                  t.constructor !== DataView && (n = t.constructor.BYTES_PER_ELEMENT);
+                  const i = t.constructor,
+                    a = {
+                      buffer: _(t.buffer),
+                      byteOffset: t.byteOffset,
+                      byteLength: t.byteLength,
+                      bytesFilled: 0,
+                      elementSize: n,
+                      ctor: i,
+                      readerType: "byob"
+                    };
+                  if (e._pendingPullIntos.length > 0) return e._pendingPullIntos.push(a), me(o, r);
+                  if ("closed" === o._state) {
+                    const e = new i(a.buffer, a.byteOffset, 0);
+                    return Promise.resolve(ge(e, !0, r));
+                  }
+                  if (e._queueTotalSize > 0) {
+                    if (!0 === Je(e, a)) {
+                      const t = Ve(a);
+                      return Xe(e), Promise.resolve(ge(t, !1, r));
+                    }
+                    if (!0 === e._closeRequested) {
+                      const t = new TypeError("Insufficient bytes to fill elements in the given buffer");
+                      return nt(e, t), Promise.reject(t);
+                    }
+                  }
+                  e._pendingPullIntos.push(a);
+                  const s = me(o, r);
+                  return xe(e), s;
+                }(o._readableStreamController, t, r);
+              }(this, e, !0)) : Promise.reject(new TypeError("view must be an array buffer view")) : Promise.reject(ht("read"));
+            }
+            releaseLock() {
+              if (!Ee(this)) throw ht("releaseLock");
+              if (void 0 !== this._ownerReadableStream) {
+                if (this._readIntoRequests.length > 0) throw new TypeError("Tried to release a reader lock when that reader has pending read() calls un-settled");
+                We(this);
+              }
+            }
+          }
+
+          function Ee(e) {
+            return !!n(e) && !!Object.prototype.hasOwnProperty.call(e, "_readIntoRequests");
+          }
+
+          function Ce(e) {
+            return !!n(e) && !!Object.prototype.hasOwnProperty.call(e, "_readRequests");
+          }
+
+          function je(e, t) {
+            e._ownerReadableStream = t, t._reader = e, "readable" === t._state ? ut(e) : "closed" === t._state ? function(e) {
+              ut(e), _t(e);
+            }(e) : dt(e, t._storedError);
+          }
+
+          function Ae(e, t) {
+            return pe(e._ownerReadableStream, t);
+          }
+
+          function We(e) {
+            "readable" === e._ownerReadableStream._state ? ft(e, new TypeError("Reader was released and can no longer be used to monitor the stream's closedness")) : function(e, t) {
+              dt(e, t);
+            }(e, new TypeError("Reader was released and can no longer be used to monitor the stream's closedness")), e._ownerReadableStream._reader = void 0, e._ownerReadableStream = void 0;
+          }
+
+          function Be(e, t = !1) {
+            const r = e._ownerReadableStream;
+            return r._disturbed = !0, "closed" === r._state ? Promise.resolve(ge(void 0, !0, t)) : "errored" === r._state ? Promise.reject(r._storedError) : r._readableStreamController[ce](t);
+          }
+          class ReadableStreamDefaultController {
+            constructor() {
+              throw new TypeError();
+            }
+            get desiredSize() {
+              if (!1 === Oe(this)) throw bt("desiredSize");
+              return Me(this);
+            }
+            close() {
+              if (!1 === Oe(this)) throw bt("close");
+              if (!1 === Ye(this)) throw new TypeError("The stream is not in a state that permits close");
+              Le(this);
+            }
+            enqueue(e) {
+              if (!1 === Oe(this)) throw bt("enqueue");
+              if (!1 === Ye(this)) throw new TypeError("The stream is not in a state that permits enqueue");
+              return Ie(this, e);
+            }
+            error(e) {
+              if (!1 === Oe(this)) throw bt("error");
+              De(this, e);
+            } [le](e) {
+              v(this);
+              const t = this._cancelAlgorithm(e);
+              return Fe(this), t;
+            } [ce](e) {
+              const t = this._controlledReadableStream;
               if (this._queue.length > 0) {
-                var r = Ie(this);
-                return !0 === this._closeRequested && 0 === this._queue.length ? ir(e) : Sr(this), Promise.resolve(Te(r, !1))
+                const r = g(this);
+                return !0 === this._closeRequested && 0 === this._queue.length ? (Fe(this), we(t)) : ze(this), Promise.resolve(ge(r, !1, e));
               }
-              var t = or(e);
-              return Sr(this), t
-            }, t(e, [{
-              key: "desiredSize",
-              get: function() {
-                if (!1 === gr(this)) throw et("desiredSize");
-                return jr(this)
-              }
-            }]), e
-          }();
-
-          function gr(e) {
-            return !!ze(e) && !!Object.prototype.hasOwnProperty.call(e, "_controlledReadableStream")
+              const r = ye(t, e);
+              return ze(this), r;
+            }
           }
 
-          function Sr(e) {
-            !1 !== Pr(e) && (!0 !== e._pulling ? (e._pulling = !0, e._pullAlgorithm().then(function() {
-              if (e._pulling = !1, !0 === e._pullAgain) return e._pullAgain = !1, Sr(e)
-            }, function(r) {
-              Tr(e, r)
-            }).catch(Be)) : e._pullAgain = !0)
+          function Oe(e) {
+            return !!n(e) && !!Object.prototype.hasOwnProperty.call(e, "_controlledReadableStream");
           }
 
-          function Pr(e) {
-            var r = e._controlledReadableStream;
-            return !1 !== Cr(e) && (!1 !== e._started && (!0 === rr(r) && ur(r) > 0 || jr(e) > 0))
+          function ze(e) {
+            !1 !== ke(e) && (!0 !== e._pulling ? (e._pulling = !0, e._pullAlgorithm().then(() => {
+              if (e._pulling = !1, !0 === e._pullAgain) return e._pullAgain = !1, ze(e);
+            }, t => {
+              De(e, t);
+            }).catch(w)) : e._pullAgain = !0);
           }
 
-          function Rr(e) {
-            var r = e._controlledReadableStream;
-            e._closeRequested = !0, 0 === e._queue.length && ir(r)
+          function ke(e) {
+            const t = e._controlledReadableStream;
+            return !1 !== Ye(e) && !1 !== e._started && (!0 === he(t) && Pe(t) > 0 || Me(e) > 0);
           }
 
-          function qr(e, r) {
-            var t = e._controlledReadableStream;
-            if (!0 === rr(t) && ur(t) > 0) sr(t, r, !1);
+          function Fe(e) {
+            e._pullAlgorithm = void 0, e._cancelAlgorithm = void 0, e._strategySizeAlgorithm = void 0;
+          }
+
+          function Le(e) {
+            const t = e._controlledReadableStream;
+            e._closeRequested = !0, 0 === e._queue.length && (Fe(e), we(t));
+          }
+
+          function Ie(e, t) {
+            const r = e._controlledReadableStream;
+            if (!0 === he(r) && Pe(r) > 0) ve(r, t, !1);
             else {
-              var o;
+              let r;
               try {
-                o = e._strategySizeAlgorithm(r)
+                r = e._strategySizeAlgorithm(t);
               }
-              catch (r) {
-                throw Tr(e, r), r
+              catch (t) {
+                throw De(e, t), t;
               }
               try {
-                Fe(e, r, o)
+                S(e, t, r);
               }
-              catch (r) {
-                throw Tr(e, r), r
+              catch (t) {
+                throw De(e, t), t;
               }
             }
-            Sr(e)
+            ze(e);
           }
 
-          function Tr(e, r) {
-            var t = e._controlledReadableStream;
-            "readable" === t._state && (Ne(e), ar(t, r))
+          function De(e, t) {
+            const r = e._controlledReadableStream;
+            "readable" === r._state && (v(e), Fe(e), Se(r, t));
           }
 
-          function jr(e) {
-            var r = e._controlledReadableStream._state;
-            return "errored" === r ? null : "closed" === r ? 0 : e._strategyHWM - e._queueTotalSize
+          function Me(e) {
+            const t = e._controlledReadableStream._state;
+            return "errored" === t ? null : "closed" === t ? 0 : e._strategyHWM - e._queueTotalSize;
           }
 
-          function Cr(e) {
-            var r = e._controlledReadableStream._state;
-            return !1 === e._closeRequested && "readable" === r
+          function Ye(e) {
+            const t = e._controlledReadableStream._state;
+            return !1 === e._closeRequested && "readable" === t;
           }
 
-          function Er(e, r, t, o, n, i, a) {
-            r._controlledReadableStream = e, r._queue = void 0, r._queueTotalSize = void 0, Ne(r), r._started = !1, r._closeRequested = !1, r._pullAgain = !1, r._pulling = !1, r._strategySizeAlgorithm = a, r._strategyHWM = i, r._pullAlgorithm = o, r._cancelAlgorithm = n, e._readableStreamController = r;
-            var s = t();
-            Promise.resolve(s).then(function() {
-              r._started = !0, Sr(r)
-            }, function(e) {
-              Tr(r, e)
-            }).catch(Be)
+          function $e(e, t, r, o, n, i, a) {
+            t._controlledReadableStream = e, t._queue = void 0, t._queueTotalSize = void 0, v(t), t._started = !1, t._closeRequested = !1, t._pullAgain = !1, t._pulling = !1, t._strategySizeAlgorithm = a, t._strategyHWM = i, t._pullAlgorithm = o, t._cancelAlgorithm = n, e._readableStreamController = t;
+            const s = r();
+            Promise.resolve(s).then(() => {
+              t._started = !0, ze(t);
+            }, e => {
+              De(t, e);
+            }).catch(w);
           }
-          var Wr = function() {
-              function e() {
-                throw new TypeError("ReadableStreamBYOBRequest cannot be used directly")
+          class ReadableStreamBYOBRequest {
+            constructor() {
+              throw new TypeError("ReadableStreamBYOBRequest cannot be used directly");
+            }
+            get view() {
+              if (!1 === Qe(this)) throw mt("view");
+              return this._view;
+            }
+            respond(e) {
+              if (!1 === Qe(this)) throw mt("respond");
+              if (void 0 === this._associatedReadableByteStreamController) throw new TypeError("This BYOB request has been invalidated");
+              this._view.buffer,
+                function(e, t) {
+                  if (!1 === l(t = Number(t))) throw new RangeError("bytesWritten must be a finite");
+                  tt(e, t);
+                }(this._associatedReadableByteStreamController, e);
+            }
+            respondWithNewView(e) {
+              if (!1 === Qe(this)) throw mt("respond");
+              if (void 0 === this._associatedReadableByteStreamController) throw new TypeError("This BYOB request has been invalidated");
+              if (!ArrayBuffer.isView(e)) throw new TypeError("You can only respond with array buffer views");
+              e.buffer,
+                function(e, t) {
+                  const r = e._pendingPullIntos[0];
+                  if (r.byteOffset + r.bytesFilled !== t.byteOffset) throw new RangeError("The region specified by view does not match byobRequest");
+                  if (r.byteLength !== t.byteLength) throw new RangeError("The buffer of view has different capacity than byobRequest");
+                  r.buffer = t.buffer, tt(e, t.byteLength);
+                }(this._associatedReadableByteStreamController, e);
+            }
+          }
+          class ReadableByteStreamController {
+            constructor() {
+              throw new TypeError("ReadableByteStreamController constructor cannot be used directly");
+            }
+            get byobRequest() {
+              if (!1 === Ne(this)) throw yt("byobRequest");
+              if (void 0 === this._byobRequest && this._pendingPullIntos.length > 0) {
+                const e = this._pendingPullIntos[0],
+                  t = new Uint8Array(e.buffer, e.byteOffset + e.bytesFilled, e.byteLength - e.bytesFilled),
+                  r = Object.create(ReadableStreamBYOBRequest.prototype);
+                ! function(e, t, r) {
+                  e._associatedReadableByteStreamController = t, e._view = r;
+                }(r, this, t), this._byobRequest = r;
               }
-              var r = e.prototype;
-              return r.respond = function(e) {
-                if (!1 === Or(this)) throw rt("respond");
-                if (void 0 === this._associatedReadableByteStreamController) throw new TypeError("This BYOB request has been invalidated");
-                if (!0 === Ee(this._view.buffer)) throw new TypeError("The BYOB request's buffer has been detached and so cannot be used as a response");
-                ! function(e, r) {
-                  if (r = Number(r), !1 === je(r)) throw new RangeError("bytesWritten must be a finite");
-                  xr(e, r)
-                }(this._associatedReadableByteStreamController, e)
-              }, r.respondWithNewView = function(e) {
-                if (!1 === Or(this)) throw rt("respond");
-                if (void 0 === this._associatedReadableByteStreamController) throw new TypeError("This BYOB request has been invalidated");
-                if (!ArrayBuffer.isView(e)) throw new TypeError("You can only respond with array buffer views");
-                if (!0 === Ee(e.buffer)) throw new TypeError("The supplied view's buffer has been detached and so cannot be used as a response");
-                ! function(e, r) {
-                  var t = e._pendingPullIntos[0];
-                  if (t.byteOffset + t.bytesFilled !== r.byteOffset) throw new RangeError("The region specified by view does not match byobRequest");
-                  if (t.byteLength !== r.byteLength) throw new RangeError("The buffer of view has different capacity than byobRequest");
-                  t.buffer = r.buffer, xr(e, r.byteLength)
-                }(this._associatedReadableByteStreamController, e)
-              }, t(e, [{
-                key: "view",
-                get: function() {
-                  if (!1 === Or(this)) throw rt("view");
-                  return this._view
-                }
-              }]), e
-            }(),
-            Ar = function() {
-              function e() {
-                throw new TypeError("ReadableByteStreamController constructor cannot be used directly")
-              }
-              var r = e.prototype;
-              return r.close = function() {
-                if (!1 === kr(this)) throw tt("close");
-                if (!0 === this._closeRequested) throw new TypeError("The stream has already been closed; do not close it again!");
-                var e = this._controlledReadableByteStream._state;
-                if ("readable" !== e) throw new TypeError("The stream (in " + e + " state) is not in the readable state and cannot be closed");
-                ! function(e) {
-                  var r = e._controlledReadableByteStream;
-                  if (e._queueTotalSize > 0) return void(e._closeRequested = !0);
-                  if (e._pendingPullIntos.length > 0) {
-                    var t = e._pendingPullIntos[0];
-                    if (t.bytesFilled > 0) {
-                      var o = new TypeError("Insufficient bytes to fill elements in the given buffer");
-                      throw Yr(e, o), o
-                    }
+              return this._byobRequest;
+            }
+            get desiredSize() {
+              if (!1 === Ne(this)) throw yt("desiredSize");
+              return it(this);
+            }
+            close() {
+              if (!1 === Ne(this)) throw yt("close");
+              if (!0 === this._closeRequested) throw new TypeError("The stream has already been closed; do not close it again!");
+              const e = this._controlledReadableByteStream._state;
+              if ("readable" !== e) throw new TypeError(`The stream (in ${e} state) is not in the readable state and cannot be closed`);
+              ! function(e) {
+                const t = e._controlledReadableByteStream;
+                if (e._queueTotalSize > 0) return void(e._closeRequested = !0);
+                if (e._pendingPullIntos.length > 0) {
+                  const t = e._pendingPullIntos[0];
+                  if (t.bytesFilled > 0) {
+                    const t = new TypeError("Insufficient bytes to fill elements in the given buffer");
+                    throw nt(e, t), t;
                   }
-                  ir(r)
-                }(this)
-              }, r.enqueue = function(e) {
-                if (!1 === kr(this)) throw tt("enqueue");
-                if (!0 === this._closeRequested) throw new TypeError("stream is closed or draining");
-                var r = this._controlledReadableByteStream._state;
-                if ("readable" !== r) throw new TypeError("The stream (in " + r + " state) is not in the readable state and cannot be enqueued to");
-                if (!ArrayBuffer.isView(e)) throw new TypeError("You can only enqueue array buffer views when using a ReadableByteStreamController");
-                if (!0 === Ee(e.buffer)) throw new TypeError("Cannot enqueue a view onto a detached ArrayBuffer");
-                ! function(e, r) {
-                  var t = e._controlledReadableByteStream,
-                    o = r.buffer,
-                    n = r.byteOffset,
-                    i = r.byteLength,
-                    a = We(o);
-                  if (!0 === dr(t))
-                    if (0 === ur(t)) Nr(e, a, n, i);
+                }
+                ot(e), we(t);
+              }(this);
+            }
+            enqueue(e) {
+              if (!1 === Ne(this)) throw yt("enqueue");
+              if (!0 === this._closeRequested) throw new TypeError("stream is closed or draining");
+              const t = this._controlledReadableByteStream._state;
+              if ("readable" !== t) throw new TypeError(`The stream (in ${t} state) is not in the readable state and cannot be enqueued to`);
+              if (!ArrayBuffer.isView(e)) throw new TypeError("You can only enqueue array buffer views when using a ReadableByteStreamController");
+              e.buffer,
+                function(e, t) {
+                  const r = e._controlledReadableByteStream,
+                    o = t.buffer,
+                    n = t.byteOffset,
+                    i = t.byteLength,
+                    a = _(o);
+                  if (!0 === qe(r)) {
+                    if (0 === Pe(r)) Ge(e, a, n, i);
                     else {
-                      var s = new Uint8Array(a, n, i);
-                      sr(t, s, !1)
+                      const e = new Uint8Array(a, n, i);
+                      ve(r, e, !1);
                     }
-                  else !0 === cr(t) ? (Nr(e, a, n, i), Hr(e)) : Nr(e, a, n, i);
-                  zr(e)
-                }(this, e)
-              }, r.error = function(e) {
-                if (!1 === kr(this)) throw tt("error");
-                Yr(this, e)
-              }, r[Ue] = function(e) {
-                this._pendingPullIntos.length > 0 && (this._pendingPullIntos[0].bytesFilled = 0);
-                return Ne(this), this._cancelAlgorithm(e)
-              }, r[Ge] = function() {
-                var e = this._controlledReadableByteStream;
-                if (this._queueTotalSize > 0) {
-                  var r, t = this._queue.shift();
-                  this._queueTotalSize -= t.byteLength, Lr(this);
-                  try {
-                    r = new Uint8Array(t.buffer, t.byteOffset, t.byteLength)
                   }
-                  catch (e) {
-                    return Promise.reject(e)
-                  }
-                  return Promise.resolve(Te(r, !1))
+                  else !0 === Te(r) ? (Ge(e, a, n, i), et(e)) : Ge(e, a, n, i);
+                  xe(e);
+                }(this, e);
+            }
+            error(e) {
+              if (!1 === Ne(this)) throw yt("error");
+              nt(this, e);
+            } [le](e) {
+              if (this._pendingPullIntos.length > 0) {
+                this._pendingPullIntos[0].bytesFilled = 0;
+              }
+              v(this);
+              const t = this._cancelAlgorithm(e);
+              return ot(this), t;
+            } [ce](e) {
+              const t = this._controlledReadableByteStream;
+              if (this._queueTotalSize > 0) {
+                const t = this._queue.shift();
+                let r;
+                this._queueTotalSize -= t.byteLength, Xe(this);
+                try {
+                  r = new Uint8Array(t.buffer, t.byteOffset, t.byteLength);
                 }
-                var o = this._autoAllocateChunkSize;
-                if (void 0 !== o) {
-                  var n;
-                  try {
-                    n = new ArrayBuffer(o)
-                  }
-                  catch (e) {
-                    return Promise.reject(e)
-                  }
-                  var i = {
-                    buffer: n,
-                    byteOffset: 0,
-                    byteLength: o,
-                    bytesFilled: 0,
-                    elementSize: 1,
-                    ctor: Uint8Array,
-                    readerType: "default"
-                  };
-                  this._pendingPullIntos.push(i)
+                catch (e) {
+                  return Promise.reject(e);
                 }
-                var a = or(e);
-                return zr(this), a
-              }, t(e, [{
-                key: "byobRequest",
-                get: function() {
-                  if (!1 === kr(this)) throw tt("byobRequest");
-                  if (void 0 === this._byobRequest && this._pendingPullIntos.length > 0) {
-                    var e = this._pendingPullIntos[0],
-                      r = new Uint8Array(e.buffer, e.byteOffset + e.bytesFilled, e.byteLength - e.bytesFilled),
-                      t = Object.create(Wr.prototype);
-                    ! function(e, r, t) {
-                      e._associatedReadableByteStreamController = r, e._view = t
-                    }(t, this, r), this._byobRequest = t
-                  }
-                  return this._byobRequest
+                return Promise.resolve(ge(r, !1, e));
+              }
+              const r = this._autoAllocateChunkSize;
+              if (void 0 !== r) {
+                let e;
+                try {
+                  e = new ArrayBuffer(r);
                 }
-              }, {
-                key: "desiredSize",
-                get: function() {
-                  if (!1 === kr(this)) throw tt("desiredSize");
-                  return Ur(this)
+                catch (e) {
+                  return Promise.reject(e);
                 }
-              }]), e
-            }();
-
-          function kr(e) {
-            return !!ze(e) && !!Object.prototype.hasOwnProperty.call(e, "_controlledReadableByteStream")
+                const t = {
+                  buffer: e,
+                  byteOffset: 0,
+                  byteLength: r,
+                  bytesFilled: 0,
+                  elementSize: 1,
+                  ctor: Uint8Array,
+                  readerType: "default"
+                };
+                this._pendingPullIntos.push(t);
+              }
+              const o = ye(t, e);
+              return xe(this), o;
+            }
           }
 
-          function Or(e) {
-            return !!ze(e) && !!Object.prototype.hasOwnProperty.call(e, "_associatedReadableByteStreamController")
+          function Ne(e) {
+            return !!n(e) && !!Object.prototype.hasOwnProperty.call(e, "_controlledReadableByteStream");
           }
 
-          function zr(e) {
+          function Qe(e) {
+            return !!n(e) && !!Object.prototype.hasOwnProperty.call(e, "_associatedReadableByteStreamController");
+          }
+
+          function xe(e) {
             !1 !== function(e) {
-              var r = e._controlledReadableByteStream;
-              if ("readable" !== r._state) return !1;
+              const t = e._controlledReadableByteStream;
+              if ("readable" !== t._state) return !1;
               if (!0 === e._closeRequested) return !1;
               if (!1 === e._started) return !1;
-              if (!0 === dr(r) && ur(r) > 0) return !0;
-              if (!0 === cr(r) && lr(r) > 0) return !0;
-              if (Ur(e) > 0) return !0;
-              return !1
-            }(e) && (!0 !== e._pulling ? (e._pulling = !0, e._pullAlgorithm().then(function() {
-              e._pulling = !1, !0 === e._pullAgain && (e._pullAgain = !1, zr(e))
-            }, function(r) {
-              Yr(e, r)
-            }).catch(Be)) : e._pullAgain = !0)
+              if (!0 === qe(t) && Pe(t) > 0) return !0;
+              if (!0 === Te(t) && Re(t) > 0) return !0;
+              if (it(e) > 0) return !0;
+              return !1;
+            }(e) && (!0 !== e._pulling ? (e._pulling = !0, e._pullAlgorithm().then(() => {
+              e._pulling = !1, !0 === e._pullAgain && (e._pullAgain = !1, xe(e));
+            }, t => {
+              nt(e, t);
+            }).catch(w)) : e._pullAgain = !0);
           }
 
-          function Br(e) {
-            Vr(e), e._pendingPullIntos = []
+          function He(e) {
+            Ze(e), e._pendingPullIntos = [];
           }
 
-          function Ir(e, r) {
-            var t = !1;
-            "closed" === e._state && (t = !0);
-            var o = Fr(r);
-            "default" === r.readerType ? sr(e, o, t) : function(e, r, t) {
-              e._reader._readIntoRequests.shift()._resolve(Te(r, t))
-            }(e, o, t)
+          function Ue(e, t) {
+            let r = !1;
+            "closed" === e._state && (r = !0);
+            const o = Ve(t);
+            "default" === t.readerType ? ve(e, o, r) : function(e, t, r) {
+              const o = e._reader._readIntoRequests.shift();
+              o._resolve(ge(t, r, o._forAuthorCode));
+            }(e, o, r);
           }
 
-          function Fr(e) {
-            var r = e.bytesFilled,
-              t = e.elementSize;
-            return new e.ctor(e.buffer, e.byteOffset, r / t)
+          function Ve(e) {
+            const t = e.bytesFilled,
+              r = e.elementSize;
+            return new e.ctor(e.buffer, e.byteOffset, t / r);
           }
 
-          function Nr(e, r, t, o) {
+          function Ge(e, t, r, o) {
             e._queue.push({
-              buffer: r,
-              byteOffset: t,
+              buffer: t,
+              byteOffset: r,
               byteLength: o
-            }), e._queueTotalSize += o
+            }), e._queueTotalSize += o;
           }
 
-          function Dr(e, r) {
-            var t = r.elementSize,
-              o = r.bytesFilled - r.bytesFilled % t,
-              n = Math.min(e._queueTotalSize, r.byteLength - r.bytesFilled),
-              i = r.bytesFilled + n,
-              a = i - i % t,
-              s = n,
-              l = !1;
-            a > o && (s = a - r.bytesFilled, l = !0);
-            for (var u = e._queue; s > 0;) {
-              var c = u[0],
-                d = Math.min(s, c.byteLength),
-                f = r.byteOffset + r.bytesFilled;
-              Re(r.buffer, f, c.buffer, c.byteOffset, d), c.byteLength === d ? u.shift() : (c.byteOffset += d, c.byteLength -= d), e._queueTotalSize -= d, Mr(e, d, r), s -= d
+          function Je(e, t) {
+            const r = t.elementSize,
+              o = t.bytesFilled - t.bytesFilled % r,
+              n = Math.min(e._queueTotalSize, t.byteLength - t.bytesFilled),
+              i = t.bytesFilled + n,
+              a = i - i % r;
+            let l = n,
+              c = !1;
+            a > o && (l = a - t.bytesFilled, c = !0);
+            const u = e._queue;
+            for (; l > 0;) {
+              const r = u[0],
+                o = Math.min(l, r.byteLength),
+                n = t.byteOffset + t.bytesFilled;
+              s(t.buffer, n, r.buffer, r.byteOffset, o), r.byteLength === o ? u.shift() : (r.byteOffset += o, r.byteLength -= o), e._queueTotalSize -= o, Ke(e, o, t), l -= o;
             }
-            return l
+            return c;
           }
 
-          function Mr(e, r, t) {
-            Vr(e), t.bytesFilled += r
+          function Ke(e, t, r) {
+            Ze(e), r.bytesFilled += t;
           }
 
-          function Lr(e) {
-            0 === e._queueTotalSize && !0 === e._closeRequested ? ir(e._controlledReadableByteStream) : zr(e)
+          function Xe(e) {
+            0 === e._queueTotalSize && !0 === e._closeRequested ? (ot(e), we(e._controlledReadableByteStream)) : xe(e);
           }
 
-          function Vr(e) {
-            void 0 !== e._byobRequest && (e._byobRequest._associatedReadableByteStreamController = void 0, e._byobRequest._view = void 0, e._byobRequest = void 0)
-          }
-
-          function Hr(e) {
-            for (; e._pendingPullIntos.length > 0;) {
-              if (0 === e._queueTotalSize) return;
-              var r = e._pendingPullIntos[0];
-              !0 === Dr(e, r) && (Qr(e), Ir(e._controlledReadableByteStream, r))
-            }
-          }
-
-          function xr(e, r) {
-            var t = e._pendingPullIntos[0];
-            if ("closed" === e._controlledReadableByteStream._state) {
-              if (0 !== r) throw new TypeError("bytesWritten must be 0 when calling respond() on a closed stream");
-              ! function(e, r) {
-                r.buffer = We(r.buffer);
-                var t = e._controlledReadableByteStream;
-                if (!0 === cr(t))
-                  for (; lr(t) > 0;) Ir(t, Qr(e))
-              }(e, t)
-            }
-            else ! function(e, r, t) {
-              if (t.bytesFilled + r > t.byteLength) throw new RangeError("bytesWritten out of range");
-              if (Mr(e, r, t), !(t.bytesFilled < t.elementSize)) {
-                Qr(e);
-                var o = t.bytesFilled % t.elementSize;
-                if (o > 0) {
-                  var n = t.byteOffset + t.bytesFilled,
-                    i = t.buffer.slice(n - o, n);
-                  Nr(e, i, 0, i.byteLength)
-                }
-                t.buffer = We(t.buffer), t.bytesFilled -= o, Ir(e._controlledReadableByteStream, t), Hr(e)
-              }
-            }(e, r, t);
-            zr(e)
-          }
-
-          function Qr(e) {
-            var r = e._pendingPullIntos.shift();
-            return Vr(e), r
-          }
-
-          function Yr(e, r) {
-            var t = e._controlledReadableByteStream;
-            "readable" === t._state && (Br(e), Ne(e), ar(t, r))
-          }
-
-          function Ur(e) {
-            var r = e._controlledReadableByteStream._state;
-            return "errored" === r ? null : "closed" === r ? 0 : e._strategyHWM - e._queueTotalSize
-          }
-
-          function Gr(e, r, t, o, n, i, a) {
-            r._controlledReadableByteStream = e, r._pullAgain = !1, r._pulling = !1, Br(r), r._queue = r._queueTotalSize = void 0, Ne(r), r._closeRequested = !1, r._started = !1, r._strategyHWM = Ae(i), r._pullAlgorithm = o, r._cancelAlgorithm = n, r._autoAllocateChunkSize = a, r._pendingPullIntos = [], e._readableStreamController = r;
-            var s = t();
-            Promise.resolve(s).then(function() {
-              r._started = !0, zr(r)
-            }, function(e) {
-              Yr(r, e)
-            }).catch(Be)
-          }
-
-          function Jr(e) {
-            return new TypeError("ReadableStream.prototype." + e + " can only be used on a ReadableStream")
-          }
-
-          function Kr(e) {
-            return new TypeError("Cannot " + e + " a stream using a released reader")
-          }
-
-          function Xr(e) {
-            return new TypeError("ReadableStreamDefaultReader.prototype." + e + " can only be used on a ReadableStreamDefaultReader")
-          }
-
-          function Zr(e, r) {
-            e._closedPromise_reject(r), e._closedPromise_resolve = void 0, e._closedPromise_reject = void 0
-          }
-
-          function $r(e) {
-            return new TypeError("ReadableStreamBYOBReader.prototype." + e + " can only be used on a ReadableStreamBYOBReader")
+          function Ze(e) {
+            void 0 !== e._byobRequest && (e._byobRequest._associatedReadableByteStreamController = void 0, e._byobRequest._view = void 0, e._byobRequest = void 0);
           }
 
           function et(e) {
-            return new TypeError("ReadableStreamDefaultController.prototype." + e + " can only be used on a ReadableStreamDefaultController")
+            for (; e._pendingPullIntos.length > 0;) {
+              if (0 === e._queueTotalSize) return;
+              const t = e._pendingPullIntos[0];
+              !0 === Je(e, t) && (rt(e), Ue(e._controlledReadableByteStream, t));
+            }
+          }
+
+          function tt(e, t) {
+            const r = e._pendingPullIntos[0];
+            if ("closed" === e._controlledReadableByteStream._state) {
+              if (0 !== t) throw new TypeError("bytesWritten must be 0 when calling respond() on a closed stream");
+              ! function(e, t) {
+                t.buffer = _(t.buffer);
+                const r = e._controlledReadableByteStream;
+                if (!0 === Te(r))
+                  for (; Re(r) > 0;) Ue(r, rt(e));
+              }(e, r);
+            }
+            else ! function(e, t, r) {
+              if (r.bytesFilled + t > r.byteLength) throw new RangeError("bytesWritten out of range");
+              if (Ke(e, t, r), r.bytesFilled < r.elementSize) return;
+              rt(e);
+              const o = r.bytesFilled % r.elementSize;
+              if (o > 0) {
+                const t = r.byteOffset + r.bytesFilled,
+                  n = r.buffer.slice(t - o, t);
+                Ge(e, n, 0, n.byteLength);
+              }
+              r.buffer = _(r.buffer), r.bytesFilled -= o, Ue(e._controlledReadableByteStream, r), et(e);
+            }(e, t, r);
+            xe(e);
           }
 
           function rt(e) {
-            return new TypeError("ReadableStreamBYOBRequest.prototype." + e + " can only be used on a ReadableStreamBYOBRequest")
+            const t = e._pendingPullIntos.shift();
+            return Ze(e), t;
           }
 
-          function tt(e) {
-            return new TypeError("ReadableByteStreamController.prototype." + e + " can only be used on a ReadableByteStreamController")
+          function ot(e) {
+            e._pullAlgorithm = void 0, e._cancelAlgorithm = void 0;
           }
-          var ot = Ke.ReadableStream,
-            nt = v.createDataProperty,
-            it = function() {
-              function e(e) {
-                var r = e.highWaterMark;
-                nt(this, "highWaterMark", r)
-              }
-              return e.prototype.size = function(e) {
-                return e.byteLength
-              }, e
-            }(),
-            at = v.createDataProperty,
-            st = function() {
-              function e(e) {
-                var r = e.highWaterMark;
-                at(this, "highWaterMark", r)
-              }
-              return e.prototype.size = function() {
-                return 1
-              }, e
-            }(),
-            lt = (T("streams:transform-stream:verbose"), v.InvokeOrNoop),
-            ut = v.CreateAlgorithmFromUnderlyingMethod,
-            ct = v.PromiseCall,
-            dt = v.typeIsObject,
-            ft = v.ValidateAndNormalizeHighWaterMark,
-            _t = (v.IsNonNegativeNumber, v.MakeSizeAlgorithmFromSizeFunction),
-            mt = Ke.CreateReadableStream,
-            ht = Ke.ReadableStreamDefaultControllerClose,
-            bt = Ke.ReadableStreamDefaultControllerEnqueue,
-            vt = Ke.ReadableStreamDefaultControllerError,
-            yt = Ke.ReadableStreamDefaultControllerGetDesiredSize,
-            pt = Ke.ReadableStreamDefaultControllerHasBackpressure,
-            wt = Ke.ReadableStreamDefaultControllerCanCloseOrEnqueue,
-            gt = V.CreateWritableStream,
-            St = V.WritableStreamDefaultControllerErrorIfNeeded,
-            Pt = function() {
-              function e(e, r, t) {
-                if (void 0 === e && (e = {}), void 0 === r && (r = {}), void 0 === t && (t = {}), void 0 !== e.readableType) throw new RangeError("Invalid readable type specified");
-                if (void 0 !== e.writableType) throw new RangeError("Invalid writable type specified");
-                var o = r.size,
-                  n = _t(o),
-                  i = r.highWaterMark;
-                void 0 === i && (i = 1), i = ft(i);
-                var a, s = t.size,
-                  l = _t(s),
-                  u = t.highWaterMark;
-                void 0 === u && (u = 0), u = ft(u), Rt(this, new Promise(function(e) {
-                    a = e
-                  }), i, n, u, l),
-                  function(e, r) {
-                    var t = Object.create(Et.prototype),
-                      o = function(e) {
-                        try {
-                          return kt(t, e), Promise.resolve()
-                        }
-                        catch (e) {
-                          return Promise.reject(e)
-                        }
-                      },
-                      n = r.transform;
-                    if (void 0 !== n) {
-                      if ("function" != typeof n) throw new TypeError("transform is not a method");
-                      o = function(o) {
-                        var i = ct(n, r, [o, t]);
-                        return i.catch(function(r) {
-                          throw Tt(e, r), r
-                        })
-                      }
-                    }
-                    var i = ut(r, "flush", 0, [t]);
-                    At(e, t, o, i)
-                  }(this, e);
-                var c = lt(e, "start", [this._transformStreamController]);
-                a(c)
-              }
-              return t(e, [{
-                key: "readable",
-                get: function() {
-                  if (!1 === qt(this)) throw zt("readable");
-                  return this._readable
-                }
-              }, {
-                key: "writable",
-                get: function() {
-                  if (!1 === qt(this)) throw zt("writable");
-                  return this._writable
-                }
-              }]), e
-            }();
 
-          function Rt(e, r, t, o, n, i) {
-            function a() {
-              return r
+          function nt(e, t) {
+            const r = e._controlledReadableByteStream;
+            "readable" === r._state && (He(e), v(e), ot(e), Se(r, t));
+          }
+
+          function it(e) {
+            const t = e._controlledReadableByteStream._state;
+            return "errored" === t ? null : "closed" === t ? 0 : e._strategyHWM - e._queueTotalSize;
+          }
+
+          function at(e) {
+            if ("object" != typeof e || null === e) return !1;
+            const t = Object.getOwnPropertyDescriptor(AbortSignal.prototype, "aborted").get;
+            try {
+              return t.call(e), !0;
             }
-            e._writable = gt(a, function(r) {
-              return function(e, r) {
-                var t = e._transformStreamController;
-                if (!0 === e._backpressure) {
-                  var o = e._backpressureChangePromise;
-                  return o.then(function() {
-                    var o = e._writable,
-                      n = o._state;
-                    if ("erroring" === n) throw o._storedError;
-                    return t._transformAlgorithm(r)
-                  })
-                }
-                return t._transformAlgorithm(r)
-              }(e, r)
-            }, function() {
-              return function(e) {
-                var r = e._readable;
-                return e._transformStreamController._flushAlgorithm().then(function() {
-                  if ("errored" === r._state) throw r._storedError;
-                  var e = r._readableStreamController;
-                  !0 === wt(e) && ht(e)
-                }).catch(function(t) {
-                  throw Tt(e, t), r._storedError
-                })
-              }(e)
-            }, function(r) {
-              return function(e, r) {
-                return Tt(e, r), Promise.resolve()
-              }(e, r)
-            }, t, o), e._readable = mt(a, function() {
-              return function(e) {
-                return Ct(e, !1), e._backpressureChangePromise
-              }(e)
-            }, function(r) {
-              return jt(e, r), Promise.resolve()
-            }, n, i), e._backpressure = void 0, e._backpressureChangePromise = void 0, e._backpressureChangePromise_resolve = void 0, Ct(e, !0), e._transformStreamController = void 0
+            catch (e) {
+              return !1;
+            }
+          }
+
+          function st(e) {
+            return new TypeError(`ReadableStream.prototype.${e} can only be used on a ReadableStream`);
+          }
+
+          function lt(e) {
+            return new TypeError("Cannot " + e + " a stream using a released reader");
+          }
+
+          function ct(e) {
+            return new TypeError(`ReadableStreamDefaultReader.prototype.${e} can only be used on a ReadableStreamDefaultReader`);
+          }
+
+          function ut(e) {
+            e._closedPromise = new Promise((t, r) => {
+              e._closedPromise_resolve = t, e._closedPromise_reject = r;
+            });
+          }
+
+          function dt(e, t) {
+            ut(e), ft(e, t);
+          }
+
+          function ft(e, t) {
+            e._closedPromise.catch(() => {}), e._closedPromise_reject(t), e._closedPromise_resolve = void 0, e._closedPromise_reject = void 0;
+          }
+
+          function _t(e) {
+            e._closedPromise_resolve(void 0), e._closedPromise_resolve = void 0, e._closedPromise_reject = void 0;
+          }
+
+          function ht(e) {
+            return new TypeError(`ReadableStreamBYOBReader.prototype.${e} can only be used on a ReadableStreamBYOBReader`);
+          }
+
+          function bt(e) {
+            return new TypeError(`ReadableStreamDefaultController.prototype.${e} can only be used on a ReadableStreamDefaultController`);
+          }
+
+          function mt(e) {
+            return new TypeError(`ReadableStreamBYOBRequest.prototype.${e} can only be used on a ReadableStreamBYOBRequest`);
+          }
+
+          function yt(e) {
+            return new TypeError(`ReadableByteStreamController.prototype.${e} can only be used on a ReadableByteStreamController`);
+          }
+          class ByteLengthQueuingStrategy {
+            constructor({
+              highWaterMark: e
+            }) {
+              i(this, "highWaterMark", e);
+            }
+            size(e) {
+              return e.byteLength;
+            }
+          }
+          class CountQueuingStrategy {
+            constructor({
+              highWaterMark: e
+            }) {
+              i(this, "highWaterMark", e);
+            }
+            size() {
+              return 1;
+            }
+          }
+          class TransformStream {
+            constructor(e = {}, t = {}, r = {}) {
+              const o = t.size;
+              let n = t.highWaterMark;
+              const i = r.size;
+              let a = r.highWaterMark;
+              if (void 0 !== e.writableType) throw new RangeError("Invalid writable type specified");
+              const s = b(o);
+              if (void 0 === n && (n = 1), n = h(n), void 0 !== e.readableType) throw new RangeError("Invalid readable type specified");
+              const l = b(i);
+              let c;
+              void 0 === a && (a = 0), a = h(a),
+                function(e, t, r, o, n, i) {
+                  function a() {
+                    return t;
+                  }
+                  e._writable = function(e, t, r, o, n = 1, i = () => 1) {
+                    const a = Object.create(WritableStream.prototype);
+                    return q(a), $(a, Object.create(WritableStreamDefaultController.prototype), e, t, r, o, n, i), a;
+                  }(a, function(t) {
+                    return function(e, t) {
+                      const r = e._transformStreamController;
+                      if (!0 === e._backpressure) {
+                        const o = e._backpressureChangePromise;
+                        return o.then(() => {
+                          const o = e._writable,
+                            n = o._state;
+                          if ("erroring" === n) throw o._storedError;
+                          return Tt(r, t);
+                        });
+                      }
+                      return Tt(r, t);
+                    }(e, t);
+                  }, function() {
+                    return function(e) {
+                      const t = e._readable,
+                        r = e._transformStreamController,
+                        o = r._flushAlgorithm();
+                      return Rt(r), o.then(() => {
+                        if ("errored" === t._state) throw t._storedError;
+                        const e = t._readableStreamController;
+                        !0 === Ye(e) && Le(e);
+                      }).catch(r => {
+                        throw wt(e, r), t._storedError;
+                      });
+                    }(e);
+                  }, function(t) {
+                    return function(e, t) {
+                      return wt(e, t), Promise.resolve();
+                    }(e, t);
+                  }, r, o), e._readable = de(a, function() {
+                    return function(e) {
+                      return St(e, !1), e._backpressureChangePromise;
+                    }(e);
+                  }, function(t) {
+                    return gt(e, t), Promise.resolve();
+                  }, n, i), e._backpressure = void 0, e._backpressureChangePromise = void 0, e._backpressureChangePromise_resolve = void 0, St(e, !0), e._transformStreamController = void 0;
+                }(this, new Promise(e => {
+                  c = e;
+                }), n, s, a, l),
+                function(e, t) {
+                  const r = Object.create(TransformStreamDefaultController.prototype);
+                  let o = e => {
+                    try {
+                      return Pt(r, e), Promise.resolve();
+                    }
+                    catch (e) {
+                      return Promise.reject(e);
+                    }
+                  };
+                  const n = t.transform;
+                  if (void 0 !== n) {
+                    if ("function" != typeof n) throw new TypeError("transform is not a method");
+                    o = e => f(n, t, [e, r]);
+                  }
+                  const i = u(t, "flush", 0, [r]);
+                  ! function(e, t, r, o) {
+                    t._controlledTransformStream = e, e._transformStreamController = t, t._transformAlgorithm = r, t._flushAlgorithm = o;
+                  }(e, r, o, i);
+                }(this, e);
+              const _ = d(e, "start", [this._transformStreamController]);
+              c(_);
+            }
+            get readable() {
+              if (!1 === pt(this)) throw Et("readable");
+              return this._readable;
+            }
+            get writable() {
+              if (!1 === pt(this)) throw Et("writable");
+              return this._writable;
+            }
+          }
+
+          function pt(e) {
+            return !!n(e) && !!Object.prototype.hasOwnProperty.call(e, "_transformStreamController");
+          }
+
+          function wt(e, t) {
+            De(e._readable._readableStreamController, t), gt(e, t);
+          }
+
+          function gt(e, t) {
+            Rt(e._transformStreamController), H(e._writable._writableStreamController, t), !0 === e._backpressure && St(e, !1);
+          }
+
+          function St(e, t) {
+            void 0 !== e._backpressureChangePromise && e._backpressureChangePromise_resolve(), e._backpressureChangePromise = new Promise(t => {
+              e._backpressureChangePromise_resolve = t;
+            }), e._backpressure = t;
+          }
+          class TransformStreamDefaultController {
+            constructor() {
+              throw new TypeError("TransformStreamDefaultController instances cannot be created directly");
+            }
+            get desiredSize() {
+              if (!1 === vt(this)) throw qt("desiredSize");
+              return Me(this._controlledTransformStream._readable._readableStreamController);
+            }
+            enqueue(e) {
+              if (!1 === vt(this)) throw qt("enqueue");
+              Pt(this, e);
+            }
+            error(e) {
+              if (!1 === vt(this)) throw qt("error");
+              ! function(e, t) {
+                wt(e._controlledTransformStream, t);
+              }(this, e);
+            }
+            terminate() {
+              if (!1 === vt(this)) throw qt("terminate");
+              ! function(e) {
+                const t = e._controlledTransformStream,
+                  r = t._readable._readableStreamController;
+                !0 === Ye(r) && Le(r);
+                const o = new TypeError("TransformStream terminated");
+                gt(t, o);
+              }(this);
+            }
+          }
+
+          function vt(e) {
+            return !!n(e) && !!Object.prototype.hasOwnProperty.call(e, "_controlledTransformStream");
+          }
+
+          function Rt(e) {
+            e._transformAlgorithm = void 0, e._flushAlgorithm = void 0;
+          }
+
+          function Pt(e, t) {
+            const r = e._controlledTransformStream,
+              o = r._readable._readableStreamController;
+            if (!1 === Ye(o)) throw new TypeError("Readable side is not in a state that permits enqueue");
+            try {
+              Ie(o, t);
+            }
+            catch (e) {
+              throw gt(r, e), r._readable._storedError;
+            }(function(e) {
+              return !0 !== ke(e);
+            })(o) !== r._backpressure && St(r, !0);
+          }
+
+          function Tt(e, t) {
+            return e._transformAlgorithm(t).catch(t => {
+              throw wt(e._controlledTransformStream, t), t;
+            });
           }
 
           function qt(e) {
-            return !!dt(e) && !!Object.prototype.hasOwnProperty.call(e, "_transformStreamController")
+            return new TypeError(`TransformStreamDefaultController.prototype.${e} can only be used on a TransformStreamDefaultController`);
           }
 
-          function Tt(e, r) {
-            vt(e._readable._readableStreamController, r), jt(e, r)
+          function Et(e) {
+            return new TypeError(`TransformStream.prototype.${e} can only be used on a TransformStream`);
           }
-
-          function jt(e, r) {
-            St(e._writable._writableStreamController, r), !0 === e._backpressure && Ct(e, !1)
-          }
-
-          function Ct(e, r) {
-            void 0 !== e._backpressureChangePromise && e._backpressureChangePromise_resolve(), e._backpressureChangePromise = new Promise(function(r) {
-              e._backpressureChangePromise_resolve = r
-            }), e._backpressure = r
-          }
-          var Et = function() {
-            function e() {
-              throw new TypeError("TransformStreamDefaultController instances cannot be created directly")
-            }
-            var r = e.prototype;
-            return r.enqueue = function(e) {
-              if (!1 === Wt(this)) throw Ot("enqueue");
-              kt(this, e)
-            }, r.error = function(e) {
-              if (!1 === Wt(this)) throw Ot("error");
-              ! function(e, r) {
-                Tt(e._controlledTransformStream, r)
-              }(this, e)
-            }, r.terminate = function() {
-              if (!1 === Wt(this)) throw Ot("terminate");
-              ! function(e) {
-                var r = e._controlledTransformStream,
-                  t = r._readable._readableStreamController;
-                !0 === wt(t) && ht(t);
-                var o = new TypeError("TransformStream terminated");
-                jt(r, o)
-              }(this)
-            }, t(e, [{
-              key: "desiredSize",
-              get: function() {
-                if (!1 === Wt(this)) throw Ot("desiredSize");
-                var e = this._controlledTransformStream._readable._readableStreamController;
-                return yt(e)
-              }
-            }]), e
-          }();
-
-          function Wt(e) {
-            return !!dt(e) && !!Object.prototype.hasOwnProperty.call(e, "_controlledTransformStream")
-          }
-
-          function At(e, r, t, o) {
-            r._controlledTransformStream = e, e._transformStreamController = r, r._transformAlgorithm = t, r._flushAlgorithm = o
-          }
-
-          function kt(e, r) {
-            var t = e._controlledTransformStream,
-              o = t._readable._readableStreamController;
-            if (!1 === wt(o)) throw new TypeError("Readable side is not in a state that permits enqueue");
-            try {
-              bt(o, r)
-            }
-            catch (e) {
-              throw jt(t, e), t._readable._storedError
-            }
-            pt(o) !== t._backpressure && Ct(t, !0)
-          }
-
-          function Ot(e) {
-            return new TypeError("TransformStreamDefaultController.prototype." + e + " can only be used on a TransformStreamDefaultController")
-          }
-
-          function zt(e) {
-            return new TypeError("TransformStream.prototype." + e + " can only be used on a TransformStream")
-          }
-          var Bt = {
-            CreateTransformStream: function(e, r, t, o, n, i, a) {
-              void 0 === o && (o = 1), void 0 === n && (n = function() {
-                return 1
-              }), void 0 === i && (i = 0), void 0 === a && (a = function() {
-                return 1
-              });
-              var s, l = Object.create(Pt.prototype);
-              Rt(l, new Promise(function(e) {
-                s = e
-              }), o, n, i, a), At(l, Object.create(Et.prototype), r, t);
-              var u = e();
-              return s(u), l
-            },
-            TransformStream: Pt
-          }.TransformStream;
-          void 0 !== s && o(s, {
-            ReadableStream: ot,
-            WritableStream: Pe,
-            ByteLengthQueuingStrategy: it,
-            CountQueuingStrategy: st,
-            TransformStream: Bt
-          }), e.ReadableStream = ot, e.WritableStream = Pe, e.ByteLengthQueuingStrategy = it, e.CountQueuingStrategy = st, e.TransformStream = Bt, Object.defineProperty(e, "__esModule", {
+          const Ct = {
+            ReadableStream: ReadableStream,
+            WritableStream: WritableStream,
+            ByteLengthQueuingStrategy: ByteLengthQueuingStrategy,
+            CountQueuingStrategy: CountQueuingStrategy,
+            TransformStream: TransformStream
+          };
+          void 0 !== r && Object.assign(r, Ct), e.ReadableStream = ReadableStream, e.WritableStream = WritableStream, e.ByteLengthQueuingStrategy = ByteLengthQueuingStrategy, e.CountQueuingStrategy = CountQueuingStrategy, e.TransformStream = TransformStream, Object.defineProperty(e, "__esModule", {
             value: !0
-          })
+          });
         });
 
 
       }).call(this, typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
     }, {}],
     2: [function(require, module, exports) {
-      'use strict';
-
-      const ea_lib = require('email-addresses');
-
-      exports.parse = function parse(line, startAt) {
-        if (!line) throw 'Nothing to parse';
-
-        line = line.trim();
-
-        const addr = ea_lib({
-          input: line,
-          rfc6532: true, // unicode
-          partial: false, // return failed parses
-          simple: false, // simple AST
-          strict: false, // turn off obs- features in the rfc
-          rejectTLD: false, // domains require a "."
-          startAt: startAt || null
-        });
-
-        if (!addr) throw 'No results';
-
-        // console.log("Parsed to: ", require('util').inspect(addr, {depth: 10, colors: true}));
-
-        return addr.addresses.map(map_addresses);
-      };
-
-      function map_addresses(adr) {
-        if (adr.type === 'group') {
-          return new Group(adr.name, adr.addresses.map(map_addresses));
-        }
-        let comments;
-        if (adr.parts.comments) {
-          comments = adr.parts.comments.map(function(c) {
-            return c.tokens.trim();
-          }).join(' ').trim();
-          // if (comments.length) {
-          //     comments = '(' + comments + ')';
-          // }
-        }
-        let l = adr.local;
-        if (!adr.name && /:/.test(l)) l = '"' + l + '"';
-        return new Address(adr.name, l + '@' + adr.domain, comments);
-      }
-
-      exports.parseFrom = function(line) {
-        return exports.parse(line, 'from');
-      };
-
-      exports.parseSender = function(line) {
-        return exports.parse(line, 'sender');
-      };
-
-      exports.parseReplyTo = function(line) {
-        return exports.parse(line, 'reply-to');
-      };
-
-      class Group {
-        constructor(display_name, addresses) {
-          this.phrase = display_name;
-          this.addresses = addresses;
-        }
-
-        format() {
-          return this.phrase + ":" + this.addresses.map(function(a) {
-            return a.format();
-          }).join(',');
-        }
-
-        name() {
-          let phrase = this.phrase;
-
-          if (!(phrase && phrase.length)) {
-            phrase = this.comment;
-          }
-
-          const name = _extract_name(phrase);
-          return name;
-        }
-      }
-
-      class Address {
-        constructor(phrase, address, comment) {
-          this.phrase = phrase || '';
-          this.address = address || '';
-          this.comment = comment || '';
-        }
-
-        host() {
-          const match = /.*@(.*)$/.exec(this.address);
-          if (!match) return null;
-          return match[1];
-        }
-
-        user() {
-          const match = /^(.*)@/.exec(this.address);
-          if (!match) return null;
-          return match[1];
-        }
-
-        format() {
-          const phrase = this.phrase;
-          const email = this.address;
-          let comment = this.comment;
-
-          const addr = [];
-          const atext = new RegExp('^[\\-\\w !#$%&\'*+/=?^`{|}~]+$');
-
-          if (phrase && phrase.length) {
-            addr.push(atext.test(phrase.trim()) ? phrase : _quote_no_esc(phrase) ? phrase : '"' + phrase + '"');
-
-            if (email && email.length) {
-              addr.push("<" + email + ">");
-            }
-          }
-          else if (email && email.length) {
-            addr.push(email);
-          }
-
-          if (comment && /\S/.test(comment)) {
-            comment = comment.replace(/^\s*\(?/, '(').replace(/\)?\s*$/, ')');
-          }
-
-          if (comment && comment.length) {
-            addr.push(comment);
-          }
-
-          return addr.join(' ');
-        }
-
-        name() {
-          let phrase = this.phrase;
-          const addr = this.address;
-
-          if (!(phrase && phrase.length)) {
-            phrase = this.comment;
-          }
-
-          let name = _extract_name(phrase);
-
-          // first.last@domain address
-          if (name === '') {
-            const match = /([^%.@_]+([._][^%.@_]+)+)[@%]/.exec(addr);
-            if (match) {
-              name = match[1].replace(/[._]+/g, ' ');
-              name = _extract_name(name);
-            }
-          }
-
-          if (name === '' && /\/g=/i.test(addr)) {
-            // X400 style address
-            let match = /\/g=([^/]*)/i.exec(addr);
-            const f = match[1];
-            match = /\/s=([^/]*)/i.exec(addr);
-            const l = match[1];
-            name = _extract_name(f + " " + l);
-          }
-
-          return name;
-        }
-      }
-
-      exports.Address = Address;
-
-      // This is because JS regexps have no equivalent of
-      // zero-width negative look-behind assertion for: /(?<!\\)"/
-      function _quote_no_esc(str) {
-        if (/^"/.test(str)) return true;
-        let match;
-        while (match = /^[\s\S]*?([\s\S])"/.exec(str)) {
-          if (match[1] !== '\\') {
-            return true;
-          }
-          str = str.substr(match[0].length);
-        }
-        return false;
-      }
-
-      exports.isAllLower = function(string) {
-        return string === string.toLowerCase();
-      };
-
-      exports.isAllUpper = function(string) {
-        return string === string.toUpperCase();
-      };
-
-      exports.nameCase = function(string) {
-
-        return string.toLowerCase().replace(/\b(\w+)/g, function(_, d1) {
-          // Set the case of the name to first char upper rest lower
-          return d1.charAt(0).toUpperCase() + d1.slice(1);
-        }).replace(/\bMc(\w)/gi, function(_, d1) {
-          // Scottish names such as 'McLeod'
-          return 'Mc' + d1.toUpperCase();
-        }).replace(/\bo'(\w)/gi, function(_, d1) {
-          // Irish names such as 'O'Malley, O'Reilly'
-          return 'O\'' + d1.toUpperCase();
-        }).replace(/\b(x*(ix)?v*(iv)?i*)\b/ig, function(_, d1) {
-          // Roman numerals, eg 'Level III Support'
-          return d1.toUpperCase();
-        });
-      };
-
-      // given a comment, attempt to extract a person's name
-      function _extract_name(name) {
-        // Using encodings, too hard. See Mail::Message::Field::Full.
-        if (/=?.*?\?=/.test(name)) return '';
-
-        // trim whitespace
-        name = name.trim();
-        name = name.replace(/\s+/, ' ');
-
-        // Disregard numeric names (e.g. 123456.1234@compuserve.com)
-        if (/^[\d ]+$/.test(name)) return '';
-
-        name = name.replace(/^\((.*)\)$/, '$1') // remove outermost parenthesis
-          .replace(/^"(.*)"$/, '$1') // remove outer quotation marks
-          .replace(/\(.*?\)/g, '') // remove minimal embedded comments
-          .replace(/\\/g, '') // remove all escapes
-          .replace(/^"(.*)"$/, '$1') // remove internal quotation marks
-          .replace(/^([^\s]+) ?, ?(.*)$/, '$2 $1') // reverse "Last, First M." if applicable
-          .replace(/,.*/, '');
-
-        // Change casing only when the name contains only upper or only
-        // lower cased characters.
-        if (exports.isAllUpper(name) || exports.isAllLower(name)) {
-          // console.log("Changing case of: " + name);
-          name = exports.nameCase(name);
-          // console.log("Now: " + name);
-        }
-
-        // some cleanup
-        name = name.replace(/\[[^\]]*\]/g, '').replace(/(^[\s'"]+|[\s'"]+$)/g, '').replace(/\s{2,}/g, ' ');
-
-        return name;
-      }
-
-    }, {
-      "email-addresses": 35
-    }],
-    3: [function(require, module, exports) {
       "use strict";
 
       Object.defineProperty(exports, "__esModule", {
@@ -2855,7 +2517,7 @@
       }();
 
     }, {}],
-    4: [function(require, module, exports) {
+    3: [function(require, module, exports) {
       'use strict';
 
       Object.defineProperty(exports, "__esModule", {
@@ -3069,11 +2731,11 @@
       exports.AES = AES;
 
     }, {
-      "../other/errors": 15,
-      "../other/utils": 16,
-      "./aes.asm": 3
+      "../other/errors": 14,
+      "../other/utils": 15,
+      "./aes.asm": 2
     }],
-    5: [function(require, module, exports) {
+    4: [function(require, module, exports) {
       'use strict';
 
       Object.defineProperty(exports, "__esModule", {
@@ -3141,10 +2803,10 @@
       exports.AES_CBC = AES_CBC;
 
     }, {
-      "../other/utils": 16,
-      "./aes": 4
+      "../other/utils": 15,
+      "./aes": 3
     }],
-    6: [function(require, module, exports) {
+    5: [function(require, module, exports) {
       'use strict';
 
       Object.defineProperty(exports, "__esModule", {
@@ -3205,10 +2867,10 @@
       exports.AES_CFB = AES_CFB;
 
     }, {
-      "../other/utils": 16,
-      "./aes": 4
+      "../other/utils": 15,
+      "./aes": 3
     }],
-    7: [function(require, module, exports) {
+    6: [function(require, module, exports) {
       'use strict';
 
       Object.defineProperty(exports, "__esModule", {
@@ -3297,11 +2959,11 @@
       exports.AES_CTR = AES_CTR;
 
     }, {
-      "../other/errors": 15,
-      "../other/utils": 16,
-      "./aes": 4
+      "../other/errors": 14,
+      "../other/utils": 15,
+      "./aes": 3
     }],
-    8: [function(require, module, exports) {
+    7: [function(require, module, exports) {
       'use strict';
 
       Object.defineProperty(exports, "__esModule", {
@@ -3369,10 +3031,10 @@
       exports.AES_ECB = AES_ECB;
 
     }, {
-      "../other/utils": 16,
-      "./aes": 4
+      "../other/utils": 15,
+      "./aes": 3
     }],
-    9: [function(require, module, exports) {
+    8: [function(require, module, exports) {
       'use strict';
 
       Object.defineProperty(exports, "__esModule", {
@@ -3682,12 +3344,12 @@
       exports.AES_GCM = AES_GCM;
 
     }, {
-      "../other/errors": 15,
-      "../other/utils": 16,
-      "./aes": 4,
-      "./aes.asm": 3
+      "../other/errors": 14,
+      "../other/utils": 15,
+      "./aes": 3,
+      "./aes.asm": 2
     }],
-    10: [function(require, module, exports) {
+    9: [function(require, module, exports) {
       'use strict';
 
       Object.defineProperty(exports, "__esModule", {
@@ -3768,10 +3430,10 @@
       exports.Hash = Hash;
 
     }, {
-      "../other/errors": 15,
-      "../other/utils": 16
+      "../other/errors": 14,
+      "../other/utils": 15
     }],
-    11: [function(require, module, exports) {
+    10: [function(require, module, exports) {
       "use strict";
 
       Object.defineProperty(exports, "__esModule", {
@@ -4994,7 +4656,7 @@
       }
 
     }, {}],
-    12: [function(require, module, exports) {
+    11: [function(require, module, exports) {
       'use strict';
 
       Object.defineProperty(exports, "__esModule", {
@@ -5049,10 +4711,10 @@
       exports.Sha1 = Sha1;
 
     }, {
-      "../hash": 10,
-      "./sha1.asm": 11
+      "../hash": 9,
+      "./sha1.asm": 10
     }],
-    13: [function(require, module, exports) {
+    12: [function(require, module, exports) {
       "use strict";
 
       Object.defineProperty(exports, "__esModule", {
@@ -5876,7 +5538,7 @@
       }
 
     }, {}],
-    14: [function(require, module, exports) {
+    13: [function(require, module, exports) {
       'use strict';
 
       Object.defineProperty(exports, "__esModule", {
@@ -5931,10 +5593,10 @@
       exports.Sha256 = Sha256;
 
     }, {
-      "../hash": 10,
-      "./sha256.asm": 13
+      "../hash": 9,
+      "./sha256.asm": 12
     }],
-    15: [function(require, module, exports) {
+    14: [function(require, module, exports) {
       'use strict';
 
       Object.defineProperty(exports, "__esModule", {
@@ -6020,7 +5682,7 @@
       exports.SecurityError = SecurityError;
 
     }, {}],
-    16: [function(require, module, exports) {
+    15: [function(require, module, exports) {
       'use strict';
 
       Object.defineProperty(exports, "__esModule", {
@@ -6221,7 +5883,7 @@
     }, {
       "buffer": "buffer"
     }],
-    17: [function(require, module, exports) {
+    16: [function(require, module, exports) {
       (function(module, exports) {
         'use strict';
 
@@ -9715,7 +9377,7 @@
     }, {
       "buffer": "buffer"
     }],
-    18: [function(require, module, exports) {
+    17: [function(require, module, exports) {
       var r;
 
       module.exports = function rand(len) {
@@ -9788,12 +9450,11 @@
     }, {
       "crypto": "crypto"
     }],
-    19: [function(require, module, exports) {
+    18: [function(require, module, exports) {
       'use strict';
 
       var elliptic = exports;
 
-      elliptic.version = require('../package.json').version;
       elliptic.utils = require('./elliptic/utils');
       elliptic.rand = require('brorand');
       elliptic.curve = require('./elliptic/curve');
@@ -9804,20 +9465,18 @@
       elliptic.eddsa = require('./elliptic/eddsa');
 
     }, {
-      "../package.json": 34,
-      "./elliptic/curve": 22,
-      "./elliptic/curves": 25,
-      "./elliptic/ec": 26,
-      "./elliptic/eddsa": 29,
-      "./elliptic/utils": 33,
-      "brorand": 18
+      "./elliptic/curve": 21,
+      "./elliptic/curves": 24,
+      "./elliptic/ec": 25,
+      "./elliptic/eddsa": 28,
+      "./elliptic/utils": 32,
+      "brorand": 17
     }],
-    20: [function(require, module, exports) {
+    19: [function(require, module, exports) {
       'use strict';
 
       var BN = require('bn.js');
-      var elliptic = require('../../elliptic');
-      var utils = elliptic.utils;
+      var utils = require('../utils');
       var getNAF = utils.getNAF;
       var getJSF = utils.getJSF;
       var assert = utils.assert;
@@ -10195,19 +9854,18 @@
       };
 
     }, {
-      "../../elliptic": 19,
-      "bn.js": 17
+      "../utils": 32,
+      "bn.js": 16
     }],
-    21: [function(require, module, exports) {
+    20: [function(require, module, exports) {
       'use strict';
 
-      var curve = require('../curve');
-      var elliptic = require('../../elliptic');
+      var utils = require('../utils');
       var BN = require('bn.js');
       var inherits = require('inherits');
-      var Base = curve.base;
+      var Base = require('./base');
 
-      var assert = elliptic.utils.assert;
+      var assert = utils.assert;
 
       function EdwardsCurve(conf) {
         // NOTE: Important as we are creating point in Base.call()
@@ -10638,12 +10296,12 @@
       Point.prototype.mixedAdd = Point.prototype.add;
 
     }, {
-      "../../elliptic": 19,
-      "../curve": 22,
-      "bn.js": 17,
-      "inherits": 49
+      "../utils": 32,
+      "./base": 19,
+      "bn.js": 16,
+      "inherits": 47
     }],
-    22: [function(require, module, exports) {
+    21: [function(require, module, exports) {
       'use strict';
 
       var curve = exports;
@@ -10654,21 +10312,19 @@
       curve.edwards = require('./edwards');
 
     }, {
-      "./base": 20,
-      "./edwards": 21,
-      "./mont": 23,
-      "./short": 24
+      "./base": 19,
+      "./edwards": 20,
+      "./mont": 22,
+      "./short": 23
     }],
-    23: [function(require, module, exports) {
+    22: [function(require, module, exports) {
       'use strict';
 
-      var curve = require('../curve');
       var BN = require('bn.js');
       var inherits = require('inherits');
-      var Base = curve.base;
+      var Base = require('./base');
 
-      var elliptic = require('../../elliptic');
-      var utils = elliptic.utils;
+      var utils = require('../utils');
 
       function MontCurve(conf) {
         Base.call(this, 'mont', conf);
@@ -10866,21 +10522,20 @@
       };
 
     }, {
-      "../../elliptic": 19,
-      "../curve": 22,
-      "bn.js": 17,
-      "inherits": 49
+      "../utils": 32,
+      "./base": 19,
+      "bn.js": 16,
+      "inherits": 47
     }],
-    24: [function(require, module, exports) {
+    23: [function(require, module, exports) {
       'use strict';
 
-      var curve = require('../curve');
-      var elliptic = require('../../elliptic');
+      var utils = require('../utils');
       var BN = require('bn.js');
       var inherits = require('inherits');
-      var Base = curve.base;
+      var Base = require('./base');
 
-      var assert = elliptic.utils.assert;
+      var assert = utils.assert;
 
       function ShortCurve(conf) {
         Base.call(this, 'short', conf);
@@ -11310,8 +10965,9 @@
 
       Point.prototype.mul = function mul(k) {
         k = new BN(k, 16);
-
-        if (this._hasDoubles(k))
+        if (this.isInfinity())
+          return this;
+        else if (this._hasDoubles(k))
           return this.curve._fixedNafMul(this, k);
         else if (this.curve.endo)
           return this.curve._endoWnafMulAdd([this], [k]);
@@ -11828,28 +11484,29 @@
       };
 
     }, {
-      "../../elliptic": 19,
-      "../curve": 22,
-      "bn.js": 17,
-      "inherits": 49
+      "../utils": 32,
+      "./base": 19,
+      "bn.js": 16,
+      "inherits": 47
     }],
-    25: [function(require, module, exports) {
+    24: [function(require, module, exports) {
       'use strict';
 
       var curves = exports;
 
       var hash = require('hash.js');
-      var elliptic = require('../elliptic');
+      var curve = require('./curve');
+      var utils = require('./utils');
 
-      var assert = elliptic.utils.assert;
+      var assert = utils.assert;
 
       function PresetCurve(options) {
         if (options.type === 'short')
-          this.curve = new elliptic.curve.short(options);
+          this.curve = new curve.short(options);
         else if (options.type === 'edwards')
-          this.curve = new elliptic.curve.edwards(options);
+          this.curve = new curve.edwards(options);
         else if (options.type === 'mont')
-          this.curve = new elliptic.curve.mont(options);
+          this.curve = new curve.mont(options);
         else throw new Error('Unknown curve type.');
         this.g = this.curve.g;
         this.n = this.curve.n;
@@ -12105,17 +11762,19 @@
       });
 
     }, {
-      "../elliptic": 19,
-      "./precomputed/secp256k1": 32,
-      "hash.js": 36
+      "./curve": 21,
+      "./precomputed/secp256k1": 31,
+      "./utils": 32,
+      "hash.js": 34
     }],
-    26: [function(require, module, exports) {
+    25: [function(require, module, exports) {
       'use strict';
 
       var BN = require('bn.js');
       var HmacDRBG = require('hmac-drbg');
-      var elliptic = require('../../elliptic');
-      var utils = elliptic.utils;
+      var utils = require('../utils');
+      var curves = require('../curves');
+      var rand = require('brorand');
       var assert = utils.assert;
 
       var KeyPair = require('./key');
@@ -12127,13 +11786,13 @@
 
         // Shortcut `elliptic.ec(curve-name)`
         if (typeof options === 'string') {
-          assert(elliptic.curves.hasOwnProperty(options), 'Unknown curve ' + options);
+          assert(curves.hasOwnProperty(options), 'Unknown curve ' + options);
 
-          options = elliptic.curves[options];
+          options = curves[options];
         }
 
         // Shortcut for `elliptic.ec(elliptic.curves.curveName)`
-        if (options instanceof elliptic.curves.PresetCurve)
+        if (options instanceof curves.PresetCurve)
           options = {
             curve: options
           };
@@ -12173,7 +11832,7 @@
           hash: this.hash,
           pers: options.pers,
           persEnc: options.persEnc || 'utf8',
-          entropy: options.entropy || elliptic.rand(this.hash.hmacStrength),
+          entropy: options.entropy || rand(this.hash.hmacStrength),
           entropyEnc: options.entropy && options.entropyEnc || 'utf8',
           nonce: this.n.toArray()
         });
@@ -12196,8 +11855,9 @@
         } while (true);
       };
 
-      EC.prototype._truncateToN = function truncateToN(msg, truncOnly) {
-        var delta = msg.byteLength() * 8 - this.n.bitLength();
+      EC.prototype._truncateToN = function truncateToN(msg, truncOnly, bitSize) {
+        bitSize = bitSize || msg.byteLength() * 8;
+        var delta = bitSize - this.n.bitLength();
         if (delta > 0)
           msg = msg.ushrn(delta);
         if (!truncOnly && msg.cmp(this.n) >= 0)
@@ -12205,6 +11865,23 @@
         else
           return msg;
       };
+
+      EC.prototype.truncateMsg = function truncateMSG(msg) {
+        // Bit size is only determined correctly for Uint8Arrays and hex strings
+        var bitSize;
+        if (msg instanceof Uint8Array) {
+          bitSize = msg.byteLength * 8;
+          msg = this._truncateToN(new BN(msg, 16), false, bitSize);
+        }
+        else if (typeof msg === 'string') {
+          bitSize = msg.length * 4;
+          msg = this._truncateToN(new BN(msg, 16), false, bitSize);
+        }
+        else {
+          msg = this._truncateToN(new BN(msg, 16));
+        }
+        return msg;
+      }
 
       EC.prototype.sign = function sign(msg, key, enc, options) {
         if (typeof enc === 'object') {
@@ -12215,7 +11892,7 @@
           options = {};
 
         key = this.keyFromPrivate(key, enc);
-        msg = this._truncateToN(new BN(msg, 16));
+        msg = this.truncateMsg(msg);
 
         // Zero-extend key to provide enough entropy
         var bytes = this.n.byteLength();
@@ -12276,10 +11953,15 @@
       };
 
       EC.prototype.verify = function verify(msg, signature, key, enc) {
-        msg = this._truncateToN(new BN(msg, 16));
         key = this.keyFromPublic(key, enc);
         signature = new Signature(signature, 'hex');
+        // Fallback to the old code
+        var ret = this._verify(this.truncateMsg(msg), signature, key) ||
+          this._verify(this._truncateToN(new BN(msg, 16)), signature, key);
+        return ret;
+      };
 
+      EC.prototype._verify = function _verify(msg, signature, key) {
         // Perform primitive values validation
         var r = signature.r;
         var s = signature.s;
@@ -12365,18 +12047,19 @@
       };
 
     }, {
-      "../../elliptic": 19,
-      "./key": 27,
-      "./signature": 28,
-      "bn.js": 17,
-      "hmac-drbg": 48
+      "../curves": 24,
+      "../utils": 32,
+      "./key": 26,
+      "./signature": 27,
+      "bn.js": 16,
+      "brorand": 17,
+      "hmac-drbg": 46
     }],
-    27: [function(require, module, exports) {
+    26: [function(require, module, exports) {
       'use strict';
 
       var BN = require('bn.js');
-      var elliptic = require('../../elliptic');
-      var utils = elliptic.utils;
+      var utils = require('../utils');
       var assert = utils.assert;
 
       function KeyPair(ec, options) {
@@ -12492,17 +12175,7 @@
 
       // ECDH
       KeyPair.prototype.derive = function derive(pub) {
-        var x = pub.mul(this.priv).getX();
-        var len = x.byteLength();
-
-        // Note: this is not ideal, but the RFC's are unclear
-        // https://tools.ietf.org/html/draft-ietf-openpgp-rfc4880bis-02#appendix-B
-        if (this.ec.curve.type === 'mont') {
-          return x.toArray('le', len);
-        }
-        else {
-          return x.toArray('be', len);
-        }
+        return pub.mul(this.priv).getX();
       };
 
       // ECDSA
@@ -12520,16 +12193,15 @@
       };
 
     }, {
-      "../../elliptic": 19,
-      "bn.js": 17
+      "../utils": 32,
+      "bn.js": 16
     }],
-    28: [function(require, module, exports) {
+    27: [function(require, module, exports) {
       'use strict';
 
       var BN = require('bn.js');
 
-      var elliptic = require('../../elliptic');
-      var utils = elliptic.utils;
+      var utils = require('../utils');
       var assert = utils.assert;
 
       function Signature(options, enc) {
@@ -12661,16 +12333,17 @@
       };
 
     }, {
-      "../../elliptic": 19,
-      "bn.js": 17
+      "../utils": 32,
+      "bn.js": 16
     }],
-    29: [function(require, module, exports) {
+    28: [function(require, module, exports) {
       'use strict';
 
       var hash = require('hash.js');
       var HmacDRBG = require('hmac-drbg');
-      var elliptic = require('../../elliptic');
-      var utils = elliptic.utils;
+      var rand = require('brorand');
+      var curves = require('../curves');
+      var utils = require('../utils');
       var assert = utils.assert;
       var parseBytes = utils.parseBytes;
       var KeyPair = require('./key');
@@ -12682,7 +12355,7 @@
         if (!(this instanceof EDDSA))
           return new EDDSA(curve);
 
-        var curve = elliptic.curves[curve].curve;
+        var curve = curves[curve].curve;
         this.curve = curve;
         this.g = curve.g;
         this.g.precompute(curve.n.bitLength() + 1);
@@ -12759,7 +12432,7 @@
           hash: this.hash,
           pers: options.pers,
           persEnc: options.persEnc || 'utf8',
-          entropy: options.entropy || elliptic.rand(this.hash.hmacStrength),
+          entropy: options.entropy || rand(this.hash.hmacStrength),
           entropyEnc: options.entropy && options.entropyEnc || 'utf8',
           nonce: this.curve.n.toArray()
         });
@@ -12811,17 +12484,18 @@
       };
 
     }, {
-      "../../elliptic": 19,
-      "./key": 30,
-      "./signature": 31,
-      "hash.js": 36,
-      "hmac-drbg": 48
+      "../curves": 24,
+      "../utils": 32,
+      "./key": 29,
+      "./signature": 30,
+      "brorand": 17,
+      "hash.js": 34,
+      "hmac-drbg": 46
     }],
-    30: [function(require, module, exports) {
+    29: [function(require, module, exports) {
       'use strict';
 
-      var elliptic = require('../../elliptic');
-      var utils = elliptic.utils;
+      var utils = require('../utils');
       var assert = utils.assert;
       var parseBytes = utils.parseBytes;
       var cachedProperty = utils.cachedProperty;
@@ -12928,14 +12602,13 @@
       module.exports = KeyPair;
 
     }, {
-      "../../elliptic": 19
+      "../utils": 32
     }],
-    31: [function(require, module, exports) {
+    30: [function(require, module, exports) {
       'use strict';
 
       var BN = require('bn.js');
-      var elliptic = require('../../elliptic');
-      var utils = elliptic.utils;
+      var utils = require('../utils');
       var assert = utils.assert;
       var cachedProperty = utils.cachedProperty;
       var parseBytes = utils.parseBytes;
@@ -12999,10 +12672,10 @@
       module.exports = Signature;
 
     }, {
-      "../../elliptic": 19,
-      "bn.js": 17
+      "../utils": 32,
+      "bn.js": 16
     }],
-    32: [function(require, module, exports) {
+    31: [function(require, module, exports) {
       module.exports = {
         doubles: {
           step: 4,
@@ -13785,7 +13458,7 @@
       };
 
     }, {}],
-    33: [function(require, module, exports) {
+    32: [function(require, module, exports) {
       'use strict';
 
       var utils = exports;
@@ -13911,104 +13584,15 @@
 
 
     }, {
-      "bn.js": 17,
-      "minimalistic-assert": 50,
-      "minimalistic-crypto-utils": 51
+      "bn.js": 16,
+      "minimalistic-assert": 48,
+      "minimalistic-crypto-utils": 49
     }],
-    34: [function(require, module, exports) {
-      module.exports = {
-        "_args": [
-          [
-            "github:openpgpjs/elliptic",
-            "/Users/sunny/Desktop/Protonmail/openpgpjs"
-          ]
-        ],
-        "_from": "github:openpgpjs/elliptic",
-        "_id": "elliptic@github:openpgpjs/elliptic#e187e706e11fa51bcd20e46e5119054be4e2a4a6",
-        "_inBundle": false,
-        "_integrity": "",
-        "_location": "/elliptic",
-        "_phantomChildren": {},
-        "_requested": {
-          "type": "git",
-          "raw": "github:openpgpjs/elliptic",
-          "rawSpec": "github:openpgpjs/elliptic",
-          "saveSpec": "github:openpgpjs/elliptic",
-          "fetchSpec": null,
-          "gitCommittish": null
-        },
-        "_requiredBy": [
-          "/"
-        ],
-        "_resolved": "github:openpgpjs/elliptic#e187e706e11fa51bcd20e46e5119054be4e2a4a6",
-        "_spec": "github:openpgpjs/elliptic",
-        "_where": "/Users/sunny/Desktop/Protonmail/openpgpjs",
-        "author": {
-          "name": "Fedor Indutny",
-          "email": "fedor@indutny.com"
-        },
-        "bugs": {
-          "url": "https://github.com/indutny/elliptic/issues"
-        },
-        "dependencies": {
-          "bn.js": "^4.4.0",
-          "brorand": "^1.0.1",
-          "hash.js": "^1.0.0",
-          "hmac-drbg": "^1.0.0",
-          "inherits": "^2.0.1",
-          "minimalistic-assert": "^1.0.0",
-          "minimalistic-crypto-utils": "^1.0.0"
-        },
-        "description": "EC cryptography",
-        "devDependencies": {
-          "brfs": "^1.4.3",
-          "coveralls": "^2.11.3",
-          "grunt": "^0.4.5",
-          "grunt-browserify": "^5.0.0",
-          "grunt-cli": "^1.2.0",
-          "grunt-contrib-connect": "^1.0.0",
-          "grunt-contrib-copy": "^1.0.0",
-          "grunt-contrib-uglify": "^1.0.1",
-          "grunt-mocha-istanbul": "^3.0.1",
-          "grunt-saucelabs": "^8.6.2",
-          "istanbul": "^0.4.2",
-          "jscs": "^2.9.0",
-          "jshint": "^2.6.0",
-          "mocha": "^2.1.0"
-        },
-        "files": [
-          "lib"
-        ],
-        "homepage": "https://github.com/indutny/elliptic",
-        "keywords": [
-          "EC",
-          "Elliptic",
-          "curve",
-          "Cryptography"
-        ],
-        "license": "MIT",
-        "main": "lib/elliptic.js",
-        "name": "elliptic",
-        "repository": {
-          "type": "git",
-          "url": "git+ssh://git@github.com/indutny/elliptic.git"
-        },
-        "scripts": {
-          "jscs": "jscs benchmarks/*.js lib/*.js lib/**/*.js lib/**/**/*.js test/index.js",
-          "jshint": "jscs benchmarks/*.js lib/*.js lib/**/*.js lib/**/**/*.js test/index.js",
-          "lint": "npm run jscs && npm run jshint",
-          "test": "npm run lint && npm run unit",
-          "unit": "istanbul test _mocha --reporter=spec test/index.js",
-          "version": "grunt dist && git add dist/"
-        },
-        "version": "6.4.0"
-      }
-
-    }, {}],
-    35: [function(require, module, exports) {
+    33: [function(require, module, exports) {
+      "use strict";
 
       // email-addresses.js - RFC 5322 email address parser
-      // v 3.0.1
+      // v 3.1.0
       //
       // http://tools.ietf.org/html/rfc5322
       //
@@ -14237,7 +13821,6 @@
             return tok.charCodeAt(0) >= 128;
           }
 
-
           // common productions (RFC 5234)
           // http://tools.ietf.org/html/rfc5234
           // B.1. Core Rules
@@ -14282,7 +13865,7 @@
           function vchar() {
             return wrap('vchar', compareToken(function vcharFunc(tok) {
               var code = tok.charCodeAt(0);
-              var accept = (0x21 <= code && code <= 0x7E);
+              var accept = 0x21 <= code && code <= 0x7E;
               if (opts.rfc6532) {
                 accept = accept || isUTF8NonAscii(tok);
               }
@@ -14296,18 +13879,13 @@
             return wrap('wsp', or(sp, htab)());
           }
 
-
           // email productions (RFC 5322)
           // http://tools.ietf.org/html/rfc5322
           // 3.2.1. Quoted characters
 
           // quoted-pair     =   ("\" (VCHAR / WSP)) / obs-qp
           function quotedPair() {
-            var qp = wrap('quoted-pair',
-              or(
-                and(literal('\\'), or(vchar, wsp)),
-                obsQP
-              )());
+            var qp = wrap('quoted-pair', or(and(literal('\\'), or(vchar, wsp)), obsQP)());
             if (qp === null) {
               return null;
             }
@@ -14321,16 +13899,7 @@
 
           // FWS             =   ([*WSP CRLF] 1*WSP) /  obs-FWS
           function fws() {
-            return wrap('fws', or(
-              obsFws,
-              and(
-                opt(and(
-                  star(wsp),
-                  invis(crlf)
-                )),
-                star(wsp, 1)
-              )
-            )());
+            return wrap('fws', or(obsFws, and(opt(and(star(wsp), invis(crlf))), star(wsp, 1)))());
           }
 
           // ctext           =   %d33-39 /          ; Printable US-ASCII
@@ -14338,22 +13907,16 @@
           //                     %d93-126 /         ;  "(", ")", or "\"
           //                     obs-ctext
           function ctext() {
-            return wrap('ctext', or(
-              function ctextFunc1() {
-                return compareToken(function ctextFunc2(tok) {
-                  var code = tok.charCodeAt(0);
-                  var accept =
-                    (33 <= code && code <= 39) ||
-                    (42 <= code && code <= 91) ||
-                    (93 <= code && code <= 126);
-                  if (opts.rfc6532) {
-                    accept = accept || isUTF8NonAscii(tok);
-                  }
-                  return accept;
-                });
-              },
-              obsCtext
-            )());
+            return wrap('ctext', or(function ctextFunc1() {
+              return compareToken(function ctextFunc2(tok) {
+                var code = tok.charCodeAt(0);
+                var accept = 33 <= code && code <= 39 || 42 <= code && code <= 91 || 93 <= code && code <= 126;
+                if (opts.rfc6532) {
+                  accept = accept || isUTF8NonAscii(tok);
+                }
+                return accept;
+              });
+            }, obsCtext)());
           }
 
           // ccontent        =   ctext / quoted-pair / comment
@@ -14363,26 +13926,12 @@
 
           // comment         =   "(" *([FWS] ccontent) [FWS] ")"
           function comment() {
-            return wrap('comment', and(
-              literal('('),
-              star(and(opt(fws), ccontent)),
-              opt(fws),
-              literal(')')
-            )());
+            return wrap('comment', and(literal('('), star(and(opt(fws), ccontent)), opt(fws), literal(')'))());
           }
 
           // CFWS            =   (1*([FWS] comment) [FWS]) / FWS
           function cfws() {
-            return wrap('cfws', or(
-              and(
-                star(
-                  and(opt(fws), comment),
-                  1
-                ),
-                opt(fws)
-              ),
-              fws
-            )());
+            return wrap('cfws', or(and(star(and(opt(fws), comment), 1), opt(fws)), fws)());
           }
 
           // 3.2.3. Atom
@@ -14400,13 +13949,7 @@
           //                       "~"
           function atext() {
             return wrap('atext', compareToken(function atextFunc(tok) {
-              var accept =
-                ('a' <= tok && tok <= 'z') ||
-                ('A' <= tok && tok <= 'Z') ||
-                ('0' <= tok && tok <= '9') ||
-                (['!', '#', '$', '%', '&', '\'', '*', '+', '-', '/',
-                  '=', '?', '^', '_', '`', '{', '|', '}', '~'
-                ].indexOf(tok) >= 0);
+              var accept = 'a' <= tok && tok <= 'z' || 'A' <= tok && tok <= 'Z' || '0' <= tok && tok <= '9' || ['!', '#', '$', '%', '&', '\'', '*', '+', '-', '/', '=', '?', '^', '_', '`', '{', '|', '}', '~'].indexOf(tok) >= 0;
               if (opts.rfc6532) {
                 accept = accept || isUTF8NonAscii(tok);
               }
@@ -14445,22 +13988,16 @@
           //                      %d93-126 /         ;  "\" or the quote character
           //                      obs-qtext
           function qtext() {
-            return wrap('qtext', or(
-              function qtextFunc1() {
-                return compareToken(function qtextFunc2(tok) {
-                  var code = tok.charCodeAt(0);
-                  var accept =
-                    (33 === code) ||
-                    (35 <= code && code <= 91) ||
-                    (93 <= code && code <= 126);
-                  if (opts.rfc6532) {
-                    accept = accept || isUTF8NonAscii(tok);
-                  }
-                  return accept;
-                });
-              },
-              obsQtext
-            )());
+            return wrap('qtext', or(function qtextFunc1() {
+              return compareToken(function qtextFunc2(tok) {
+                var code = tok.charCodeAt(0);
+                var accept = 33 === code || 35 <= code && code <= 91 || 93 <= code && code <= 126;
+                if (opts.rfc6532) {
+                  accept = accept || isUTF8NonAscii(tok);
+                }
+                return accept;
+              });
+            }, obsQtext)());
           }
 
           // qcontent        =   qtext / quoted-pair
@@ -14472,11 +14009,7 @@
           //                      DQUOTE *([FWS] qcontent) [FWS] DQUOTE
           //                      [CFWS]
           function quotedString() {
-            return wrap('quoted-string', and(
-              invis(opt(cfws)),
-              invis(dquote), star(and(opt(colwsp(fws)), qcontent)), opt(invis(fws)), invis(dquote),
-              invis(opt(cfws))
-            )());
+            return wrap('quoted-string', and(invis(opt(cfws)), invis(dquote), star(and(opt(colwsp(fws)), qcontent)), opt(invis(fws)), invis(dquote), invis(opt(cfws)))());
           }
 
           // 3.2.5 Miscellaneous Tokens
@@ -14510,27 +14043,12 @@
           //   angle-addr      =   [CFWS] "<" addr-spec ">" [CFWS] /
           //                       obs-angle-addr
           function angleAddr() {
-            return wrap('angle-addr', or(
-              and(
-                invis(opt(cfws)),
-                literal('<'),
-                addrSpec,
-                literal('>'),
-                invis(opt(cfws))
-              ),
-              obsAngleAddr
-            )());
+            return wrap('angle-addr', or(and(invis(opt(cfws)), literal('<'), addrSpec, literal('>'), invis(opt(cfws))), obsAngleAddr)());
           }
 
           //   group           =   display-name ":" [group-list] ";" [CFWS]
           function group() {
-            return wrap('group', and(
-              displayName,
-              literal(':'),
-              opt(groupList),
-              literal(';'),
-              invis(opt(cfws))
-            )());
+            return wrap('group', and(displayName, literal(':'), opt(groupList), literal(';'), invis(opt(cfws)))());
           }
 
           //   display-name    =   phrase
@@ -14546,33 +14064,17 @@
 
           //   mailbox-list    =   (mailbox *("," mailbox)) / obs-mbox-list
           function mailboxList() {
-            return wrap('mailbox-list', or(
-              and(
-                mailbox,
-                star(and(literal(','), mailbox))
-              ),
-              obsMboxList
-            )());
+            return wrap('mailbox-list', or(and(mailbox, star(and(literal(','), mailbox))), obsMboxList)());
           }
 
           //   address-list    =   (address *("," address)) / obs-addr-list
           function addressList() {
-            return wrap('address-list', or(
-              and(
-                address,
-                star(and(literal(','), address))
-              ),
-              obsAddrList
-            )());
+            return wrap('address-list', or(and(address, star(and(literal(','), address))), obsAddrList)());
           }
 
           //   group-list      =   mailbox-list / CFWS / obs-group-list
           function groupList() {
-            return wrap('group-list', or(
-              mailboxList,
-              invis(cfws),
-              obsGroupList
-            )());
+            return wrap('group-list', or(mailboxList, invis(cfws), obsGroupList)());
           }
 
           // 3.4.1 Addr-Spec Specification
@@ -14588,33 +14090,21 @@
           //                      %d94-126 /         ;  characters not including
           //                      obs-dtext          ;  "[", "]", or "\"
           function dtext() {
-            return wrap('dtext', or(
-              function dtextFunc1() {
-                return compareToken(function dtextFunc2(tok) {
-                  var code = tok.charCodeAt(0);
-                  var accept =
-                    (33 <= code && code <= 90) ||
-                    (94 <= code && code <= 126);
-                  if (opts.rfc6532) {
-                    accept = accept || isUTF8NonAscii(tok);
-                  }
-                  return accept;
-                });
-              },
-              obsDtext
-            )());
+            return wrap('dtext', or(function dtextFunc1() {
+              return compareToken(function dtextFunc2(tok) {
+                var code = tok.charCodeAt(0);
+                var accept = 33 <= code && code <= 90 || 94 <= code && code <= 126;
+                if (opts.rfc6532) {
+                  accept = accept || isUTF8NonAscii(tok);
+                }
+                return accept;
+              });
+            }, obsDtext)());
           }
 
           // domain-literal  =   [CFWS] "[" *([FWS] dtext) [FWS] "]" [CFWS]
           function domainLiteral() {
-            return wrap('domain-literal', and(
-              invis(opt(cfws)),
-              literal('['),
-              star(and(opt(fws), dtext)),
-              opt(fws),
-              literal(']'),
-              invis(opt(cfws))
-            )());
+            return wrap('domain-literal', and(invis(opt(cfws)), literal('['), star(and(opt(fws), dtext)), opt(fws), literal(']'), invis(opt(cfws)))());
           }
 
           // domain          =   dot-atom / domain-literal / obs-domain
@@ -14622,7 +14112,7 @@
             return wrap('domain', function domainCheckTLD() {
               var result = or(obsDomain, dotAtom, domainLiteral)();
               if (opts.rejectTLD) {
-                if (result.semantic.indexOf('.') < 0) {
+                if (result && result.semantic && result.semantic.indexOf('.') < 0) {
                   return null;
                 }
               }
@@ -14636,9 +14126,7 @@
 
           // addr-spec       =   local-part "@" domain
           function addrSpec() {
-            return wrap('addr-spec', and(
-              localPart, literal('@'), domain
-            )());
+            return wrap('addr-spec', and(localPart, literal('@'), domain)());
           }
 
           // 3.6.2 Originator Fields
@@ -14650,19 +14138,13 @@
           // RFC 6854 2.1. Replacement of RFC 5322, Section 3.6.2. Originator Fields
           // from = "From:" (mailbox-list / address-list) CRLF
           function fromSpec() {
-            return wrap('from', or(
-              mailboxList,
-              addressList
-            )());
+            return wrap('from', or(mailboxList, addressList)());
           }
 
           // RFC 6854 2.1. Replacement of RFC 5322, Section 3.6.2. Originator Fields
           // sender = "Sender:" (mailbox / address) CRLF
           function senderSpec() {
-            return wrap('sender', or(
-              mailbox,
-              address
-            )());
+            return wrap('sender', or(mailbox, address)());
           }
 
           // RFC 6854 2.1. Replacement of RFC 5322, Section 3.6.2. Originator Fields
@@ -14681,10 +14163,7 @@
           function obsNoWsCtl() {
             return opts.strict ? null : wrap('obs-NO-WS-CTL', compareToken(function(tok) {
               var code = tok.charCodeAt(0);
-              return ((1 <= code && code <= 8) ||
-                (11 === code || 12 === code) ||
-                (14 <= code && code <= 31) ||
-                (127 === code));
+              return 1 <= code && code <= 8 || 11 === code || 12 === code || 14 <= code && code <= 31 || 127 === code;
             }));
           }
 
@@ -14700,18 +14179,13 @@
 
           // obs-qp          =   "\" (%d0 / obs-NO-WS-CTL / LF / CR)
           function obsQP() {
-            return opts.strict ? null : wrap('obs-qp', and(
-              literal('\\'),
-              or(literal('\0'), obsNoWsCtl, lf, cr)
-            )());
+            return opts.strict ? null : wrap('obs-qp', and(literal('\\'), or(literal('\0'), obsNoWsCtl, lf, cr))());
           }
 
           // obs-phrase      =   word *(word / "." / CFWS)
           function obsPhrase() {
-            return opts.strict ? null : wrap('obs-phrase', and(
-              word,
-              star(or(word, literal('.'), colwsp(cfws)))
-            )());
+            if (opts.strict) return null;
+            return opts.atInDisplayName ? wrap('obs-phrase', and(word, star(or(word, literal('.'), literal('@'), colwsp(cfws))))()) : wrap('obs-phrase', and(word, star(or(word, literal('.'), colwsp(cfws))))());
           }
 
           // 4.2. Obsolete Folding White Space
@@ -14719,94 +14193,40 @@
           // NOTE: read the errata http://www.rfc-editor.org/errata_search.php?rfc=5322&eid=1908
           // obs-FWS         =   1*([CRLF] WSP)
           function obsFws() {
-            return opts.strict ? null : wrap('obs-FWS', star(
-              and(invis(opt(crlf)), wsp),
-              1
-            )());
+            return opts.strict ? null : wrap('obs-FWS', star(and(invis(opt(crlf)), wsp), 1)());
           }
 
           // 4.4. Obsolete Addressing
 
           // obs-angle-addr  =   [CFWS] "<" obs-route addr-spec ">" [CFWS]
           function obsAngleAddr() {
-            return opts.strict ? null : wrap('obs-angle-addr', and(
-              invis(opt(cfws)),
-              literal('<'),
-              obsRoute,
-              addrSpec,
-              literal('>'),
-              invis(opt(cfws))
-            )());
+            return opts.strict ? null : wrap('obs-angle-addr', and(invis(opt(cfws)), literal('<'), obsRoute, addrSpec, literal('>'), invis(opt(cfws)))());
           }
 
           // obs-route       =   obs-domain-list ":"
           function obsRoute() {
-            return opts.strict ? null : wrap('obs-route', and(
-              obsDomainList,
-              literal(':')
-            )());
+            return opts.strict ? null : wrap('obs-route', and(obsDomainList, literal(':'))());
           }
 
           //   obs-domain-list =   *(CFWS / ",") "@" domain
           //                       *("," [CFWS] ["@" domain])
           function obsDomainList() {
-            return opts.strict ? null : wrap('obs-domain-list', and(
-              star(or(invis(cfws), literal(','))),
-              literal('@'),
-              domain,
-              star(and(
-                literal(','),
-                invis(opt(cfws)),
-                opt(and(literal('@'), domain))
-              ))
-            )());
+            return opts.strict ? null : wrap('obs-domain-list', and(star(or(invis(cfws), literal(','))), literal('@'), domain, star(and(literal(','), invis(opt(cfws)), opt(and(literal('@'), domain)))))());
           }
 
           // obs-mbox-list   =   *([CFWS] ",") mailbox *("," [mailbox / CFWS])
           function obsMboxList() {
-            return opts.strict ? null : wrap('obs-mbox-list', and(
-              star(and(
-                invis(opt(cfws)),
-                literal(',')
-              )),
-              mailbox,
-              star(and(
-                literal(','),
-                opt(and(
-                  mailbox,
-                  invis(cfws)
-                ))
-              ))
-            )());
+            return opts.strict ? null : wrap('obs-mbox-list', and(star(and(invis(opt(cfws)), literal(','))), mailbox, star(and(literal(','), opt(and(mailbox, invis(cfws))))))());
           }
 
           // obs-addr-list   =   *([CFWS] ",") address *("," [address / CFWS])
           function obsAddrList() {
-            return opts.strict ? null : wrap('obs-addr-list', and(
-              star(and(
-                invis(opt(cfws)),
-                literal(',')
-              )),
-              address,
-              star(and(
-                literal(','),
-                opt(and(
-                  address,
-                  invis(cfws)
-                ))
-              ))
-            )());
+            return opts.strict ? null : wrap('obs-addr-list', and(star(and(invis(opt(cfws)), literal(','))), address, star(and(literal(','), opt(and(address, invis(cfws))))))());
           }
 
           // obs-group-list  =   1*([CFWS] ",") [CFWS]
           function obsGroupList() {
-            return opts.strict ? null : wrap('obs-group-list', and(
-              star(and(
-                invis(opt(cfws)),
-                literal(',')
-              ), 1),
-              invis(opt(cfws))
-            )());
+            return opts.strict ? null : wrap('obs-group-list', and(star(and(invis(opt(cfws)), literal(',')), 1), invis(opt(cfws)))());
           }
 
           // obs-local-part = word *("." word)
@@ -14913,7 +14333,7 @@
 
             result = {
               ast: ast,
-              addresses: addresses,
+              addresses: addresses
             };
             if (opts.simple) {
               result = simplifyResult(result);
@@ -14940,18 +14360,19 @@
             return {
               node: group,
               parts: {
-                name: groupName,
+                name: groupName
               },
               type: group.name, // 'group'
               name: grabSemantic(groupName),
-              addresses: groupResultMailboxes,
+              addresses: groupResultMailboxes
             };
           }
 
           function giveResultMailbox(mailbox) {
             var name = findNode('display-name', mailbox);
             var aspec = findNode('addr-spec', mailbox);
-            var comments = findAllNodes('cfws', mailbox);
+            var cfws = findAllNodes('cfws', mailbox);
+            var comments = findAllNodesNoChildren(['comment'], mailbox);
 
             var local = findNode('local-part', aspec);
             var domain = findNode('domain', aspec);
@@ -14962,14 +14383,15 @@
                 address: aspec,
                 local: local,
                 domain: domain,
-                comments: comments
+                comments: cfws
               },
               type: mailbox.name, // 'mailbox'
               name: grabSemantic(name),
               address: grabSemantic(aspec),
               local: grabSemantic(local),
               domain: grabSemantic(domain),
-              groupName: grabSemantic(mailbox.groupName),
+              comments: concatComments(comments),
+              groupName: grabSemantic(mailbox.groupName)
             };
           }
 
@@ -14982,6 +14404,16 @@
             if (result && result.addresses) {
               for (i = 0; i < result.addresses.length; i += 1) {
                 delete result.addresses[i].node;
+              }
+            }
+            return result;
+          }
+
+          function concatComments(comments) {
+            var result = '';
+            if (comments) {
+              for (var i = 0; i < comments.length; i += 1) {
+                result += grabSemantic(comments[i]);
               }
             }
             return result;
@@ -15017,7 +14449,7 @@
             'mailbox': mailbox,
             'mailbox-list': mailboxList,
             'reply-to': replyToSpec,
-            'sender': senderSpec,
+            'sender': senderSpec
           } [opts.startAt] || addressList;
 
           if (!opts.strict) {
@@ -15043,7 +14475,7 @@
             oneResult: true,
             rfc6532: true,
             simple: true,
-            startAt: 'address-list',
+            startAt: 'address-list'
           }));
         }
 
@@ -15051,7 +14483,7 @@
           return parse5322(handleOpts(opts, {
             rfc6532: true,
             simple: true,
-            startAt: 'address-list',
+            startAt: 'address-list'
           }));
         }
 
@@ -15059,7 +14491,7 @@
           return parse5322(handleOpts(opts, {
             rfc6532: true,
             simple: true,
-            startAt: 'from',
+            startAt: 'from'
           }));
         }
 
@@ -15068,7 +14500,7 @@
             oneResult: true,
             rfc6532: true,
             simple: true,
-            startAt: 'sender',
+            startAt: 'sender'
           }));
         }
 
@@ -15076,7 +14508,7 @@
           return parse5322(handleOpts(opts, {
             rfc6532: true,
             simple: true,
-            startAt: 'reply-to',
+            startAt: 'reply-to'
           }));
         }
 
@@ -15119,6 +14551,7 @@
             simple: false,
             startAt: 'address-list',
             strict: false,
+            atInDisplayName: false
           };
 
           for (o in defaults) {
@@ -15141,11 +14574,10 @@
         else {
           global.emailAddresses = parse5322;
         }
-
-      }(this));
+      })(undefined);
 
     }, {}],
-    36: [function(require, module, exports) {
+    34: [function(require, module, exports) {
       var hash = exports;
 
       hash.utils = require('./hash/utils');
@@ -15163,13 +14595,13 @@
       hash.ripemd160 = hash.ripemd.ripemd160;
 
     }, {
-      "./hash/common": 37,
-      "./hash/hmac": 38,
-      "./hash/ripemd": 39,
-      "./hash/sha": 40,
-      "./hash/utils": 47
+      "./hash/common": 35,
+      "./hash/hmac": 36,
+      "./hash/ripemd": 37,
+      "./hash/sha": 38,
+      "./hash/utils": 45
     }],
-    37: [function(require, module, exports) {
+    35: [function(require, module, exports) {
       'use strict';
 
       var utils = require('./utils');
@@ -15265,10 +14697,10 @@
       };
 
     }, {
-      "./utils": 47,
-      "minimalistic-assert": 50
+      "./utils": 45,
+      "minimalistic-assert": 48
     }],
-    38: [function(require, module, exports) {
+    36: [function(require, module, exports) {
       'use strict';
 
       var utils = require('./utils');
@@ -15318,10 +14750,10 @@
       };
 
     }, {
-      "./utils": 47,
-      "minimalistic-assert": 50
+      "./utils": 45,
+      "minimalistic-assert": 48
     }],
-    39: [function(require, module, exports) {
+    37: [function(require, module, exports) {
       'use strict';
 
       var utils = require('./utils');
@@ -15470,10 +14902,10 @@
       ];
 
     }, {
-      "./common": 37,
-      "./utils": 47
+      "./common": 35,
+      "./utils": 45
     }],
-    40: [function(require, module, exports) {
+    38: [function(require, module, exports) {
       'use strict';
 
       exports.sha1 = require('./sha/1');
@@ -15483,13 +14915,13 @@
       exports.sha512 = require('./sha/512');
 
     }, {
-      "./sha/1": 41,
-      "./sha/224": 42,
-      "./sha/256": 43,
-      "./sha/384": 44,
-      "./sha/512": 45
+      "./sha/1": 39,
+      "./sha/224": 40,
+      "./sha/256": 41,
+      "./sha/384": 42,
+      "./sha/512": 43
     }],
-    41: [function(require, module, exports) {
+    39: [function(require, module, exports) {
       'use strict';
 
       var utils = require('../utils');
@@ -15567,11 +14999,11 @@
       };
 
     }, {
-      "../common": 37,
-      "../utils": 47,
-      "./common": 46
+      "../common": 35,
+      "../utils": 45,
+      "./common": 44
     }],
-    42: [function(require, module, exports) {
+    40: [function(require, module, exports) {
       'use strict';
 
       var utils = require('../utils');
@@ -15605,10 +15037,10 @@
 
 
     }, {
-      "../utils": 47,
-      "./256": 43
+      "../utils": 45,
+      "./256": 41
     }],
-    43: [function(require, module, exports) {
+    41: [function(require, module, exports) {
       'use strict';
 
       var utils = require('../utils');
@@ -15716,12 +15148,12 @@
       };
 
     }, {
-      "../common": 37,
-      "../utils": 47,
-      "./common": 46,
-      "minimalistic-assert": 50
+      "../common": 35,
+      "../utils": 45,
+      "./common": 44,
+      "minimalistic-assert": 48
     }],
-    44: [function(require, module, exports) {
+    42: [function(require, module, exports) {
       'use strict';
 
       var utils = require('../utils');
@@ -15760,10 +15192,10 @@
       };
 
     }, {
-      "../utils": 47,
-      "./512": 45
+      "../utils": 45,
+      "./512": 43
     }],
-    45: [function(require, module, exports) {
+    43: [function(require, module, exports) {
       'use strict';
 
       var utils = require('../utils');
@@ -16097,11 +15529,11 @@
       }
 
     }, {
-      "../common": 37,
-      "../utils": 47,
-      "minimalistic-assert": 50
+      "../common": 35,
+      "../utils": 45,
+      "minimalistic-assert": 48
     }],
-    46: [function(require, module, exports) {
+    44: [function(require, module, exports) {
       'use strict';
 
       var utils = require('../utils');
@@ -16153,9 +15585,9 @@
       exports.g1_256 = g1_256;
 
     }, {
-      "../utils": 47
+      "../utils": 45
     }],
-    47: [function(require, module, exports) {
+    45: [function(require, module, exports) {
       'use strict';
 
       var assert = require('minimalistic-assert');
@@ -16414,10 +15846,10 @@
       exports.shr64_lo = shr64_lo;
 
     }, {
-      "inherits": 49,
-      "minimalistic-assert": 50
+      "inherits": 47,
+      "minimalistic-assert": 48
     }],
-    48: [function(require, module, exports) {
+    46: [function(require, module, exports) {
       'use strict';
 
       var hash = require('hash.js');
@@ -16533,11 +15965,11 @@
       };
 
     }, {
-      "hash.js": 36,
-      "minimalistic-assert": 50,
-      "minimalistic-crypto-utils": 51
+      "hash.js": 34,
+      "minimalistic-assert": 48,
+      "minimalistic-crypto-utils": 49
     }],
-    49: [function(require, module, exports) {
+    47: [function(require, module, exports) {
       if (typeof Object.create === 'function') {
         // implementation from standard node.js 'util' module
         module.exports = function inherits(ctor, superCtor) {
@@ -16564,7 +15996,7 @@
       }
 
     }, {}],
-    50: [function(require, module, exports) {
+    48: [function(require, module, exports) {
       module.exports = assert;
 
       function assert(val, msg) {
@@ -16578,7 +16010,7 @@
       };
 
     }, {}],
-    51: [function(require, module, exports) {
+    49: [function(require, module, exports) {
       'use strict';
 
       var utils = exports;
@@ -16640,7 +16072,7 @@
       };
 
     }, {}],
-    52: [function(require, module, exports) {
+    50: [function(require, module, exports) {
       // Top level file is just a mixin of submodules & constants
       'use strict';
 
@@ -16657,12 +16089,12 @@
       module.exports = pako;
 
     }, {
-      "./lib/deflate": 53,
-      "./lib/inflate": 54,
-      "./lib/utils/common": 55,
-      "./lib/zlib/constants": 58
+      "./lib/deflate": 51,
+      "./lib/inflate": 52,
+      "./lib/utils/common": 53,
+      "./lib/zlib/constants": 56
     }],
-    53: [function(require, module, exports) {
+    51: [function(require, module, exports) {
       'use strict';
 
 
@@ -17075,13 +16507,13 @@
       exports.gzip = gzip;
 
     }, {
-      "./utils/common": 55,
-      "./utils/strings": 56,
-      "./zlib/deflate": 60,
-      "./zlib/messages": 65,
-      "./zlib/zstream": 67
+      "./utils/common": 53,
+      "./utils/strings": 54,
+      "./zlib/deflate": 58,
+      "./zlib/messages": 63,
+      "./zlib/zstream": 65
     }],
-    54: [function(require, module, exports) {
+    52: [function(require, module, exports) {
       'use strict';
 
 
@@ -17516,15 +16948,15 @@
       exports.ungzip = inflate;
 
     }, {
-      "./utils/common": 55,
-      "./utils/strings": 56,
-      "./zlib/constants": 58,
-      "./zlib/gzheader": 61,
-      "./zlib/inflate": 63,
-      "./zlib/messages": 65,
-      "./zlib/zstream": 67
+      "./utils/common": 53,
+      "./utils/strings": 54,
+      "./zlib/constants": 56,
+      "./zlib/gzheader": 59,
+      "./zlib/inflate": 61,
+      "./zlib/messages": 63,
+      "./zlib/zstream": 65
     }],
-    55: [function(require, module, exports) {
+    53: [function(require, module, exports) {
       'use strict';
 
 
@@ -17639,7 +17071,7 @@
       exports.setTyped(TYPED_OK);
 
     }, {}],
-    56: [function(require, module, exports) {
+    54: [function(require, module, exports) {
       // String encode/decode helpers
       'use strict';
 
@@ -17860,9 +17292,9 @@
       };
 
     }, {
-      "./common": 55
+      "./common": 53
     }],
-    57: [function(require, module, exports) {
+    55: [function(require, module, exports) {
       'use strict';
 
       // Note: adler32 takes 12% for level 0 and 2% for level 6.
@@ -17916,7 +17348,7 @@
       module.exports = adler32;
 
     }, {}],
-    58: [function(require, module, exports) {
+    56: [function(require, module, exports) {
       'use strict';
 
       // (C) 1995-2013 Jean-loup Gailly and Mark Adler
@@ -17987,7 +17419,7 @@
       };
 
     }, {}],
-    59: [function(require, module, exports) {
+    57: [function(require, module, exports) {
       'use strict';
 
       // Note: we can't get significant speed boost here.
@@ -18049,7 +17481,7 @@
       module.exports = crc32;
 
     }, {}],
-    60: [function(require, module, exports) {
+    58: [function(require, module, exports) {
       'use strict';
 
       // (C) 1995-2013 Jean-loup Gailly and Mark Adler
@@ -19968,13 +19400,13 @@
       */
 
     }, {
-      "../utils/common": 55,
-      "./adler32": 57,
-      "./crc32": 59,
-      "./messages": 65,
-      "./trees": 66
+      "../utils/common": 53,
+      "./adler32": 55,
+      "./crc32": 57,
+      "./messages": 63,
+      "./trees": 64
     }],
-    61: [function(require, module, exports) {
+    59: [function(require, module, exports) {
       'use strict';
 
       // (C) 1995-2013 Jean-loup Gailly and Mark Adler
@@ -20035,7 +19467,7 @@
       module.exports = GZheader;
 
     }, {}],
-    62: [function(require, module, exports) {
+    60: [function(require, module, exports) {
       'use strict';
 
       // (C) 1995-2013 Jean-loup Gailly and Mark Adler
@@ -20398,7 +19830,7 @@
       };
 
     }, {}],
-    63: [function(require, module, exports) {
+    61: [function(require, module, exports) {
       'use strict';
 
       // (C) 1995-2013 Jean-loup Gailly and Mark Adler
@@ -21224,167 +20656,16 @@
                   break inf_leave;
                 }
                 /* falls through */
-              case TYPEDO:
-                if (state.last) {
-                  //--- BYTEBITS() ---//
-                  hold >>>= bits & 7;
-                  bits -= bits & 7;
-                  //---//
-                  state.mode = CHECK;
-                  break;
-                }
-                //=== NEEDBITS(3); */
-                while (bits < 3) {
-                  if (have === 0) {
-                    break inf_leave;
-                  }
-                  have--;
-                  hold += input[next++] << bits;
-                  bits += 8;
-                }
-                //===//
-                state.last = (hold & 0x01) /*BITS(1)*/ ;
-                //--- DROPBITS(1) ---//
-                hold >>>= 1;
-                bits -= 1;
-                //---//
-
-                switch ((hold & 0x03) /*BITS(2)*/ ) {
-                  case 0:
-                    /* stored block */
-                    //Tracev((stderr, "inflate:     stored block%s\n",
-                    //        state.last ? " (last)" : ""));
-                    state.mode = STORED;
+                case TYPEDO:
+                  if (state.last) {
+                    //--- BYTEBITS() ---//
+                    hold >>>= bits & 7;
+                    bits -= bits & 7;
+                    //---//
+                    state.mode = CHECK;
                     break;
-                  case 1:
-                    /* fixed block */
-                    fixedtables(state);
-                    //Tracev((stderr, "inflate:     fixed codes block%s\n",
-                    //        state.last ? " (last)" : ""));
-                    state.mode = LEN_; /* decode codes */
-                    if (flush === Z_TREES) {
-                      //--- DROPBITS(2) ---//
-                      hold >>>= 2;
-                      bits -= 2;
-                      //---//
-                      break inf_leave;
-                    }
-                    break;
-                  case 2:
-                    /* dynamic block */
-                    //Tracev((stderr, "inflate:     dynamic codes block%s\n",
-                    //        state.last ? " (last)" : ""));
-                    state.mode = TABLE;
-                    break;
-                  case 3:
-                    strm.msg = 'invalid block type';
-                    state.mode = BAD;
-                }
-                //--- DROPBITS(2) ---//
-                hold >>>= 2;
-                bits -= 2;
-                //---//
-                break;
-              case STORED:
-                //--- BYTEBITS() ---// /* go to byte boundary */
-                hold >>>= bits & 7;
-                bits -= bits & 7;
-                //---//
-                //=== NEEDBITS(32); */
-                while (bits < 32) {
-                  if (have === 0) {
-                    break inf_leave;
                   }
-                  have--;
-                  hold += input[next++] << bits;
-                  bits += 8;
-                }
-                //===//
-                if ((hold & 0xffff) !== ((hold >>> 16) ^ 0xffff)) {
-                  strm.msg = 'invalid stored block lengths';
-                  state.mode = BAD;
-                  break;
-                }
-                state.length = hold & 0xffff;
-                //Tracev((stderr, "inflate:       stored length %u\n",
-                //        state.length));
-                //=== INITBITS();
-                hold = 0;
-                bits = 0;
-                //===//
-                state.mode = COPY_;
-                if (flush === Z_TREES) {
-                  break inf_leave;
-                }
-                /* falls through */
-              case COPY_:
-                state.mode = COPY;
-                /* falls through */
-              case COPY:
-                copy = state.length;
-                if (copy) {
-                  if (copy > have) {
-                    copy = have;
-                  }
-                  if (copy > left) {
-                    copy = left;
-                  }
-                  if (copy === 0) {
-                    break inf_leave;
-                  }
-                  //--- zmemcpy(put, next, copy); ---
-                  utils.arraySet(output, input, next, copy, put);
-                  //---//
-                  have -= copy;
-                  next += copy;
-                  left -= copy;
-                  put += copy;
-                  state.length -= copy;
-                  break;
-                }
-                //Tracev((stderr, "inflate:       stored end\n"));
-                state.mode = TYPE;
-                break;
-              case TABLE:
-                //=== NEEDBITS(14); */
-                while (bits < 14) {
-                  if (have === 0) {
-                    break inf_leave;
-                  }
-                  have--;
-                  hold += input[next++] << bits;
-                  bits += 8;
-                }
-                //===//
-                state.nlen = (hold & 0x1f) /*BITS(5)*/ + 257;
-                //--- DROPBITS(5) ---//
-                hold >>>= 5;
-                bits -= 5;
-                //---//
-                state.ndist = (hold & 0x1f) /*BITS(5)*/ + 1;
-                //--- DROPBITS(5) ---//
-                hold >>>= 5;
-                bits -= 5;
-                //---//
-                state.ncode = (hold & 0x0f) /*BITS(4)*/ + 4;
-                //--- DROPBITS(4) ---//
-                hold >>>= 4;
-                bits -= 4;
-                //---//
-                //#ifndef PKZIP_BUG_WORKAROUND
-                if (state.nlen > 286 || state.ndist > 30) {
-                  strm.msg = 'too many length or distance symbols';
-                  state.mode = BAD;
-                  break;
-                }
-                //#endif
-                //Tracev((stderr, "inflate:       table sizes ok\n"));
-                state.have = 0;
-                state.mode = LENLENS;
-                /* falls through */
-              case LENLENS:
-                while (state.have < state.ncode) {
-                  //=== NEEDBITS(3);
+                  //=== NEEDBITS(3); */
                   while (bits < 3) {
                     if (have === 0) {
                       break inf_leave;
@@ -21394,97 +20675,149 @@
                     bits += 8;
                   }
                   //===//
-                  state.lens[order[state.have++]] = (hold & 0x07); //BITS(3);
-                  //--- DROPBITS(3) ---//
-                  hold >>>= 3;
-                  bits -= 3;
+                  state.last = (hold & 0x01) /*BITS(1)*/ ;
+                  //--- DROPBITS(1) ---//
+                  hold >>>= 1;
+                  bits -= 1;
                   //---//
-                }
-                while (state.have < 19) {
-                  state.lens[order[state.have++]] = 0;
-                }
-                // We have separate tables & no pointers. 2 commented lines below not needed.
-                //state.next = state.codes;
-                //state.lencode = state.next;
-                // Switch to use dynamic table
-                state.lencode = state.lendyn;
-                state.lenbits = 7;
 
-                opts = {
-                  bits: state.lenbits
-                };
-                ret = inflate_table(CODES, state.lens, 0, 19, state.lencode, 0, state.work, opts);
-                state.lenbits = opts.bits;
-
-                if (ret) {
-                  strm.msg = 'invalid code lengths set';
-                  state.mode = BAD;
-                  break;
-                }
-                //Tracev((stderr, "inflate:       code lengths ok\n"));
-                state.have = 0;
-                state.mode = CODELENS;
-                /* falls through */
-              case CODELENS:
-                while (state.have < state.nlen + state.ndist) {
-                  for (;;) {
-                    here = state.lencode[hold & ((1 << state.lenbits) - 1)]; /*BITS(state.lenbits)*/
-                    here_bits = here >>> 24;
-                    here_op = (here >>> 16) & 0xff;
-                    here_val = here & 0xffff;
-
-                    if ((here_bits) <= bits) {
+                  switch ((hold & 0x03) /*BITS(2)*/ ) {
+                    case 0:
+                      /* stored block */
+                      //Tracev((stderr, "inflate:     stored block%s\n",
+                      //        state.last ? " (last)" : ""));
+                      state.mode = STORED;
                       break;
-                    }
-                    //--- PULLBYTE() ---//
+                    case 1:
+                      /* fixed block */
+                      fixedtables(state);
+                      //Tracev((stderr, "inflate:     fixed codes block%s\n",
+                      //        state.last ? " (last)" : ""));
+                      state.mode = LEN_; /* decode codes */
+                      if (flush === Z_TREES) {
+                        //--- DROPBITS(2) ---//
+                        hold >>>= 2;
+                        bits -= 2;
+                        //---//
+                        break inf_leave;
+                      }
+                      break;
+                    case 2:
+                      /* dynamic block */
+                      //Tracev((stderr, "inflate:     dynamic codes block%s\n",
+                      //        state.last ? " (last)" : ""));
+                      state.mode = TABLE;
+                      break;
+                    case 3:
+                      strm.msg = 'invalid block type';
+                      state.mode = BAD;
+                  }
+                  //--- DROPBITS(2) ---//
+                  hold >>>= 2;
+                  bits -= 2;
+                  //---//
+                  break;
+                case STORED:
+                  //--- BYTEBITS() ---// /* go to byte boundary */
+                  hold >>>= bits & 7;
+                  bits -= bits & 7;
+                  //---//
+                  //=== NEEDBITS(32); */
+                  while (bits < 32) {
                     if (have === 0) {
                       break inf_leave;
                     }
                     have--;
                     hold += input[next++] << bits;
                     bits += 8;
-                    //---//
                   }
-                  if (here_val < 16) {
-                    //--- DROPBITS(here.bits) ---//
-                    hold >>>= here_bits;
-                    bits -= here_bits;
-                    //---//
-                    state.lens[state.have++] = here_val;
+                  //===//
+                  if ((hold & 0xffff) !== ((hold >>> 16) ^ 0xffff)) {
+                    strm.msg = 'invalid stored block lengths';
+                    state.mode = BAD;
+                    break;
                   }
-                  else {
-                    if (here_val === 16) {
-                      //=== NEEDBITS(here.bits + 2);
-                      n = here_bits + 2;
-                      while (bits < n) {
-                        if (have === 0) {
-                          break inf_leave;
-                        }
-                        have--;
-                        hold += input[next++] << bits;
-                        bits += 8;
+                  state.length = hold & 0xffff;
+                  //Tracev((stderr, "inflate:       stored length %u\n",
+                  //        state.length));
+                  //=== INITBITS();
+                  hold = 0;
+                  bits = 0;
+                  //===//
+                  state.mode = COPY_;
+                  if (flush === Z_TREES) {
+                    break inf_leave;
+                  }
+                  /* falls through */
+                  case COPY_:
+                    state.mode = COPY;
+                    /* falls through */
+                  case COPY:
+                    copy = state.length;
+                    if (copy) {
+                      if (copy > have) {
+                        copy = have;
                       }
-                      //===//
-                      //--- DROPBITS(here.bits) ---//
-                      hold >>>= here_bits;
-                      bits -= here_bits;
-                      //---//
-                      if (state.have === 0) {
-                        strm.msg = 'invalid bit length repeat';
-                        state.mode = BAD;
-                        break;
+                      if (copy > left) {
+                        copy = left;
                       }
-                      len = state.lens[state.have - 1];
-                      copy = 3 + (hold & 0x03); //BITS(2);
-                      //--- DROPBITS(2) ---//
-                      hold >>>= 2;
-                      bits -= 2;
+                      if (copy === 0) {
+                        break inf_leave;
+                      }
+                      //--- zmemcpy(put, next, copy); ---
+                      utils.arraySet(output, input, next, copy, put);
                       //---//
+                      have -= copy;
+                      next += copy;
+                      left -= copy;
+                      put += copy;
+                      state.length -= copy;
+                      break;
                     }
-                    else if (here_val === 17) {
-                      //=== NEEDBITS(here.bits + 3);
-                      n = here_bits + 3;
-                      while (bits < n) {
+                    //Tracev((stderr, "inflate:       stored end\n"));
+                    state.mode = TYPE;
+                    break;
+                  case TABLE:
+                    //=== NEEDBITS(14); */
+                    while (bits < 14) {
+                      if (have === 0) {
+                        break inf_leave;
+                      }
+                      have--;
+                      hold += input[next++] << bits;
+                      bits += 8;
+                    }
+                    //===//
+                    state.nlen = (hold & 0x1f) /*BITS(5)*/ + 257;
+                    //--- DROPBITS(5) ---//
+                    hold >>>= 5;
+                    bits -= 5;
+                    //---//
+                    state.ndist = (hold & 0x1f) /*BITS(5)*/ + 1;
+                    //--- DROPBITS(5) ---//
+                    hold >>>= 5;
+                    bits -= 5;
+                    //---//
+                    state.ncode = (hold & 0x0f) /*BITS(4)*/ + 4;
+                    //--- DROPBITS(4) ---//
+                    hold >>>= 4;
+                    bits -= 4;
+                    //---//
+                    //#ifndef PKZIP_BUG_WORKAROUND
+                    if (state.nlen > 286 || state.ndist > 30) {
+                      strm.msg = 'too many length or distance symbols';
+                      state.mode = BAD;
+                      break;
+                    }
+                    //#endif
+                    //Tracev((stderr, "inflate:       table sizes ok\n"));
+                    state.have = 0;
+                    state.mode = LENLENS;
+                    /* falls through */
+                  case LENLENS:
+                    while (state.have < state.ncode) {
+                      //=== NEEDBITS(3);
+                      while (bits < 3) {
                         if (have === 0) {
                           break inf_leave;
                         }
@@ -21493,470 +20826,569 @@
                         bits += 8;
                       }
                       //===//
-                      //--- DROPBITS(here.bits) ---//
-                      hold >>>= here_bits;
-                      bits -= here_bits;
-                      //---//
-                      len = 0;
-                      copy = 3 + (hold & 0x07); //BITS(3);
+                      state.lens[order[state.have++]] = (hold & 0x07); //BITS(3);
                       //--- DROPBITS(3) ---//
                       hold >>>= 3;
                       bits -= 3;
                       //---//
                     }
-                    else {
-                      //=== NEEDBITS(here.bits + 7);
-                      n = here_bits + 7;
-                      while (bits < n) {
+                    while (state.have < 19) {
+                      state.lens[order[state.have++]] = 0;
+                    }
+                    // We have separate tables & no pointers. 2 commented lines below not needed.
+                    //state.next = state.codes;
+                    //state.lencode = state.next;
+                    // Switch to use dynamic table
+                    state.lencode = state.lendyn;
+                    state.lenbits = 7;
+
+                    opts = {
+                      bits: state.lenbits
+                    };
+                    ret = inflate_table(CODES, state.lens, 0, 19, state.lencode, 0, state.work, opts);
+                    state.lenbits = opts.bits;
+
+                    if (ret) {
+                      strm.msg = 'invalid code lengths set';
+                      state.mode = BAD;
+                      break;
+                    }
+                    //Tracev((stderr, "inflate:       code lengths ok\n"));
+                    state.have = 0;
+                    state.mode = CODELENS;
+                    /* falls through */
+                  case CODELENS:
+                    while (state.have < state.nlen + state.ndist) {
+                      for (;;) {
+                        here = state.lencode[hold & ((1 << state.lenbits) - 1)]; /*BITS(state.lenbits)*/
+                        here_bits = here >>> 24;
+                        here_op = (here >>> 16) & 0xff;
+                        here_val = here & 0xffff;
+
+                        if ((here_bits) <= bits) {
+                          break;
+                        }
+                        //--- PULLBYTE() ---//
                         if (have === 0) {
                           break inf_leave;
                         }
                         have--;
                         hold += input[next++] << bits;
                         bits += 8;
+                        //---//
                       }
-                      //===//
+                      if (here_val < 16) {
+                        //--- DROPBITS(here.bits) ---//
+                        hold >>>= here_bits;
+                        bits -= here_bits;
+                        //---//
+                        state.lens[state.have++] = here_val;
+                      }
+                      else {
+                        if (here_val === 16) {
+                          //=== NEEDBITS(here.bits + 2);
+                          n = here_bits + 2;
+                          while (bits < n) {
+                            if (have === 0) {
+                              break inf_leave;
+                            }
+                            have--;
+                            hold += input[next++] << bits;
+                            bits += 8;
+                          }
+                          //===//
+                          //--- DROPBITS(here.bits) ---//
+                          hold >>>= here_bits;
+                          bits -= here_bits;
+                          //---//
+                          if (state.have === 0) {
+                            strm.msg = 'invalid bit length repeat';
+                            state.mode = BAD;
+                            break;
+                          }
+                          len = state.lens[state.have - 1];
+                          copy = 3 + (hold & 0x03); //BITS(2);
+                          //--- DROPBITS(2) ---//
+                          hold >>>= 2;
+                          bits -= 2;
+                          //---//
+                        }
+                        else if (here_val === 17) {
+                          //=== NEEDBITS(here.bits + 3);
+                          n = here_bits + 3;
+                          while (bits < n) {
+                            if (have === 0) {
+                              break inf_leave;
+                            }
+                            have--;
+                            hold += input[next++] << bits;
+                            bits += 8;
+                          }
+                          //===//
+                          //--- DROPBITS(here.bits) ---//
+                          hold >>>= here_bits;
+                          bits -= here_bits;
+                          //---//
+                          len = 0;
+                          copy = 3 + (hold & 0x07); //BITS(3);
+                          //--- DROPBITS(3) ---//
+                          hold >>>= 3;
+                          bits -= 3;
+                          //---//
+                        }
+                        else {
+                          //=== NEEDBITS(here.bits + 7);
+                          n = here_bits + 7;
+                          while (bits < n) {
+                            if (have === 0) {
+                              break inf_leave;
+                            }
+                            have--;
+                            hold += input[next++] << bits;
+                            bits += 8;
+                          }
+                          //===//
+                          //--- DROPBITS(here.bits) ---//
+                          hold >>>= here_bits;
+                          bits -= here_bits;
+                          //---//
+                          len = 0;
+                          copy = 11 + (hold & 0x7f); //BITS(7);
+                          //--- DROPBITS(7) ---//
+                          hold >>>= 7;
+                          bits -= 7;
+                          //---//
+                        }
+                        if (state.have + copy > state.nlen + state.ndist) {
+                          strm.msg = 'invalid bit length repeat';
+                          state.mode = BAD;
+                          break;
+                        }
+                        while (copy--) {
+                          state.lens[state.have++] = len;
+                        }
+                      }
+                    }
+
+                    /* handle error breaks in while */
+                    if (state.mode === BAD) {
+                      break;
+                    }
+
+                    /* check for end-of-block code (better have one) */
+                    if (state.lens[256] === 0) {
+                      strm.msg = 'invalid code -- missing end-of-block';
+                      state.mode = BAD;
+                      break;
+                    }
+
+                    /* build code tables -- note: do not change the lenbits or distbits
+                       values here (9 and 6) without reading the comments in inftrees.h
+                       concerning the ENOUGH constants, which depend on those values */
+                    state.lenbits = 9;
+
+                    opts = {
+                      bits: state.lenbits
+                    };
+                    ret = inflate_table(LENS, state.lens, 0, state.nlen, state.lencode, 0, state.work, opts);
+                    // We have separate tables & no pointers. 2 commented lines below not needed.
+                    // state.next_index = opts.table_index;
+                    state.lenbits = opts.bits;
+                    // state.lencode = state.next;
+
+                    if (ret) {
+                      strm.msg = 'invalid literal/lengths set';
+                      state.mode = BAD;
+                      break;
+                    }
+
+                    state.distbits = 6;
+                    //state.distcode.copy(state.codes);
+                    // Switch to use dynamic table
+                    state.distcode = state.distdyn;
+                    opts = {
+                      bits: state.distbits
+                    };
+                    ret = inflate_table(DISTS, state.lens, state.nlen, state.ndist, state.distcode, 0, state.work, opts);
+                    // We have separate tables & no pointers. 2 commented lines below not needed.
+                    // state.next_index = opts.table_index;
+                    state.distbits = opts.bits;
+                    // state.distcode = state.next;
+
+                    if (ret) {
+                      strm.msg = 'invalid distances set';
+                      state.mode = BAD;
+                      break;
+                    }
+                    //Tracev((stderr, 'inflate:       codes ok\n'));
+                    state.mode = LEN_;
+                    if (flush === Z_TREES) {
+                      break inf_leave;
+                    }
+                    /* falls through */
+                    case LEN_:
+                      state.mode = LEN;
+                      /* falls through */
+                    case LEN:
+                      if (have >= 6 && left >= 258) {
+                        //--- RESTORE() ---
+                        strm.next_out = put;
+                        strm.avail_out = left;
+                        strm.next_in = next;
+                        strm.avail_in = have;
+                        state.hold = hold;
+                        state.bits = bits;
+                        //---
+                        inflate_fast(strm, _out);
+                        //--- LOAD() ---
+                        put = strm.next_out;
+                        output = strm.output;
+                        left = strm.avail_out;
+                        next = strm.next_in;
+                        input = strm.input;
+                        have = strm.avail_in;
+                        hold = state.hold;
+                        bits = state.bits;
+                        //---
+
+                        if (state.mode === TYPE) {
+                          state.back = -1;
+                        }
+                        break;
+                      }
+                      state.back = 0;
+                      for (;;) {
+                        here = state.lencode[hold & ((1 << state.lenbits) - 1)]; /*BITS(state.lenbits)*/
+                        here_bits = here >>> 24;
+                        here_op = (here >>> 16) & 0xff;
+                        here_val = here & 0xffff;
+
+                        if (here_bits <= bits) {
+                          break;
+                        }
+                        //--- PULLBYTE() ---//
+                        if (have === 0) {
+                          break inf_leave;
+                        }
+                        have--;
+                        hold += input[next++] << bits;
+                        bits += 8;
+                        //---//
+                      }
+                      if (here_op && (here_op & 0xf0) === 0) {
+                        last_bits = here_bits;
+                        last_op = here_op;
+                        last_val = here_val;
+                        for (;;) {
+                          here = state.lencode[last_val +
+                            ((hold & ((1 << (last_bits + last_op)) - 1)) /*BITS(last.bits + last.op)*/ >> last_bits)];
+                          here_bits = here >>> 24;
+                          here_op = (here >>> 16) & 0xff;
+                          here_val = here & 0xffff;
+
+                          if ((last_bits + here_bits) <= bits) {
+                            break;
+                          }
+                          //--- PULLBYTE() ---//
+                          if (have === 0) {
+                            break inf_leave;
+                          }
+                          have--;
+                          hold += input[next++] << bits;
+                          bits += 8;
+                          //---//
+                        }
+                        //--- DROPBITS(last.bits) ---//
+                        hold >>>= last_bits;
+                        bits -= last_bits;
+                        //---//
+                        state.back += last_bits;
+                      }
                       //--- DROPBITS(here.bits) ---//
                       hold >>>= here_bits;
                       bits -= here_bits;
                       //---//
-                      len = 0;
-                      copy = 11 + (hold & 0x7f); //BITS(7);
-                      //--- DROPBITS(7) ---//
-                      hold >>>= 7;
-                      bits -= 7;
+                      state.back += here_bits;
+                      state.length = here_val;
+                      if (here_op === 0) {
+                        //Tracevv((stderr, here.val >= 0x20 && here.val < 0x7f ?
+                        //        "inflate:         literal '%c'\n" :
+                        //        "inflate:         literal 0x%02x\n", here.val));
+                        state.mode = LIT;
+                        break;
+                      }
+                      if (here_op & 32) {
+                        //Tracevv((stderr, "inflate:         end of block\n"));
+                        state.back = -1;
+                        state.mode = TYPE;
+                        break;
+                      }
+                      if (here_op & 64) {
+                        strm.msg = 'invalid literal/length code';
+                        state.mode = BAD;
+                        break;
+                      }
+                      state.extra = here_op & 15;
+                      state.mode = LENEXT;
+                      /* falls through */
+                    case LENEXT:
+                      if (state.extra) {
+                        //=== NEEDBITS(state.extra);
+                        n = state.extra;
+                        while (bits < n) {
+                          if (have === 0) {
+                            break inf_leave;
+                          }
+                          have--;
+                          hold += input[next++] << bits;
+                          bits += 8;
+                        }
+                        //===//
+                        state.length += hold & ((1 << state.extra) - 1) /*BITS(state.extra)*/ ;
+                        //--- DROPBITS(state.extra) ---//
+                        hold >>>= state.extra;
+                        bits -= state.extra;
+                        //---//
+                        state.back += state.extra;
+                      }
+                      //Tracevv((stderr, "inflate:         length %u\n", state.length));
+                      state.was = state.length;
+                      state.mode = DIST;
+                      /* falls through */
+                    case DIST:
+                      for (;;) {
+                        here = state.distcode[hold & ((1 << state.distbits) - 1)]; /*BITS(state.distbits)*/
+                        here_bits = here >>> 24;
+                        here_op = (here >>> 16) & 0xff;
+                        here_val = here & 0xffff;
+
+                        if ((here_bits) <= bits) {
+                          break;
+                        }
+                        //--- PULLBYTE() ---//
+                        if (have === 0) {
+                          break inf_leave;
+                        }
+                        have--;
+                        hold += input[next++] << bits;
+                        bits += 8;
+                        //---//
+                      }
+                      if ((here_op & 0xf0) === 0) {
+                        last_bits = here_bits;
+                        last_op = here_op;
+                        last_val = here_val;
+                        for (;;) {
+                          here = state.distcode[last_val +
+                            ((hold & ((1 << (last_bits + last_op)) - 1)) /*BITS(last.bits + last.op)*/ >> last_bits)];
+                          here_bits = here >>> 24;
+                          here_op = (here >>> 16) & 0xff;
+                          here_val = here & 0xffff;
+
+                          if ((last_bits + here_bits) <= bits) {
+                            break;
+                          }
+                          //--- PULLBYTE() ---//
+                          if (have === 0) {
+                            break inf_leave;
+                          }
+                          have--;
+                          hold += input[next++] << bits;
+                          bits += 8;
+                          //---//
+                        }
+                        //--- DROPBITS(last.bits) ---//
+                        hold >>>= last_bits;
+                        bits -= last_bits;
+                        //---//
+                        state.back += last_bits;
+                      }
+                      //--- DROPBITS(here.bits) ---//
+                      hold >>>= here_bits;
+                      bits -= here_bits;
                       //---//
-                    }
-                    if (state.have + copy > state.nlen + state.ndist) {
-                      strm.msg = 'invalid bit length repeat';
-                      state.mode = BAD;
+                      state.back += here_bits;
+                      if (here_op & 64) {
+                        strm.msg = 'invalid distance code';
+                        state.mode = BAD;
+                        break;
+                      }
+                      state.offset = here_val;
+                      state.extra = (here_op) & 15;
+                      state.mode = DISTEXT;
+                      /* falls through */
+                    case DISTEXT:
+                      if (state.extra) {
+                        //=== NEEDBITS(state.extra);
+                        n = state.extra;
+                        while (bits < n) {
+                          if (have === 0) {
+                            break inf_leave;
+                          }
+                          have--;
+                          hold += input[next++] << bits;
+                          bits += 8;
+                        }
+                        //===//
+                        state.offset += hold & ((1 << state.extra) - 1) /*BITS(state.extra)*/ ;
+                        //--- DROPBITS(state.extra) ---//
+                        hold >>>= state.extra;
+                        bits -= state.extra;
+                        //---//
+                        state.back += state.extra;
+                      }
+                      //#ifdef INFLATE_STRICT
+                      if (state.offset > state.dmax) {
+                        strm.msg = 'invalid distance too far back';
+                        state.mode = BAD;
+                        break;
+                      }
+                      //#endif
+                      //Tracevv((stderr, "inflate:         distance %u\n", state.offset));
+                      state.mode = MATCH;
+                      /* falls through */
+                    case MATCH:
+                      if (left === 0) {
+                        break inf_leave;
+                      }
+                      copy = _out - left;
+                      if (state.offset > copy) {
+                        /* copy from window */
+                        copy = state.offset - copy;
+                        if (copy > state.whave) {
+                          if (state.sane) {
+                            strm.msg = 'invalid distance too far back';
+                            state.mode = BAD;
+                            break;
+                          }
+                          // (!) This block is disabled in zlib defaults,
+                          // don't enable it for binary compatibility
+                          //#ifdef INFLATE_ALLOW_INVALID_DISTANCE_TOOFAR_ARRR
+                          //          Trace((stderr, "inflate.c too far\n"));
+                          //          copy -= state.whave;
+                          //          if (copy > state.length) { copy = state.length; }
+                          //          if (copy > left) { copy = left; }
+                          //          left -= copy;
+                          //          state.length -= copy;
+                          //          do {
+                          //            output[put++] = 0;
+                          //          } while (--copy);
+                          //          if (state.length === 0) { state.mode = LEN; }
+                          //          break;
+                          //#endif
+                        }
+                        if (copy > state.wnext) {
+                          copy -= state.wnext;
+                          from = state.wsize - copy;
+                        }
+                        else {
+                          from = state.wnext - copy;
+                        }
+                        if (copy > state.length) {
+                          copy = state.length;
+                        }
+                        from_source = state.window;
+                      }
+                      else {
+                        /* copy from output */
+                        from_source = output;
+                        from = put - state.offset;
+                        copy = state.length;
+                      }
+                      if (copy > left) {
+                        copy = left;
+                      }
+                      left -= copy;
+                      state.length -= copy;
+                      do {
+                        output[put++] = from_source[from++];
+                      } while (--copy);
+                      if (state.length === 0) {
+                        state.mode = LEN;
+                      }
                       break;
-                    }
-                    while (copy--) {
-                      state.lens[state.have++] = len;
-                    }
-                  }
-                }
-
-                /* handle error breaks in while */
-                if (state.mode === BAD) {
-                  break;
-                }
-
-                /* check for end-of-block code (better have one) */
-                if (state.lens[256] === 0) {
-                  strm.msg = 'invalid code -- missing end-of-block';
-                  state.mode = BAD;
-                  break;
-                }
-
-                /* build code tables -- note: do not change the lenbits or distbits
-                   values here (9 and 6) without reading the comments in inftrees.h
-                   concerning the ENOUGH constants, which depend on those values */
-                state.lenbits = 9;
-
-                opts = {
-                  bits: state.lenbits
-                };
-                ret = inflate_table(LENS, state.lens, 0, state.nlen, state.lencode, 0, state.work, opts);
-                // We have separate tables & no pointers. 2 commented lines below not needed.
-                // state.next_index = opts.table_index;
-                state.lenbits = opts.bits;
-                // state.lencode = state.next;
-
-                if (ret) {
-                  strm.msg = 'invalid literal/lengths set';
-                  state.mode = BAD;
-                  break;
-                }
-
-                state.distbits = 6;
-                //state.distcode.copy(state.codes);
-                // Switch to use dynamic table
-                state.distcode = state.distdyn;
-                opts = {
-                  bits: state.distbits
-                };
-                ret = inflate_table(DISTS, state.lens, state.nlen, state.ndist, state.distcode, 0, state.work, opts);
-                // We have separate tables & no pointers. 2 commented lines below not needed.
-                // state.next_index = opts.table_index;
-                state.distbits = opts.bits;
-                // state.distcode = state.next;
-
-                if (ret) {
-                  strm.msg = 'invalid distances set';
-                  state.mode = BAD;
-                  break;
-                }
-                //Tracev((stderr, 'inflate:       codes ok\n'));
-                state.mode = LEN_;
-                if (flush === Z_TREES) {
-                  break inf_leave;
-                }
-                /* falls through */
-              case LEN_:
-                state.mode = LEN;
-                /* falls through */
-              case LEN:
-                if (have >= 6 && left >= 258) {
-                  //--- RESTORE() ---
-                  strm.next_out = put;
-                  strm.avail_out = left;
-                  strm.next_in = next;
-                  strm.avail_in = have;
-                  state.hold = hold;
-                  state.bits = bits;
-                  //---
-                  inflate_fast(strm, _out);
-                  //--- LOAD() ---
-                  put = strm.next_out;
-                  output = strm.output;
-                  left = strm.avail_out;
-                  next = strm.next_in;
-                  input = strm.input;
-                  have = strm.avail_in;
-                  hold = state.hold;
-                  bits = state.bits;
-                  //---
-
-                  if (state.mode === TYPE) {
-                    state.back = -1;
-                  }
-                  break;
-                }
-                state.back = 0;
-                for (;;) {
-                  here = state.lencode[hold & ((1 << state.lenbits) - 1)]; /*BITS(state.lenbits)*/
-                  here_bits = here >>> 24;
-                  here_op = (here >>> 16) & 0xff;
-                  here_val = here & 0xffff;
-
-                  if (here_bits <= bits) {
-                    break;
-                  }
-                  //--- PULLBYTE() ---//
-                  if (have === 0) {
-                    break inf_leave;
-                  }
-                  have--;
-                  hold += input[next++] << bits;
-                  bits += 8;
-                  //---//
-                }
-                if (here_op && (here_op & 0xf0) === 0) {
-                  last_bits = here_bits;
-                  last_op = here_op;
-                  last_val = here_val;
-                  for (;;) {
-                    here = state.lencode[last_val +
-                      ((hold & ((1 << (last_bits + last_op)) - 1)) /*BITS(last.bits + last.op)*/ >> last_bits)];
-                    here_bits = here >>> 24;
-                    here_op = (here >>> 16) & 0xff;
-                    here_val = here & 0xffff;
-
-                    if ((last_bits + here_bits) <= bits) {
+                    case LIT:
+                      if (left === 0) {
+                        break inf_leave;
+                      }
+                      output[put++] = state.length;
+                      left--;
+                      state.mode = LEN;
                       break;
-                    }
-                    //--- PULLBYTE() ---//
-                    if (have === 0) {
-                      break inf_leave;
-                    }
-                    have--;
-                    hold += input[next++] << bits;
-                    bits += 8;
-                    //---//
-                  }
-                  //--- DROPBITS(last.bits) ---//
-                  hold >>>= last_bits;
-                  bits -= last_bits;
-                  //---//
-                  state.back += last_bits;
-                }
-                //--- DROPBITS(here.bits) ---//
-                hold >>>= here_bits;
-                bits -= here_bits;
-                //---//
-                state.back += here_bits;
-                state.length = here_val;
-                if (here_op === 0) {
-                  //Tracevv((stderr, here.val >= 0x20 && here.val < 0x7f ?
-                  //        "inflate:         literal '%c'\n" :
-                  //        "inflate:         literal 0x%02x\n", here.val));
-                  state.mode = LIT;
-                  break;
-                }
-                if (here_op & 32) {
-                  //Tracevv((stderr, "inflate:         end of block\n"));
-                  state.back = -1;
-                  state.mode = TYPE;
-                  break;
-                }
-                if (here_op & 64) {
-                  strm.msg = 'invalid literal/length code';
-                  state.mode = BAD;
-                  break;
-                }
-                state.extra = here_op & 15;
-                state.mode = LENEXT;
-                /* falls through */
-              case LENEXT:
-                if (state.extra) {
-                  //=== NEEDBITS(state.extra);
-                  n = state.extra;
-                  while (bits < n) {
-                    if (have === 0) {
-                      break inf_leave;
-                    }
-                    have--;
-                    hold += input[next++] << bits;
-                    bits += 8;
-                  }
-                  //===//
-                  state.length += hold & ((1 << state.extra) - 1) /*BITS(state.extra)*/ ;
-                  //--- DROPBITS(state.extra) ---//
-                  hold >>>= state.extra;
-                  bits -= state.extra;
-                  //---//
-                  state.back += state.extra;
-                }
-                //Tracevv((stderr, "inflate:         length %u\n", state.length));
-                state.was = state.length;
-                state.mode = DIST;
-                /* falls through */
-              case DIST:
-                for (;;) {
-                  here = state.distcode[hold & ((1 << state.distbits) - 1)]; /*BITS(state.distbits)*/
-                  here_bits = here >>> 24;
-                  here_op = (here >>> 16) & 0xff;
-                  here_val = here & 0xffff;
+                    case CHECK:
+                      if (state.wrap) {
+                        //=== NEEDBITS(32);
+                        while (bits < 32) {
+                          if (have === 0) {
+                            break inf_leave;
+                          }
+                          have--;
+                          // Use '|' instead of '+' to make sure that result is signed
+                          hold |= input[next++] << bits;
+                          bits += 8;
+                        }
+                        //===//
+                        _out -= left;
+                        strm.total_out += _out;
+                        state.total += _out;
+                        if (_out) {
+                          strm.adler = state.check =
+                            /*UPDATE(state.check, put - _out, _out);*/
+                            (state.flags ? crc32(state.check, output, _out, put - _out) : adler32(state.check, output, _out, put - _out));
 
-                  if ((here_bits) <= bits) {
-                    break;
-                  }
-                  //--- PULLBYTE() ---//
-                  if (have === 0) {
-                    break inf_leave;
-                  }
-                  have--;
-                  hold += input[next++] << bits;
-                  bits += 8;
-                  //---//
-                }
-                if ((here_op & 0xf0) === 0) {
-                  last_bits = here_bits;
-                  last_op = here_op;
-                  last_val = here_val;
-                  for (;;) {
-                    here = state.distcode[last_val +
-                      ((hold & ((1 << (last_bits + last_op)) - 1)) /*BITS(last.bits + last.op)*/ >> last_bits)];
-                    here_bits = here >>> 24;
-                    here_op = (here >>> 16) & 0xff;
-                    here_val = here & 0xffff;
-
-                    if ((last_bits + here_bits) <= bits) {
-                      break;
-                    }
-                    //--- PULLBYTE() ---//
-                    if (have === 0) {
+                        }
+                        _out = left;
+                        // NB: crc32 stored as signed 32-bit int, zswap32 returns signed too
+                        if ((state.flags ? hold : zswap32(hold)) !== state.check) {
+                          strm.msg = 'incorrect data check';
+                          state.mode = BAD;
+                          break;
+                        }
+                        //=== INITBITS();
+                        hold = 0;
+                        bits = 0;
+                        //===//
+                        //Tracev((stderr, "inflate:   check matches trailer\n"));
+                      }
+                      state.mode = LENGTH;
+                      /* falls through */
+                    case LENGTH:
+                      if (state.wrap && state.flags) {
+                        //=== NEEDBITS(32);
+                        while (bits < 32) {
+                          if (have === 0) {
+                            break inf_leave;
+                          }
+                          have--;
+                          hold += input[next++] << bits;
+                          bits += 8;
+                        }
+                        //===//
+                        if (hold !== (state.total & 0xffffffff)) {
+                          strm.msg = 'incorrect length check';
+                          state.mode = BAD;
+                          break;
+                        }
+                        //=== INITBITS();
+                        hold = 0;
+                        bits = 0;
+                        //===//
+                        //Tracev((stderr, "inflate:   length matches trailer\n"));
+                      }
+                      state.mode = DONE;
+                      /* falls through */
+                    case DONE:
+                      ret = Z_STREAM_END;
                       break inf_leave;
-                    }
-                    have--;
-                    hold += input[next++] << bits;
-                    bits += 8;
-                    //---//
-                  }
-                  //--- DROPBITS(last.bits) ---//
-                  hold >>>= last_bits;
-                  bits -= last_bits;
-                  //---//
-                  state.back += last_bits;
-                }
-                //--- DROPBITS(here.bits) ---//
-                hold >>>= here_bits;
-                bits -= here_bits;
-                //---//
-                state.back += here_bits;
-                if (here_op & 64) {
-                  strm.msg = 'invalid distance code';
-                  state.mode = BAD;
-                  break;
-                }
-                state.offset = here_val;
-                state.extra = (here_op) & 15;
-                state.mode = DISTEXT;
-                /* falls through */
-              case DISTEXT:
-                if (state.extra) {
-                  //=== NEEDBITS(state.extra);
-                  n = state.extra;
-                  while (bits < n) {
-                    if (have === 0) {
+                    case BAD:
+                      ret = Z_DATA_ERROR;
                       break inf_leave;
-                    }
-                    have--;
-                    hold += input[next++] << bits;
-                    bits += 8;
-                  }
-                  //===//
-                  state.offset += hold & ((1 << state.extra) - 1) /*BITS(state.extra)*/ ;
-                  //--- DROPBITS(state.extra) ---//
-                  hold >>>= state.extra;
-                  bits -= state.extra;
-                  //---//
-                  state.back += state.extra;
-                }
-                //#ifdef INFLATE_STRICT
-                if (state.offset > state.dmax) {
-                  strm.msg = 'invalid distance too far back';
-                  state.mode = BAD;
-                  break;
-                }
-                //#endif
-                //Tracevv((stderr, "inflate:         distance %u\n", state.offset));
-                state.mode = MATCH;
-                /* falls through */
-              case MATCH:
-                if (left === 0) {
-                  break inf_leave;
-                }
-                copy = _out - left;
-                if (state.offset > copy) {
-                  /* copy from window */
-                  copy = state.offset - copy;
-                  if (copy > state.whave) {
-                    if (state.sane) {
-                      strm.msg = 'invalid distance too far back';
-                      state.mode = BAD;
-                      break;
-                    }
-                    // (!) This block is disabled in zlib defaults,
-                    // don't enable it for binary compatibility
-                    //#ifdef INFLATE_ALLOW_INVALID_DISTANCE_TOOFAR_ARRR
-                    //          Trace((stderr, "inflate.c too far\n"));
-                    //          copy -= state.whave;
-                    //          if (copy > state.length) { copy = state.length; }
-                    //          if (copy > left) { copy = left; }
-                    //          left -= copy;
-                    //          state.length -= copy;
-                    //          do {
-                    //            output[put++] = 0;
-                    //          } while (--copy);
-                    //          if (state.length === 0) { state.mode = LEN; }
-                    //          break;
-                    //#endif
-                  }
-                  if (copy > state.wnext) {
-                    copy -= state.wnext;
-                    from = state.wsize - copy;
-                  }
-                  else {
-                    from = state.wnext - copy;
-                  }
-                  if (copy > state.length) {
-                    copy = state.length;
-                  }
-                  from_source = state.window;
-                }
-                else {
-                  /* copy from output */
-                  from_source = output;
-                  from = put - state.offset;
-                  copy = state.length;
-                }
-                if (copy > left) {
-                  copy = left;
-                }
-                left -= copy;
-                state.length -= copy;
-                do {
-                  output[put++] = from_source[from++];
-                } while (--copy);
-                if (state.length === 0) {
-                  state.mode = LEN;
-                }
-                break;
-              case LIT:
-                if (left === 0) {
-                  break inf_leave;
-                }
-                output[put++] = state.length;
-                left--;
-                state.mode = LEN;
-                break;
-              case CHECK:
-                if (state.wrap) {
-                  //=== NEEDBITS(32);
-                  while (bits < 32) {
-                    if (have === 0) {
-                      break inf_leave;
-                    }
-                    have--;
-                    // Use '|' instead of '+' to make sure that result is signed
-                    hold |= input[next++] << bits;
-                    bits += 8;
-                  }
-                  //===//
-                  _out -= left;
-                  strm.total_out += _out;
-                  state.total += _out;
-                  if (_out) {
-                    strm.adler = state.check =
-                      /*UPDATE(state.check, put - _out, _out);*/
-                      (state.flags ? crc32(state.check, output, _out, put - _out) : adler32(state.check, output, _out, put - _out));
-
-                  }
-                  _out = left;
-                  // NB: crc32 stored as signed 32-bit int, zswap32 returns signed too
-                  if ((state.flags ? hold : zswap32(hold)) !== state.check) {
-                    strm.msg = 'incorrect data check';
-                    state.mode = BAD;
-                    break;
-                  }
-                  //=== INITBITS();
-                  hold = 0;
-                  bits = 0;
-                  //===//
-                  //Tracev((stderr, "inflate:   check matches trailer\n"));
-                }
-                state.mode = LENGTH;
-                /* falls through */
-              case LENGTH:
-                if (state.wrap && state.flags) {
-                  //=== NEEDBITS(32);
-                  while (bits < 32) {
-                    if (have === 0) {
-                      break inf_leave;
-                    }
-                    have--;
-                    hold += input[next++] << bits;
-                    bits += 8;
-                  }
-                  //===//
-                  if (hold !== (state.total & 0xffffffff)) {
-                    strm.msg = 'incorrect length check';
-                    state.mode = BAD;
-                    break;
-                  }
-                  //=== INITBITS();
-                  hold = 0;
-                  bits = 0;
-                  //===//
-                  //Tracev((stderr, "inflate:   length matches trailer\n"));
-                }
-                state.mode = DONE;
-                /* falls through */
-              case DONE:
-                ret = Z_STREAM_END;
-                break inf_leave;
-              case BAD:
-                ret = Z_DATA_ERROR;
-                break inf_leave;
-              case MEM:
-                return Z_MEM_ERROR;
-              case SYNC:
-                /* falls through */
-              default:
-                return Z_STREAM_ERROR;
+                    case MEM:
+                      return Z_MEM_ERROR;
+                    case SYNC:
+                      /* falls through */
+                    default:
+                      return Z_STREAM_ERROR;
             }
           }
 
@@ -22095,13 +21527,13 @@
       */
 
     }, {
-      "../utils/common": 55,
-      "./adler32": 57,
-      "./crc32": 59,
-      "./inffast": 62,
-      "./inftrees": 64
+      "../utils/common": 53,
+      "./adler32": 55,
+      "./crc32": 57,
+      "./inffast": 60,
+      "./inftrees": 62
     }],
-    64: [function(require, module, exports) {
+    62: [function(require, module, exports) {
       'use strict';
 
       // (C) 1995-2013 Jean-loup Gailly and Mark Adler
@@ -22460,9 +21892,9 @@
       };
 
     }, {
-      "../utils/common": 55
+      "../utils/common": 53
     }],
-    65: [function(require, module, exports) {
+    63: [function(require, module, exports) {
       'use strict';
 
       // (C) 1995-2013 Jean-loup Gailly and Mark Adler
@@ -22505,7 +21937,7 @@
       };
 
     }, {}],
-    66: [function(require, module, exports) {
+    64: [function(require, module, exports) {
       'use strict';
 
       // (C) 1995-2013 Jean-loup Gailly and Mark Adler
@@ -23775,9 +23207,9 @@
       exports._tr_align = _tr_align;
 
     }, {
-      "../utils/common": 55
+      "../utils/common": 53
     }],
-    67: [function(require, module, exports) {
+    65: [function(require, module, exports) {
       'use strict';
 
       // (C) 1995-2013 Jean-loup Gailly and Mark Adler
@@ -23827,7 +23259,7 @@
       module.exports = ZStream;
 
     }, {}],
-    68: [function(require, module, exports) {
+    66: [function(require, module, exports) {
       // shim for using process in browser
       var process = module.exports = {};
 
@@ -24032,7 +23464,7 @@
       };
 
     }, {}],
-    69: [function(require, module, exports) {
+    67: [function(require, module, exports) {
       'use strict';
 
       /*
@@ -24132,7 +23564,7 @@
       module.exports = BitReader;
 
     }, {}],
-    70: [function(require, module, exports) {
+    68: [function(require, module, exports) {
       "use strict";
 
       /* CRC32, used in Bzip2 implementation.
@@ -24208,7 +23640,7 @@
       }();
 
     }, {}],
-    71: [function(require, module, exports) {
+    69: [function(require, module, exports) {
       'use strict';
 
       /*
@@ -24246,7 +23678,6 @@
       var BitReader = require('./bitreader');
       var Stream = require('./stream');
       var CRC32 = require('./crc32');
-      var pjson = require('../package.json');
 
       var MAX_HUFCODE_BITS = 20;
       var MAX_SYMBOLS = 258;
@@ -24819,18 +24250,14 @@
 
       Bunzip.Stream = Stream;
 
-      Bunzip.version = pjson.version;
-      Bunzip.license = pjson.license;
-
       module.exports = Bunzip;
 
     }, {
-      "../package.json": 73,
-      "./bitreader": 69,
-      "./crc32": 70,
-      "./stream": 72
+      "./bitreader": 67,
+      "./crc32": 68,
+      "./stream": 70
     }],
-    72: [function(require, module, exports) {
+    70: [function(require, module, exports) {
       "use strict";
 
       /* very simple input/output stream interface */
@@ -24876,85 +24303,7 @@
       module.exports = Stream;
 
     }, {}],
-    73: [function(require, module, exports) {
-      module.exports = {
-        "_args": [
-          [
-            "github:openpgpjs/seek-bzip",
-            "/Users/sunny/Desktop/Protonmail/openpgpjs"
-          ]
-        ],
-        "_from": "github:openpgpjs/seek-bzip",
-        "_id": "seek-bzip@github:openpgpjs/seek-bzip#3aca608ffedc055a1da1d898ecb244804ef32209",
-        "_inBundle": false,
-        "_integrity": "",
-        "_location": "/seek-bzip",
-        "_phantomChildren": {
-          "graceful-readlink": "1.0.1"
-        },
-        "_requested": {
-          "type": "git",
-          "raw": "github:openpgpjs/seek-bzip",
-          "rawSpec": "github:openpgpjs/seek-bzip",
-          "saveSpec": "github:openpgpjs/seek-bzip",
-          "fetchSpec": null,
-          "gitCommittish": null
-        },
-        "_requiredBy": [
-          "/"
-        ],
-        "_resolved": "github:openpgpjs/seek-bzip#3aca608ffedc055a1da1d898ecb244804ef32209",
-        "_spec": "github:openpgpjs/seek-bzip",
-        "_where": "/Users/sunny/Desktop/Protonmail/openpgpjs",
-        "bin": {
-          "seek-bunzip": "./bin/seek-bunzip",
-          "seek-table": "./bin/seek-bzip-table"
-        },
-        "bugs": {
-          "url": "https://github.com/cscott/seek-bzip/issues"
-        },
-        "contributors": [{
-            "name": "C. Scott Ananian",
-            "url": "http://cscott.net"
-          },
-          {
-            "name": "Eli Skeggs"
-          },
-          {
-            "name": "Kevin Kwok"
-          },
-          {
-            "name": "Rob Landley",
-            "url": "http://landley.net"
-          }
-        ],
-        "dependencies": {
-          "commander": "~2.8.1"
-        },
-        "description": "a pure-JavaScript Node.JS module for random-access decoding bzip2 data",
-        "devDependencies": {
-          "fibers": "~1.0.6",
-          "mocha": "~2.2.5"
-        },
-        "directories": {
-          "test": "test"
-        },
-        "homepage": "https://github.com/cscott/seek-bzip#readme",
-        "license": "MIT",
-        "main": "./lib/index.js",
-        "name": "seek-bzip",
-        "repository": {
-          "type": "git",
-          "url": "git+https://github.com/cscott/seek-bzip.git"
-        },
-        "scripts": {
-          "test": "mocha"
-        },
-        "version": "1.0.5-git"
-      }
-
-    }, {}],
-    74: [function(require, module, exports) {
+    71: [function(require, module, exports) {
       'use strict';
 
       // This is free and unencumbered software released into the public domain.
@@ -25622,13 +24971,1088 @@
       exports.TextEncoder = TextEncoder;
       exports.TextDecoder = TextDecoder;
     }, {}],
-    75: [function(require, module, exports) {
+    72: [function(require, module, exports) {
+      /*jshint bitwise: false*/
+
+      (function(nacl) {
+        'use strict';
+
+        // Ported in 2014 by Dmitry Chestnykh and Devi Mandiri.
+        // Public domain.
+        //
+        // Implementation derived from TweetNaCl version 20140427.
+        // See for details: http://tweetnacl.cr.yp.to/
+
+        var gf = function(init) {
+          var i, r = new Float64Array(16);
+          if (init)
+            for (i = 0; i < init.length; i++) r[i] = init[i];
+          return r;
+        };
+
+        //  Pluggable, initialized in high-level API below.
+        var randombytes = function( /* x, n */ ) {
+          throw new Error('no PRNG');
+        };
+
+        var _9 = new Uint8Array(32);
+        _9[0] = 9;
+
+        var gf0 = gf(),
+          gf1 = gf([1]),
+          _121665 = gf([0xdb41, 1]),
+          D = gf([0x78a3, 0x1359, 0x4dca, 0x75eb, 0xd8ab, 0x4141, 0x0a4d, 0x0070, 0xe898, 0x7779, 0x4079, 0x8cc7, 0xfe73, 0x2b6f, 0x6cee, 0x5203]),
+          D2 = gf([0xf159, 0x26b2, 0x9b94, 0xebd6, 0xb156, 0x8283, 0x149a, 0x00e0, 0xd130, 0xeef3, 0x80f2, 0x198e, 0xfce7, 0x56df, 0xd9dc, 0x2406]),
+          X = gf([0xd51a, 0x8f25, 0x2d60, 0xc956, 0xa7b2, 0x9525, 0xc760, 0x692c, 0xdc5c, 0xfdd6, 0xe231, 0xc0a4, 0x53fe, 0xcd6e, 0x36d3, 0x2169]),
+          Y = gf([0x6658, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666]),
+          I = gf([0xa0b0, 0x4a0e, 0x1b27, 0xc4ee, 0xe478, 0xad2f, 0x1806, 0x2f43, 0xd7a7, 0x3dfb, 0x0099, 0x2b4d, 0xdf0b, 0x4fc1, 0x2480, 0x2b83]);
+
+        function vn(x, xi, y, yi, n) {
+          var i, d = 0;
+          for (i = 0; i < n; i++) d |= x[xi + i] ^ y[yi + i];
+          return (1 & ((d - 1) >>> 8)) - 1;
+        }
+
+        function crypto_verify_32(x, xi, y, yi) {
+          return vn(x, xi, y, yi, 32);
+        }
+
+        function set25519(r, a) {
+          var i;
+          for (i = 0; i < 16; i++) r[i] = a[i] | 0;
+        }
+
+        function car25519(o) {
+          var i, v, c = 1;
+          for (i = 0; i < 16; i++) {
+            v = o[i] + c + 65535;
+            c = Math.floor(v / 65536);
+            o[i] = v - c * 65536;
+          }
+          o[0] += c - 1 + 37 * (c - 1);
+        }
+
+        function sel25519(p, q, b) {
+          var t, c = ~(b - 1);
+          for (var i = 0; i < 16; i++) {
+            t = c & (p[i] ^ q[i]);
+            p[i] ^= t;
+            q[i] ^= t;
+          }
+        }
+
+        function pack25519(o, n) {
+          var i, j, b;
+          var m = gf(),
+            t = gf();
+          for (i = 0; i < 16; i++) t[i] = n[i];
+          car25519(t);
+          car25519(t);
+          car25519(t);
+          for (j = 0; j < 2; j++) {
+            m[0] = t[0] - 0xffed;
+            for (i = 1; i < 15; i++) {
+              m[i] = t[i] - 0xffff - ((m[i - 1] >> 16) & 1);
+              m[i - 1] &= 0xffff;
+            }
+            m[15] = t[15] - 0x7fff - ((m[14] >> 16) & 1);
+            b = (m[15] >> 16) & 1;
+            m[14] &= 0xffff;
+            sel25519(t, m, 1 - b);
+          }
+          for (i = 0; i < 16; i++) {
+            o[2 * i] = t[i] & 0xff;
+            o[2 * i + 1] = t[i] >> 8;
+          }
+        }
+
+        function neq25519(a, b) {
+          var c = new Uint8Array(32),
+            d = new Uint8Array(32);
+          pack25519(c, a);
+          pack25519(d, b);
+          return crypto_verify_32(c, 0, d, 0);
+        }
+
+        function par25519(a) {
+          var d = new Uint8Array(32);
+          pack25519(d, a);
+          return d[0] & 1;
+        }
+
+        function unpack25519(o, n) {
+          var i;
+          for (i = 0; i < 16; i++) o[i] = n[2 * i] + (n[2 * i + 1] << 8);
+          o[15] &= 0x7fff;
+        }
+
+        function A(o, a, b) {
+          for (var i = 0; i < 16; i++) o[i] = a[i] + b[i];
+        }
+
+        function Z(o, a, b) {
+          for (var i = 0; i < 16; i++) o[i] = a[i] - b[i];
+        }
+
+        function M(o, a, b) {
+          var v, c,
+            t0 = 0,
+            t1 = 0,
+            t2 = 0,
+            t3 = 0,
+            t4 = 0,
+            t5 = 0,
+            t6 = 0,
+            t7 = 0,
+            t8 = 0,
+            t9 = 0,
+            t10 = 0,
+            t11 = 0,
+            t12 = 0,
+            t13 = 0,
+            t14 = 0,
+            t15 = 0,
+            t16 = 0,
+            t17 = 0,
+            t18 = 0,
+            t19 = 0,
+            t20 = 0,
+            t21 = 0,
+            t22 = 0,
+            t23 = 0,
+            t24 = 0,
+            t25 = 0,
+            t26 = 0,
+            t27 = 0,
+            t28 = 0,
+            t29 = 0,
+            t30 = 0,
+            b0 = b[0],
+            b1 = b[1],
+            b2 = b[2],
+            b3 = b[3],
+            b4 = b[4],
+            b5 = b[5],
+            b6 = b[6],
+            b7 = b[7],
+            b8 = b[8],
+            b9 = b[9],
+            b10 = b[10],
+            b11 = b[11],
+            b12 = b[12],
+            b13 = b[13],
+            b14 = b[14],
+            b15 = b[15];
+
+          v = a[0];
+          t0 += v * b0;
+          t1 += v * b1;
+          t2 += v * b2;
+          t3 += v * b3;
+          t4 += v * b4;
+          t5 += v * b5;
+          t6 += v * b6;
+          t7 += v * b7;
+          t8 += v * b8;
+          t9 += v * b9;
+          t10 += v * b10;
+          t11 += v * b11;
+          t12 += v * b12;
+          t13 += v * b13;
+          t14 += v * b14;
+          t15 += v * b15;
+          v = a[1];
+          t1 += v * b0;
+          t2 += v * b1;
+          t3 += v * b2;
+          t4 += v * b3;
+          t5 += v * b4;
+          t6 += v * b5;
+          t7 += v * b6;
+          t8 += v * b7;
+          t9 += v * b8;
+          t10 += v * b9;
+          t11 += v * b10;
+          t12 += v * b11;
+          t13 += v * b12;
+          t14 += v * b13;
+          t15 += v * b14;
+          t16 += v * b15;
+          v = a[2];
+          t2 += v * b0;
+          t3 += v * b1;
+          t4 += v * b2;
+          t5 += v * b3;
+          t6 += v * b4;
+          t7 += v * b5;
+          t8 += v * b6;
+          t9 += v * b7;
+          t10 += v * b8;
+          t11 += v * b9;
+          t12 += v * b10;
+          t13 += v * b11;
+          t14 += v * b12;
+          t15 += v * b13;
+          t16 += v * b14;
+          t17 += v * b15;
+          v = a[3];
+          t3 += v * b0;
+          t4 += v * b1;
+          t5 += v * b2;
+          t6 += v * b3;
+          t7 += v * b4;
+          t8 += v * b5;
+          t9 += v * b6;
+          t10 += v * b7;
+          t11 += v * b8;
+          t12 += v * b9;
+          t13 += v * b10;
+          t14 += v * b11;
+          t15 += v * b12;
+          t16 += v * b13;
+          t17 += v * b14;
+          t18 += v * b15;
+          v = a[4];
+          t4 += v * b0;
+          t5 += v * b1;
+          t6 += v * b2;
+          t7 += v * b3;
+          t8 += v * b4;
+          t9 += v * b5;
+          t10 += v * b6;
+          t11 += v * b7;
+          t12 += v * b8;
+          t13 += v * b9;
+          t14 += v * b10;
+          t15 += v * b11;
+          t16 += v * b12;
+          t17 += v * b13;
+          t18 += v * b14;
+          t19 += v * b15;
+          v = a[5];
+          t5 += v * b0;
+          t6 += v * b1;
+          t7 += v * b2;
+          t8 += v * b3;
+          t9 += v * b4;
+          t10 += v * b5;
+          t11 += v * b6;
+          t12 += v * b7;
+          t13 += v * b8;
+          t14 += v * b9;
+          t15 += v * b10;
+          t16 += v * b11;
+          t17 += v * b12;
+          t18 += v * b13;
+          t19 += v * b14;
+          t20 += v * b15;
+          v = a[6];
+          t6 += v * b0;
+          t7 += v * b1;
+          t8 += v * b2;
+          t9 += v * b3;
+          t10 += v * b4;
+          t11 += v * b5;
+          t12 += v * b6;
+          t13 += v * b7;
+          t14 += v * b8;
+          t15 += v * b9;
+          t16 += v * b10;
+          t17 += v * b11;
+          t18 += v * b12;
+          t19 += v * b13;
+          t20 += v * b14;
+          t21 += v * b15;
+          v = a[7];
+          t7 += v * b0;
+          t8 += v * b1;
+          t9 += v * b2;
+          t10 += v * b3;
+          t11 += v * b4;
+          t12 += v * b5;
+          t13 += v * b6;
+          t14 += v * b7;
+          t15 += v * b8;
+          t16 += v * b9;
+          t17 += v * b10;
+          t18 += v * b11;
+          t19 += v * b12;
+          t20 += v * b13;
+          t21 += v * b14;
+          t22 += v * b15;
+          v = a[8];
+          t8 += v * b0;
+          t9 += v * b1;
+          t10 += v * b2;
+          t11 += v * b3;
+          t12 += v * b4;
+          t13 += v * b5;
+          t14 += v * b6;
+          t15 += v * b7;
+          t16 += v * b8;
+          t17 += v * b9;
+          t18 += v * b10;
+          t19 += v * b11;
+          t20 += v * b12;
+          t21 += v * b13;
+          t22 += v * b14;
+          t23 += v * b15;
+          v = a[9];
+          t9 += v * b0;
+          t10 += v * b1;
+          t11 += v * b2;
+          t12 += v * b3;
+          t13 += v * b4;
+          t14 += v * b5;
+          t15 += v * b6;
+          t16 += v * b7;
+          t17 += v * b8;
+          t18 += v * b9;
+          t19 += v * b10;
+          t20 += v * b11;
+          t21 += v * b12;
+          t22 += v * b13;
+          t23 += v * b14;
+          t24 += v * b15;
+          v = a[10];
+          t10 += v * b0;
+          t11 += v * b1;
+          t12 += v * b2;
+          t13 += v * b3;
+          t14 += v * b4;
+          t15 += v * b5;
+          t16 += v * b6;
+          t17 += v * b7;
+          t18 += v * b8;
+          t19 += v * b9;
+          t20 += v * b10;
+          t21 += v * b11;
+          t22 += v * b12;
+          t23 += v * b13;
+          t24 += v * b14;
+          t25 += v * b15;
+          v = a[11];
+          t11 += v * b0;
+          t12 += v * b1;
+          t13 += v * b2;
+          t14 += v * b3;
+          t15 += v * b4;
+          t16 += v * b5;
+          t17 += v * b6;
+          t18 += v * b7;
+          t19 += v * b8;
+          t20 += v * b9;
+          t21 += v * b10;
+          t22 += v * b11;
+          t23 += v * b12;
+          t24 += v * b13;
+          t25 += v * b14;
+          t26 += v * b15;
+          v = a[12];
+          t12 += v * b0;
+          t13 += v * b1;
+          t14 += v * b2;
+          t15 += v * b3;
+          t16 += v * b4;
+          t17 += v * b5;
+          t18 += v * b6;
+          t19 += v * b7;
+          t20 += v * b8;
+          t21 += v * b9;
+          t22 += v * b10;
+          t23 += v * b11;
+          t24 += v * b12;
+          t25 += v * b13;
+          t26 += v * b14;
+          t27 += v * b15;
+          v = a[13];
+          t13 += v * b0;
+          t14 += v * b1;
+          t15 += v * b2;
+          t16 += v * b3;
+          t17 += v * b4;
+          t18 += v * b5;
+          t19 += v * b6;
+          t20 += v * b7;
+          t21 += v * b8;
+          t22 += v * b9;
+          t23 += v * b10;
+          t24 += v * b11;
+          t25 += v * b12;
+          t26 += v * b13;
+          t27 += v * b14;
+          t28 += v * b15;
+          v = a[14];
+          t14 += v * b0;
+          t15 += v * b1;
+          t16 += v * b2;
+          t17 += v * b3;
+          t18 += v * b4;
+          t19 += v * b5;
+          t20 += v * b6;
+          t21 += v * b7;
+          t22 += v * b8;
+          t23 += v * b9;
+          t24 += v * b10;
+          t25 += v * b11;
+          t26 += v * b12;
+          t27 += v * b13;
+          t28 += v * b14;
+          t29 += v * b15;
+          v = a[15];
+          t15 += v * b0;
+          t16 += v * b1;
+          t17 += v * b2;
+          t18 += v * b3;
+          t19 += v * b4;
+          t20 += v * b5;
+          t21 += v * b6;
+          t22 += v * b7;
+          t23 += v * b8;
+          t24 += v * b9;
+          t25 += v * b10;
+          t26 += v * b11;
+          t27 += v * b12;
+          t28 += v * b13;
+          t29 += v * b14;
+          t30 += v * b15;
+
+          t0 += 38 * t16;
+          t1 += 38 * t17;
+          t2 += 38 * t18;
+          t3 += 38 * t19;
+          t4 += 38 * t20;
+          t5 += 38 * t21;
+          t6 += 38 * t22;
+          t7 += 38 * t23;
+          t8 += 38 * t24;
+          t9 += 38 * t25;
+          t10 += 38 * t26;
+          t11 += 38 * t27;
+          t12 += 38 * t28;
+          t13 += 38 * t29;
+          t14 += 38 * t30;
+          // t15 left as is
+
+          // first car
+          c = 1;
+          v = t0 + c + 65535;
+          c = Math.floor(v / 65536);
+          t0 = v - c * 65536;
+          v = t1 + c + 65535;
+          c = Math.floor(v / 65536);
+          t1 = v - c * 65536;
+          v = t2 + c + 65535;
+          c = Math.floor(v / 65536);
+          t2 = v - c * 65536;
+          v = t3 + c + 65535;
+          c = Math.floor(v / 65536);
+          t3 = v - c * 65536;
+          v = t4 + c + 65535;
+          c = Math.floor(v / 65536);
+          t4 = v - c * 65536;
+          v = t5 + c + 65535;
+          c = Math.floor(v / 65536);
+          t5 = v - c * 65536;
+          v = t6 + c + 65535;
+          c = Math.floor(v / 65536);
+          t6 = v - c * 65536;
+          v = t7 + c + 65535;
+          c = Math.floor(v / 65536);
+          t7 = v - c * 65536;
+          v = t8 + c + 65535;
+          c = Math.floor(v / 65536);
+          t8 = v - c * 65536;
+          v = t9 + c + 65535;
+          c = Math.floor(v / 65536);
+          t9 = v - c * 65536;
+          v = t10 + c + 65535;
+          c = Math.floor(v / 65536);
+          t10 = v - c * 65536;
+          v = t11 + c + 65535;
+          c = Math.floor(v / 65536);
+          t11 = v - c * 65536;
+          v = t12 + c + 65535;
+          c = Math.floor(v / 65536);
+          t12 = v - c * 65536;
+          v = t13 + c + 65535;
+          c = Math.floor(v / 65536);
+          t13 = v - c * 65536;
+          v = t14 + c + 65535;
+          c = Math.floor(v / 65536);
+          t14 = v - c * 65536;
+          v = t15 + c + 65535;
+          c = Math.floor(v / 65536);
+          t15 = v - c * 65536;
+          t0 += c - 1 + 37 * (c - 1);
+
+          // second car
+          c = 1;
+          v = t0 + c + 65535;
+          c = Math.floor(v / 65536);
+          t0 = v - c * 65536;
+          v = t1 + c + 65535;
+          c = Math.floor(v / 65536);
+          t1 = v - c * 65536;
+          v = t2 + c + 65535;
+          c = Math.floor(v / 65536);
+          t2 = v - c * 65536;
+          v = t3 + c + 65535;
+          c = Math.floor(v / 65536);
+          t3 = v - c * 65536;
+          v = t4 + c + 65535;
+          c = Math.floor(v / 65536);
+          t4 = v - c * 65536;
+          v = t5 + c + 65535;
+          c = Math.floor(v / 65536);
+          t5 = v - c * 65536;
+          v = t6 + c + 65535;
+          c = Math.floor(v / 65536);
+          t6 = v - c * 65536;
+          v = t7 + c + 65535;
+          c = Math.floor(v / 65536);
+          t7 = v - c * 65536;
+          v = t8 + c + 65535;
+          c = Math.floor(v / 65536);
+          t8 = v - c * 65536;
+          v = t9 + c + 65535;
+          c = Math.floor(v / 65536);
+          t9 = v - c * 65536;
+          v = t10 + c + 65535;
+          c = Math.floor(v / 65536);
+          t10 = v - c * 65536;
+          v = t11 + c + 65535;
+          c = Math.floor(v / 65536);
+          t11 = v - c * 65536;
+          v = t12 + c + 65535;
+          c = Math.floor(v / 65536);
+          t12 = v - c * 65536;
+          v = t13 + c + 65535;
+          c = Math.floor(v / 65536);
+          t13 = v - c * 65536;
+          v = t14 + c + 65535;
+          c = Math.floor(v / 65536);
+          t14 = v - c * 65536;
+          v = t15 + c + 65535;
+          c = Math.floor(v / 65536);
+          t15 = v - c * 65536;
+          t0 += c - 1 + 37 * (c - 1);
+
+          o[0] = t0;
+          o[1] = t1;
+          o[2] = t2;
+          o[3] = t3;
+          o[4] = t4;
+          o[5] = t5;
+          o[6] = t6;
+          o[7] = t7;
+          o[8] = t8;
+          o[9] = t9;
+          o[10] = t10;
+          o[11] = t11;
+          o[12] = t12;
+          o[13] = t13;
+          o[14] = t14;
+          o[15] = t15;
+        }
+
+        function S(o, a) {
+          M(o, a, a);
+        }
+
+        function inv25519(o, i) {
+          var c = gf();
+          var a;
+          for (a = 0; a < 16; a++) c[a] = i[a];
+          for (a = 253; a >= 0; a--) {
+            S(c, c);
+            if (a !== 2 && a !== 4) M(c, c, i);
+          }
+          for (a = 0; a < 16; a++) o[a] = c[a];
+        }
+
+        function pow2523(o, i) {
+          var c = gf();
+          var a;
+          for (a = 0; a < 16; a++) c[a] = i[a];
+          for (a = 250; a >= 0; a--) {
+            S(c, c);
+            if (a !== 1) M(c, c, i);
+          }
+          for (a = 0; a < 16; a++) o[a] = c[a];
+        }
+
+        function crypto_scalarmult(q, n, p) {
+          var z = new Uint8Array(32);
+          var x = new Float64Array(80),
+            r, i;
+          var a = gf(),
+            b = gf(),
+            c = gf(),
+            d = gf(),
+            e = gf(),
+            f = gf();
+          for (i = 0; i < 31; i++) z[i] = n[i];
+          z[31] = (n[31] & 127) | 64;
+          z[0] &= 248;
+          unpack25519(x, p);
+          for (i = 0; i < 16; i++) {
+            b[i] = x[i];
+            d[i] = a[i] = c[i] = 0;
+          }
+          a[0] = d[0] = 1;
+          for (i = 254; i >= 0; --i) {
+            r = (z[i >>> 3] >>> (i & 7)) & 1;
+            sel25519(a, b, r);
+            sel25519(c, d, r);
+            A(e, a, c);
+            Z(a, a, c);
+            A(c, b, d);
+            Z(b, b, d);
+            S(d, e);
+            S(f, a);
+            M(a, c, a);
+            M(c, b, e);
+            A(e, a, c);
+            Z(a, a, c);
+            S(b, a);
+            Z(c, d, f);
+            M(a, c, _121665);
+            A(a, a, d);
+            M(c, c, a);
+            M(a, d, f);
+            M(d, b, x);
+            S(b, e);
+            sel25519(a, b, r);
+            sel25519(c, d, r);
+          }
+          for (i = 0; i < 16; i++) {
+            x[i + 16] = a[i];
+            x[i + 32] = c[i];
+            x[i + 48] = b[i];
+            x[i + 64] = d[i];
+          }
+          var x32 = x.subarray(32);
+          var x16 = x.subarray(16);
+          inv25519(x32, x32);
+          M(x16, x16, x32);
+          pack25519(q, x16);
+          return 0;
+        }
+
+        function crypto_scalarmult_base(q, n) {
+          return crypto_scalarmult(q, n, _9);
+        }
+
+        function crypto_box_keypair(y, x) {
+          randombytes(x, 32);
+          return crypto_scalarmult_base(y, x);
+        }
+
+        function add(p, q) {
+          var a = gf(),
+            b = gf(),
+            c = gf(),
+            d = gf(),
+            e = gf(),
+            f = gf(),
+            g = gf(),
+            h = gf(),
+            t = gf();
+
+          Z(a, p[1], p[0]);
+          Z(t, q[1], q[0]);
+          M(a, a, t);
+          A(b, p[0], p[1]);
+          A(t, q[0], q[1]);
+          M(b, b, t);
+          M(c, p[3], q[3]);
+          M(c, c, D2);
+          M(d, p[2], q[2]);
+          A(d, d, d);
+          Z(e, b, a);
+          Z(f, d, c);
+          A(g, d, c);
+          A(h, b, a);
+
+          M(p[0], e, f);
+          M(p[1], h, g);
+          M(p[2], g, f);
+          M(p[3], e, h);
+        }
+
+        function cswap(p, q, b) {
+          var i;
+          for (i = 0; i < 4; i++) {
+            sel25519(p[i], q[i], b);
+          }
+        }
+
+        function pack(r, p) {
+          var tx = gf(),
+            ty = gf(),
+            zi = gf();
+          inv25519(zi, p[2]);
+          M(tx, p[0], zi);
+          M(ty, p[1], zi);
+          pack25519(r, ty);
+          r[31] ^= par25519(tx) << 7;
+        }
+
+        function scalarmult(p, q, s) {
+          var b, i;
+          set25519(p[0], gf0);
+          set25519(p[1], gf1);
+          set25519(p[2], gf1);
+          set25519(p[3], gf0);
+          for (i = 255; i >= 0; --i) {
+            b = (s[(i / 8) | 0] >> (i & 7)) & 1;
+            cswap(p, q, b);
+            add(q, p);
+            add(p, p);
+            cswap(p, q, b);
+          }
+        }
+
+        function scalarbase(p, s) {
+          var q = [gf(), gf(), gf(), gf()];
+          set25519(q[0], X);
+          set25519(q[1], Y);
+          set25519(q[2], gf1);
+          M(q[3], X, Y);
+          scalarmult(p, q, s);
+        }
+
+        function crypto_sign_keypair(pk, sk, seeded) {
+          var d;
+          var p = [gf(), gf(), gf(), gf()];
+          var i;
+
+          if (!seeded) randombytes(sk, 32);
+          d = nacl.hash(sk.subarray(0, 32));
+          d[0] &= 248;
+          d[31] &= 127;
+          d[31] |= 64;
+
+          scalarbase(p, d);
+          pack(pk, p);
+
+          for (i = 0; i < 32; i++) sk[i + 32] = pk[i];
+          return 0;
+        }
+
+        var L = new Float64Array([0xed, 0xd3, 0xf5, 0x5c, 0x1a, 0x63, 0x12, 0x58, 0xd6, 0x9c, 0xf7, 0xa2, 0xde, 0xf9, 0xde, 0x14, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x10]);
+
+        function modL(r, x) {
+          var carry, i, j, k;
+          for (i = 63; i >= 32; --i) {
+            carry = 0;
+            for (j = i - 32, k = i - 12; j < k; ++j) {
+              x[j] += carry - 16 * x[i] * L[j - (i - 32)];
+              carry = (x[j] + 128) >> 8;
+              x[j] -= carry * 256;
+            }
+            x[j] += carry;
+            x[i] = 0;
+          }
+          carry = 0;
+          for (j = 0; j < 32; j++) {
+            x[j] += carry - (x[31] >> 4) * L[j];
+            carry = x[j] >> 8;
+            x[j] &= 255;
+          }
+          for (j = 0; j < 32; j++) x[j] -= carry * L[j];
+          for (i = 0; i < 32; i++) {
+            x[i + 1] += x[i] >> 8;
+            r[i] = x[i] & 255;
+          }
+        }
+
+        function reduce(r) {
+          var x = new Float64Array(64),
+            i;
+          for (i = 0; i < 64; i++) x[i] = r[i];
+          for (i = 0; i < 64; i++) r[i] = 0;
+          modL(r, x);
+        }
+
+        // Note: difference from C - smlen returned, not passed as argument.
+        function crypto_sign(sm, m, n, sk) {
+          var d, h, r;
+          var i, j, x = new Float64Array(64);
+          var p = [gf(), gf(), gf(), gf()];
+
+          d = nacl.hash(sk.subarray(0, 32));
+          d[0] &= 248;
+          d[31] &= 127;
+          d[31] |= 64;
+
+          var smlen = n + 64;
+          for (i = 0; i < n; i++) sm[64 + i] = m[i];
+          for (i = 0; i < 32; i++) sm[32 + i] = d[32 + i];
+
+          r = nacl.hash(sm.subarray(32, smlen));
+          reduce(r);
+          scalarbase(p, r);
+          pack(sm, p);
+
+          for (i = 32; i < 64; i++) sm[i] = sk[i];
+          h = nacl.hash(sm.subarray(0, smlen));
+          reduce(h);
+
+          for (i = 0; i < 64; i++) x[i] = 0;
+          for (i = 0; i < 32; i++) x[i] = r[i];
+          for (i = 0; i < 32; i++) {
+            for (j = 0; j < 32; j++) {
+              x[i + j] += h[i] * d[j];
+            }
+          }
+
+          modL(sm.subarray(32), x);
+          return smlen;
+        }
+
+        function unpackneg(r, p) {
+          var t = gf(),
+            chk = gf(),
+            num = gf(),
+            den = gf(),
+            den2 = gf(),
+            den4 = gf(),
+            den6 = gf();
+
+          set25519(r[2], gf1);
+          unpack25519(r[1], p);
+          S(num, r[1]);
+          M(den, num, D);
+          Z(num, num, r[2]);
+          A(den, r[2], den);
+
+          S(den2, den);
+          S(den4, den2);
+          M(den6, den4, den2);
+          M(t, den6, num);
+          M(t, t, den);
+
+          pow2523(t, t);
+          M(t, t, num);
+          M(t, t, den);
+          M(t, t, den);
+          M(r[0], t, den);
+
+          S(chk, r[0]);
+          M(chk, chk, den);
+          if (neq25519(chk, num)) M(r[0], r[0], I);
+
+          S(chk, r[0]);
+          M(chk, chk, den);
+          if (neq25519(chk, num)) return -1;
+
+          if (par25519(r[0]) === (p[31] >> 7)) Z(r[0], gf0, r[0]);
+
+          M(r[3], r[0], r[1]);
+          return 0;
+        }
+
+        function crypto_sign_open(m, sm, n, pk) {
+          var i, mlen;
+          var t = new Uint8Array(32),
+            h;
+          var p = [gf(), gf(), gf(), gf()],
+            q = [gf(), gf(), gf(), gf()];
+
+          mlen = -1;
+          if (n < 64) return -1;
+
+          if (unpackneg(q, pk)) return -1;
+
+          for (i = 0; i < n; i++) m[i] = sm[i];
+          for (i = 0; i < 32; i++) m[i + 32] = pk[i];
+          h = nacl.hash(m.subarray(0, n));
+          reduce(h);
+          scalarmult(p, q, h);
+
+          scalarbase(q, sm.subarray(32));
+          add(p, q);
+          pack(t, p);
+
+          n -= 64;
+          if (crypto_verify_32(sm, 0, t, 0)) {
+            for (i = 0; i < n; i++) m[i] = 0;
+            return -1;
+          }
+
+          for (i = 0; i < n; i++) m[i] = sm[i + 64];
+          mlen = n;
+          return mlen;
+        }
+
+        var crypto_scalarmult_BYTES = 32,
+          crypto_scalarmult_SCALARBYTES = 32,
+          crypto_box_PUBLICKEYBYTES = 32,
+          crypto_box_SECRETKEYBYTES = 32,
+          crypto_sign_BYTES = 64,
+          crypto_sign_PUBLICKEYBYTES = 32,
+          crypto_sign_SECRETKEYBYTES = 64,
+          crypto_sign_SEEDBYTES = 32;
+
+        function checkArrayTypes() {
+          for (var i = 0; i < arguments.length; i++) {
+            if (!(arguments[i] instanceof Uint8Array))
+              throw new TypeError('unexpected type, use Uint8Array');
+          }
+        }
+
+        function cleanup(arr) {
+          for (var i = 0; i < arr.length; i++) arr[i] = 0;
+        }
+
+        nacl.scalarMult = function(n, p) {
+          checkArrayTypes(n, p);
+          if (n.length !== crypto_scalarmult_SCALARBYTES) throw new Error('bad n size');
+          if (p.length !== crypto_scalarmult_BYTES) throw new Error('bad p size');
+          var q = new Uint8Array(crypto_scalarmult_BYTES);
+          crypto_scalarmult(q, n, p);
+          return q;
+        };
+
+        nacl.box = {};
+
+        nacl.box.keyPair = function() {
+          var pk = new Uint8Array(crypto_box_PUBLICKEYBYTES);
+          var sk = new Uint8Array(crypto_box_SECRETKEYBYTES);
+          crypto_box_keypair(pk, sk);
+          return {
+            publicKey: pk,
+            secretKey: sk
+          };
+        };
+
+        nacl.box.keyPair.fromSecretKey = function(secretKey) {
+          checkArrayTypes(secretKey);
+          if (secretKey.length !== crypto_box_SECRETKEYBYTES)
+            throw new Error('bad secret key size');
+          var pk = new Uint8Array(crypto_box_PUBLICKEYBYTES);
+          crypto_scalarmult_base(pk, secretKey);
+          return {
+            publicKey: pk,
+            secretKey: new Uint8Array(secretKey)
+          };
+        };
+
+        nacl.sign = function(msg, secretKey) {
+          checkArrayTypes(msg, secretKey);
+          if (secretKey.length !== crypto_sign_SECRETKEYBYTES)
+            throw new Error('bad secret key size');
+          var signedMsg = new Uint8Array(crypto_sign_BYTES + msg.length);
+          crypto_sign(signedMsg, msg, msg.length, secretKey);
+          return signedMsg;
+        };
+
+        nacl.sign.detached = function(msg, secretKey) {
+          var signedMsg = nacl.sign(msg, secretKey);
+          var sig = new Uint8Array(crypto_sign_BYTES);
+          for (var i = 0; i < sig.length; i++) sig[i] = signedMsg[i];
+          return sig;
+        };
+
+        nacl.sign.detached.verify = function(msg, sig, publicKey) {
+          checkArrayTypes(msg, sig, publicKey);
+          if (sig.length !== crypto_sign_BYTES)
+            throw new Error('bad signature size');
+          if (publicKey.length !== crypto_sign_PUBLICKEYBYTES)
+            throw new Error('bad public key size');
+          var sm = new Uint8Array(crypto_sign_BYTES + msg.length);
+          var m = new Uint8Array(crypto_sign_BYTES + msg.length);
+          var i;
+          for (i = 0; i < crypto_sign_BYTES; i++) sm[i] = sig[i];
+          for (i = 0; i < msg.length; i++) sm[i + crypto_sign_BYTES] = msg[i];
+          return (crypto_sign_open(m, sm, sm.length, publicKey) >= 0);
+        };
+
+        nacl.sign.keyPair = function() {
+          var pk = new Uint8Array(crypto_sign_PUBLICKEYBYTES);
+          var sk = new Uint8Array(crypto_sign_SECRETKEYBYTES);
+          crypto_sign_keypair(pk, sk);
+          return {
+            publicKey: pk,
+            secretKey: sk
+          };
+        };
+
+        nacl.sign.keyPair.fromSecretKey = function(secretKey) {
+          checkArrayTypes(secretKey);
+          if (secretKey.length !== crypto_sign_SECRETKEYBYTES)
+            throw new Error('bad secret key size');
+          var pk = new Uint8Array(crypto_sign_PUBLICKEYBYTES);
+          for (var i = 0; i < pk.length; i++) pk[i] = secretKey[32 + i];
+          return {
+            publicKey: pk,
+            secretKey: new Uint8Array(secretKey)
+          };
+        };
+
+        nacl.sign.keyPair.fromSeed = function(seed) {
+          checkArrayTypes(seed);
+          if (seed.length !== crypto_sign_SEEDBYTES)
+            throw new Error('bad seed size');
+          var pk = new Uint8Array(crypto_sign_PUBLICKEYBYTES);
+          var sk = new Uint8Array(crypto_sign_SECRETKEYBYTES);
+          for (var i = 0; i < 32; i++) sk[i] = seed[i];
+          crypto_sign_keypair(pk, sk, true);
+          return {
+            publicKey: pk,
+            secretKey: sk
+          };
+        };
+
+        nacl.setPRNG = function(fn) {
+          randombytes = fn;
+        };
+
+        (function() {
+          // Initialize PRNG if environment provides CSPRNG.
+          // If not, methods calling randombytes will throw.
+          var crypto = typeof self !== 'undefined' ? (self.crypto || self.msCrypto) : null;
+          if (crypto && crypto.getRandomValues) {
+            // Browsers.
+            var QUOTA = 65536;
+            nacl.setPRNG(function(x, n) {
+              var i, v = new Uint8Array(n);
+              for (i = 0; i < n; i += QUOTA) {
+                crypto.getRandomValues(v.subarray(i, i + Math.min(n - i, QUOTA)));
+              }
+              for (i = 0; i < n; i++) x[i] = v[i];
+              cleanup(v);
+            });
+          }
+          else if (typeof require !== 'undefined') {
+            // Node.js.
+            crypto = require('crypto');
+            if (crypto && crypto.randomBytes) {
+              nacl.setPRNG(function(x, n) {
+                var i, v = crypto.randomBytes(n);
+                for (i = 0; i < n; i++) x[i] = v[i];
+                cleanup(v);
+              });
+            }
+          }
+        })();
+
+      })(typeof module !== 'undefined' && module.exports ? module.exports : (self.nacl = self.nacl || {}));
+
+    }, {
+      "crypto": "crypto"
+    }],
+    73: [function(require, module, exports) {
       'use strict';
 
       Object.defineProperty(exports, "__esModule", {
         value: true
       });
       exports.webToNode = exports.nodeToWeb = undefined;
+
+      var _util = require('./util');
 
       var _streams = require('./streams');
 
@@ -25640,7 +26064,7 @@
         };
       }
 
-      const NodeReadableStream = typeof window === 'undefined' && require('stream').Readable;
+      const NodeReadableStream = _util.isNode && require('stream').Readable;
 
       /**
        * Web / node stream conversion functions
@@ -25742,10 +26166,11 @@
       exports.webToNode = webToNode;
 
     }, {
-      "./streams": 77,
+      "./streams": 75,
+      "./util": 76,
       "stream": "stream"
     }],
-    76: [function(require, module, exports) {
+    74: [function(require, module, exports) {
       'use strict';
 
       Object.defineProperty(exports, "__esModule", {
@@ -25785,7 +26210,10 @@
         if (streamType) {
           const reader = input.getReader();
           this._read = reader.read.bind(reader);
-          this._releaseLock = reader.releaseLock.bind(reader);
+          this._releaseLock = () => {
+            reader.closed.catch(function() {});
+            reader.releaseLock();
+          };
           return;
         }
         let doneReading = false;
@@ -25961,9 +26389,9 @@
       exports.externalBuffer = externalBuffer;
 
     }, {
-      "./streams": 77
+      "./streams": 75
     }],
-    77: [function(require, module, exports) {
+    75: [function(require, module, exports) {
       (function(process) {
         'use strict';
 
@@ -25977,7 +26405,7 @@
 
         var _reader = require('./reader');
 
-        const NodeBuffer = typeof window === 'undefined' && require('buffer').Buffer;
+        const NodeBuffer = _util.isNode && require('buffer').Buffer;
 
         /**
          * Convert data to Stream
@@ -26054,7 +26482,13 @@
          * @returns {WritableStreamDefaultWriter}
          */
         function getWriter(input) {
-          return input.getWriter();
+          const writer = input.getWriter();
+          const releaseLock = writer.releaseLock;
+          writer.releaseLock = () => {
+            writer.closed.catch(function() {});
+            releaseLock.call(writer);
+          };
+          return writer;
         }
 
         /**
@@ -26069,7 +26503,7 @@
           input = toStream(input);
           try {
             if (input[_reader.externalBuffer]) {
-              const writer = target.getWriter();
+              const writer = getWriter(target);
               for (let i = 0; i < input[_reader.externalBuffer].length; i++) {
                 await writer.ready;
                 await writer.write(input[_reader.externalBuffer][i]);
@@ -26379,8 +26813,8 @@
           if (input[_reader.externalBuffer]) {
             input = concat(input[_reader.externalBuffer].concat([input]));
           }
-          if ((0, _util.isUint8Array)(input) && !(NodeBuffer && NodeBuffer.isBuffer(input)) && !_util.isIE11) {
-            // IE11 subarray is buggy
+          if ((0, _util.isUint8Array)(input) && !(NodeBuffer && NodeBuffer.isBuffer(input))) {
+            if (end === Infinity) end = input.length;
             return input.subarray(begin, end);
           }
           return input.slice(begin, end);
@@ -26458,82 +26892,84 @@
 
       }).call(this, require('_process'))
     }, {
-      "./node-conversions": 75,
-      "./reader": 76,
-      "./util": 78,
-      "_process": 68,
+      "./node-conversions": 73,
+      "./reader": 74,
+      "./util": 76,
+      "_process": 66,
       "buffer": "buffer"
     }],
-    78: [function(require, module, exports) {
-      'use strict';
+    76: [function(require, module, exports) {
+      (function(global) {
+        'use strict';
 
-      Object.defineProperty(exports, "__esModule", {
-        value: true
-      });
-      const isIE11 = typeof navigator !== 'undefined' && !!navigator.userAgent.match(/Trident\/7\.0.*rv:([0-9.]+).*\).*Gecko$/);
+        Object.defineProperty(exports, "__esModule", {
+          value: true
+        });
+        const isNode = typeof global.process === 'object' && typeof global.process.versions === 'object';
 
-      const NodeReadableStream = typeof window === 'undefined' && require('stream').Readable;
+        const NodeReadableStream = isNode && require('stream').Readable;
 
-      /**
-       * Check whether data is a Stream, and if so of which type
-       * @param {Any} input  data to check
-       * @returns {'web'|'node'|false}
-       */
-      function isStream(input) {
-        if (ReadableStream.prototype.isPrototypeOf(input)) {
-          return 'web';
+        /**
+         * Check whether data is a Stream, and if so of which type
+         * @param {Any} input  data to check
+         * @returns {'web'|'node'|false}
+         */
+        function isStream(input) {
+          if (ReadableStream.prototype.isPrototypeOf(input)) {
+            return 'web';
+          }
+          if (NodeReadableStream && NodeReadableStream.prototype.isPrototypeOf(input)) {
+            return 'node';
+          }
+          return false;
         }
-        if (NodeReadableStream && NodeReadableStream.prototype.isPrototypeOf(input)) {
-          return 'node';
+
+        /**
+         * Check whether data is a Uint8Array
+         * @param {Any} input  data to check
+         * @returns {Boolean}
+         */
+        function isUint8Array(input) {
+          return Uint8Array.prototype.isPrototypeOf(input);
         }
-        return false;
-      }
 
-      /**
-       * Check whether data is a Uint8Array
-       * @param {Any} input  data to check
-       * @returns {Boolean}
-       */
-      function isUint8Array(input) {
-        return Uint8Array.prototype.isPrototypeOf(input);
-      }
+        /**
+         * Concat Uint8Arrays
+         * @param {Array<Uint8array>} Array of Uint8Arrays to concatenate
+         * @returns {Uint8array} Concatenated array
+         */
+        function concatUint8Array(arrays) {
+          if (arrays.length === 1) return arrays[0];
 
-      /**
-       * Concat Uint8Arrays
-       * @param {Array<Uint8array>} Array of Uint8Arrays to concatenate
-       * @returns {Uint8array} Concatenated array
-       */
-      function concatUint8Array(arrays) {
-        if (arrays.length === 1) return arrays[0];
+          let totalLength = 0;
+          for (let i = 0; i < arrays.length; i++) {
+            if (!isUint8Array(arrays[i])) {
+              throw new Error('concatUint8Array: Data must be in the form of a Uint8Array');
+            }
 
-        let totalLength = 0;
-        for (let i = 0; i < arrays.length; i++) {
-          if (!isUint8Array(arrays[i])) {
-            throw new Error('concatUint8Array: Data must be in the form of a Uint8Array');
+            totalLength += arrays[i].length;
           }
 
-          totalLength += arrays[i].length;
+          const result = new Uint8Array(totalLength);
+          let pos = 0;
+          arrays.forEach(function(element) {
+            result.set(element, pos);
+            pos += element.length;
+          });
+
+          return result;
         }
 
-        const result = new Uint8Array(totalLength);
-        let pos = 0;
-        arrays.forEach(function(element) {
-          result.set(element, pos);
-          pos += element.length;
-        });
+        exports.isNode = isNode;
+        exports.isStream = isStream;
+        exports.isUint8Array = isUint8Array;
+        exports.concatUint8Array = concatUint8Array;
 
-        return result;
-      }
-
-      exports.isIE11 = isIE11;
-      exports.isStream = isStream;
-      exports.isUint8Array = isUint8Array;
-      exports.concatUint8Array = concatUint8Array;
-
+      }).call(this, typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
     }, {
       "stream": "stream"
     }],
-    79: [function(require, module, exports) {
+    77: [function(require, module, exports) {
       'use strict';
 
       Object.defineProperty(exports, "__esModule", {
@@ -26632,12 +27068,12 @@
        * @param  {Array<module:key.Key>} privateKeys private keys with decrypted secret key data for signing
        * @param  {Signature} signature             (optional) any existing detached signature
        * @param  {Date} date                       (optional) The creation time of the signature that should be created
-       * @param  {Object} userId                   (optional) user ID to sign with, e.g. { name:'Steve Sender', email:'steve@openpgp.org' }
+       * @param  {Array} userIds                   (optional) user IDs to sign with, e.g. [{ name:'Steve Sender', email:'steve@openpgp.org' }]
        * @returns {Promise<module:cleartext.CleartextMessage>} new cleartext message with signed content
        * @async
        */
-      CleartextMessage.prototype.sign = async function(privateKeys, signature = null, date = new Date(), userId = {}) {
-        return new CleartextMessage(this.text, (await this.signDetached(privateKeys, signature, date, userId)));
+      CleartextMessage.prototype.sign = async function(privateKeys, signature = null, date = new Date(), userIds = []) {
+        return new CleartextMessage(this.text, (await this.signDetached(privateKeys, signature, date, userIds)));
       };
 
       /**
@@ -26645,15 +27081,15 @@
        * @param  {Array<module:key.Key>} privateKeys private keys with decrypted secret key data for signing
        * @param  {Signature} signature             (optional) any existing detached signature
        * @param  {Date} date                       (optional) The creation time of the signature that should be created
-       * @param  {Object} userId                   (optional) user ID to sign with, e.g. { name:'Steve Sender', email:'steve@openpgp.org' }
+       * @param  {Array} userIds                   (optional) user IDs to sign with, e.g. [{ name:'Steve Sender', email:'steve@openpgp.org' }]
        * @returns {Promise<module:signature.Signature>}      new detached signature of message content
        * @async
        */
-      CleartextMessage.prototype.signDetached = async function(privateKeys, signature = null, date = new Date(), userId = {}) {
+      CleartextMessage.prototype.signDetached = async function(privateKeys, signature = null, date = new Date(), userIds = []) {
         const literalDataPacket = new _packet2.default.Literal();
         literalDataPacket.setText(this.text);
 
-        return new _signature.Signature((await (0, _message.createSignaturePackets)(literalDataPacket, privateKeys, signature, date, userId)));
+        return new _signature.Signature((await (0, _message.createSignaturePackets)(literalDataPacket, privateKeys, signature, date, userIds, true)));
       };
 
       /**
@@ -26679,7 +27115,7 @@
         const literalDataPacket = new _packet2.default.Literal();
         // we assume that cleartext signature is generated based on UTF8 cleartext
         literalDataPacket.setText(this.text);
-        return (0, _message.createVerificationObjects)(signatureList, [literalDataPacket], keys, date);
+        return (0, _message.createVerificationObjects)(signatureList, [literalDataPacket], keys, date, true);
       };
 
       /**
@@ -26788,14 +27224,14 @@
       }
 
     }, {
-      "./encoding/armor": 113,
-      "./enums": 115,
-      "./message": 122,
-      "./packet": 127,
-      "./signature": 147,
-      "./util": 154
+      "./encoding/armor": 111,
+      "./enums": 113,
+      "./message": 126,
+      "./packet": 131,
+      "./signature": 151,
+      "./util": 158
     }],
-    80: [function(require, module, exports) {
+    78: [function(require, module, exports) {
       "use strict";
 
       Object.defineProperty(exports, "__esModule", {
@@ -26838,19 +27274,11 @@
          * Use Authenticated Encryption with Additional Data (AEAD) protection for symmetric encryption.
          * **NOT INTEROPERABLE WITH OTHER OPENPGP IMPLEMENTATIONS**
          * **FUTURE OPENPGP.JS VERSIONS MAY BREAK COMPATIBILITY WHEN USING THIS OPTION**
+         * @see {@link https://tools.ietf.org/html/draft-ietf-openpgp-rfc4880bis-07|RFC4880bis-07}
          * @memberof module:config
          * @property {Boolean} aead_protect
          */
         aead_protect: false,
-        /**
-         * Use Authenticated Encryption with Additional Data (AEAD) protection for symmetric encryption.
-         * 0 means we implement a variant of {@link https://tools.ietf.org/html/draft-ford-openpgp-format-00|this IETF draft}.
-         * 4 means we implement {@link https://tools.ietf.org/html/draft-ietf-openpgp-rfc4880bis-04|RFC4880bis-04}.
-         * Note that this determines how AEAD packets are parsed even when aead_protect is set to false
-         * @memberof module:config
-         * @property {Integer} aead_protect_version
-         */
-        aead_protect_version: 4,
         /**
          * Default Authenticated Encryption with Additional Data (AEAD) encryption mode
          * Only has an effect when aead_protect is set to true.
@@ -26866,6 +27294,14 @@
          * @property {Integer} aead_chunk_size_byte
          */
         aead_chunk_size_byte: 12,
+        /**
+         * Use V5 keys.
+         * **NOT INTEROPERABLE WITH OTHER OPENPGP IMPLEMENTATIONS**
+         * **FUTURE OPENPGP.JS VERSIONS MAY BREAK COMPATIBILITY WHEN USING THIS OPTION**
+         * @memberof module:config
+         * @property {Boolean} v5_keys
+         */
+        v5_keys: false,
         /**
          * {@link https://tools.ietf.org/html/rfc4880#section-3.7.1.3|RFC4880 3.7.1.3}:
          * Iteration Count Byte for S2K (String to Key)
@@ -26951,7 +27387,7 @@
          * @memberof module:config
          * @property {String} versionstring A version string to be included in armored messages
          */
-        versionstring: "OpenPGP.js v4.3.0",
+        versionstring: "OpenPGP.js v4.7.2",
         /**
          * @memberof module:config
          * @property {String} commentstring A comment string to be included in armored messages
@@ -26973,7 +27409,34 @@
          * @memberof module:config
          * @property {Integer} max_userid_length
          */
-        max_userid_length: 1024 * 5
+        max_userid_length: 1024 * 5,
+        /**
+         * Contains notatations that are considered "known". Known notations do not trigger
+         * validation error when the notation is marked as critical.
+         * @memberof module:config
+         * @property {Array} known_notations
+         */
+        known_notations: ["preferred-email-encoding@pgp.com", "pka-address@gnupg.org"],
+        /**
+         * @memberof module:config
+         * @property {Boolean} use_indutny_elliptic Whether to use the indutny/elliptic library. When false, certain curves will not be supported.
+         */
+        use_indutny_elliptic: true,
+        /**
+         * @memberof module:config
+         * @property {Boolean} external_indutny_elliptic Whether to lazily load the indutny/elliptic library from an external path on demand.
+         */
+        external_indutny_elliptic: false,
+        /**
+         * @memberof module:config
+         * @property {String} indutny_elliptic_path The path to load the indutny/elliptic library from. Only has an effect if `config.external_indutny_elliptic` is true.
+         */
+        indutny_elliptic_path: './elliptic.min.js',
+        /**
+         * @memberof module:config
+         * @property {Object} indutny_elliptic_fetch_options Options object to pass to `fetch` when loading the indutny/elliptic library. Only has an effect if `config.external_indutny_elliptic` is true.
+         */
+        indutny_elliptic_fetch_options: {}
       }; // GPG4Browsers - An OpenPGP implementation in javascript
       // Copyright (C) 2011 Recurity Labs GmbH
       //
@@ -26997,9 +27460,9 @@
        */
 
     }, {
-      "../enums": 115
+      "../enums": 113
     }],
-    81: [function(require, module, exports) {
+    79: [function(require, module, exports) {
       'use strict';
 
       Object.defineProperty(exports, "__esModule", {
@@ -27022,9 +27485,9 @@
       }
 
     }, {
-      "./config.js": 80
+      "./config.js": 78
     }],
-    82: [function(require, module, exports) {
+    80: [function(require, module, exports) {
       'use strict';
 
       Object.defineProperty(exports, "__esModule", {
@@ -27199,19 +27662,33 @@
       };
 
     }, {
-      "../util": 154,
-      "./cipher": 88
+      "../util": 158,
+      "./cipher": 86
     }],
-    83: [function(require, module, exports) {
+    81: [function(require, module, exports) {
       'use strict';
 
       Object.defineProperty(exports, "__esModule", {
         value: true
       });
 
+      var _cfb = require('asmcrypto.js/dist_es5/aes/cfb');
+
+      var _webStreamTools = require('web-stream-tools');
+
+      var _webStreamTools2 = _interopRequireDefault(_webStreamTools);
+
       var _cipher = require('./cipher');
 
       var _cipher2 = _interopRequireDefault(_cipher);
+
+      var _config = require('../config');
+
+      var _config2 = _interopRequireDefault(_config);
+
+      var _util = require('../util');
+
+      var _util2 = _interopRequireDefault(_util);
 
       function _interopRequireDefault(obj) {
         return obj && obj.__esModule ? obj : {
@@ -27219,282 +27696,7 @@
         };
       }
 
-      exports.default = {
-
-        /**
-         * This function encrypts a given plaintext with the specified prefixrandom
-         * using the specified blockcipher
-         * @param {Uint8Array} prefixrandom random bytes of block_size length
-         *  to be used in prefixing the data
-         * @param {String} cipherfn the algorithm cipher class to encrypt
-         *  data in one block_size encryption, {@link module:crypto/cipher}.
-         * @param {Uint8Array} plaintext data to be encrypted
-         * @param {Uint8Array} key key to be used to encrypt the plaintext.
-         * This will be passed to the cipherfn
-         * @param {Boolean} resync a boolean value specifying if a resync of the
-         *  IV should be used or not. The encrypteddatapacket uses the
-         *  "old" style with a resync. Encryption within an
-         *  encryptedintegrityprotecteddata packet is not resyncing the IV.
-         * @returns {Uint8Array} encrypted data
-         */
-        encrypt: function encrypt(prefixrandom, cipherfn, plaintext, key, resync) {
-          cipherfn = new _cipher2.default[cipherfn](key);
-          const block_size = cipherfn.blockSize;
-
-          const FR = new Uint8Array(block_size);
-          let FRE = new Uint8Array(block_size);
-
-          const new_prefix = new Uint8Array(prefixrandom.length + 2);
-          new_prefix.set(prefixrandom);
-          new_prefix[prefixrandom.length] = prefixrandom[block_size - 2];
-          new_prefix[prefixrandom.length + 1] = prefixrandom[block_size - 1];
-          prefixrandom = new_prefix;
-
-          let ciphertext = new Uint8Array(plaintext.length + 2 + block_size * 2);
-          let i;
-          let n;
-          let begin;
-          const offset = resync ? 0 : 2;
-
-          // 1.  The feedback register (FR) is set to the IV, which is all zeros.
-          for (i = 0; i < block_size; i++) {
-            FR[i] = 0;
-          }
-
-          // 2.  FR is encrypted to produce FRE (FR Encrypted).  This is the
-          //     encryption of an all-zero value.
-          FRE = cipherfn.encrypt(FR);
-          // 3.  FRE is xored with the first BS octets of random data prefixed to
-          //     the plaintext to produce C[1] through C[BS], the first BS octets
-          //     of ciphertext.
-          for (i = 0; i < block_size; i++) {
-            ciphertext[i] = FRE[i] ^ prefixrandom[i];
-          }
-
-          // 4.  FR is loaded with C[1] through C[BS].
-          FR.set(ciphertext.subarray(0, block_size));
-
-          // 5.  FR is encrypted to produce FRE, the encryption of the first BS
-          //     octets of ciphertext.
-          FRE = cipherfn.encrypt(FR);
-
-          // 6.  The left two octets of FRE get xored with the next two octets of
-          //     data that were prefixed to the plaintext.  This produces C[BS+1]
-          //     and C[BS+2], the next two octets of ciphertext.
-          ciphertext[block_size] = FRE[0] ^ prefixrandom[block_size];
-          ciphertext[block_size + 1] = FRE[1] ^ prefixrandom[block_size + 1];
-
-          if (resync) {
-            // 7.  (The resync step) FR is loaded with C[3] through C[BS+2].
-            FR.set(ciphertext.subarray(2, block_size + 2));
-          }
-          else {
-            FR.set(ciphertext.subarray(0, block_size));
-          }
-          // 8.  FR is encrypted to produce FRE.
-          FRE = cipherfn.encrypt(FR);
-
-          // 9.  FRE is xored with the first BS octets of the given plaintext, now
-          //     that we have finished encrypting the BS+2 octets of prefixed
-          //     data.  This produces C[BS+3] through C[BS+(BS+2)], the next BS
-          //     octets of ciphertext.
-          for (i = 0; i < block_size; i++) {
-            ciphertext[block_size + 2 + i] = FRE[i + offset] ^ plaintext[i];
-          }
-          for (n = block_size; n < plaintext.length + offset; n += block_size) {
-            // 10. FR is loaded with C[BS+3] to C[BS + (BS+2)] (which is C11-C18 for
-            // an 8-octet block).
-            begin = n + 2 - offset;
-            FR.set(ciphertext.subarray(begin, begin + block_size));
-
-            // 11. FR is encrypted to produce FRE.
-            FRE = cipherfn.encrypt(FR);
-
-            // 12. FRE is xored with the next BS octets of plaintext, to produce
-            // the next BS octets of ciphertext.  These are loaded into FR, and
-            // the process is repeated until the plaintext is used up.
-            for (i = 0; i < block_size; i++) {
-              ciphertext[block_size + begin + i] = FRE[i] ^ plaintext[n + i - offset];
-            }
-          }
-
-          ciphertext = ciphertext.subarray(0, plaintext.length + 2 + block_size);
-          return ciphertext;
-        },
-
-        /**
-         * Decrypts the prefixed data for the Modification Detection Code (MDC) computation
-         * @param {String} cipherfn.encrypt Cipher function to use,
-         *  @see module:crypto/cipher.
-         * @param {Uint8Array} key Uint8Array representation of key to be used to check the mdc
-         * This will be passed to the cipherfn
-         * @param {Uint8Array} ciphertext The encrypted data
-         * @returns {Uint8Array} plaintext Data of D(ciphertext) with blocksize length +2
-         */
-        mdc: function mdc(cipherfn, key, ciphertext) {
-          cipherfn = new _cipher2.default[cipherfn](key);
-          const block_size = cipherfn.blockSize;
-
-          let iblock = new Uint8Array(block_size);
-          let ablock = new Uint8Array(block_size);
-          let i;
-
-          // initialisation vector
-          for (i = 0; i < block_size; i++) {
-            iblock[i] = 0;
-          }
-
-          iblock = cipherfn.encrypt(iblock);
-          for (i = 0; i < block_size; i++) {
-            ablock[i] = ciphertext[i];
-            iblock[i] ^= ablock[i];
-          }
-
-          ablock = cipherfn.encrypt(ablock);
-
-          const result = new Uint8Array(iblock.length + 2);
-          result.set(iblock);
-          result[iblock.length] = ablock[0] ^ ciphertext[block_size];
-          result[iblock.length + 1] = ablock[1] ^ ciphertext[block_size + 1];
-          return result;
-        },
-
-        /**
-         * This function decrypts a given ciphertext using the specified blockcipher
-         * @param {String} cipherfn the algorithm cipher class to decrypt
-         *  data in one block_size encryption, {@link module:crypto/cipher}.
-         * @param {Uint8Array} key Uint8Array representation of key to be used to decrypt the ciphertext.
-         * This will be passed to the cipherfn
-         * @param {Uint8Array} ciphertext to be decrypted
-         * @param {Boolean} resync a boolean value specifying if a resync of the
-         *  IV should be used or not. The encrypteddatapacket uses the
-         *  "old" style with a resync. Decryption within an
-         *  encryptedintegrityprotecteddata packet is not resyncing the IV.
-         * @returns {Uint8Array} the plaintext data
-         */
-        decrypt: function decrypt(cipherfn, key, ciphertext, resync) {
-          cipherfn = new _cipher2.default[cipherfn](key);
-          const block_size = cipherfn.blockSize;
-
-          const iblock = new Uint8Array(block_size);
-          let ablock = new Uint8Array(block_size);
-
-          let i;
-          let j;
-          let n;
-          let text = new Uint8Array(ciphertext.length - block_size);
-
-          /*  RFC4880: Tag 18 and Resync:
-           *  [...] Unlike the Symmetrically Encrypted Data Packet, no
-           *  special CFB resynchronization is done after encrypting this prefix
-           *  data.  See "OpenPGP CFB Mode" below for more details.
-           */
-
-          j = 0;
-          if (resync) {
-            for (i = 0; i < block_size; i++) {
-              iblock[i] = ciphertext[i + 2];
-            }
-            for (n = block_size + 2; n < ciphertext.length; n += block_size) {
-              ablock = cipherfn.encrypt(iblock);
-
-              for (i = 0; i < block_size && i + n < ciphertext.length; i++) {
-                iblock[i] = ciphertext[n + i];
-                if (j < text.length) {
-                  text[j] = ablock[i] ^ iblock[i];
-                  j++;
-                }
-              }
-            }
-          }
-          else {
-            for (i = 0; i < block_size; i++) {
-              iblock[i] = ciphertext[i];
-            }
-            for (n = block_size; n < ciphertext.length; n += block_size) {
-              ablock = cipherfn.encrypt(iblock);
-              for (i = 0; i < block_size && i + n < ciphertext.length; i++) {
-                iblock[i] = ciphertext[n + i];
-                if (j < text.length) {
-                  text[j] = ablock[i] ^ iblock[i];
-                  j++;
-                }
-              }
-            }
-          }
-
-          n = resync ? 0 : 2;
-
-          text = text.subarray(n, ciphertext.length - block_size - 2 + n);
-
-          return text;
-        },
-
-        normalEncrypt: function normalEncrypt(cipherfn, key, plaintext, iv) {
-          cipherfn = new _cipher2.default[cipherfn](key);
-          const block_size = cipherfn.blockSize;
-
-          let blocki = new Uint8Array(block_size);
-          const blockc = new Uint8Array(block_size);
-          let pos = 0;
-          const cyphertext = new Uint8Array(plaintext.length);
-          let i;
-          let j = 0;
-
-          if (iv === null) {
-            for (i = 0; i < block_size; i++) {
-              blockc[i] = 0;
-            }
-          }
-          else {
-            for (i = 0; i < block_size; i++) {
-              blockc[i] = iv[i];
-            }
-          }
-          while (plaintext.length > block_size * pos) {
-            const encblock = cipherfn.encrypt(blockc);
-            blocki = plaintext.subarray(pos * block_size, pos * block_size + block_size);
-            for (i = 0; i < blocki.length; i++) {
-              blockc[i] = blocki[i] ^ encblock[i];
-              cyphertext[j++] = blockc[i];
-            }
-            pos++;
-          }
-          return cyphertext;
-        },
-
-        normalDecrypt: function normalDecrypt(cipherfn, key, ciphertext, iv) {
-          cipherfn = new _cipher2.default[cipherfn](key);
-          const block_size = cipherfn.blockSize;
-
-          let blockp;
-          let pos = 0;
-          const plaintext = new Uint8Array(ciphertext.length);
-          const offset = 0;
-          let i;
-          let j = 0;
-
-          if (iv === null) {
-            blockp = new Uint8Array(block_size);
-            for (i = 0; i < block_size; i++) {
-              blockp[i] = 0;
-            }
-          }
-          else {
-            blockp = iv.subarray(0, block_size);
-          }
-          while (ciphertext.length > block_size * pos) {
-            const decblock = cipherfn.encrypt(blockp);
-            blockp = ciphertext.subarray(pos * block_size + offset, pos * block_size + block_size + offset);
-            for (i = 0; i < blockp.length; i++) {
-              plaintext[j++] = blockp[i] ^ decblock[i];
-            }
-            pos++;
-          }
-
-          return plaintext;
-        }
-      }; // Modified by ProtonTech AG
+      const webCrypto = _util2.default.getWebCrypto(); // Modified by ProtonTech AG
 
       // Modified by Recurity Labs GmbH
 
@@ -27514,14 +27716,145 @@
        */
 
       /**
+       * @requires web-stream-tools
        * @requires crypto/cipher
+       * @requires util
        * @module crypto/cfb
        */
 
+      const nodeCrypto = _util2.default.getNodeCrypto();
+      const Buffer = _util2.default.getNodeBuffer();
+
+      exports.default = {
+        encrypt: function encrypt(algo, key, plaintext, iv) {
+          if (algo.substr(0, 3) === 'aes') {
+            return aesEncrypt(algo, key, plaintext, iv);
+          }
+
+          const cipherfn = new _cipher2.default[algo](key);
+          const block_size = cipherfn.blockSize;
+
+          let blocki = new Uint8Array(block_size);
+          const blockc = iv.slice();
+          let pos = 0;
+          const ciphertext = new Uint8Array(plaintext.length);
+          let i;
+          let j = 0;
+
+          while (plaintext.length > block_size * pos) {
+            const encblock = cipherfn.encrypt(blockc);
+            blocki = plaintext.subarray(pos * block_size, pos * block_size + block_size);
+            for (i = 0; i < blocki.length; i++) {
+              blockc[i] = blocki[i] ^ encblock[i];
+              ciphertext[j++] = blockc[i];
+            }
+            pos++;
+          }
+          return ciphertext;
+        },
+
+        decrypt: async function decrypt(algo, key, ciphertext, iv) {
+          if (algo.substr(0, 3) === 'aes') {
+            return aesDecrypt(algo, key, ciphertext, iv);
+          }
+
+          ciphertext = await _webStreamTools2.default.readToEnd(ciphertext);
+
+          const cipherfn = new _cipher2.default[algo](key);
+          const block_size = cipherfn.blockSize;
+
+          let blockp = iv;
+          let pos = 0;
+          const plaintext = new Uint8Array(ciphertext.length);
+          const offset = 0;
+          let i;
+          let j = 0;
+
+          while (ciphertext.length > block_size * pos) {
+            const decblock = cipherfn.encrypt(blockp);
+            blockp = ciphertext.subarray(pos * block_size + offset, pos * block_size + block_size + offset);
+            for (i = 0; i < blockp.length; i++) {
+              plaintext[j++] = blockp[i] ^ decblock[i];
+            }
+            pos++;
+          }
+
+          return plaintext;
+        }
+      };
+
+
+      function aesEncrypt(algo, key, pt, iv) {
+        if (_util2.default.getWebCrypto() && key.length !== 24 && // Chrome doesn't support 192 bit keys, see https://www.chromium.org/blink/webcrypto#TOC-AES-support
+          !_util2.default.isStream(pt) && pt.length >= 3000 * _config2.default.min_bytes_for_web_crypto // Default to a 3MB minimum. Chrome is pretty slow for small messages, see: https://bugs.chromium.org/p/chromium/issues/detail?id=701188#c2
+        ) {
+          // Web Crypto
+          return webEncrypt(algo, key, pt, iv);
+        }
+        if (nodeCrypto) {
+          // Node crypto library.
+          return nodeEncrypt(algo, key, pt, iv);
+        } // asm.js fallback
+        const cfb = new _cfb.AES_CFB(key, iv);
+        return _webStreamTools2.default.transform(pt, value => cfb.AES_Encrypt_process(value), () => cfb.AES_Encrypt_finish());
+      }
+
+      function aesDecrypt(algo, key, ct, iv) {
+        if (nodeCrypto) {
+          // Node crypto library.
+          return nodeDecrypt(algo, key, ct, iv);
+        }
+        if (_util2.default.isStream(ct)) {
+          const cfb = new _cfb.AES_CFB(key, iv);
+          return _webStreamTools2.default.transform(ct, value => cfb.AES_Decrypt_process(value), () => cfb.AES_Decrypt_finish());
+        }
+        return _cfb.AES_CFB.decrypt(ct, key, iv);
+      }
+
+      function xorMut(a, b) {
+        for (let i = 0; i < a.length; i++) {
+          a[i] = a[i] ^ b[i];
+        }
+      }
+
+      async function webEncrypt(algo, key, pt, iv) {
+        const ALGO = 'AES-CBC';
+        const _key = await webCrypto.importKey('raw', key, {
+          name: ALGO
+        }, false, ['encrypt']);
+        const blockSize = _cipher2.default[algo].blockSize;
+
+        const cbc_pt = _util2.default.concatUint8Array([new Uint8Array(blockSize), pt]);
+        const ct = new Uint8Array((await webCrypto.encrypt({
+          name: ALGO,
+          iv
+        }, _key, cbc_pt))).subarray(0, pt.length);
+        xorMut(ct, pt);
+        return ct;
+      }
+
+      function nodeEncrypt(algo, key, pt, iv) {
+        key = Buffer.from(key);
+        iv = Buffer.from(iv);
+        const cipherObj = new nodeCrypto.createCipheriv('aes-' + algo.substr(3, 3) + '-cfb', key, iv);
+        return _webStreamTools2.default.transform(pt, value => new Uint8Array(cipherObj.update(Buffer.from(value))));
+      }
+
+      function nodeDecrypt(algo, key, ct, iv) {
+        key = Buffer.from(key);
+        iv = Buffer.from(iv);
+        const decipherObj = new nodeCrypto.createDecipheriv('aes-' + algo.substr(3, 3) + '-cfb', key, iv);
+        return _webStreamTools2.default.transform(ct, value => new Uint8Array(decipherObj.update(Buffer.from(value))));
+      }
+
     }, {
-      "./cipher": 88
+      "../config": 79,
+      "../util": 158,
+      "./cipher": 86,
+      "asmcrypto.js/dist_es5/aes/cfb": 5,
+      "web-stream-tools": 75
     }],
-    84: [function(require, module, exports) {
+    82: [function(require, module, exports) {
       'use strict';
 
       Object.defineProperty(exports, "__esModule", {
@@ -27556,9 +27889,9 @@
       exports.default = aes;
 
     }, {
-      "asmcrypto.js/dist_es5/aes/ecb": 8
+      "asmcrypto.js/dist_es5/aes/ecb": 7
     }],
-    85: [function(require, module, exports) {
+    83: [function(require, module, exports) {
       "use strict";
 
       Object.defineProperty(exports, "__esModule", {
@@ -27784,7 +28117,7 @@
       exports.default = BF;
 
     }, {}],
-    86: [function(require, module, exports) {
+    84: [function(require, module, exports) {
       'use strict';
 
       Object.defineProperty(exports, "__esModule", {
@@ -28136,7 +28469,7 @@
       exports.default = Cast5;
 
     }, {}],
-    87: [function(require, module, exports) {
+    85: [function(require, module, exports) {
       "use strict";
 
       Object.defineProperty(exports, "__esModule", {
@@ -28531,7 +28864,7 @@
       };
 
     }, {}],
-    88: [function(require, module, exports) {
+    86: [function(require, module, exports) {
       'use strict';
 
       Object.defineProperty(exports, "__esModule", {
@@ -28650,13 +28983,13 @@
        */
 
     }, {
-      "./aes": 84,
-      "./blowfish": 85,
-      "./cast5": 86,
-      "./des.js": 87,
-      "./twofish": 89
+      "./aes": 82,
+      "./blowfish": 83,
+      "./cast5": 84,
+      "./des.js": 85,
+      "./twofish": 87
     }],
-    89: [function(require, module, exports) {
+    87: [function(require, module, exports) {
       "use strict";
 
       Object.defineProperty(exports, "__esModule", {
@@ -29003,7 +29336,7 @@
       exports.default = TF;
 
     }, {}],
-    90: [function(require, module, exports) {
+    88: [function(require, module, exports) {
       'use strict';
 
       Object.defineProperty(exports, "__esModule", {
@@ -29111,9 +29444,9 @@
         }
         if (_util2.default.getNodeCrypto()) {
           // Node crypto library
-          key = new Buffer(key);
+          key = Buffer.from(key);
           return async function(pt) {
-            pt = new Buffer(pt);
+            pt = Buffer.from(pt);
             const en = new nodeCrypto.createCipheriv('aes-' + key.length * 8 + '-cbc', key, zeroBlock);
             const ct = en.update(pt);
             return new Uint8Array(ct);
@@ -29126,10 +29459,10 @@
       }
 
     }, {
-      "../util": 154,
-      "asmcrypto.js/dist_es5/aes/cbc": 5
+      "../util": 158,
+      "asmcrypto.js/dist_es5/aes/cbc": 4
     }],
-    91: [function(require, module, exports) {
+    89: [function(require, module, exports) {
       'use strict';
 
       Object.defineProperty(exports, "__esModule", {
@@ -29168,13 +29501,32 @@
 
       var _enums2 = _interopRequireDefault(_enums);
 
+      var _util = require('../util');
+
+      var _util2 = _interopRequireDefault(_util);
+
+      var _pkcs = require('./pkcs1');
+
+      var _pkcs2 = _interopRequireDefault(_pkcs);
+
+      var _pkcs3 = require('./pkcs5');
+
+      var _pkcs4 = _interopRequireDefault(_pkcs3);
+
       function _interopRequireDefault(obj) {
         return obj && obj.__esModule ? obj : {
           default: obj
         };
       }
 
-      // GPG4Browsers - An OpenPGP implementation in javascript
+      function constructParams(types, data) {
+        return types.map(function(type, i) {
+          if (data && data[i]) {
+            return new type(data[i]);
+          }
+          return new type();
+        });
+      } // GPG4Browsers - An OpenPGP implementation in javascript
       // Copyright (C) 2011 Recurity Labs GmbH
       //
       // This library is free software; you can redistribute it and/or
@@ -29204,17 +29556,9 @@
        * @requires type/mpi
        * @requires type/oid
        * @requires enums
+       * @requires util
        * @module crypto/crypto
        */
-
-      function constructParams(types, data) {
-        return types.map(function(type, i) {
-          if (data && data[i]) {
-            return new type(data[i]);
-          }
-          return new type();
-        });
-      }
 
       exports.default = {
         /**
@@ -29224,7 +29568,7 @@
          * @param {Array<module:type/mpi|
                          module:type/oid|
                          module:type/kdf_params>} pub_params  Algorithm-specific public key parameters
-         * @param {module:type/mpi}               data        Data to be encrypted as MPI
+         * @param {String}                        data        Data to be encrypted
          * @param {String}                        fingerprint Recipient fingerprint
          * @returns {Array<module:type/mpi|
          *                 module:type/ecdh_symkey>}          encrypted session key parameters
@@ -29232,43 +29576,45 @@
          */
         publicKeyEncrypt: async function publicKeyEncrypt(algo, pub_params, data, fingerprint) {
           const types = this.getEncSessionKeyParamTypes(algo);
-          return async function() {
-            switch (algo) {
-              case _enums2.default.publicKey.rsa_encrypt:
-              case _enums2.default.publicKey.rsa_encrypt_sign:
-                {
-                  const m = data.toBN();
-                  const n = pub_params[0].toBN();
-                  const e = pub_params[1].toBN();
-                  const res = await _public_key2.default.rsa.encrypt(m, n, e);
-                  return constructParams(types, [res]);
-                }
-              case _enums2.default.publicKey.elgamal:
-                {
-                  const m = data.toBN();
-                  const p = pub_params[0].toBN();
-                  const g = pub_params[1].toBN();
-                  const y = pub_params[2].toBN();
-                  const res = await _public_key2.default.elgamal.encrypt(m, p, g, y);
-                  return constructParams(types, [res.c1, res.c2]);
-                }
-              case _enums2.default.publicKey.ecdh:
-                {
-                  const oid = pub_params[0];
-                  const Q = pub_params[1].toUint8Array();
-                  const kdf_params = pub_params[2];
-                  const res = await _public_key2.default.elliptic.ecdh.encrypt(oid, kdf_params.cipher, kdf_params.hash, data, Q, fingerprint);
-                  return constructParams(types, [res.V, res.C]);
-                }
-              default:
-                return [];
+          switch (algo) {
+            case _enums2.default.publicKey.rsa_encrypt:
+            case _enums2.default.publicKey.rsa_encrypt_sign: {
+              data = _util2.default.str_to_Uint8Array(data);
+              const n = pub_params[0].toUint8Array();
+              const e = pub_params[1].toUint8Array();
+              const res = await _public_key2.default.rsa.encrypt(data, n, e);
+              return constructParams(types, [res]);
             }
-          }();
+            case _enums2.default.publicKey.elgamal: {
+              data = new _mpi2.default((await _pkcs2.default.eme.encode(data, pub_params[0].byteLength())));
+              const m = data.toBN();
+              const p = pub_params[0].toBN();
+              const g = pub_params[1].toBN();
+              const y = pub_params[2].toBN();
+              const res = await _public_key2.default.elgamal.encrypt(m, p, g, y);
+              return constructParams(types, [res.c1, res.c2]);
+            }
+            case _enums2.default.publicKey.ecdh: {
+              data = new _mpi2.default(_pkcs4.default.encode(data));
+              const oid = pub_params[0];
+              const Q = pub_params[1].toUint8Array();
+              const kdf_params = pub_params[2];
+
+              var _ref = await _public_key2.default.elliptic.ecdh.encrypt(oid, kdf_params.cipher, kdf_params.hash, data, Q, fingerprint);
+
+              const V = _ref.publicKey,
+                C = _ref.wrappedKey;
+
+              return constructParams(types, [V, C]);
+            }
+            default:
+              return [];
+          }
         },
 
         /**
          * Decrypts data using specified algorithm and private key parameters.
-         * See {@link https://tools.ietf.org/html/rfc4880#section-9.1|RFC 4880 9.1} for public key algorithms.
+         * See {@link https://tools.ietf.org/html/rfc4880#section-5.5.3|RFC 4880 5.5.3}
          * @param {module:enums.publicKey}        algo        Public key algorithm
          * @param {Array<module:type/mpi|
                          module:type/oid|
@@ -29277,45 +29623,43 @@
                          module:type/ecdh_symkey>}
                                                   data_params encrypted session key parameters
          * @param {String}                        fingerprint Recipient fingerprint
-         * @returns {module:type/mpi}                         An MPI containing the decrypted data
+         * @returns {String}                          String containing the decrypted data
          * @async
          */
         publicKeyDecrypt: async function publicKeyDecrypt(algo, key_params, data_params, fingerprint) {
-          return new _mpi2.default((await async function() {
-            switch (algo) {
-              case _enums2.default.publicKey.rsa_encrypt_sign:
-              case _enums2.default.publicKey.rsa_encrypt:
-                {
-                  const c = data_params[0].toBN();
-                  const n = key_params[0].toBN(); // n = pq
-                  const e = key_params[1].toBN();
-                  const d = key_params[2].toBN(); // de = 1 mod (p-1)(q-1)
-                  const p = key_params[3].toBN();
-                  const q = key_params[4].toBN();
-                  const u = key_params[5].toBN(); // q^-1 mod p
-                  return _public_key2.default.rsa.decrypt(c, n, e, d, p, q, u);
-                }
-              case _enums2.default.publicKey.elgamal:
-                {
-                  const c1 = data_params[0].toBN();
-                  const c2 = data_params[1].toBN();
-                  const p = key_params[0].toBN();
-                  const x = key_params[3].toBN();
-                  return _public_key2.default.elgamal.decrypt(c1, c2, p, x);
-                }
-              case _enums2.default.publicKey.ecdh:
-                {
-                  const oid = key_params[0];
-                  const kdf_params = key_params[2];
-                  const V = data_params[0].toUint8Array();
-                  const C = data_params[1].data;
-                  const d = key_params[3].toUint8Array();
-                  return _public_key2.default.elliptic.ecdh.decrypt(oid, kdf_params.cipher, kdf_params.hash, V, C, d, fingerprint);
-                }
-              default:
-                throw new Error('Invalid public key encryption algorithm.');
+          switch (algo) {
+            case _enums2.default.publicKey.rsa_encrypt_sign:
+            case _enums2.default.publicKey.rsa_encrypt: {
+              const c = data_params[0].toUint8Array();
+              const n = key_params[0].toUint8Array(); // n = pq
+              const e = key_params[1].toUint8Array();
+              const d = key_params[2].toUint8Array(); // de = 1 mod (p-1)(q-1)
+              const p = key_params[3].toUint8Array();
+              const q = key_params[4].toUint8Array();
+              const u = key_params[5].toUint8Array(); // p^-1 mod q
+              return _public_key2.default.rsa.decrypt(c, n, e, d, p, q, u);
             }
-          }()));
+            case _enums2.default.publicKey.elgamal: {
+              const c1 = data_params[0].toBN();
+              const c2 = data_params[1].toBN();
+              const p = key_params[0].toBN();
+              const x = key_params[3].toBN();
+              const result = new _mpi2.default((await _public_key2.default.elgamal.decrypt(c1, c2, p, x)));
+              return _pkcs2.default.eme.decode(result.toString());
+            }
+            case _enums2.default.publicKey.ecdh: {
+              const oid = key_params[0];
+              const kdf_params = key_params[2];
+              const V = data_params[0].toUint8Array();
+              const C = data_params[1].data;
+              const Q = key_params[1].toUint8Array();
+              const d = key_params[3].toUint8Array();
+              const result = new _mpi2.default((await _public_key2.default.elliptic.ecdh.decrypt(oid, kdf_params.cipher, kdf_params.hash, V, C, Q, d, fingerprint)));
+              return _pkcs4.default.decode(result.toString());
+            }
+            default:
+              throw new Error('Invalid public key encryption algorithm.');
+          }
         },
 
         /** Returns the types comprising the private key of an algorithm
@@ -29434,12 +29778,11 @@
           switch (algo) {
             case _enums2.default.publicKey.rsa_encrypt:
             case _enums2.default.publicKey.rsa_encrypt_sign:
-            case _enums2.default.publicKey.rsa_sign:
-              {
-                return _public_key2.default.rsa.generate(bits, "10001").then(function(keyObject) {
-                  return constructParams(types, [keyObject.n, keyObject.e, keyObject.d, keyObject.p, keyObject.q, keyObject.u]);
-                });
-              }
+            case _enums2.default.publicKey.rsa_sign: {
+              return _public_key2.default.rsa.generate(bits, "10001").then(function(keyObject) {
+                return constructParams(types, [keyObject.n, keyObject.e, keyObject.d, keyObject.p, keyObject.q, keyObject.u]);
+              });
+            }
             case _enums2.default.publicKey.dsa:
             case _enums2.default.publicKey.elgamal:
               throw new Error('Unsupported algorithm for key generation.');
@@ -29461,11 +29804,13 @@
          * Generates a random byte prefix for the specified algorithm
          * See {@link https://tools.ietf.org/html/rfc4880#section-9.2|RFC 4880 9.2} for algorithms.
          * @param {module:enums.symmetric} algo Symmetric encryption algorithm
-         * @returns {Uint8Array}                Random bytes with length equal to the block size of the cipher
+         * @returns {Uint8Array}                Random bytes with length equal to the block size of the cipher, plus the last two bytes repeated.
          * @async
          */
-        getPrefixRandom: function getPrefixRandom(algo) {
-          return _random2.default.getRandomBytes(_cipher2.default[algo].blockSize);
+        getPrefixRandom: async function getPrefixRandom(algo) {
+          const prefixrandom = await _random2.default.getRandomBytes(_cipher2.default[algo].blockSize);
+          const repeat = new Uint8Array([prefixrandom[prefixrandom.length - 2], prefixrandom[prefixrandom.length - 1]]);
+          return _util2.default.concat([prefixrandom, repeat]);
         },
 
         /**
@@ -29483,16 +29828,19 @@
       };
 
     }, {
-      "../enums": 115,
-      "../type/ecdh_symkey": 148,
-      "../type/kdf_params": 149,
-      "../type/mpi": 151,
-      "../type/oid": 152,
-      "./cipher": 88,
-      "./public_key": 108,
-      "./random": 111
+      "../enums": 113,
+      "../type/ecdh_symkey": 152,
+      "../type/kdf_params": 153,
+      "../type/mpi": 155,
+      "../type/oid": 156,
+      "../util": 158,
+      "./cipher": 86,
+      "./pkcs1": 96,
+      "./pkcs5": 97,
+      "./public_key": 106,
+      "./random": 109
     }],
-    92: [function(require, module, exports) {
+    90: [function(require, module, exports) {
       'use strict';
 
       Object.defineProperty(exports, "__esModule", {
@@ -29617,10 +29965,10 @@
         }
         if (_util2.default.getNodeCrypto()) {
           // Node crypto library
-          key = new Buffer(key);
+          key = Buffer.from(key);
           return async function(pt, iv) {
-            pt = new Buffer(pt);
-            iv = new Buffer(iv);
+            pt = Buffer.from(pt);
+            iv = Buffer.from(iv);
             const en = new nodeCrypto.createCipheriv('aes-' + key.length * 8 + '-ctr', key, iv);
             const ct = Buffer.concat([en.update(pt), en.final()]);
             return new Uint8Array(ct);
@@ -29723,11 +30071,11 @@
       exports.default = EAX;
 
     }, {
-      "../util": 154,
-      "./cmac": 90,
-      "asmcrypto.js/dist_es5/aes/ctr": 7
+      "../util": 158,
+      "./cmac": 88,
+      "asmcrypto.js/dist_es5/aes/ctr": 6
     }],
-    93: [function(require, module, exports) {
+    91: [function(require, module, exports) {
       'use strict';
 
       Object.defineProperty(exports, "__esModule", {
@@ -29837,13 +30185,13 @@
 
         if (_util2.default.getNodeCrypto()) {
           // Node crypto library
-          key = new Buffer(key);
+          key = Buffer.from(key);
 
           return {
             encrypt: async function encrypt(pt, iv, adata = new Uint8Array()) {
-              pt = new Buffer(pt);
-              iv = new Buffer(iv);
-              adata = new Buffer(adata);
+              pt = Buffer.from(pt);
+              iv = Buffer.from(iv);
+              adata = Buffer.from(adata);
               const en = new nodeCrypto.createCipheriv('aes-' + key.length * 8 + '-gcm', key, iv);
               en.setAAD(adata);
               const ct = Buffer.concat([en.update(pt), en.final(), en.getAuthTag()]); // append auth tag to ciphertext
@@ -29851,9 +30199,9 @@
             },
 
             decrypt: async function decrypt(ct, iv, adata = new Uint8Array()) {
-              ct = new Buffer(ct);
-              iv = new Buffer(iv);
-              adata = new Buffer(adata);
+              ct = Buffer.from(ct);
+              iv = Buffer.from(iv);
+              adata = Buffer.from(adata);
               const de = new nodeCrypto.createDecipheriv('aes-' + key.length * 8 + '-gcm', key, iv);
               de.setAAD(adata);
               de.setAuthTag(ct.slice(ct.length - tagLength, ct.length)); // read auth tag at end of ciphertext
@@ -29897,10 +30245,10 @@
       exports.default = GCM;
 
     }, {
-      "../util": 154,
-      "asmcrypto.js/dist_es5/aes/gcm": 9
+      "../util": 158,
+      "asmcrypto.js/dist_es5/aes/gcm": 8
     }],
-    94: [function(require, module, exports) {
+    92: [function(require, module, exports) {
       'use strict';
 
       Object.defineProperty(exports, "__esModule", {
@@ -29968,7 +30316,7 @@
         return async function(data) {
           const shasum = nodeCrypto.createHash(type);
           return _webStreamTools2.default.transform(data, value => {
-            shasum.update(new Buffer(value));
+            shasum.update(Buffer.from(value));
           }, () => new Uint8Array(shasum.digest()));
         };
       }
@@ -30049,7 +30397,7 @@
          * Create a hash on the specified data using the specified algorithm
          * @param {module:enums.hash} algo Hash algorithm type (see {@link https://tools.ietf.org/html/rfc4880#section-9.4|RFC 4880 9.4})
          * @param {Uint8Array} data Data to be hashed
-         * @returns {Uint8Array} hash value
+         * @returns {Promise<Uint8Array>} hash value
          */
         digest: function digest(algo, data) {
           switch (algo) {
@@ -30112,18 +30460,18 @@
       };
 
     }, {
-      "../../config": 81,
-      "../../util": 154,
-      "./md5": 95,
-      "asmcrypto.js/dist_es5/hash/sha1/sha1": 12,
-      "asmcrypto.js/dist_es5/hash/sha256/sha256": 14,
-      "hash.js/lib/hash/ripemd": 39,
-      "hash.js/lib/hash/sha/224": 42,
-      "hash.js/lib/hash/sha/384": 44,
-      "hash.js/lib/hash/sha/512": 45,
-      "web-stream-tools": 77
+      "../../config": 79,
+      "../../util": 158,
+      "./md5": 93,
+      "asmcrypto.js/dist_es5/hash/sha1/sha1": 11,
+      "asmcrypto.js/dist_es5/hash/sha256/sha256": 13,
+      "hash.js/lib/hash/ripemd": 37,
+      "hash.js/lib/hash/sha/224": 40,
+      "hash.js/lib/hash/sha/384": 42,
+      "hash.js/lib/hash/sha/512": 43,
+      "web-stream-tools": 75
     }],
-    95: [function(require, module, exports) {
+    93: [function(require, module, exports) {
       'use strict';
 
       Object.defineProperty(exports, "__esModule", {
@@ -30344,9 +30692,9 @@
       exports.default = md5;
 
     }, {
-      "../../util": 154
+      "../../util": 158
     }],
-    96: [function(require, module, exports) {
+    94: [function(require, module, exports) {
       'use strict';
 
       Object.defineProperty(exports, "__esModule", {
@@ -30455,21 +30803,21 @@
       exports.default = mod;
 
     }, {
-      "./aes_kw": 82,
-      "./cfb": 83,
-      "./cipher": 88,
-      "./crypto": 91,
-      "./eax": 92,
-      "./gcm": 93,
-      "./hash": 94,
-      "./ocb": 97,
-      "./pkcs1": 98,
-      "./pkcs5": 99,
-      "./public_key": 108,
-      "./random": 111,
-      "./signature": 112
+      "./aes_kw": 80,
+      "./cfb": 81,
+      "./cipher": 86,
+      "./crypto": 89,
+      "./eax": 90,
+      "./gcm": 91,
+      "./hash": 92,
+      "./ocb": 95,
+      "./pkcs1": 96,
+      "./pkcs5": 97,
+      "./public_key": 106,
+      "./random": 109,
+      "./signature": 110
     }],
-    97: [function(require, module, exports) {
+    95: [function(require, module, exports) {
       'use strict';
 
       Object.defineProperty(exports, "__esModule", {
@@ -30759,10 +31107,10 @@
       exports.default = OCB;
 
     }, {
-      "../util": 154,
-      "./cipher": 88
+      "../util": 158,
+      "./cipher": 86
     }],
-    98: [function(require, module, exports) {
+    96: [function(require, module, exports) {
       'use strict';
 
       Object.defineProperty(exports, "__esModule", {
@@ -30945,11 +31293,11 @@
       };
 
     }, {
-      "../util": 154,
-      "./hash": 94,
-      "./random": 111
+      "../util": 158,
+      "./hash": 92,
+      "./random": 109
     }],
-    99: [function(require, module, exports) {
+    97: [function(require, module, exports) {
       'use strict';
 
       Object.defineProperty(exports, "__esModule", {
@@ -31015,7 +31363,7 @@
       };
 
     }, {}],
-    100: [function(require, module, exports) {
+    98: [function(require, module, exports) {
       'use strict';
 
       Object.defineProperty(exports, "__esModule", {
@@ -31099,7 +31447,7 @@
           // of leftmost bits equal to the number of bits of q.  This (possibly
           // truncated) hash function result is treated as a number and used
           // directly in the DSA signature algorithm.
-          const h = new _bn2.default(_util2.default.getLeftNBits(hashed, q.bitLength())).toRed(redq);
+          const h = new _bn2.default(hashed.subarray(0, q.byteLength())).toRed(redq);
           // FIPS-186-4, section 4.6:
           // The values of r and s shall be checked to determine if r = 0 or s = 0.
           // If either r = 0 or s = 0, a new value of k shall be generated, and the
@@ -31120,8 +31468,8 @@
             break;
           }
           return {
-            r: r.toArrayLike(Uint8Array),
-            s: s.toArrayLike(Uint8Array)
+            r: r.toArrayLike(Uint8Array, 'be', q.byteLength()),
+            s: s.toArrayLike(Uint8Array, 'be', q.byteLength())
           };
         },
 
@@ -31135,7 +31483,7 @@
          * @param {BN} p
          * @param {BN} q
          * @param {BN} y
-         * @returns BN
+         * @returns {boolean}
          * @async
          */
         verify: async function verify(hash_algo, r, s, hashed, g, p, q, y) {
@@ -31145,7 +31493,7 @@
           }
           const redp = new _bn2.default.red(p);
           const redq = new _bn2.default.red(q);
-          const h = new _bn2.default(_util2.default.getLeftNBits(hashed, q.bitLength()));
+          const h = new _bn2.default(hashed.subarray(0, q.byteLength()));
           const w = s.toRed(redq).redInvm(); // s**-1 mod q
           if (zero.cmp(w) === 0) {
             _util2.default.print_debug("invalid DSA Signature");
@@ -31161,11 +31509,11 @@
       };
 
     }, {
-      "../../util": 154,
-      "../random": 111,
-      "bn.js": 17
+      "../../util": 158,
+      "../random": 109,
+      "bn.js": 16
     }],
-    101: [function(require, module, exports) {
+    99: [function(require, module, exports) {
       'use strict';
 
       Object.defineProperty(exports, "__esModule", {
@@ -31253,26 +31601,24 @@
       };
 
     }, {
-      "../random": 111,
-      "bn.js": 17
+      "../random": 109,
+      "bn.js": 16
     }],
-    102: [function(require, module, exports) {
+    100: [function(require, module, exports) {
       'use strict';
 
       Object.defineProperty(exports, "__esModule", {
         value: true
       });
-      exports.getPreferredHashAlgo = exports.generate = exports.nodeCurves = exports.webCurves = exports.curves = undefined;
+      exports.privateToJwk = exports.rawPublicToJwk = exports.jwkToRawPublic = exports.getPreferredHashAlgo = exports.generate = exports.nodeCurves = exports.webCurves = exports.curves = undefined;
 
       var _bn = require('bn.js');
 
       var _bn2 = _interopRequireDefault(_bn);
 
-      var _elliptic = require('elliptic');
+      var _naclFastLight = require('tweetnacl/nacl-fast-light.js');
 
-      var _key = require('./key');
-
-      var _key2 = _interopRequireDefault(_key);
+      var _naclFastLight2 = _interopRequireDefault(_naclFastLight);
 
       var _random = require('../../random');
 
@@ -31289,6 +31635,8 @@
       var _oid = require('../../../type/oid');
 
       var _oid2 = _interopRequireDefault(_oid);
+
+      var _indutnyKey = require('./indutnyKey');
 
       function _interopRequireDefault(obj) {
         return obj && obj.__esModule ? obj : {
@@ -31316,12 +31664,13 @@
       /**
        * @fileoverview Wrapper of an instance of an Elliptic Curve
        * @requires bn.js
-       * @requires elliptic
+       * @requires tweetnacl
        * @requires crypto/public_key/elliptic/key
        * @requires crypto/random
        * @requires enums
        * @requires util
        * @requires type/oid
+       * @requires config
        * @module crypto/public_key/elliptic/curve
        */
 
@@ -31353,7 +31702,8 @@
           cipher: _enums2.default.symmetric.aes128,
           node: nodeCurves.p256,
           web: webCurves.p256,
-          payloadSize: 32
+          payloadSize: 32,
+          sharedSize: 256
         },
         p384: {
           oid: [0x06, 0x05, 0x2B, 0x81, 0x04, 0x00, 0x22],
@@ -31362,7 +31712,8 @@
           cipher: _enums2.default.symmetric.aes192,
           node: nodeCurves.p384,
           web: webCurves.p384,
-          payloadSize: 48
+          payloadSize: 48,
+          sharedSize: 384
         },
         p521: {
           oid: [0x06, 0x05, 0x2B, 0x81, 0x04, 0x00, 0x23],
@@ -31371,48 +31722,55 @@
           cipher: _enums2.default.symmetric.aes256,
           node: nodeCurves.p521,
           web: webCurves.p521,
-          payloadSize: 66
+          payloadSize: 66,
+          sharedSize: 528
         },
         secp256k1: {
           oid: [0x06, 0x05, 0x2B, 0x81, 0x04, 0x00, 0x0A],
           keyType: _enums2.default.publicKey.ecdsa,
           hash: _enums2.default.hash.sha256,
           cipher: _enums2.default.symmetric.aes128,
-          node: nodeCurves.secp256k1
+          node: nodeCurves.secp256k1,
+          payloadSize: 32
         },
         ed25519: {
           oid: [0x06, 0x09, 0x2B, 0x06, 0x01, 0x04, 0x01, 0xDA, 0x47, 0x0F, 0x01],
           keyType: _enums2.default.publicKey.eddsa,
           hash: _enums2.default.hash.sha512,
-          node: false // nodeCurves.ed25519 TODO
+          node: false, // nodeCurves.ed25519 TODO
+          payloadSize: 32
         },
         curve25519: {
           oid: [0x06, 0x0A, 0x2B, 0x06, 0x01, 0x04, 0x01, 0x97, 0x55, 0x01, 0x05, 0x01],
           keyType: _enums2.default.publicKey.ecdsa,
           hash: _enums2.default.hash.sha256,
           cipher: _enums2.default.symmetric.aes128,
-          node: false // nodeCurves.curve25519 TODO
+          node: false, // nodeCurves.curve25519 TODO
+          payloadSize: 32
         },
         brainpoolP256r1: {
           oid: [0x06, 0x09, 0x2B, 0x24, 0x03, 0x03, 0x02, 0x08, 0x01, 0x01, 0x07],
           keyType: _enums2.default.publicKey.ecdsa,
           hash: _enums2.default.hash.sha256,
           cipher: _enums2.default.symmetric.aes128,
-          node: nodeCurves.brainpoolP256r1
+          node: nodeCurves.brainpoolP256r1,
+          payloadSize: 32
         },
         brainpoolP384r1: {
           oid: [0x06, 0x09, 0x2B, 0x24, 0x03, 0x03, 0x02, 0x08, 0x01, 0x01, 0x0B],
           keyType: _enums2.default.publicKey.ecdsa,
           hash: _enums2.default.hash.sha384,
           cipher: _enums2.default.symmetric.aes192,
-          node: nodeCurves.brainpoolP384r1
+          node: nodeCurves.brainpoolP384r1,
+          payloadSize: 48
         },
         brainpoolP512r1: {
           oid: [0x06, 0x09, 0x2B, 0x24, 0x03, 0x03, 0x02, 0x08, 0x01, 0x01, 0x0D],
           keyType: _enums2.default.publicKey.ecdsa,
           hash: _enums2.default.hash.sha512,
           cipher: _enums2.default.symmetric.aes256,
-          node: nodeCurves.brainpoolP512r1
+          node: nodeCurves.brainpoolP512r1,
+          payloadSize: 64
         }
       };
 
@@ -31438,16 +31796,6 @@
         params = params || curves[this.name];
 
         this.keyType = params.keyType;
-        switch (this.keyType) {
-          case _enums2.default.publicKey.ecdsa:
-            this.curve = new _elliptic.ec(this.name);
-            break;
-          case _enums2.default.publicKey.eddsa:
-            this.curve = new _elliptic.eddsa(this.name);
-            break;
-          default:
-            throw new Error('Unknown elliptic key type;');
-        }
 
         this.oid = params.oid;
         this.hash = params.hash;
@@ -31455,66 +31803,63 @@
         this.node = params.node && curves[this.name];
         this.web = params.web && curves[this.name];
         this.payloadSize = params.payloadSize;
-      }
-
-      Curve.prototype.keyFromPrivate = function(priv) {
-        // Not for ed25519
-        return new _key2.default(this, {
-          priv: priv
-        });
-      };
-
-      Curve.prototype.keyFromSecret = function(secret) {
-        // Only for ed25519
-        return new _key2.default(this, {
-          secret: secret
-        });
-      };
-
-      Curve.prototype.keyFromPublic = function(pub) {
-        const keyPair = new _key2.default(this, {
-          pub: pub
-        });
-        if (this.keyType === _enums2.default.publicKey.ecdsa && keyPair.keyPair.validate().result !== true) {
-          throw new Error('Invalid elliptic public key');
+        if (this.web && _util2.default.getWebCrypto()) {
+          this.type = 'web';
         }
-        return keyPair;
-      };
+        else if (this.node && _util2.default.getNodeCrypto()) {
+          this.type = 'node';
+        }
+        else if (this.name === 'curve25519') {
+          this.type = 'curve25519';
+        }
+        else if (this.name === 'ed25519') {
+          this.type = 'ed25519';
+        }
+      }
 
       Curve.prototype.genKeyPair = async function() {
         let keyPair;
-        if (this.web && _util2.default.getWebCrypto()) {
-          // If browser doesn't support a curve, we'll catch it
-          try {
-            keyPair = await webGenKeyPair(this.name);
-          }
-          catch (err) {
-            _util2.default.print_debug("Browser did not support signing: " + err.message);
-          }
+        switch (this.type) {
+          case 'web':
+            try {
+              return await webGenKeyPair(this.name);
+            }
+            catch (err) {
+              _util2.default.print_debug_error("Browser did not support generating ec key " + err.message);
+              break;
+            }
+            case 'node':
+              return nodeGenKeyPair(this.name);
+            case 'curve25519': {
+              const privateKey = await _random2.default.getRandomBytes(32);
+              privateKey[0] = privateKey[0] & 127 | 64;
+              privateKey[31] &= 248;
+              const secretKey = privateKey.slice().reverse();
+              keyPair = _naclFastLight2.default.box.keyPair.fromSecretKey(secretKey);
+              const publicKey = _util2.default.concatUint8Array([new Uint8Array([0x40]), keyPair.publicKey]);
+              return {
+                publicKey,
+                privateKey
+              };
+            }
+            case 'ed25519': {
+              const privateKey = await _random2.default.getRandomBytes(32);
+              const keyPair = _naclFastLight2.default.sign.keyPair.fromSeed(privateKey);
+              const publicKey = _util2.default.concatUint8Array([new Uint8Array([0x40]), keyPair.publicKey]);
+              return {
+                publicKey,
+                privateKey
+              };
+            }
         }
-        else if (this.node && _util2.default.getNodeCrypto()) {
-          keyPair = await nodeGenKeyPair(this.name);
-        }
-
-        if (!keyPair || !keyPair.priv) {
-          // elliptic fallback
-          const r = await this.curve.genKeyPair({
-            entropy: _util2.default.Uint8Array_to_str((await _random2.default.getRandomBytes(32)))
-          });
-          const compact = this.curve.curve.type === 'edwards' || this.curve.curve.type === 'mont';
-          if (this.keyType === _enums2.default.publicKey.eddsa) {
-            keyPair = {
-              secret: r.getSecret()
-            };
-          }
-          else {
-            keyPair = {
-              pub: r.getPublic('array', compact),
-              priv: r.getPrivate().toArray()
-            };
-          }
-        }
-        return new _key2.default(this, keyPair);
+        const indutnyCurve = await (0, _indutnyKey.getIndutnyCurve)(this.name);
+        keyPair = await indutnyCurve.genKeyPair({
+          entropy: _util2.default.Uint8Array_to_str((await _random2.default.getRandomBytes(32)))
+        });
+        return {
+          publicKey: new Uint8Array(keyPair.getPublic('array', false)),
+          privateKey: keyPair.getPrivate().toArrayLike(Uint8Array)
+        };
       };
 
       async function generate(curve) {
@@ -31522,8 +31867,8 @@
         const keyPair = await curve.genKeyPair();
         return {
           oid: curve.oid,
-          Q: new _bn2.default(keyPair.getPublic()),
-          d: new _bn2.default(keyPair.getPrivate()),
+          Q: new _bn2.default(keyPair.publicKey),
+          d: new _bn2.default(keyPair.privateKey),
           hash: curve.hash,
           cipher: curve.cipher
         };
@@ -31539,6 +31884,9 @@
       exports.nodeCurves = nodeCurves;
       exports.generate = generate;
       exports.getPreferredHashAlgo = getPreferredHashAlgo;
+      exports.jwkToRawPublic = jwkToRawPublic;
+      exports.rawPublicToJwk = rawPublicToJwk;
+      exports.privateToJwk = privateToJwk;
 
       //////////////////////////
       //                      //
@@ -31558,11 +31906,8 @@
         const publicKey = await webCrypto.exportKey("jwk", webCryptoKey.publicKey);
 
         return {
-          pub: {
-            x: _util2.default.b64_to_Uint8Array(publicKey.x, true),
-            y: _util2.default.b64_to_Uint8Array(publicKey.y, true)
-          },
-          priv: _util2.default.b64_to_Uint8Array(privateKey.d, true)
+          publicKey: jwkToRawPublic(publicKey),
+          privateKey: _util2.default.b64_to_Uint8Array(privateKey.d, true)
         };
       }
 
@@ -31570,69 +31915,123 @@
         // Note: ECDSA and ECDH key generation is structurally equivalent
         const ecdh = nodeCrypto.createECDH(nodeCurves[name]);
         await ecdh.generateKeys();
-
         return {
-          pub: ecdh.getPublicKey().toJSON().data,
-          priv: ecdh.getPrivateKey().toJSON().data
+          publicKey: new Uint8Array(ecdh.getPublicKey()),
+          privateKey: new Uint8Array(ecdh.getPrivateKey())
         };
       }
 
+      //////////////////////////
+      //                      //
+      //   Helper functions   //
+      //                      //
+      //////////////////////////
+
+      /**
+       * @param  {JsonWebKey}                jwk  key for conversion
+       *
+       * @returns {Uint8Array}                    raw public key
+       */
+      function jwkToRawPublic(jwk) {
+        const bufX = _util2.default.b64_to_Uint8Array(jwk.x);
+        const bufY = _util2.default.b64_to_Uint8Array(jwk.y);
+        const publicKey = new Uint8Array(bufX.length + bufY.length + 1);
+        publicKey[0] = 0x04;
+        publicKey.set(bufX, 1);
+        publicKey.set(bufY, bufX.length + 1);
+        return publicKey;
+      }
+
+      /**
+       * @param  {Integer}                payloadSize  ec payload size
+       * @param  {String}                 name         curve name
+       * @param  {Uint8Array}             publicKey    public key
+       *
+       * @returns {JsonWebKey}                         public key in jwk format
+       */
+      function rawPublicToJwk(payloadSize, name, publicKey) {
+        const len = payloadSize;
+        const bufX = publicKey.slice(1, len + 1);
+        const bufY = publicKey.slice(len + 1, len * 2 + 1);
+        // https://www.rfc-editor.org/rfc/rfc7518.txt
+        const jwk = {
+          kty: "EC",
+          crv: name,
+          x: _util2.default.Uint8Array_to_b64(bufX, true),
+          y: _util2.default.Uint8Array_to_b64(bufY, true),
+          ext: true
+        };
+        return jwk;
+      }
+
+      /**
+       * @param  {Integer}                payloadSize  ec payload size
+       * @param  {String}                 name         curve name
+       * @param  {Uint8Array}             publicKey    public key
+       * @param  {Uint8Array}             privateKey   private key
+       *
+       * @returns {JsonWebKey}                         private key in jwk format
+       */
+      function privateToJwk(payloadSize, name, publicKey, privateKey) {
+        const jwk = rawPublicToJwk(payloadSize, name, publicKey);
+        jwk.d = _util2.default.Uint8Array_to_b64(privateKey, true);
+        return jwk;
+      }
+
     }, {
-      "../../../enums": 115,
-      "../../../type/oid": 152,
-      "../../../util": 154,
-      "../../random": 111,
-      "./key": 107,
-      "bn.js": 17,
-      "elliptic": 19
+      "../../../enums": 113,
+      "../../../type/oid": 156,
+      "../../../util": 158,
+      "../../random": 109,
+      "./indutnyKey": 105,
+      "bn.js": 16,
+      "tweetnacl/nacl-fast-light.js": 72
     }],
-    103: [function(require, module, exports) {
+    101: [function(require, module, exports) {
       'use strict';
 
       Object.defineProperty(exports, "__esModule", {
         value: true
       });
 
-      var _bn = require('bn.js');
-
-      var _bn2 = _interopRequireDefault(_bn);
-
-      var _curves = require('./curves');
-
-      var _curves2 = _interopRequireDefault(_curves);
-
-      var _aes_kw = require('../../aes_kw');
-
-      var _aes_kw2 = _interopRequireDefault(_aes_kw);
-
-      var _cipher = require('../../cipher');
-
-      var _cipher2 = _interopRequireDefault(_cipher);
-
-      var _hash = require('../../hash');
-
-      var _hash2 = _interopRequireDefault(_hash);
-
-      var _kdf_params = require('../../../type/kdf_params');
-
-      var _kdf_params2 = _interopRequireDefault(_kdf_params);
-
-      var _enums = require('../../../enums');
-
-      var _enums2 = _interopRequireDefault(_enums);
-
-      var _util = require('../../../util');
-
-      var _util2 = _interopRequireDefault(_util);
-
-      function _interopRequireDefault(obj) {
-        return obj && obj.__esModule ? obj : {
-          default: obj
+      var _slicedToArray = function() {
+        function sliceIterator(arr, i) {
+          var _arr = [];
+          var _n = true;
+          var _d = false;
+          var _e = undefined;
+          try {
+            for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) {
+              _arr.push(_s.value);
+              if (i && _arr.length === i) break;
+            }
+          }
+          catch (err) {
+            _d = true;
+            _e = err;
+          }
+          finally {
+            try {
+              if (!_n && _i["return"]) _i["return"]();
+            }
+            finally {
+              if (_d) throw _e;
+            }
+          }
+          return _arr;
+        }
+        return function(arr, i) {
+          if (Array.isArray(arr)) {
+            return arr;
+          }
+          else if (Symbol.iterator in Object(arr)) {
+            return sliceIterator(arr, i);
+          }
+          else {
+            throw new TypeError("Invalid attempt to destructure non-iterable instance");
+          }
         };
-      }
-
-      // Build Param for ECDH algorithm (RFC 6637)
-      // OpenPGP.js - An OpenPGP implementation in javascript
+      }(); // OpenPGP.js - An OpenPGP implementation in javascript
       // Copyright (C) 2015-2016 Decentral
       //
       // This library is free software; you can redistribute it and/or
@@ -31651,9 +32050,12 @@
 
       /**
        * @fileoverview Key encryption and decryption for RFC 6637 ECDH
+       * @requires bn.js
+       * @requires tweetnacl
        * @requires crypto/public_key/elliptic/curve
        * @requires crypto/aes_kw
        * @requires crypto/cipher
+       * @requires crypto/random
        * @requires crypto/hash
        * @requires type/kdf_params
        * @requires enums
@@ -31661,15 +32063,125 @@
        * @module crypto/public_key/elliptic/ecdh
        */
 
+      var _bn = require('bn.js');
+
+      var _bn2 = _interopRequireDefault(_bn);
+
+      var _naclFastLight = require('tweetnacl/nacl-fast-light.js');
+
+      var _naclFastLight2 = _interopRequireDefault(_naclFastLight);
+
+      var _curves = require('./curves');
+
+      var _curves2 = _interopRequireDefault(_curves);
+
+      var _aes_kw = require('../../aes_kw');
+
+      var _aes_kw2 = _interopRequireDefault(_aes_kw);
+
+      var _cipher = require('../../cipher');
+
+      var _cipher2 = _interopRequireDefault(_cipher);
+
+      var _random = require('../../random');
+
+      var _random2 = _interopRequireDefault(_random);
+
+      var _hash = require('../../hash');
+
+      var _hash2 = _interopRequireDefault(_hash);
+
+      var _kdf_params = require('../../../type/kdf_params');
+
+      var _kdf_params2 = _interopRequireDefault(_kdf_params);
+
+      var _enums = require('../../../enums');
+
+      var _enums2 = _interopRequireDefault(_enums);
+
+      var _util = require('../../../util');
+
+      var _util2 = _interopRequireDefault(_util);
+
+      var _indutnyKey = require('./indutnyKey');
+
+      function _interopRequireDefault(obj) {
+        return obj && obj.__esModule ? obj : {
+          default: obj
+        };
+      }
+
+      const webCrypto = _util2.default.getWebCrypto();
+      const nodeCrypto = _util2.default.getNodeCrypto();
+
+      // Build Param for ECDH algorithm (RFC 6637)
       function buildEcdhParam(public_algo, oid, cipher_algo, hash_algo, fingerprint) {
         const kdf_params = new _kdf_params2.default([hash_algo, cipher_algo]);
         return _util2.default.concatUint8Array([oid.write(), new Uint8Array([public_algo]), kdf_params.write(), _util2.default.str_to_Uint8Array("Anonymous Sender    "), fingerprint.subarray(0, 20)]);
       }
 
       // Key Derivation Function (RFC 6637)
-      async function kdf(hash_algo, X, length, param) {
-        const digest = await _hash2.default.digest(hash_algo, _util2.default.concatUint8Array([new Uint8Array([0, 0, 0, 1]), new Uint8Array(X), param]));
+      async function kdf(hash_algo, X, length, param, stripLeading = false, stripTrailing = false) {
+        // Note: X is little endian for Curve25519, big-endian for all others.
+        // This is not ideal, but the RFC's are unclear
+        // https://tools.ietf.org/html/draft-ietf-openpgp-rfc4880bis-02#appendix-B
+        let i;
+        if (stripLeading) {
+          // Work around old go crypto bug
+          for (i = 0; i < X.length && X[i] === 0; i++);
+          X = X.subarray(i);
+        }
+        if (stripTrailing) {
+          // Work around old OpenPGP.js bug
+          for (i = X.length - 1; i >= 0 && X[i] === 0; i--);
+          X = X.subarray(0, i + 1);
+        }
+        const digest = await _hash2.default.digest(hash_algo, _util2.default.concatUint8Array([new Uint8Array([0, 0, 0, 1]), X, param]));
         return digest.subarray(0, length);
+      }
+
+      /**
+       * Generate ECDHE ephemeral key and secret from public key
+       *
+       * @param  {Curve}                  curve        Elliptic curve object
+       * @param  {Uint8Array}             Q            Recipient public key
+       * @returns {Promise<{publicKey: Uint8Array, sharedKey: Uint8Array}>}
+       * @async
+       */
+      async function genPublicEphemeralKey(curve, Q) {
+        switch (curve.type) {
+          case 'curve25519': {
+            const d = await _random2.default.getRandomBytes(32);
+
+            var _ref = await genPrivateEphemeralKey(curve, Q, null, d);
+
+            const secretKey = _ref.secretKey,
+              sharedKey = _ref.sharedKey;
+
+            var _nacl$box$keyPair$fro = _naclFastLight2.default.box.keyPair.fromSecretKey(secretKey);
+
+            let publicKey = _nacl$box$keyPair$fro.publicKey;
+
+            publicKey = _util2.default.concatUint8Array([new Uint8Array([0x40]), publicKey]);
+            return {
+              publicKey,
+              sharedKey
+            }; // Note: sharedKey is little-endian here, unlike below
+          }
+          case 'web':
+            if (curve.web && _util2.default.getWebCrypto()) {
+              try {
+                return await webPublicEphemeralKey(curve, Q);
+              }
+              catch (err) {
+                _util2.default.print_debug_error(err);
+              }
+            }
+            break;
+          case 'node':
+            return nodePublicEphemeralKey(curve, Q);
+        }
+        return ellipticPublicEphemeralKey(curve, Q);
       }
 
       /**
@@ -31681,22 +32193,66 @@
        * @param  {module:type/mpi}        m            Value derived from session key (RFC 6637)
        * @param  {Uint8Array}             Q            Recipient public key
        * @param  {String}                 fingerprint  Recipient fingerprint
-       * @returns {Promise<{V: BN, C: BN}>}            Returns ephemeral key and encoded session key
+       * @returns {Promise<{publicKey: Uint8Array, wrappedKey: Uint8Array}>}
        * @async
        */
       async function encrypt(oid, cipher_algo, hash_algo, m, Q, fingerprint) {
         const curve = new _curves2.default(oid);
+
+        var _ref2 = await genPublicEphemeralKey(curve, Q);
+
+        const publicKey = _ref2.publicKey,
+          sharedKey = _ref2.sharedKey;
+
         const param = buildEcdhParam(_enums2.default.publicKey.ecdh, oid, cipher_algo, hash_algo, fingerprint);
         cipher_algo = _enums2.default.read(_enums2.default.symmetric, cipher_algo);
-        const v = await curve.genKeyPair();
-        Q = curve.keyFromPublic(Q);
-        const S = v.derive(Q);
-        const Z = await kdf(hash_algo, S, _cipher2.default[cipher_algo].keySize, param);
-        const C = _aes_kw2.default.wrap(Z, m.toString());
+        const Z = await kdf(hash_algo, sharedKey, _cipher2.default[cipher_algo].keySize, param);
+        const wrappedKey = _aes_kw2.default.wrap(Z, m.toString());
         return {
-          V: new _bn2.default(v.getPublic()),
-          C: C
+          publicKey,
+          wrappedKey
         };
+      }
+
+      /**
+       * Generate ECDHE secret from private key and public part of ephemeral key
+       *
+       * @param  {Curve}                  curve        Elliptic curve object
+       * @param  {Uint8Array}             V            Public part of ephemeral key
+       * @param  {Uint8Array}             Q            Recipient public key
+       * @param  {Uint8Array}             d            Recipient private key
+       * @returns {Promise<{secretKey: Uint8Array, sharedKey: Uint8Array}>}
+       * @async
+       */
+      async function genPrivateEphemeralKey(curve, V, Q, d) {
+        if (d.length !== curve.payloadSize) {
+          const privateKey = new Uint8Array(curve.payloadSize);
+          privateKey.set(d, curve.payloadSize - d.length);
+          d = privateKey;
+        }
+        switch (curve.type) {
+          case 'curve25519': {
+            const secretKey = d.slice().reverse();
+            const sharedKey = _naclFastLight2.default.scalarMult(secretKey, V.subarray(1));
+            return {
+              secretKey,
+              sharedKey
+            }; // Note: sharedKey is little-endian here, unlike below
+          }
+          case 'web':
+            if (curve.web && _util2.default.getWebCrypto()) {
+              try {
+                return await webPrivateEphemeralKey(curve, V, Q, d);
+              }
+              catch (err) {
+                _util2.default.print_debug_error(err);
+              }
+            }
+            break;
+          case 'node':
+            return nodePrivateEphemeralKey(curve, V, d);
+        }
+        return ellipticPrivateEphemeralKey(curve, V, d);
       }
 
       /**
@@ -31705,49 +32261,273 @@
        * @param  {module:type/oid}        oid          Elliptic curve object identifier
        * @param  {module:enums.symmetric} cipher_algo  Symmetric cipher to use
        * @param  {module:enums.hash}      hash_algo    Hash algorithm to use
-       * @param  {BN}                     V            Public part of ephemeral key
+       * @param  {Uint8Array}             V            Public part of ephemeral key
        * @param  {Uint8Array}             C            Encrypted and wrapped value derived from session key
+       * @param  {Uint8Array}             Q            Recipient public key
        * @param  {Uint8Array}             d            Recipient private key
        * @param  {String}                 fingerprint  Recipient fingerprint
-       * @returns {Promise<Uint8Array>}                Value derived from session
+       * @returns {Promise<BN>}                        Value derived from session key
        * @async
        */
-      async function decrypt(oid, cipher_algo, hash_algo, V, C, d, fingerprint) {
+      async function decrypt(oid, cipher_algo, hash_algo, V, C, Q, d, fingerprint) {
         const curve = new _curves2.default(oid);
+
+        var _ref3 = await genPrivateEphemeralKey(curve, V, Q, d);
+
+        const sharedKey = _ref3.sharedKey;
+
         const param = buildEcdhParam(_enums2.default.publicKey.ecdh, oid, cipher_algo, hash_algo, fingerprint);
         cipher_algo = _enums2.default.read(_enums2.default.symmetric, cipher_algo);
-        V = curve.keyFromPublic(V);
-        d = curve.keyFromPrivate(d);
-        const S = d.derive(V);
-        const Z = await kdf(hash_algo, S, _cipher2.default[cipher_algo].keySize, param);
-        return new _bn2.default(_aes_kw2.default.unwrap(Z, C));
+        let err;
+        for (let i = 0; i < 3; i++) {
+          try {
+            // Work around old go crypto bug and old OpenPGP.js bug, respectively.
+            const Z = await kdf(hash_algo, sharedKey, _cipher2.default[cipher_algo].keySize, param, i === 1, i === 2);
+            return new _bn2.default(_aes_kw2.default.unwrap(Z, C));
+          }
+          catch (e) {
+            err = e;
+          }
+        }
+        throw err;
+      }
+
+      /**
+       * Generate ECDHE secret from private key and public part of ephemeral key using webCrypto
+       *
+       * @param  {Curve}                  curve         Elliptic curve object
+       * @param  {Uint8Array}             V             Public part of ephemeral key
+       * @param  {Uint8Array}             Q             Recipient public key
+       * @param  {Uint8Array}             d             Recipient private key
+       * @returns {Promise<{secretKey: Uint8Array, sharedKey: Uint8Array}>}
+       * @async
+       */
+      async function webPrivateEphemeralKey(curve, V, Q, d) {
+        const recipient = (0, _curves.privateToJwk)(curve.payloadSize, curve.web.web, Q, d);
+        let privateKey = webCrypto.importKey("jwk", recipient, {
+          name: "ECDH",
+          namedCurve: curve.web.web
+        }, true, ["deriveKey", "deriveBits"]);
+        const jwk = (0, _curves.rawPublicToJwk)(curve.payloadSize, curve.web.web, V);
+        let sender = webCrypto.importKey("jwk", jwk, {
+          name: "ECDH",
+          namedCurve: curve.web.web
+        }, true, []);
+
+        var _ref4 = await Promise.all([privateKey, sender]);
+
+        var _ref5 = _slicedToArray(_ref4, 2);
+
+        privateKey = _ref5[0];
+        sender = _ref5[1];
+
+        let S = webCrypto.deriveBits({
+          name: "ECDH",
+          namedCurve: curve.web.web,
+          public: sender
+        }, privateKey, curve.web.sharedSize);
+        let secret = webCrypto.exportKey("jwk", privateKey);
+
+        var _ref6 = await Promise.all([S, secret]);
+
+        var _ref7 = _slicedToArray(_ref6, 2);
+
+        S = _ref7[0];
+        secret = _ref7[1];
+
+        const sharedKey = new Uint8Array(S);
+        const secretKey = _util2.default.b64_to_Uint8Array(secret.d, true);
+        return {
+          secretKey,
+          sharedKey
+        };
+      }
+
+      /**
+       * Generate ECDHE ephemeral key and secret from public key using webCrypto
+       *
+       * @param  {Curve}                  curve        Elliptic curve object
+       * @param  {Uint8Array}             Q            Recipient public key
+       * @returns {Promise<{publicKey: Uint8Array, sharedKey: Uint8Array}>}
+       * @async
+       */
+      async function webPublicEphemeralKey(curve, Q) {
+        const jwk = (0, _curves.rawPublicToJwk)(curve.payloadSize, curve.web.web, Q);
+        let keyPair = webCrypto.generateKey({
+          name: "ECDH",
+          namedCurve: curve.web.web
+        }, true, ["deriveKey", "deriveBits"]);
+        let recipient = webCrypto.importKey("jwk", jwk, {
+          name: "ECDH",
+          namedCurve: curve.web.web
+        }, false, []);
+
+        var _ref8 = await Promise.all([keyPair, recipient]);
+
+        var _ref9 = _slicedToArray(_ref8, 2);
+
+        keyPair = _ref9[0];
+        recipient = _ref9[1];
+
+        let s = webCrypto.deriveBits({
+          name: "ECDH",
+          namedCurve: curve.web.web,
+          public: recipient
+        }, keyPair.privateKey, curve.web.sharedSize);
+        let p = webCrypto.exportKey("jwk", keyPair.publicKey);
+
+        var _ref10 = await Promise.all([s, p]);
+
+        var _ref11 = _slicedToArray(_ref10, 2);
+
+        s = _ref11[0];
+        p = _ref11[1];
+
+        const sharedKey = new Uint8Array(s);
+        const publicKey = new Uint8Array((0, _curves.jwkToRawPublic)(p));
+        return {
+          publicKey,
+          sharedKey
+        };
+      }
+
+      /**
+       * Generate ECDHE secret from private key and public part of ephemeral key using indutny/elliptic
+       *
+       * @param  {Curve}                  curve        Elliptic curve object
+       * @param  {Uint8Array}             V            Public part of ephemeral key
+       * @param  {Uint8Array}             d            Recipient private key
+       * @returns {Promise<{secretKey: Uint8Array, sharedKey: Uint8Array}>}
+       * @async
+       */
+      async function ellipticPrivateEphemeralKey(curve, V, d) {
+        const indutnyCurve = await (0, _indutnyKey.getIndutnyCurve)(curve.name);
+        V = (0, _indutnyKey.keyFromPublic)(indutnyCurve, V);
+        d = (0, _indutnyKey.keyFromPrivate)(indutnyCurve, d);
+        const secretKey = new Uint8Array(d.getPrivate());
+        const S = d.derive(V.getPublic());
+        const len = indutnyCurve.curve.p.byteLength();
+        const sharedKey = S.toArrayLike(Uint8Array, 'be', len);
+        return {
+          secretKey,
+          sharedKey
+        };
+      }
+
+      /**
+       * Generate ECDHE ephemeral key and secret from public key using indutny/elliptic
+       *
+       * @param  {Curve}                  curve        Elliptic curve object
+       * @param  {Uint8Array}             Q            Recipient public key
+       * @returns {Promise<{publicKey: Uint8Array, sharedKey: Uint8Array}>}
+       * @async
+       */
+      async function ellipticPublicEphemeralKey(curve, Q) {
+        const indutnyCurve = await (0, _indutnyKey.getIndutnyCurve)(curve.name);
+        const v = await curve.genKeyPair();
+        Q = (0, _indutnyKey.keyFromPublic)(indutnyCurve, Q);
+        const V = (0, _indutnyKey.keyFromPrivate)(indutnyCurve, v.privateKey);
+        const publicKey = v.publicKey;
+        const S = V.derive(Q.getPublic());
+        const len = indutnyCurve.curve.p.byteLength();
+        const sharedKey = S.toArrayLike(Uint8Array, 'be', len);
+        return {
+          publicKey,
+          sharedKey
+        };
+      }
+
+      /**
+       * Generate ECDHE secret from private key and public part of ephemeral key using nodeCrypto
+       *
+       * @param  {Curve}                  curve          Elliptic curve object
+       * @param  {Uint8Array}             V              Public part of ephemeral key
+       * @param  {Uint8Array}             d              Recipient private key
+       * @returns {Promise<{secretKey: Uint8Array, sharedKey: Uint8Array}>}
+       * @async
+       */
+      async function nodePrivateEphemeralKey(curve, V, d) {
+        const recipient = nodeCrypto.createECDH(curve.node.node);
+        recipient.setPrivateKey(d);
+        const sharedKey = new Uint8Array(recipient.computeSecret(V));
+        const secretKey = new Uint8Array(recipient.getPrivateKey());
+        return {
+          secretKey,
+          sharedKey
+        };
+      }
+
+      /**
+       * Generate ECDHE ephemeral key and secret from public key using nodeCrypto
+       *
+       * @param  {Curve}                  curve        Elliptic curve object
+       * @param  {Uint8Array}             Q            Recipient public key
+       * @returns {Promise<{publicKey: Uint8Array, sharedKey: Uint8Array}>}
+       * @async
+       */
+      async function nodePublicEphemeralKey(curve, Q) {
+        const sender = nodeCrypto.createECDH(curve.node.node);
+        sender.generateKeys();
+        const sharedKey = new Uint8Array(sender.computeSecret(Q));
+        const publicKey = new Uint8Array(sender.getPublicKey());
+        return {
+          publicKey,
+          sharedKey
+        };
       }
 
       exports.default = {
         encrypt,
-        decrypt
+        decrypt,
+        genPublicEphemeralKey,
+        genPrivateEphemeralKey,
+        buildEcdhParam,
+        kdf,
+        webPublicEphemeralKey,
+        webPrivateEphemeralKey,
+        ellipticPublicEphemeralKey,
+        ellipticPrivateEphemeralKey,
+        nodePublicEphemeralKey,
+        nodePrivateEphemeralKey
       };
 
     }, {
-      "../../../enums": 115,
-      "../../../type/kdf_params": 149,
-      "../../../util": 154,
-      "../../aes_kw": 82,
-      "../../cipher": 88,
-      "../../hash": 94,
-      "./curves": 102,
-      "bn.js": 17
+      "../../../enums": 113,
+      "../../../type/kdf_params": 153,
+      "../../../util": 158,
+      "../../aes_kw": 80,
+      "../../cipher": 86,
+      "../../hash": 92,
+      "../../random": 109,
+      "./curves": 100,
+      "./indutnyKey": 105,
+      "bn.js": 16,
+      "tweetnacl/nacl-fast-light.js": 72
     }],
-    104: [function(require, module, exports) {
+    102: [function(require, module, exports) {
       'use strict';
 
       Object.defineProperty(exports, "__esModule", {
         value: true
       });
 
+      var _bn = require('bn.js');
+
+      var _bn2 = _interopRequireDefault(_bn);
+
+      var _enums = require('../../../enums');
+
+      var _enums2 = _interopRequireDefault(_enums);
+
+      var _util = require('../../../util');
+
+      var _util2 = _interopRequireDefault(_util);
+
       var _curves = require('./curves');
 
       var _curves2 = _interopRequireDefault(_curves);
+
+      var _indutnyKey = require('./indutnyKey');
 
       function _interopRequireDefault(obj) {
         return obj && obj.__esModule ? obj : {
@@ -31755,40 +32535,7 @@
         };
       }
 
-      /**
-       * Sign a message using the provided key
-       * @param  {module:type/oid}   oid       Elliptic curve object identifier
-       * @param  {module:enums.hash} hash_algo Hash algorithm used to sign
-       * @param  {Uint8Array}        m         Message to sign
-       * @param  {Uint8Array}        d         Private key used to sign the message
-       * @param  {Uint8Array}        hashed    The hashed message
-       * @returns {{r: Uint8Array,
-       *            s: Uint8Array}}            Signature of the message
-       * @async
-       */
-      async function sign(oid, hash_algo, m, d, hashed) {
-        const curve = new _curves2.default(oid);
-        const key = curve.keyFromPrivate(d);
-        const signature = await key.sign(m, hash_algo, hashed);
-        return {
-          r: signature.r.toArrayLike(Uint8Array),
-          s: signature.s.toArrayLike(Uint8Array)
-        };
-      }
-
-      /**
-       * Verifies if a signature is valid for a message
-       * @param  {module:type/oid}   oid       Elliptic curve object identifier
-       * @param  {module:enums.hash} hash_algo Hash algorithm used in the signature
-       * @param  {{r: Uint8Array,
-                   s: Uint8Array}}   signature Signature to verify
-       * @param  {Uint8Array}        m         Message to verify
-       * @param  {Uint8Array}        Q         Public key used to verify the message
-       * @param  {Uint8Array}        hashed    The hashed message
-       * @returns {Boolean}
-       * @async
-       */
-      // OpenPGP.js - An OpenPGP implementation in javascript
+      const webCrypto = _util2.default.getWebCrypto(); // OpenPGP.js - An OpenPGP implementation in javascript
       // Copyright (C) 2015-2016 Decentral
       //
       // This library is free software; you can redistribute it and/or
@@ -31807,34 +32554,271 @@
 
       /**
        * @fileoverview Implementation of ECDSA following RFC6637 for Openpgpjs
-       * @requires crypto/public_key/elliptic/curve
+       * @requires bn.js
+       * @requires web-stream-tools
+       * @requires enums
+       * @requires util
+       * @requires crypto/public_key/elliptic/curves
        * @module crypto/public_key/elliptic/ecdsa
        */
 
-      async function verify(oid, hash_algo, signature, m, Q, hashed) {
+      const nodeCrypto = _util2.default.getNodeCrypto();
+
+      /**
+       * Sign a message using the provided key
+       * @param  {module:type/oid}   oid          Elliptic curve object identifier
+       * @param  {module:enums.hash} hash_algo    Hash algorithm used to sign
+       * @param  {Uint8Array}        message      Message to sign
+       * @param  {Uint8Array}        publicKey    Public key
+       * @param  {Uint8Array}        privateKey   Private key used to sign the message
+       * @param  {Uint8Array}        hashed       The hashed message
+       * @returns {{r: Uint8Array,
+       *            s: Uint8Array}}               Signature of the message
+       * @async
+       */
+      async function sign(oid, hash_algo, message, publicKey, privateKey, hashed) {
         const curve = new _curves2.default(oid);
-        const key = curve.keyFromPublic(Q);
-        return key.verify(m, signature, hash_algo, hashed);
+        if (message && !_util2.default.isStream(message)) {
+          const keyPair = {
+            publicKey,
+            privateKey
+          };
+          switch (curve.type) {
+            case 'web': {
+              // If browser doesn't support a curve, we'll catch it
+              try {
+                // Need to await to make sure browser succeeds
+                return await webSign(curve, hash_algo, message, keyPair);
+              }
+              catch (err) {
+                _util2.default.print_debug_error("Browser did not support signing: " + err.message);
+              }
+              break;
+            }
+            case 'node': {
+              const signature = await nodeSign(curve, hash_algo, message, keyPair);
+              return {
+                r: signature.r.toArrayLike(Uint8Array),
+                s: signature.s.toArrayLike(Uint8Array)
+              };
+            }
+          }
+        }
+        return ellipticSign(curve, hashed, privateKey);
+      }
+
+      /**
+       * Verifies if a signature is valid for a message
+       * @param  {module:type/oid}   oid       Elliptic curve object identifier
+       * @param  {module:enums.hash} hash_algo Hash algorithm used in the signature
+       * @param  {{r: Uint8Array,
+                   s: Uint8Array}}   signature Signature to verify
+       * @param  {Uint8Array}        message   Message to verify
+       * @param  {Uint8Array}        publicKey Public key used to verify the message
+       * @param  {Uint8Array}        hashed    The hashed message
+       * @returns {Boolean}
+       * @async
+       */
+      async function verify(oid, hash_algo, signature, message, publicKey, hashed) {
+        const curve = new _curves2.default(oid);
+        if (message && !_util2.default.isStream(message)) {
+          switch (curve.type) {
+            case 'web':
+              try {
+                // Need to await to make sure browser succeeds
+                return await webVerify(curve, hash_algo, signature, message, publicKey);
+              }
+              catch (err) {
+                _util2.default.print_debug_error("Browser did not support verifying: " + err.message);
+              }
+              break;
+            case 'node':
+              return nodeVerify(curve, hash_algo, signature, message, publicKey);
+          }
+        }
+        const digest = typeof hash_algo === 'undefined' ? message : hashed;
+        return ellipticVerify(curve, signature, digest, publicKey);
       }
 
       exports.default = {
         sign,
-        verify
+        verify,
+        ellipticVerify,
+        ellipticSign
       };
 
+      //////////////////////////
+      //                      //
+      //   Helper functions   //
+      //                      //
+      //////////////////////////
+
+      async function ellipticSign(curve, hashed, privateKey) {
+        const indutnyCurve = await (0, _indutnyKey.getIndutnyCurve)(curve.name);
+        const key = (0, _indutnyKey.keyFromPrivate)(indutnyCurve, privateKey);
+        const signature = key.sign(hashed);
+        return {
+          r: signature.r.toArrayLike(Uint8Array),
+          s: signature.s.toArrayLike(Uint8Array)
+        };
+      }
+
+      async function ellipticVerify(curve, signature, digest, publicKey) {
+        const indutnyCurve = await (0, _indutnyKey.getIndutnyCurve)(curve.name);
+        const key = (0, _indutnyKey.keyFromPublic)(indutnyCurve, publicKey);
+        return key.verify(digest, signature);
+      }
+
+      async function webSign(curve, hash_algo, message, keyPair) {
+        const len = curve.payloadSize;
+        const jwk = (0, _curves.privateToJwk)(curve.payloadSize, _curves.webCurves[curve.name], keyPair.publicKey, keyPair.privateKey);
+        const key = await webCrypto.importKey("jwk", jwk, {
+          "name": "ECDSA",
+          "namedCurve": _curves.webCurves[curve.name],
+          "hash": {
+            name: _enums2.default.read(_enums2.default.webHash, curve.hash)
+          }
+        }, false, ["sign"]);
+
+        const signature = new Uint8Array((await webCrypto.sign({
+          "name": 'ECDSA',
+          "namedCurve": _curves.webCurves[curve.name],
+          "hash": {
+            name: _enums2.default.read(_enums2.default.webHash, hash_algo)
+          }
+        }, key, message)));
+
+        return {
+          r: signature.slice(0, len),
+          s: signature.slice(len, len << 1)
+        };
+      }
+
+      async function webVerify(curve, hash_algo, {
+        r,
+        s
+      }, message, publicKey) {
+        const len = curve.payloadSize;
+        const jwk = (0, _curves.rawPublicToJwk)(curve.payloadSize, _curves.webCurves[curve.name], publicKey);
+        const key = await webCrypto.importKey("jwk", jwk, {
+          "name": "ECDSA",
+          "namedCurve": _curves.webCurves[curve.name],
+          "hash": {
+            name: _enums2.default.read(_enums2.default.webHash, curve.hash)
+          }
+        }, false, ["verify"]);
+
+        const signature = _util2.default.concatUint8Array([new Uint8Array(len - r.length), r, new Uint8Array(len - s.length), s]).buffer;
+
+        return webCrypto.verify({
+          "name": 'ECDSA',
+          "namedCurve": _curves.webCurves[curve.name],
+          "hash": {
+            name: _enums2.default.read(_enums2.default.webHash, hash_algo)
+          }
+        }, key, signature, message);
+      }
+
+      async function nodeSign(curve, hash_algo, message, keyPair) {
+        const sign = nodeCrypto.createSign(_enums2.default.read(_enums2.default.hash, hash_algo));
+        sign.write(message);
+        sign.end();
+        const key = ECPrivateKey.encode({
+          version: 1,
+          parameters: curve.oid,
+          privateKey: Array.from(keyPair.privateKey),
+          publicKey: {
+            unused: 0,
+            data: Array.from(keyPair.publicKey)
+          }
+        }, 'pem', {
+          label: 'EC PRIVATE KEY'
+        });
+
+        return ECDSASignature.decode(sign.sign(key), 'der');
+      }
+
+      async function nodeVerify(curve, hash_algo, {
+        r,
+        s
+      }, message, publicKey) {
+        const verify = nodeCrypto.createVerify(_enums2.default.read(_enums2.default.hash, hash_algo));
+        verify.write(message);
+        verify.end();
+        const key = SubjectPublicKeyInfo.encode({
+          algorithm: {
+            algorithm: [1, 2, 840, 10045, 2, 1],
+            parameters: curve.oid
+          },
+          subjectPublicKey: {
+            unused: 0,
+            data: Array.from(publicKey)
+          }
+        }, 'pem', {
+          label: 'PUBLIC KEY'
+        });
+        const signature = ECDSASignature.encode({
+          r: new _bn2.default(r),
+          s: new _bn2.default(s)
+        }, 'der');
+
+        try {
+          return verify.verify(key, signature);
+        }
+        catch (err) {
+          return false;
+        }
+      }
+
+      // Originally written by Owen Smith https://github.com/omsmith
+      // Adapted on Feb 2018 from https://github.com/Brightspace/node-jwk-to-pem/
+
+      /* eslint-disable no-invalid-this */
+
+      const asn1 = nodeCrypto ? require('asn1.js') : undefined;
+
+      const ECDSASignature = nodeCrypto ? asn1.define('ECDSASignature', function() {
+        this.seq().obj(this.key('r').int(), this.key('s').int());
+      }) : undefined;
+
+      const ECPrivateKey = nodeCrypto ? asn1.define('ECPrivateKey', function() {
+        this.seq().obj(this.key('version').int(), this.key('privateKey').octstr(), this.key('parameters').explicit(0).optional().any(), this.key('publicKey').explicit(1).optional().bitstr());
+      }) : undefined;
+
+      const AlgorithmIdentifier = nodeCrypto ? asn1.define('AlgorithmIdentifier', function() {
+        this.seq().obj(this.key('algorithm').objid(), this.key('parameters').optional().any());
+      }) : undefined;
+
+      const SubjectPublicKeyInfo = nodeCrypto ? asn1.define('SubjectPublicKeyInfo', function() {
+        this.seq().obj(this.key('algorithm').use(AlgorithmIdentifier), this.key('subjectPublicKey').bitstr());
+      }) : undefined;
+
     }, {
-      "./curves": 102
+      "../../../enums": 113,
+      "../../../util": 158,
+      "./curves": 100,
+      "./indutnyKey": 105,
+      "asn1.js": "asn1.js",
+      "bn.js": 16
     }],
-    105: [function(require, module, exports) {
+    103: [function(require, module, exports) {
       'use strict';
 
       Object.defineProperty(exports, "__esModule", {
         value: true
       });
 
-      var _curves = require('./curves');
+      var _ = require('hash.js/lib/hash/sha/512');
 
-      var _curves2 = _interopRequireDefault(_curves);
+      var _2 = _interopRequireDefault(_);
+
+      var _naclFastLight = require('tweetnacl/nacl-fast-light.js');
+
+      var _naclFastLight2 = _interopRequireDefault(_naclFastLight);
+
+      var _util = require('../../../util');
+
+      var _util2 = _interopRequireDefault(_util);
 
       function _interopRequireDefault(obj) {
         return obj && obj.__esModule ? obj : {
@@ -31842,38 +32826,18 @@
         };
       }
 
-      /**
-       * Sign a message using the provided key
-       * @param  {module:type/oid}   oid       Elliptic curve object identifier
-       * @param  {module:enums.hash} hash_algo Hash algorithm used to sign
-       * @param  {Uint8Array}        m         Message to sign
-       * @param  {Uint8Array}        d         Private key used to sign
-       * @param  {Uint8Array}        hashed    The hashed message
-       * @returns {{R: Uint8Array,
-       *            S: Uint8Array}}            Signature of the message
-       * @async
-       */
-      async function sign(oid, hash_algo, m, d, hashed) {
-        const curve = new _curves2.default(oid);
-        const key = curve.keyFromSecret(d);
-        const signature = await key.sign(m, hash_algo, hashed);
-        // EdDSA signature params are returned in little-endian format
-        return {
-          R: new Uint8Array(signature.Rencoded()),
-          S: new Uint8Array(signature.Sencoded())
-        };
-      }
+      _naclFastLight2.default.hash = bytes => new Uint8Array((0, _2.default)().update(bytes).digest());
 
       /**
-       * Verifies if a signature is valid for a message
-       * @param  {module:type/oid}   oid       Elliptic curve object identifier
-       * @param  {module:enums.hash} hash_algo Hash algorithm used in the signature
-       * @param  {{R: Uint8Array,
-                   S: Uint8Array}}   signature Signature to verify the message
-       * @param  {Uint8Array}        m         Message to verify
-       * @param  {Uint8Array}        Q         Public key used to verify the message
-       * @param  {Uint8Array}        hashed    The hashed message
-       * @returns {Boolean}
+       * Sign a message using the provided key
+       * @param  {module:type/oid}   oid          Elliptic curve object identifier
+       * @param  {module:enums.hash} hash_algo    Hash algorithm used to sign
+       * @param  {Uint8Array}        message      Message to sign
+       * @param  {Uint8Array}        publicKey    Public key
+       * @param  {Uint8Array}        privateKey   Private key used to sign the message
+       * @param  {Uint8Array}        hashed       The hashed message
+       * @returns {{R: Uint8Array,
+       *            S: Uint8Array}}               Signature of the message
        * @async
        */
       // OpenPGP.js - An OpenPGP implementation in javascript
@@ -31895,14 +32859,41 @@
 
       /**
        * @fileoverview Implementation of EdDSA following RFC4880bis-03 for OpenPGP
+       * @requires hash.js
+       * @requires tweetnacl
        * @requires crypto/public_key/elliptic/curve
+       * @requires util
        * @module crypto/public_key/elliptic/eddsa
        */
 
-      async function verify(oid, hash_algo, signature, m, Q, hashed) {
-        const curve = new _curves2.default(oid);
-        const key = curve.keyFromPublic(Q);
-        return key.verify(m, signature, hash_algo, hashed);
+      async function sign(oid, hash_algo, message, publicKey, privateKey, hashed) {
+        const secretKey = _util2.default.concatUint8Array([privateKey, publicKey.subarray(1)]);
+        const signature = _naclFastLight2.default.sign.detached(hashed, secretKey);
+        // EdDSA signature params are returned in little-endian format
+        return {
+          R: signature.subarray(0, 32),
+          S: signature.subarray(32)
+        };
+      }
+
+      /**
+       * Verifies if a signature is valid for a message
+       * @param  {module:type/oid}   oid       Elliptic curve object identifier
+       * @param  {module:enums.hash} hash_algo Hash algorithm used in the signature
+       * @param  {{R: Uint8Array,
+                   S: Uint8Array}}   signature Signature to verify the message
+       * @param  {Uint8Array}        m         Message to verify
+       * @param  {Uint8Array}        publicKey Public key used to verify the message
+       * @param  {Uint8Array}        hashed    The hashed message
+       * @returns {Boolean}
+       * @async
+       */
+      async function verify(oid, hash_algo, {
+        R,
+        S
+      }, m, publicKey, hashed) {
+        const signature = _util2.default.concatUint8Array([R, S]);
+        return _naclFastLight2.default.sign.detached.verify(hashed, signature, publicKey.subarray(1));
       }
 
       exports.default = {
@@ -31911,9 +32902,11 @@
       };
 
     }, {
-      "./curves": 102
+      "../../../util": 158,
+      "hash.js/lib/hash/sha/512": 43,
+      "tweetnacl/nacl-fast-light.js": 72
     }],
-    106: [function(require, module, exports) {
+    104: [function(require, module, exports) {
       'use strict';
 
       Object.defineProperty(exports, "__esModule", {
@@ -31978,35 +32971,30 @@
       };
 
     }, {
-      "./curves": 102,
-      "./ecdh": 103,
-      "./ecdsa": 104,
-      "./eddsa": 105
+      "./curves": 100,
+      "./ecdh": 101,
+      "./ecdsa": 102,
+      "./eddsa": 103
     }],
-    107: [function(require, module, exports) {
+    105: [function(require, module, exports) {
       'use strict';
 
       Object.defineProperty(exports, "__esModule", {
         value: true
       });
+      exports.keyFromPrivate = keyFromPrivate;
+      exports.keyFromPublic = keyFromPublic;
+      exports.getIndutnyCurve = getIndutnyCurve;
 
-      var _bn = require('bn.js');
+      var _lightweight_helper = require('../../../lightweight_helper');
 
-      var _bn2 = _interopRequireDefault(_bn);
+      var _config = require('../../../config');
 
-      var _webStreamTools = require('web-stream-tools');
-
-      var _webStreamTools2 = _interopRequireDefault(_webStreamTools);
-
-      var _curves = require('./curves');
+      var _config2 = _interopRequireDefault(_config);
 
       var _util = require('../../../util');
 
       var _util2 = _interopRequireDefault(_util);
-
-      var _enums = require('../../../enums');
-
-      var _enums2 = _interopRequireDefault(_enums);
 
       function _interopRequireDefault(obj) {
         return obj && obj.__esModule ? obj : {
@@ -32014,7 +33002,12 @@
         };
       }
 
-      const webCrypto = _util2.default.getWebCrypto(); // OpenPGP.js - An OpenPGP implementation in javascript
+      function keyFromPrivate(indutnyCurve, priv) {
+        const keyPair = indutnyCurve.keyPair({
+          priv: priv
+        });
+        return keyPair;
+      } // OpenPGP.js - An OpenPGP implementation in javascript
       // Copyright (C) 2015-2016 Decentral
       //
       // This library is free software; you can redistribute it and/or
@@ -32032,253 +33025,85 @@
       // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
       /**
-       * @fileoverview Wrapper for a KeyPair of an Elliptic Curve
-       * @requires bn.js
-       * @requires web-stream-tools
-       * @requires crypto/public_key/elliptic/curves
-       * @requires util
+       * @fileoverview Wrapper for a KeyPair of an curve from indutny/elliptic library
        * @requires enums
        * @requires asn1.js
-       * @module crypto/public_key/elliptic/key
+       * @module crypto/public_key/elliptic/indutnyKey
        */
 
-      const nodeCrypto = _util2.default.getNodeCrypto();
+      function keyFromPublic(indutnyCurve, pub) {
+        const keyPair = indutnyCurve.keyPair({
+          pub: pub
+        });
+        if (keyPair.validate().result !== true) {
+          throw new Error('Invalid elliptic public key');
+        }
+        return keyPair;
+      }
 
       /**
-       * @constructor
+       * Load elliptic on demand to the window.openpgp.elliptic
+       * @returns {Promise<elliptic>}
        */
-      function KeyPair(curve, options) {
-        this.curve = curve;
-        this.keyType = curve.curve.type === 'edwards' ? _enums2.default.publicKey.eddsa : _enums2.default.publicKey.ecdsa;
-        this.keyPair = this.curve.curve.keyPair(options);
+      async function loadEllipticPromise() {
+        const path = _config2.default.indutny_elliptic_path;
+        const options = _config2.default.indutny_elliptic_fetch_options;
+        const ellipticDlPromise = (0, _lightweight_helper.dl)(path, options).catch(() => (0, _lightweight_helper.dl)(path, options));
+        const ellipticContents = await ellipticDlPromise;
+        const mainUrl = URL.createObjectURL(new Blob([ellipticContents], {
+          type: 'text/javascript'
+        }));
+        await (0, _lightweight_helper.loadScript)(mainUrl);
+        URL.revokeObjectURL(mainUrl);
+        if (!window.openpgp.elliptic) {
+          throw new Error('Elliptic library failed to load correctly');
+        }
+        return window.openpgp.elliptic;
       }
 
-      KeyPair.prototype.sign = async function(message, hash_algo, hashed) {
-        if (message && !message.locked) {
-          message = await _webStreamTools2.default.readToEnd(message);
-          if (this.curve.web && _util2.default.getWebCrypto()) {
-            // If browser doesn't support a curve, we'll catch it
-            try {
-              // need to await to make sure browser succeeds
-              const signature = await webSign(this.curve, hash_algo, message, this.keyPair);
-              return signature;
-            }
-            catch (err) {
-              _util2.default.print_debug("Browser did not support signing: " + err.message);
-            }
-          }
-          else if (this.curve.node && _util2.default.getNodeCrypto()) {
-            return nodeSign(this.curve, hash_algo, message, this.keyPair);
-          }
+      let ellipticPromise;
+
+      function loadElliptic() {
+        if (!_config2.default.external_indutny_elliptic) {
+          return require('elliptic');
         }
-        const digest = typeof hash_algo === 'undefined' ? message : hashed;
-        return this.keyPair.sign(digest);
-      };
-
-      KeyPair.prototype.verify = async function(message, signature, hash_algo, hashed) {
-        if (message && !message.locked) {
-          message = await _webStreamTools2.default.readToEnd(message);
-          if (this.curve.web && _util2.default.getWebCrypto()) {
-            // If browser doesn't support a curve, we'll catch it
-            try {
-              // need to await to make sure browser succeeds
-              const result = await webVerify(this.curve, hash_algo, signature, message, this.keyPair.getPublic());
-              return result;
-            }
-            catch (err) {
-              _util2.default.print_debug("Browser did not support signing: " + err.message);
-            }
-          }
-          else if (this.curve.node && _util2.default.getNodeCrypto()) {
-            return nodeVerify(this.curve, hash_algo, signature, message, this.keyPair.getPublic());
-          }
+        if (_util2.default.detectNode()) {
+          // eslint-disable-next-line
+          return require(_config2.default.indutny_elliptic_path);
         }
-        const digest = typeof hash_algo === 'undefined' ? message : hashed;
-        return this.keyPair.verify(digest, signature);
-      };
-
-      KeyPair.prototype.derive = function(pub) {
-        if (this.keyType === _enums2.default.publicKey.eddsa) {
-          throw new Error('Key can only be used for EdDSA');
+        if (!ellipticPromise) {
+          ellipticPromise = loadEllipticPromise().catch(e => {
+            ellipticPromise = undefined;
+            throw e;
+          });
         }
-        return this.keyPair.derive(pub.keyPair.getPublic());
-      };
-
-      KeyPair.prototype.getPublic = function() {
-        const compact = this.curve.curve.curve.type === 'edwards' || this.curve.curve.curve.type === 'mont';
-        return this.keyPair.getPublic('array', compact);
-      };
-
-      KeyPair.prototype.getPrivate = function() {
-        if (this.curve.keyType === _enums2.default.publicKey.eddsa) {
-          return this.keyPair.getSecret();
-        }
-        return this.keyPair.getPrivate().toArray();
-      };
-
-      exports.default = KeyPair;
-
-      //////////////////////////
-      //                      //
-      //   Helper functions   //
-      //                      //
-      //////////////////////////
-
-
-      async function webSign(curve, hash_algo, message, keyPair) {
-        const len = curve.payloadSize;
-        const key = await webCrypto.importKey("jwk", {
-          "kty": "EC",
-          "crv": _curves.webCurves[curve.name],
-          "x": _util2.default.Uint8Array_to_b64(new Uint8Array(keyPair.getPublic().getX().toArray('be', len)), true),
-          "y": _util2.default.Uint8Array_to_b64(new Uint8Array(keyPair.getPublic().getY().toArray('be', len)), true),
-          "d": _util2.default.Uint8Array_to_b64(new Uint8Array(keyPair.getPrivate().toArray('be', len)), true),
-          "use": "sig",
-          "kid": "ECDSA Private Key"
-        }, {
-          "name": "ECDSA",
-          "namedCurve": _curves.webCurves[curve.name],
-          "hash": {
-            name: _enums2.default.read(_enums2.default.webHash, curve.hash)
-          }
-        }, false, ["sign"]);
-
-        const signature = new Uint8Array((await webCrypto.sign({
-          "name": 'ECDSA',
-          "namedCurve": _curves.webCurves[curve.name],
-          "hash": {
-            name: _enums2.default.read(_enums2.default.webHash, hash_algo)
-          }
-        }, key, message)));
-
-        return {
-          r: new _bn2.default(signature.slice(0, len)),
-          s: new _bn2.default(signature.slice(len, len << 1))
-        };
+        return ellipticPromise;
       }
 
-      async function webVerify(curve, hash_algo, {
-        r,
-        s
-      }, message, publicKey) {
-        const len = curve.payloadSize;
-        const key = await webCrypto.importKey("jwk", {
-          "kty": "EC",
-          "crv": _curves.webCurves[curve.name],
-          "x": _util2.default.Uint8Array_to_b64(new Uint8Array(publicKey.getX().toArray('be', len)), true),
-          "y": _util2.default.Uint8Array_to_b64(new Uint8Array(publicKey.getY().toArray('be', len)), true),
-          "use": "sig",
-          "kid": "ECDSA Public Key"
-        }, {
-          "name": "ECDSA",
-          "namedCurve": _curves.webCurves[curve.name],
-          "hash": {
-            name: _enums2.default.read(_enums2.default.webHash, curve.hash)
-          }
-        }, false, ["verify"]);
-
-        const signature = _util2.default.concatUint8Array([new Uint8Array(len - r.length), r, new Uint8Array(len - s.length), s]).buffer;
-
-        return webCrypto.verify({
-          "name": 'ECDSA',
-          "namedCurve": _curves.webCurves[curve.name],
-          "hash": {
-            name: _enums2.default.read(_enums2.default.webHash, hash_algo)
-          }
-        }, key, signature, message);
-      }
-
-      async function nodeSign(curve, hash_algo, message, keyPair) {
-        const sign = nodeCrypto.createSign(_enums2.default.read(_enums2.default.hash, hash_algo));
-        sign.write(message);
-        sign.end();
-
-        const key = ECPrivateKey.encode({
-          version: 1,
-          parameters: curve.oid,
-          privateKey: keyPair.getPrivate().toArray(),
-          publicKey: {
-            unused: 0,
-            data: keyPair.getPublic().encode()
-          }
-        }, 'pem', {
-          label: 'EC PRIVATE KEY'
-        });
-
-        return ECDSASignature.decode(sign.sign(key), 'der');
-      }
-
-      async function nodeVerify(curve, hash_algo, {
-        r,
-        s
-      }, message, publicKey) {
-        const verify = nodeCrypto.createVerify(_enums2.default.read(_enums2.default.hash, hash_algo));
-        verify.write(message);
-        verify.end();
-
-        const key = SubjectPublicKeyInfo.encode({
-          algorithm: {
-            algorithm: [1, 2, 840, 10045, 2, 1],
-            parameters: curve.oid
-          },
-          subjectPublicKey: {
-            unused: 0,
-            data: publicKey.encode()
-          }
-        }, 'pem', {
-          label: 'PUBLIC KEY'
-        });
-
-        const signature = ECDSASignature.encode({
-          r: new _bn2.default(r),
-          s: new _bn2.default(s)
-        }, 'der');
-
-        try {
-          return verify.verify(key, signature);
+      async function getIndutnyCurve(name) {
+        if (!_config2.default.use_indutny_elliptic) {
+          throw new Error('This curve is only supported in the full build of OpenPGP.js');
         }
-        catch (err) {
-          return false;
-        }
+        const elliptic = await loadElliptic();
+        return new elliptic.ec(name);
       }
-
-      // Originally written by Owen Smith https://github.com/omsmith
-      // Adapted on Feb 2018 from https://github.com/Brightspace/node-jwk-to-pem/
-
-      /* eslint-disable no-invalid-this */
-
-      const asn1 = nodeCrypto ? require('asn1.js') : undefined;
-
-      const ECDSASignature = nodeCrypto ? asn1.define('ECDSASignature', function() {
-        this.seq().obj(this.key('r').int(), this.key('s').int());
-      }) : undefined;
-
-      const ECPrivateKey = nodeCrypto ? asn1.define('ECPrivateKey', function() {
-        this.seq().obj(this.key('version').int(), this.key('privateKey').octstr(), this.key('parameters').explicit(0).optional().any(), this.key('publicKey').explicit(1).optional().bitstr());
-      }) : undefined;
-
-      const AlgorithmIdentifier = nodeCrypto ? asn1.define('AlgorithmIdentifier', function() {
-        this.seq().obj(this.key('algorithm').objid(), this.key('parameters').optional().any());
-      }) : undefined;
-
-      const SubjectPublicKeyInfo = nodeCrypto ? asn1.define('SubjectPublicKeyInfo', function() {
-        this.seq().obj(this.key('algorithm').use(AlgorithmIdentifier), this.key('subjectPublicKey').bitstr());
-      }) : undefined;
 
     }, {
-      "../../../enums": 115,
-      "../../../util": 154,
-      "./curves": 102,
-      "asn1.js": "asn1.js",
-      "bn.js": 17,
-      "web-stream-tools": 77
+      "../../../config": 79,
+      "../../../lightweight_helper": 125,
+      "../../../util": 158,
+      "elliptic": 18
     }],
-    108: [function(require, module, exports) {
+    106: [function(require, module, exports) {
       'use strict';
 
       Object.defineProperty(exports, "__esModule", {
         value: true
       });
+
+      var _naclFastLight = require('tweetnacl/nacl-fast-light.js');
+
+      var _naclFastLight2 = _interopRequireDefault(_naclFastLight);
 
       var _rsa = require('./rsa');
 
@@ -32302,15 +33127,6 @@
         };
       }
 
-      /**
-       * @fileoverview Asymmetric cryptography functions
-       * @requires crypto/public_key/dsa
-       * @requires crypto/public_key/elgamal
-       * @requires crypto/public_key/elliptic
-       * @requires crypto/public_key/rsa
-       * @module crypto/public_key
-       */
-
       exports.default = {
         /** @see module:crypto/public_key/rsa */
         rsa: _rsa2.default,
@@ -32319,16 +33135,28 @@
         /** @see module:crypto/public_key/elliptic */
         elliptic: _elliptic2.default,
         /** @see module:crypto/public_key/dsa */
-        dsa: _dsa2.default
+        dsa: _dsa2.default,
+        /** @see tweetnacl */
+        nacl: _naclFastLight2.default
       };
+      /**
+       * @fileoverview Asymmetric cryptography functions
+       * @requires tweetnacl
+       * @requires crypto/public_key/dsa
+       * @requires crypto/public_key/elgamal
+       * @requires crypto/public_key/elliptic
+       * @requires crypto/public_key/rsa
+       * @module crypto/public_key
+       */
 
     }, {
-      "./dsa": 100,
-      "./elgamal": 101,
-      "./elliptic": 106,
-      "./rsa": 110
+      "./dsa": 98,
+      "./elgamal": 99,
+      "./elliptic": 104,
+      "./rsa": 108,
+      "tweetnacl/nacl-fast-light.js": 72
     }],
-    109: [function(require, module, exports) {
+    107: [function(require, module, exports) {
       'use strict';
 
       Object.defineProperty(exports, "__esModule", {
@@ -32549,10 +33377,10 @@
       }
 
     }, {
-      "../random": 111,
-      "bn.js": 17
+      "../random": 109,
+      "bn.js": 16
     }],
-    110: [function(require, module, exports) {
+    108: [function(require, module, exports) {
       'use strict';
 
       Object.defineProperty(exports, "__esModule", {
@@ -32579,27 +33407,25 @@
 
       var _util2 = _interopRequireDefault(_util);
 
+      var _pkcs = require('../pkcs1');
+
+      var _pkcs2 = _interopRequireDefault(_pkcs);
+
+      var _enums = require('../../enums');
+
+      var _enums2 = _interopRequireDefault(_enums);
+
+      var _mpi = require('../../type/mpi');
+
+      var _mpi2 = _interopRequireDefault(_mpi);
+
       function _interopRequireDefault(obj) {
         return obj && obj.__esModule ? obj : {
           default: obj
         };
       }
 
-      // Helper for IE11 KeyOperation objects
-      function promisifyIE11Op(keyObj, err) {
-        if (typeof keyObj.then !== 'function') {
-          // IE11 KeyOperation
-          return new Promise(function(resolve, reject) {
-            keyObj.onerror = function() {
-              reject(new Error(err));
-            };
-            keyObj.oncomplete = function(e) {
-              resolve(e.target.result);
-            };
-          });
-        }
-        return keyObj;
-      } // GPG4Browsers - An OpenPGP implementation in javascript
+      // GPG4Browsers - An OpenPGP implementation in javascript
       // Copyright (C) 2011 Recurity Labs GmbH
       //
       // This library is free software; you can redistribute it and/or
@@ -32626,103 +33452,146 @@
        * @module crypto/public_key/rsa
        */
 
+      const webCrypto = _util2.default.getWebCrypto();
+      const nodeCrypto = _util2.default.getNodeCrypto();
+      const asn1 = nodeCrypto ? require('asn1.js') : undefined;
+
+      // Helper for IE11 KeyOperation objects
+      function promisifyIE11Op(keyObj, err) {
+        if (typeof keyObj.then !== 'function') {
+          // IE11 KeyOperation
+          return new Promise(function(resolve, reject) {
+            keyObj.onerror = function() {
+              reject(new Error(err));
+            };
+            keyObj.oncomplete = function(e) {
+              resolve(e.target.result);
+            };
+          });
+        }
+        return keyObj;
+      }
+
+      /* eslint-disable no-invalid-this */
+      const RSAPrivateKey = _util2.default.detectNode() ? asn1.define('RSAPrivateKey', function() {
+        this.seq().obj( // used for native NodeJS crypto
+          this.key('version').int(), // 0
+          this.key('modulus').int(), // n
+          this.key('publicExponent').int(), // e
+          this.key('privateExponent').int(), // d
+          this.key('prime1').int(), // p
+          this.key('prime2').int(), // q
+          this.key('exponent1').int(), // dp
+          this.key('exponent2').int(), // dq
+          this.key('coefficient').int() // u
+        );
+      }) : undefined;
+
+      const RSAPublicKey = _util2.default.detectNode() ? asn1.define('RSAPubliceKey', function() {
+        this.seq().obj( // used for native NodeJS crypto
+          this.key('modulus').int(), // n
+          this.key('publicExponent').int() // e
+        );
+      }) : undefined;
+      /* eslint-enable no-invalid-this */
+
       exports.default = {
         /** Create signature
-         * @param {BN} m message
-         * @param {BN} n RSA public modulus
-         * @param {BN} e RSA public exponent
-         * @param {BN} d RSA private exponent
-         * @returns {BN} RSA Signature
+         * @param {module:enums.hash} hash_algo Hash algorithm
+         * @param {Uint8Array} data message
+         * @param {Uint8Array} n RSA public modulus
+         * @param {Uint8Array} e RSA public exponent
+         * @param {Uint8Array} d RSA private exponent
+         * @param {Uint8Array} p RSA private prime p
+         * @param {Uint8Array} q RSA private prime q
+         * @param {Uint8Array} u RSA private coefficient
+         * @param {Uint8Array} hashed hashed message
+         * @returns {Uint8Array} RSA Signature
          * @async
          */
-        sign: async function sign(m, n, e, d) {
-          if (n.cmp(m) <= 0) {
-            throw new Error('Message size cannot exceed modulus size');
+        sign: async function sign(hash_algo, data, n, e, d, p, q, u, hashed) {
+          if (data && !_util2.default.isStream(data)) {
+            if (_util2.default.getWebCrypto()) {
+              try {
+                return await this.webSign(_enums2.default.read(_enums2.default.webHash, hash_algo), data, n, e, d, p, q, u);
+              }
+              catch (err) {
+                _util2.default.print_debug_error(err);
+              }
+            }
+            else if (_util2.default.getNodeCrypto()) {
+              return this.nodeSign(hash_algo, data, n, e, d, p, q, u);
+            }
           }
-          const nred = new _bn2.default.red(n);
-          return m.toRed(nred).redPow(d).toArrayLike(Uint8Array, 'be', n.byteLength());
+          return this.bnSign(hash_algo, n, d, hashed);
         },
 
         /**
          * Verify signature
-         * @param {BN} s signature
-         * @param {BN} n RSA public modulus
-         * @param {BN} e RSA public exponent
-         * @returns {BN}
+         * @param {module:enums.hash} hash_algo Hash algorithm
+         * @param {Uint8Array} data message
+         * @param {Uint8Array} s signature
+         * @param {Uint8Array} n RSA public modulus
+         * @param {Uint8Array} e RSA public exponent
+         * @param {Uint8Array} hashed  hashed message
+         * @returns {Boolean}
          * @async
          */
-        verify: async function verify(s, n, e) {
-          if (n.cmp(s) <= 0) {
-            throw new Error('Signature size cannot exceed modulus size');
+        verify: async function verify(hash_algo, data, s, n, e, hashed) {
+          if (data && !_util2.default.isStream(data)) {
+            if (_util2.default.getWebCrypto()) {
+              try {
+                return await this.webVerify(_enums2.default.read(_enums2.default.webHash, hash_algo), data, s, n, e);
+              }
+              catch (err) {
+                _util2.default.print_debug_error(err);
+              }
+            }
+            else if (_util2.default.getNodeCrypto()) {
+              return this.nodeVerify(hash_algo, data, s, n, e);
+            }
           }
-          const nred = new _bn2.default.red(n);
-          return s.toRed(nred).redPow(e).toArrayLike(Uint8Array, 'be', n.byteLength());
+          return this.bnVerify(hash_algo, s, n, e, hashed);
         },
 
         /**
          * Encrypt message
-         * @param {BN} m message
-         * @param {BN} n RSA public modulus
-         * @param {BN} e RSA public exponent
-         * @returns {BN} RSA Ciphertext
+         * @param {Uint8Array} data message
+         * @param {Uint8Array} n RSA public modulus
+         * @param {Uint8Array} e RSA public exponent
+         * @returns {Uint8Array} RSA Ciphertext
          * @async
          */
-        encrypt: async function encrypt(m, n, e) {
-          if (n.cmp(m) <= 0) {
-            throw new Error('Message size cannot exceed modulus size');
+        encrypt: async function encrypt(data, n, e) {
+          if (_util2.default.getNodeCrypto()) {
+            return this.nodeEncrypt(data, n, e);
           }
-          const nred = new _bn2.default.red(n);
-          return m.toRed(nred).redPow(e).toArrayLike(Uint8Array, 'be', n.byteLength());
+          return this.bnEncrypt(data, n, e);
         },
 
         /**
          * Decrypt RSA message
-         * @param {BN} m message
-         * @param {BN} n RSA public modulus
-         * @param {BN} e RSA public exponent
-         * @param {BN} d RSA private exponent
-         * @param {BN} p RSA private prime p
-         * @param {BN} q RSA private prime q
-         * @param {BN} u RSA private inverse of prime q
-         * @returns {BN} RSA Plaintext
+         * @param {Uint8Array} m message
+         * @param {Uint8Array} n RSA public modulus
+         * @param {Uint8Array} e RSA public exponent
+         * @param {Uint8Array} d RSA private exponent
+         * @param {Uint8Array} p RSA private prime p
+         * @param {Uint8Array} q RSA private prime q
+         * @param {Uint8Array} u RSA private coefficient
+         * @returns {String} RSA Plaintext
          * @async
          */
-        decrypt: async function decrypt(m, n, e, d, p, q, u) {
-          if (n.cmp(m) <= 0) {
-            throw new Error('Data too large.');
+        decrypt: async function decrypt(data, n, e, d, p, q, u) {
+          if (_util2.default.getNodeCrypto()) {
+            return this.nodeDecrypt(data, n, e, d, p, q, u);
           }
-          const dq = d.mod(q.subn(1)); // d mod (q-1)
-          const dp = d.mod(p.subn(1)); // d mod (p-1)
-          const pred = new _bn2.default.red(p);
-          const qred = new _bn2.default.red(q);
-          const nred = new _bn2.default.red(n);
-
-          let blinder;
-          let unblinder;
-          if (_config2.default.rsa_blinding) {
-            unblinder = (await _random2.default.getRandomBN(new _bn2.default(2), n)).toRed(nred);
-            blinder = unblinder.redInvm().redPow(e);
-            m = m.toRed(nred).redMul(blinder).fromRed();
-          }
-
-          const mp = m.toRed(pred).redPow(dp);
-          const mq = m.toRed(qred).redPow(dq);
-          const t = mq.redSub(mp.fromRed().toRed(qred));
-          const h = u.toRed(qred).redMul(t).fromRed();
-
-          let result = h.mul(p).add(mp).toRed(nred);
-
-          if (_config2.default.rsa_blinding) {
-            result = result.redMul(unblinder);
-          }
-
-          return result.toArrayLike(Uint8Array, 'be', n.byteLength());
+          return this.bnDecrypt(data, n, e, d, p, q, u);
         },
 
         /**
          * Generate a new random private key B bits long with public exponent E.
          *
-         * When possible, webCrypto is used. Otherwise, primes are generated using
+         * When possible, webCrypto or nodeCrypto is used. Otherwise, primes are generated using
          * 40 rounds of the Miller-Rabin probabilistic random prime generation algorithm.
          * @see module:crypto/public_key/prime
          * @param {Integer} B RSA bit length
@@ -32735,10 +33604,9 @@
         generate: async function generate(B, E) {
           let key;
           E = new _bn2.default(E, 16);
-          const webCrypto = _util2.default.getWebCryptoAll();
 
           // Native RSA keygen using Web Crypto
-          if (webCrypto) {
+          if (_util2.default.getWebCrypto()) {
             let keyPair;
             let keyGenOpt;
             if (window.crypto && window.crypto.subtle || window.msCrypto) {
@@ -32779,25 +33647,62 @@
             if (jwk instanceof ArrayBuffer) {
               jwk = JSON.parse(String.fromCharCode.apply(null, new Uint8Array(jwk)));
             }
-
             // map JWK parameters to BN
             key = {};
             key.n = new _bn2.default(_util2.default.b64_to_Uint8Array(jwk.n));
             key.e = E;
             key.d = new _bn2.default(_util2.default.b64_to_Uint8Array(jwk.d));
-            key.p = new _bn2.default(_util2.default.b64_to_Uint8Array(jwk.p));
-            key.q = new _bn2.default(_util2.default.b64_to_Uint8Array(jwk.q));
-            key.u = key.p.invm(key.q);
+            // switch p and q
+            key.p = new _bn2.default(_util2.default.b64_to_Uint8Array(jwk.q));
+            key.q = new _bn2.default(_util2.default.b64_to_Uint8Array(jwk.p));
+            // Since p and q are switched in places, we could keep u
+            key.u = new _bn2.default(_util2.default.b64_to_Uint8Array(jwk.qi));
             return key;
+          }
+          else if (_util2.default.getNodeCrypto() && nodeCrypto.generateKeyPair && RSAPrivateKey) {
+            const opts = {
+              modulusLength: Number(B.toString(10)),
+              publicExponent: Number(E.toString(10)),
+              publicKeyEncoding: {
+                type: 'pkcs1',
+                format: 'der'
+              },
+              privateKeyEncoding: {
+                type: 'pkcs1',
+                format: 'der'
+              }
+            };
+            const prv = await new Promise((resolve, reject) => nodeCrypto.generateKeyPair('rsa', opts, (err, _, der) => {
+              if (err) {
+                reject(err);
+              }
+              else {
+                resolve(RSAPrivateKey.decode(der, 'der'));
+              }
+            }));
+            /**  PGP spec differs from DER spec, DER: `(inverse of q) mod p`, PGP: `(inverse of p) mod q`.
+             * @link https://tools.ietf.org/html/rfc3447#section-3.2
+             * @link https://tools.ietf.org/html/draft-ietf-openpgp-rfc4880bis-08#section-5.6.1
+             */
+            return {
+              n: prv.modulus,
+              e: prv.publicExponent,
+              d: prv.privateExponent,
+              // switch p and q
+              p: prv.prime2,
+              q: prv.prime1,
+              // Since p and q are switched in places, we could keep u
+              u: prv.coefficient // PGP type of u
+            };
           }
 
           // RSA keygen fallback using 40 iterations of the Miller-Rabin test
           // See https://stackoverflow.com/a/6330138 for justification
           // Also see section C.3 here: https://nvlpubs.nist.gov/nistpubs/FIPS/NIST
-          let p = await _prime2.default.randomProbablePrime(B - (B >> 1), E, 40);
-          let q = await _prime2.default.randomProbablePrime(B >> 1, E, 40);
+          let q = await _prime2.default.randomProbablePrime(B - (B >> 1), E, 40);
+          let p = await _prime2.default.randomProbablePrime(B >> 1, E, 40);
 
-          if (p.cmp(q) < 0) {
+          if (q.cmp(p) < 0) {
             var _ref = [q, p];
             p = _ref[0];
             q = _ref[1];
@@ -32816,17 +33721,320 @@
           };
         },
 
+        bnSign: async function bnSign(hash_algo, n, d, hashed) {
+          n = new _bn2.default(n);
+          const m = new _bn2.default((await _pkcs2.default.emsa.encode(hash_algo, hashed, n.byteLength())), 16);
+          d = new _bn2.default(d);
+          if (n.cmp(m) <= 0) {
+            throw new Error('Message size cannot exceed modulus size');
+          }
+          const nred = new _bn2.default.red(n);
+          return m.toRed(nred).redPow(d).toArrayLike(Uint8Array, 'be', n.byteLength());
+        },
+
+        webSign: async function webSign(hash_name, data, n, e, d, p, q, u) {
+          /** OpenPGP keys require that p < q, and Safari Web Crypto requires that p > q.
+           * We swap them in privateToJwk, so it usually works out, but nevertheless,
+           * not all OpenPGP keys are compatible with this requirement.
+           * OpenPGP.js used to generate RSA keys the wrong way around (p > q), and still
+           * does if the underlying Web Crypto does so (e.g. old MS Edge 50% of the time).
+           */
+          const jwk = privateToJwk(n, e, d, p, q, u);
+          const algo = {
+            name: "RSASSA-PKCS1-v1_5",
+            hash: {
+              name: hash_name
+            }
+          };
+          const key = await webCrypto.importKey("jwk", jwk, algo, false, ["sign"]);
+          // add hash field for ms edge support
+          return new Uint8Array((await webCrypto.sign({
+            "name": "RSASSA-PKCS1-v1_5",
+            "hash": hash_name
+          }, key, data)));
+        },
+
+        nodeSign: async function nodeSign(hash_algo, data, n, e, d, p, q, u) {
+          const pBNum = new _bn2.default(p);
+          const qBNum = new _bn2.default(q);
+          const dBNum = new _bn2.default(d);
+          const dq = dBNum.mod(qBNum.subn(1)); // d mod (q-1)
+          const dp = dBNum.mod(pBNum.subn(1)); // d mod (p-1)
+          const sign = nodeCrypto.createSign(_enums2.default.read(_enums2.default.hash, hash_algo));
+          sign.write(data);
+          sign.end();
+          const keyObject = {
+            version: 0,
+            modulus: new _bn2.default(n),
+            publicExponent: new _bn2.default(e),
+            privateExponent: new _bn2.default(d),
+            // switch p and q
+            prime1: new _bn2.default(q),
+            prime2: new _bn2.default(p),
+            // switch dp and dq
+            exponent1: dq,
+            exponent2: dp,
+            coefficient: new _bn2.default(u)
+          };
+          if (typeof nodeCrypto.createPrivateKey !== 'undefined') {
+            //from version 11.6.0 Node supports der encoded key objects
+            const der = RSAPrivateKey.encode(keyObject, 'der');
+            return new Uint8Array(sign.sign({
+              key: der,
+              format: 'der',
+              type: 'pkcs1'
+            }));
+          }
+          const pem = RSAPrivateKey.encode(keyObject, 'pem', {
+            label: 'RSA PRIVATE KEY'
+          });
+          return new Uint8Array(sign.sign(pem));
+        },
+
+        bnVerify: async function bnVerify(hash_algo, s, n, e, hashed) {
+          n = new _bn2.default(n);
+          s = new _bn2.default(s);
+          e = new _bn2.default(e);
+          if (n.cmp(s) <= 0) {
+            throw new Error('Signature size cannot exceed modulus size');
+          }
+          const nred = new _bn2.default.red(n);
+          const EM1 = s.toRed(nred).redPow(e).toArrayLike(Uint8Array, 'be', n.byteLength());
+          const EM2 = await _pkcs2.default.emsa.encode(hash_algo, hashed, n.byteLength());
+          return _util2.default.Uint8Array_to_hex(EM1) === EM2;
+        },
+
+        webVerify: async function webVerify(hash_name, data, s, n, e) {
+          const jwk = publicToJwk(n, e);
+          const key = await webCrypto.importKey("jwk", jwk, {
+            name: "RSASSA-PKCS1-v1_5",
+            hash: {
+              name: hash_name
+            }
+          }, false, ["verify"]);
+          // add hash field for ms edge support
+          return webCrypto.verify({
+            "name": "RSASSA-PKCS1-v1_5",
+            "hash": hash_name
+          }, key, s, data);
+        },
+
+        nodeVerify: async function nodeVerify(hash_algo, data, s, n, e) {
+          const verify = nodeCrypto.createVerify(_enums2.default.read(_enums2.default.hash, hash_algo));
+          verify.write(data);
+          verify.end();
+          const keyObject = {
+            modulus: new _bn2.default(n),
+            publicExponent: new _bn2.default(e)
+          };
+          let key;
+          if (typeof nodeCrypto.createPrivateKey !== 'undefined') {
+            //from version 11.6.0 Node supports der encoded key objects
+            const der = RSAPublicKey.encode(keyObject, 'der');
+            key = {
+              key: der,
+              format: 'der',
+              type: 'pkcs1'
+            };
+          }
+          else {
+            key = RSAPublicKey.encode(keyObject, 'pem', {
+              label: 'RSA PUBLIC KEY'
+            });
+          }
+          try {
+            return await verify.verify(key, s);
+          }
+          catch (err) {
+            return false;
+          }
+        },
+
+        nodeEncrypt: async function nodeEncrypt(data, n, e) {
+          const keyObject = {
+            modulus: new _bn2.default(n),
+            publicExponent: new _bn2.default(e)
+          };
+          let key;
+          if (typeof nodeCrypto.createPrivateKey !== 'undefined') {
+            const der = RSAPublicKey.encode(keyObject, 'der');
+            key = {
+              key: der,
+              format: 'der',
+              type: 'pkcs1',
+              padding: nodeCrypto.constants.RSA_PKCS1_PADDING
+            };
+          }
+          else {
+            const pem = RSAPublicKey.encode(keyObject, 'pem', {
+              label: 'RSA PUBLIC KEY'
+            });
+            key = {
+              key: pem,
+              padding: nodeCrypto.constants.RSA_PKCS1_PADDING
+            };
+          }
+          return new Uint8Array(nodeCrypto.publicEncrypt(key, data));
+        },
+
+        bnEncrypt: async function bnEncrypt(data, n, e) {
+          n = new _bn2.default(n);
+          data = new _mpi2.default((await _pkcs2.default.eme.encode(_util2.default.Uint8Array_to_str(data), n.byteLength())));
+          data = data.toBN();
+          e = new _bn2.default(e);
+          if (n.cmp(data) <= 0) {
+            throw new Error('Message size cannot exceed modulus size');
+          }
+          const nred = new _bn2.default.red(n);
+          return data.toRed(nred).redPow(e).toArrayLike(Uint8Array, 'be', n.byteLength());
+        },
+
+        nodeDecrypt: function nodeDecrypt(data, n, e, d, p, q, u) {
+          const pBNum = new _bn2.default(p);
+          const qBNum = new _bn2.default(q);
+          const dBNum = new _bn2.default(d);
+          const dq = dBNum.mod(qBNum.subn(1)); // d mod (q-1)
+          const dp = dBNum.mod(pBNum.subn(1)); // d mod (p-1)
+          const keyObject = {
+            version: 0,
+            modulus: new _bn2.default(n),
+            publicExponent: new _bn2.default(e),
+            privateExponent: new _bn2.default(d),
+            // switch p and q
+            prime1: new _bn2.default(q),
+            prime2: new _bn2.default(p),
+            // switch dp and dq
+            exponent1: dq,
+            exponent2: dp,
+            coefficient: new _bn2.default(u)
+          };
+          let key;
+          if (typeof nodeCrypto.createPrivateKey !== 'undefined') {
+            const der = RSAPrivateKey.encode(keyObject, 'der');
+            key = {
+              key: der,
+              format: 'der',
+              type: 'pkcs1',
+              padding: nodeCrypto.constants.RSA_PKCS1_PADDING
+            };
+          }
+          else {
+            const pem = RSAPrivateKey.encode(keyObject, 'pem', {
+              label: 'RSA PRIVATE KEY'
+            });
+            key = {
+              key: pem,
+              padding: nodeCrypto.constants.RSA_PKCS1_PADDING
+            };
+          }
+          return _util2.default.Uint8Array_to_str(nodeCrypto.privateDecrypt(key, data));
+        },
+
+        bnDecrypt: async function bnDecrypt(data, n, e, d, p, q, u) {
+          data = new _bn2.default(data);
+          n = new _bn2.default(n);
+          e = new _bn2.default(e);
+          d = new _bn2.default(d);
+          p = new _bn2.default(p);
+          q = new _bn2.default(q);
+          u = new _bn2.default(u);
+          if (n.cmp(data) <= 0) {
+            throw new Error('Data too large.');
+          }
+          const dq = d.mod(q.subn(1)); // d mod (q-1)
+          const dp = d.mod(p.subn(1)); // d mod (p-1)
+          const pred = new _bn2.default.red(p);
+          const qred = new _bn2.default.red(q);
+          const nred = new _bn2.default.red(n);
+
+          let blinder;
+          let unblinder;
+          if (_config2.default.rsa_blinding) {
+            unblinder = (await _random2.default.getRandomBN(new _bn2.default(2), n)).toRed(nred);
+            blinder = unblinder.redInvm().redPow(e);
+            data = data.toRed(nred).redMul(blinder).fromRed();
+          }
+
+          const mp = data.toRed(pred).redPow(dp);
+          const mq = data.toRed(qred).redPow(dq);
+          const t = mq.redSub(mp.fromRed().toRed(qred));
+          const h = u.toRed(qred).redMul(t).fromRed();
+
+          let result = h.mul(p).add(mp).toRed(nred);
+
+          if (_config2.default.rsa_blinding) {
+            result = result.redMul(unblinder);
+          }
+
+          return _pkcs2.default.eme.decode(new _mpi2.default(result).toString());
+        },
+
         prime: _prime2.default
       };
 
+      /** Convert Openpgp private key params to jwk key according to
+       * @link https://tools.ietf.org/html/rfc7517
+       * @param {String} hash_algo
+       * @param {Uint8Array} n
+       * @param {Uint8Array} e
+       * @param {Uint8Array} d
+       * @param {Uint8Array} p
+       * @param {Uint8Array} q
+       * @param {Uint8Array} u
+       */
+
+      function privateToJwk(n, e, d, p, q, u) {
+        const pBNum = new _bn2.default(p);
+        const qBNum = new _bn2.default(q);
+        const dBNum = new _bn2.default(d);
+
+        let dq = dBNum.mod(qBNum.subn(1)); // d mod (q-1)
+        let dp = dBNum.mod(pBNum.subn(1)); // d mod (p-1)
+        dp = dp.toArrayLike(Uint8Array);
+        dq = dq.toArrayLike(Uint8Array);
+        return {
+          kty: 'RSA',
+          n: _util2.default.Uint8Array_to_b64(n, true),
+          e: _util2.default.Uint8Array_to_b64(e, true),
+          d: _util2.default.Uint8Array_to_b64(d, true),
+          // switch p and q
+          p: _util2.default.Uint8Array_to_b64(q, true),
+          q: _util2.default.Uint8Array_to_b64(p, true),
+          // switch dp and dq
+          dp: _util2.default.Uint8Array_to_b64(dq, true),
+          dq: _util2.default.Uint8Array_to_b64(dp, true),
+          qi: _util2.default.Uint8Array_to_b64(u, true),
+          ext: true
+        };
+      }
+
+      /** Convert Openpgp key public params to jwk key according to
+       * @link https://tools.ietf.org/html/rfc7517
+       * @param {String} hash_algo
+       * @param {Uint8Array} n
+       * @param {Uint8Array} e
+       */
+      function publicToJwk(n, e) {
+        return {
+          kty: 'RSA',
+          n: _util2.default.Uint8Array_to_b64(n, true),
+          e: _util2.default.Uint8Array_to_b64(e, true),
+          ext: true
+        };
+      }
+
     }, {
-      "../../config": 81,
-      "../../util": 154,
-      "../random": 111,
-      "./prime": 109,
-      "bn.js": 17
+      "../../config": 79,
+      "../../enums": 113,
+      "../../type/mpi": 155,
+      "../../util": 158,
+      "../pkcs1": 96,
+      "../random": 109,
+      "./prime": 107,
+      "asn1.js": "asn1.js",
+      "bn.js": 16
     }],
-    111: [function(require, module, exports) {
+    109: [function(require, module, exports) {
       'use strict';
 
       Object.defineProperty(exports, "__esModule", {
@@ -32885,8 +34093,8 @@
          */
         getRandomBytes: async function getRandomBytes(length) {
           const buf = new Uint8Array(length);
-          if (typeof window !== 'undefined' && window.crypto && window.crypto.getRandomValues) {
-            window.crypto.getRandomValues(buf);
+          if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
+            crypto.getRandomValues(buf);
           }
           else if (typeof window !== 'undefined' && typeof window.msCrypto === 'object' && typeof window.msCrypto.getRandomValues === 'function') {
             window.msCrypto.getRandomValues(buf);
@@ -32996,28 +34204,24 @@
       };
 
     }, {
-      "../util": 154,
-      "bn.js": 17,
+      "../util": 158,
+      "bn.js": 16,
       "crypto": "crypto"
     }],
-    112: [function(require, module, exports) {
+    110: [function(require, module, exports) {
       'use strict';
 
       Object.defineProperty(exports, "__esModule", {
         value: true
       });
 
-      var _bn = require('bn.js');
+      var _crypto = require('./crypto');
 
-      var _bn2 = _interopRequireDefault(_bn);
+      var _crypto2 = _interopRequireDefault(_crypto);
 
       var _public_key = require('./public_key');
 
       var _public_key2 = _interopRequireDefault(_public_key);
-
-      var _pkcs = require('./pkcs1');
-
-      var _pkcs2 = _interopRequireDefault(_pkcs);
 
       var _enums = require('../enums');
 
@@ -33032,6 +34236,15 @@
           default: obj
         };
       }
+
+      /**
+       * @fileoverview Provides functions for asymmetric signing and signature verification
+       * @requires crypto/crypto
+       * @requires crypto/public_key
+       * @requires enums
+       * @requires util
+       * @module crypto/signature
+       */
 
       exports.default = {
         /**
@@ -33049,50 +34262,47 @@
          * @async
          */
         verify: async function verify(algo, hash_algo, msg_MPIs, pub_MPIs, data, hashed) {
+          const types = _crypto2.default.getPubKeyParamTypes(algo);
+          if (pub_MPIs.length < types.length) {
+            throw new Error('Missing public key parameters');
+          }
           switch (algo) {
             case _enums2.default.publicKey.rsa_encrypt_sign:
             case _enums2.default.publicKey.rsa_encrypt:
-            case _enums2.default.publicKey.rsa_sign:
-              {
-                const m = msg_MPIs[0].toBN();
-                const n = pub_MPIs[0].toBN();
-                const e = pub_MPIs[1].toBN();
-                const EM = await _public_key2.default.rsa.verify(m, n, e);
-                const EM2 = await _pkcs2.default.emsa.encode(hash_algo, hashed, n.byteLength());
-                return _util2.default.Uint8Array_to_hex(EM) === EM2;
-              }
-            case _enums2.default.publicKey.dsa:
-              {
-                const r = msg_MPIs[0].toBN();
-                const s = msg_MPIs[1].toBN();
-                const p = pub_MPIs[0].toBN();
-                const q = pub_MPIs[1].toBN();
-                const g = pub_MPIs[2].toBN();
-                const y = pub_MPIs[3].toBN();
-                return _public_key2.default.dsa.verify(hash_algo, r, s, hashed, g, p, q, y);
-              }
-            case _enums2.default.publicKey.ecdsa:
-              {
-                const oid = pub_MPIs[0];
-                const signature = {
-                  r: msg_MPIs[0].toUint8Array(),
-                  s: msg_MPIs[1].toUint8Array()
-                };
-                const Q = pub_MPIs[1].toUint8Array();
-                return _public_key2.default.elliptic.ecdsa.verify(oid, hash_algo, signature, data, Q, hashed);
-              }
-            case _enums2.default.publicKey.eddsa:
-              {
-                const oid = pub_MPIs[0];
-                // TODO refactor elliptic to accept Uint8Array
-                // EdDSA signature params are expected in little-endian format
-                const signature = {
-                  R: Array.from(msg_MPIs[0].toUint8Array('le', 32)),
-                  S: Array.from(msg_MPIs[1].toUint8Array('le', 32))
-                };
-                const Q = Array.from(pub_MPIs[1].toUint8Array('be', 33));
-                return _public_key2.default.elliptic.eddsa.verify(oid, hash_algo, signature, data, Q, hashed);
-              }
+            case _enums2.default.publicKey.rsa_sign: {
+              const n = pub_MPIs[0].toUint8Array();
+              const e = pub_MPIs[1].toUint8Array();
+              const m = msg_MPIs[0].toUint8Array('be', n.length);
+              return _public_key2.default.rsa.verify(hash_algo, data, m, n, e, hashed);
+            }
+            case _enums2.default.publicKey.dsa: {
+              const r = msg_MPIs[0].toBN();
+              const s = msg_MPIs[1].toBN();
+              const p = pub_MPIs[0].toBN();
+              const q = pub_MPIs[1].toBN();
+              const g = pub_MPIs[2].toBN();
+              const y = pub_MPIs[3].toBN();
+              return _public_key2.default.dsa.verify(hash_algo, r, s, hashed, g, p, q, y);
+            }
+            case _enums2.default.publicKey.ecdsa: {
+              const oid = pub_MPIs[0];
+              const signature = {
+                r: msg_MPIs[0].toUint8Array(),
+                s: msg_MPIs[1].toUint8Array()
+              };
+              const Q = pub_MPIs[1].toUint8Array();
+              return _public_key2.default.elliptic.ecdsa.verify(oid, hash_algo, signature, data, Q, hashed);
+            }
+            case _enums2.default.publicKey.eddsa: {
+              const oid = pub_MPIs[0];
+              // EdDSA signature params are expected in little-endian format
+              const signature = {
+                R: msg_MPIs[0].toUint8Array('le', 32),
+                S: msg_MPIs[1].toUint8Array('le', 32)
+              };
+              const Q = pub_MPIs[1].toUint8Array('be', 33);
+              return _public_key2.default.elliptic.eddsa.verify(oid, hash_algo, signature, data, Q, hashed);
+            }
             default:
               throw new Error('Invalid signature algorithm.');
           }
@@ -33112,68 +34322,61 @@
          * @async
          */
         sign: async function sign(algo, hash_algo, key_params, data, hashed) {
+          const types = [].concat(_crypto2.default.getPubKeyParamTypes(algo), _crypto2.default.getPrivKeyParamTypes(algo));
+          if (key_params.length < types.length) {
+            throw new Error('Missing private key parameters');
+          }
           switch (algo) {
             case _enums2.default.publicKey.rsa_encrypt_sign:
             case _enums2.default.publicKey.rsa_encrypt:
-            case _enums2.default.publicKey.rsa_sign:
-              {
-                const n = key_params[0].toBN();
-                const e = key_params[1].toBN();
-                const d = key_params[2].toBN();
-                const m = new _bn2.default((await _pkcs2.default.emsa.encode(hash_algo, hashed, n.byteLength())), 16);
-                const signature = await _public_key2.default.rsa.sign(m, n, e, d);
-                return _util2.default.Uint8Array_to_MPI(signature);
-              }
-            case _enums2.default.publicKey.dsa:
-              {
-                const p = key_params[0].toBN();
-                const q = key_params[1].toBN();
-                const g = key_params[2].toBN();
-                const x = key_params[4].toBN();
-                const signature = await _public_key2.default.dsa.sign(hash_algo, hashed, g, p, q, x);
-                return _util2.default.concatUint8Array([_util2.default.Uint8Array_to_MPI(signature.r), _util2.default.Uint8Array_to_MPI(signature.s)]);
-              }
-            case _enums2.default.publicKey.elgamal:
-              {
-                throw new Error('Signing with Elgamal is not defined in the OpenPGP standard.');
-              }
-            case _enums2.default.publicKey.ecdsa:
-              {
-                const oid = key_params[0];
-                const d = key_params[2].toUint8Array();
-                const signature = await _public_key2.default.elliptic.ecdsa.sign(oid, hash_algo, data, d, hashed);
-                return _util2.default.concatUint8Array([_util2.default.Uint8Array_to_MPI(signature.r), _util2.default.Uint8Array_to_MPI(signature.s)]);
-              }
-            case _enums2.default.publicKey.eddsa:
-              {
-                const oid = key_params[0];
-                const d = Array.from(key_params[2].toUint8Array('be', 32));
-                const signature = await _public_key2.default.elliptic.eddsa.sign(oid, hash_algo, data, d, hashed);
-                return _util2.default.concatUint8Array([_util2.default.Uint8Array_to_MPI(signature.R), _util2.default.Uint8Array_to_MPI(signature.S)]);
-              }
+            case _enums2.default.publicKey.rsa_sign: {
+              const n = key_params[0].toUint8Array();
+              const e = key_params[1].toUint8Array();
+              const d = key_params[2].toUint8Array();
+              const p = key_params[3].toUint8Array();
+              const q = key_params[4].toUint8Array();
+              const u = key_params[5].toUint8Array();
+              const signature = await _public_key2.default.rsa.sign(hash_algo, data, n, e, d, p, q, u, hashed);
+              return _util2.default.Uint8Array_to_MPI(signature);
+            }
+            case _enums2.default.publicKey.dsa: {
+              const p = key_params[0].toBN();
+              const q = key_params[1].toBN();
+              const g = key_params[2].toBN();
+              const x = key_params[4].toBN();
+              const signature = await _public_key2.default.dsa.sign(hash_algo, hashed, g, p, q, x);
+              return _util2.default.concatUint8Array([_util2.default.Uint8Array_to_MPI(signature.r), _util2.default.Uint8Array_to_MPI(signature.s)]);
+            }
+            case _enums2.default.publicKey.elgamal: {
+              throw new Error('Signing with Elgamal is not defined in the OpenPGP standard.');
+            }
+            case _enums2.default.publicKey.ecdsa: {
+              const oid = key_params[0];
+              const Q = key_params[1].toUint8Array();
+              const d = key_params[2].toUint8Array();
+              const signature = await _public_key2.default.elliptic.ecdsa.sign(oid, hash_algo, data, Q, d, hashed);
+              return _util2.default.concatUint8Array([_util2.default.Uint8Array_to_MPI(signature.r), _util2.default.Uint8Array_to_MPI(signature.s)]);
+            }
+            case _enums2.default.publicKey.eddsa: {
+              const oid = key_params[0];
+              const Q = key_params[1].toUint8Array('be', 33);
+              const d = key_params[2].toUint8Array('be', 32);
+              const signature = await _public_key2.default.elliptic.eddsa.sign(oid, hash_algo, data, Q, d, hashed);
+              return _util2.default.concatUint8Array([_util2.default.Uint8Array_to_MPI(signature.R), _util2.default.Uint8Array_to_MPI(signature.S)]);
+            }
             default:
               throw new Error('Invalid signature algorithm.');
           }
         }
       };
-      /**
-       * @fileoverview Provides functions for asymmetric signing and signature verification
-       * @requires bn.js
-       * @requires crypto/public_key
-       * @requires crypto/pkcs1
-       * @requires enums
-       * @requires util
-       * @module crypto/signature
-       */
 
     }, {
-      "../enums": 115,
-      "../util": 154,
-      "./pkcs1": 98,
-      "./public_key": 108,
-      "bn.js": 17
+      "../enums": 113,
+      "../util": 158,
+      "./crypto": 89,
+      "./public_key": 106
     }],
-    113: [function(require, module, exports) {
+    111: [function(require, module, exports) {
       'use strict';
 
       Object.defineProperty(exports, "__esModule", {
@@ -33421,7 +34624,7 @@
                     throw new Error('Misformed armored text');
                   }
                   // remove trailing whitespace at end of lines
-                  line = line.replace(/[\t\r\n ]+$/, '');
+                  line = _util2.default.removeTrailingSpaces(line.replace(/[\r\n]/g, ''));
                   if (!type) {
                     if (reSplit.test(line)) {
                       type = getType(line);
@@ -33485,8 +34688,10 @@
                     await writer.write(line);
                   }
                   else {
-                    let remainder = line + (await reader.readToEnd());
-                    remainder = remainder.replace(/[\t\r ]+$/mg, '');
+                    let remainder = await reader.readToEnd();
+                    if (!remainder.length) remainder = '';
+                    remainder = line + remainder;
+                    remainder = _util2.default.removeTrailingSpaces(remainder.replace(/\r/g, ''));
                     const parts = remainder.split(reSplit);
                     if (parts.length === 1) {
                       throw new Error('Misformed armored text');
@@ -33613,13 +34818,13 @@
       };
 
     }, {
-      "../config": 81,
-      "../enums.js": 115,
-      "../util": 154,
-      "./base64.js": 114,
-      "web-stream-tools": 77
+      "../config": 79,
+      "../enums.js": 113,
+      "../util": 158,
+      "./base64.js": 112,
+      "web-stream-tools": 75
     }],
-    114: [function(require, module, exports) {
+    112: [function(require, module, exports) {
       'use strict';
 
       Object.defineProperty(exports, "__esModule", {
@@ -33656,6 +34861,13 @@
        */
 
       const b64u = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_'; // URL-safe radix-64
+
+      const b64toByte = [];
+      for (let i = 0; i < b64s.length; i++) {
+        b64toByte[b64s.charCodeAt(i)] = i;
+      }
+      b64toByte[b64u.charCodeAt(62)] = 62;
+      b64toByte[b64u.charCodeAt(63)] = 63;
 
       /**
        * Convert binary array to radix-64
@@ -33730,13 +34942,11 @@
       /**
        * Convert radix-64 to binary array
        * @param {String | ReadableStream<String>} t radix-64 string to convert
-       * @param {bool} u if true, input is interpreted as URL-safe
        * @returns {Uint8Array | ReadableStream<Uint8Array>} binary array version of input string
        * @static
        */
-      function r2s(t, u) {
+      function r2s(t) {
         // TODO check atob alternative
-        const b64 = u ? b64u : b64s;
         let c;
 
         let s = 0;
@@ -33747,7 +34957,7 @@
           const r = new Uint8Array(Math.ceil(0.75 * tl));
           let index = 0;
           for (let n = 0; n < tl; n++) {
-            c = b64.indexOf(value.charAt(n));
+            c = b64toByte[value.charCodeAt(n)];
             if (c >= 0) {
               if (s) {
                 r[index++] = a | c >> 6 - s & 255;
@@ -33766,9 +34976,9 @@
       };
 
     }, {
-      "web-stream-tools": 77
+      "web-stream-tools": 75
     }],
-    115: [function(require, module, exports) {
+    113: [function(require, module, exports) {
       "use strict";
 
       Object.defineProperty(exports, "__esModule", {
@@ -34268,7 +35478,7 @@
       };
 
     }, {}],
-    116: [function(require, module, exports) {
+    114: [function(require, module, exports) {
       'use strict';
 
       Object.defineProperty(exports, "__esModule", {
@@ -34289,7 +35499,8 @@
        * Initialize the HKP client and configure it with the key server url and fetch function.
        * @constructor
        * @param {String}    keyServerBaseUrl  (optional) The HKP key server base url including
-       *   the protocol to use e.g. https://pgp.mit.edu
+       *   the protocol to use, e.g. 'https://pgp.mit.edu'; defaults to
+       *   openpgp.config.keyserver (https://keyserver.ubuntu.com)
        */
       function HKP(keyServerBaseUrl) {
         this._baseUrl = keyServerBaseUrl || _config2.default.keyserver;
@@ -34375,16 +35586,16 @@
       exports.default = HKP;
 
     }, {
-      "./config": 81,
+      "./config": 79,
       "node-fetch": "node-fetch"
     }],
-    117: [function(require, module, exports) {
+    115: [function(require, module, exports) {
       'use strict';
 
       Object.defineProperty(exports, "__esModule", {
         value: true
       });
-      exports.WKD = exports.HKP = exports.AsyncProxy = exports.Keyring = exports.crypto = exports.config = exports.enums = exports.armor = exports.stream = exports.OID = exports.KDFParams = exports.ECDHSymmetricKey = exports.Keyid = exports.S2K = exports.MPI = exports.packet = exports.util = exports.cleartext = exports.message = exports.signature = exports.key = exports.destroyWorker = exports.getWorker = exports.initWorker = exports.decryptSessionKeys = exports.encryptSessionKey = exports.decryptKey = exports.revokeKey = exports.reformatKey = exports.generateKey = exports.verify = exports.sign = exports.decrypt = exports.encrypt = undefined;
+      exports.lightweight = exports.WKD = exports.HKP = exports.AsyncProxy = exports.Keyring = exports.crypto = exports.config = exports.enums = exports.armor = exports.stream = exports.OID = exports.KDFParams = exports.ECDHSymmetricKey = exports.Keyid = exports.S2K = exports.MPI = exports.packet = exports.util = exports.cleartext = exports.message = exports.signature = exports.key = exports.destroyWorker = exports.getWorker = exports.initWorker = exports.decryptSessionKeys = exports.encryptSessionKey = exports.decryptKey = exports.revokeKey = exports.reformatKey = exports.generateKey = exports.verify = exports.sign = exports.decrypt = exports.encrypt = undefined;
 
       var _openpgp = require('./openpgp');
 
@@ -34638,6 +35849,10 @@
 
       var cleartextMod = _interopRequireWildcard(_cleartext);
 
+      var _lightweight_helper = require('./lightweight_helper');
+
+      var lightweightMod = _interopRequireWildcard(_lightweight_helper);
+
       function _interopRequireWildcard(obj) {
         if (obj && obj.__esModule) {
           return obj;
@@ -34710,31 +35925,440 @@
        * @name module:openpgp.util
        */
 
+
+      /**
+       * @see module:lightweight
+       */
+      const lightweight = exports.lightweight = lightweightMod;
+
     }, {
-      "./cleartext": 79,
-      "./config/config": 80,
-      "./crypto": 96,
-      "./encoding/armor": 113,
-      "./enums": 115,
-      "./hkp": 116,
+      "./cleartext": 77,
+      "./config/config": 78,
+      "./crypto": 94,
+      "./encoding/armor": 111,
+      "./enums": 113,
+      "./hkp": 114,
       "./key": 118,
-      "./keyring": 119,
-      "./message": 122,
-      "./openpgp": 123,
-      "./packet": 127,
-      "./signature": 147,
-      "./type/ecdh_symkey": 148,
-      "./type/kdf_params": 149,
-      "./type/keyid": 150,
-      "./type/mpi": 151,
-      "./type/oid": 152,
-      "./type/s2k": 153,
-      "./util": 154,
-      "./wkd": 155,
-      "./worker/async_proxy": 156,
-      "web-stream-tools": 77
+      "./keyring": 122,
+      "./lightweight_helper": 125,
+      "./message": 126,
+      "./openpgp": 127,
+      "./packet": 131,
+      "./signature": 151,
+      "./type/ecdh_symkey": 152,
+      "./type/kdf_params": 153,
+      "./type/keyid": 154,
+      "./type/mpi": 155,
+      "./type/oid": 156,
+      "./type/s2k": 157,
+      "./util": 158,
+      "./wkd": 159,
+      "./worker/async_proxy": 160,
+      "web-stream-tools": 75
     }],
-    118: [function(require, module, exports) {
+    116: [function(require, module, exports) {
+      'use strict';
+
+      Object.defineProperty(exports, "__esModule", {
+        value: true
+      });
+      exports.generate = generate;
+      exports.reformat = reformat;
+      exports.read = read;
+      exports.readArmored = readArmored;
+
+      var _packet = require('../packet');
+
+      var _packet2 = _interopRequireDefault(_packet);
+
+      var _key = require('./key');
+
+      var _key2 = _interopRequireDefault(_key);
+
+      var _helper = require('./helper');
+
+      var helper = _interopRequireWildcard(_helper);
+
+      var _enums = require('../enums');
+
+      var _enums2 = _interopRequireDefault(_enums);
+
+      var _util = require('../util');
+
+      var _util2 = _interopRequireDefault(_util);
+
+      var _config = require('../config');
+
+      var _config2 = _interopRequireDefault(_config);
+
+      var _armor = require('../encoding/armor');
+
+      var _armor2 = _interopRequireDefault(_armor);
+
+      function _interopRequireWildcard(obj) {
+        if (obj && obj.__esModule) {
+          return obj;
+        }
+        else {
+          var newObj = {};
+          if (obj != null) {
+            for (var key in obj) {
+              if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key];
+            }
+          }
+          newObj.default = obj;
+          return newObj;
+        }
+      }
+
+      function _interopRequireDefault(obj) {
+        return obj && obj.__esModule ? obj : {
+          default: obj
+        };
+      }
+
+      /**
+       * Generates a new OpenPGP key. Supports RSA and ECC keys.
+       * Primary and subkey will be of same type.
+       * @param {module:enums.publicKey} [options.keyType=module:enums.publicKey.rsa_encrypt_sign]
+       *                             To indicate what type of key to make.
+       *                             RSA is 1. See {@link https://tools.ietf.org/html/rfc4880#section-9.1}
+       * @param {Integer} options.numBits    number of bits for the key creation.
+       * @param {String|Array<String>}  options.userIds
+       *                             Assumes already in form of "User Name <username@email.com>"
+       *                             If array is used, the first userId is set as primary user Id
+       * @param {String}  options.passphrase The passphrase used to encrypt the resulting private key
+       * @param {Number} [options.keyExpirationTime=0]
+       *                             The number of seconds after the key creation time that the key expires
+       * @param  {String} curve            (optional) elliptic curve for ECC keys
+       * @param  {Date} date         Override the creation date of the key and the key signatures
+       * @param  {Array<Object>} subkeys   (optional) options for each subkey, default to main key options. e.g. [{sign: true, passphrase: '123'}]
+       *                                              sign parameter defaults to false, and indicates whether the subkey should sign rather than encrypt
+       * @returns {Promise<module:key.Key>}
+       * @async
+       * @static
+       */
+      async function generate(options) {
+        options.sign = true; // primary key is always a signing key
+        options = helper.sanitizeKeyOptions(options);
+        options.subkeys = options.subkeys.map(function(subkey, index) {
+          return helper.sanitizeKeyOptions(options.subkeys[index], options);
+        });
+
+        let promises = [helper.generateSecretKey(options)];
+        promises = promises.concat(options.subkeys.map(helper.generateSecretSubkey));
+        return Promise.all(promises).then(packets => wrapKeyObject(packets[0], packets.slice(1), options));
+      }
+
+      /**
+       * Reformats and signs an OpenPGP key with a given User ID. Currently only supports RSA keys.
+       * @param {module:key.Key} options.privateKey   The private key to reformat
+       * @param {module:enums.publicKey} [options.keyType=module:enums.publicKey.rsa_encrypt_sign]
+       * @param {String|Array<String>}  options.userIds
+       *                             Assumes already in form of "User Name <username@email.com>"
+       *                             If array is used, the first userId is set as primary user Id
+       * @param {String}  options.passphrase The passphrase used to encrypt the resulting private key
+       * @param {Number} [options.keyExpirationTime=0]
+       *                             The number of seconds after the key creation time that the key expires
+       * @param  {Date} date         Override the creation date of the key and the key signatures
+       * @param  {Array<Object>} subkeys   (optional) options for each subkey, default to main key options. e.g. [{sign: true, passphrase: '123'}]
+       *
+       * @returns {Promise<module:key.Key>}
+       * @async
+       * @static
+       */
+      // OpenPGP.js - An OpenPGP implementation in javascript
+      // Copyright (C) 2015-2016 Decentral
+      //
+      // This library is free software; you can redistribute it and/or
+      // modify it under the terms of the GNU Lesser General Public
+      // License as published by the Free Software Foundation; either
+      // version 3.0 of the License, or (at your option) any later version.
+      //
+      // This library is distributed in the hope that it will be useful,
+      // but WITHOUT ANY WARRANTY; without even the implied warranty of
+      // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+      // Lesser General Public License for more details.
+      //
+      // You should have received a copy of the GNU Lesser General Public
+      // License along with this library; if not, write to the Free Software
+      // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+
+      /**
+       * @fileoverview Provides factory methods for key creation
+       * @requires packet
+       * @requires key/Key
+       * @requires key/helper
+       * @requires enums
+       * @requires util
+       * @requires config
+       * @requires armor
+       * @module key/factory
+       */
+
+      async function reformat(options) {
+        options = sanitize(options);
+
+        try {
+          const isDecrypted = options.privateKey.getKeys().every(key => key.isDecrypted());
+          if (!isDecrypted) {
+            await options.privateKey.decrypt();
+          }
+        }
+        catch (err) {
+          throw new Error('Key not decrypted');
+        }
+
+        const packetlist = options.privateKey.toPacketlist();
+        let secretKeyPacket;
+        const secretSubkeyPackets = [];
+        for (let i = 0; i < packetlist.length; i++) {
+          if (packetlist[i].tag === _enums2.default.packet.secretKey) {
+            secretKeyPacket = packetlist[i];
+          }
+          else if (packetlist[i].tag === _enums2.default.packet.secretSubkey) {
+            secretSubkeyPackets.push(packetlist[i]);
+          }
+        }
+        if (!secretKeyPacket) {
+          throw new Error('Key does not contain a secret key packet');
+        }
+
+        if (!options.subkeys) {
+          options.subkeys = await Promise.all(secretSubkeyPackets.map(async secretSubkeyPacket => ({
+            sign: (await options.privateKey.getSigningKey(secretSubkeyPacket.getKeyId(), null)) && !(await options.privateKey.getEncryptionKey(secretSubkeyPacket.getKeyId(), null))
+          })));
+        }
+
+        if (options.subkeys.length !== secretSubkeyPackets.length) {
+          throw new Error('Number of subkey options does not match number of subkeys');
+        }
+
+        options.subkeys = options.subkeys.map(function(subkey, index) {
+          return sanitize(options.subkeys[index], options);
+        });
+
+        return wrapKeyObject(secretKeyPacket, secretSubkeyPackets, options);
+
+        function sanitize(options, subkeyDefaults = {}) {
+          options.keyExpirationTime = options.keyExpirationTime || subkeyDefaults.keyExpirationTime;
+          options.passphrase = _util2.default.isString(options.passphrase) ? options.passphrase : subkeyDefaults.passphrase;
+          options.date = options.date || subkeyDefaults.date;
+
+          return options;
+        }
+      }
+
+      async function wrapKeyObject(secretKeyPacket, secretSubkeyPackets, options) {
+        // set passphrase protection
+        if (options.passphrase) {
+          await secretKeyPacket.encrypt(options.passphrase);
+        }
+
+        await Promise.all(secretSubkeyPackets.map(async function(secretSubkeyPacket, index) {
+          const subkeyPassphrase = options.subkeys[index].passphrase;
+          if (subkeyPassphrase) {
+            await secretSubkeyPacket.encrypt(subkeyPassphrase);
+          }
+        }));
+
+        const packetlist = new _packet2.default.List();
+
+        packetlist.push(secretKeyPacket);
+
+        await Promise.all(options.userIds.map(async function(userId, index) {
+          function createdPreferredAlgos(algos, configAlgo) {
+            if (configAlgo) {
+              // Not `uncompressed` / `plaintext`
+              const configIndex = algos.indexOf(configAlgo);
+              if (configIndex >= 1) {
+                // If it is included and not in first place,
+                algos.splice(configIndex, 1); // remove it.
+              }
+              if (configIndex !== 0) {
+                // If it was included and not in first place, or wasn't included,
+                algos.unshift(configAlgo); // add it to the front.
+              }
+            }
+            return algos;
+          }
+
+          const userIdPacket = new _packet2.default.Userid();
+          userIdPacket.format(userId);
+
+          const dataToSign = {};
+          dataToSign.userId = userIdPacket;
+          dataToSign.key = secretKeyPacket;
+          const signaturePacket = new _packet2.default.Signature(options.date);
+          signaturePacket.signatureType = _enums2.default.signature.cert_generic;
+          signaturePacket.publicKeyAlgorithm = secretKeyPacket.algorithm;
+          signaturePacket.hashAlgorithm = await helper.getPreferredHashAlgo(null, secretKeyPacket);
+          signaturePacket.keyFlags = [_enums2.default.keyFlags.certify_keys | _enums2.default.keyFlags.sign_data];
+          signaturePacket.preferredSymmetricAlgorithms = createdPreferredAlgos([
+            // prefer aes256, aes128, then aes192 (no WebCrypto support: https://www.chromium.org/blink/webcrypto#TOC-AES-support)
+            _enums2.default.symmetric.aes256, _enums2.default.symmetric.aes128, _enums2.default.symmetric.aes192, _enums2.default.symmetric.cast5, _enums2.default.symmetric.tripledes
+          ], _config2.default.encryption_cipher);
+          if (_config2.default.aead_protect) {
+            signaturePacket.preferredAeadAlgorithms = createdPreferredAlgos([_enums2.default.aead.eax, _enums2.default.aead.ocb], _config2.default.aead_mode);
+          }
+          signaturePacket.preferredHashAlgorithms = createdPreferredAlgos([
+            // prefer fast asm.js implementations (SHA-256). SHA-1 will not be secure much longer...move to bottom of list
+            _enums2.default.hash.sha256, _enums2.default.hash.sha512, _enums2.default.hash.sha1
+          ], _config2.default.prefer_hash_algorithm);
+          signaturePacket.preferredCompressionAlgorithms = createdPreferredAlgos([_enums2.default.compression.zlib, _enums2.default.compression.zip, _enums2.default.compression.uncompressed], _config2.default.compression);
+          if (index === 0) {
+            signaturePacket.isPrimaryUserID = true;
+          }
+          if (_config2.default.integrity_protect) {
+            signaturePacket.features = [0];
+            signaturePacket.features[0] |= _enums2.default.features.modification_detection;
+          }
+          if (_config2.default.aead_protect) {
+            signaturePacket.features || (signaturePacket.features = [0]);
+            signaturePacket.features[0] |= _enums2.default.features.aead;
+          }
+          if (_config2.default.v5_keys) {
+            signaturePacket.features || (signaturePacket.features = [0]);
+            signaturePacket.features[0] |= _enums2.default.features.v5_keys;
+          }
+          if (options.keyExpirationTime > 0) {
+            signaturePacket.keyExpirationTime = options.keyExpirationTime;
+            signaturePacket.keyNeverExpires = false;
+          }
+          await signaturePacket.sign(secretKeyPacket, dataToSign);
+
+          return {
+            userIdPacket,
+            signaturePacket
+          };
+        })).then(list => {
+          list.forEach(({
+            userIdPacket,
+            signaturePacket
+          }) => {
+            packetlist.push(userIdPacket);
+            packetlist.push(signaturePacket);
+          });
+        });
+
+        await Promise.all(secretSubkeyPackets.map(async function(secretSubkeyPacket, index) {
+          const subkeyOptions = options.subkeys[index];
+          const subkeySignaturePacket = await helper.createBindingSignature(secretSubkeyPacket, secretKeyPacket, subkeyOptions);
+          return {
+            secretSubkeyPacket,
+            subkeySignaturePacket
+          };
+        })).then(packets => {
+          packets.forEach(({
+            secretSubkeyPacket,
+            subkeySignaturePacket
+          }) => {
+            packetlist.push(secretSubkeyPacket);
+            packetlist.push(subkeySignaturePacket);
+          });
+        });
+
+        // Add revocation signature packet for creating a revocation certificate.
+        // This packet should be removed before returning the key.
+        const dataToSign = {
+          key: secretKeyPacket
+        };
+        packetlist.push((await helper.createSignaturePacket(dataToSign, null, secretKeyPacket, {
+          signatureType: _enums2.default.signature.key_revocation,
+          reasonForRevocationFlag: _enums2.default.reasonForRevocation.no_reason,
+          reasonForRevocationString: ''
+        }, options.date)));
+
+        // set passphrase protection
+        if (options.passphrase) {
+          secretKeyPacket.clearPrivateParams();
+        }
+
+        await Promise.all(secretSubkeyPackets.map(async function(secretSubkeyPacket, index) {
+          const subkeyPassphrase = options.subkeys[index].passphrase;
+          if (subkeyPassphrase) {
+            secretSubkeyPacket.clearPrivateParams();
+          }
+        }));
+
+        return new _key2.default(packetlist);
+      }
+
+      /**
+       * Reads an unarmored OpenPGP key list and returns one or multiple key objects
+       * @param {Uint8Array} data to be parsed
+       * @returns {Promise<{keys: Array<module:key.Key>,
+       *            err: (Array<Error>|null)}>} result object with key and error arrays
+       * @async
+       * @static
+       */
+      async function read(data) {
+        const result = {};
+        result.keys = [];
+        const err = [];
+        try {
+          const packetlist = new _packet2.default.List();
+          await packetlist.read(data);
+          const keyIndex = packetlist.indexOfTag(_enums2.default.packet.publicKey, _enums2.default.packet.secretKey);
+          if (keyIndex.length === 0) {
+            throw new Error('No key packet found');
+          }
+          for (let i = 0; i < keyIndex.length; i++) {
+            const oneKeyList = packetlist.slice(keyIndex[i], keyIndex[i + 1]);
+            try {
+              const newKey = new _key2.default(oneKeyList);
+              result.keys.push(newKey);
+            }
+            catch (e) {
+              err.push(e);
+            }
+          }
+        }
+        catch (e) {
+          err.push(e);
+        }
+        if (err.length) {
+          result.err = err;
+        }
+        return result;
+      }
+
+      /**
+       * Reads an OpenPGP armored text and returns one or multiple key objects
+       * @param {String | ReadableStream<String>} armoredText text to be parsed
+       * @returns {Promise<{keys: Array<module:key.Key>,
+       *            err: (Array<Error>|null)}>} result object with key and error arrays
+       * @async
+       * @static
+       */
+      async function readArmored(armoredText) {
+        try {
+          const input = await _armor2.default.decode(armoredText);
+          if (!(input.type === _enums2.default.armor.public_key || input.type === _enums2.default.armor.private_key)) {
+            throw new Error('Armored text not of type key');
+          }
+          return read(input.data);
+        }
+        catch (e) {
+          const result = {
+            keys: [],
+            err: []
+          };
+          result.err.push(e);
+          return result;
+        }
+      }
+
+    }, {
+      "../config": 79,
+      "../encoding/armor": 111,
+      "../enums": 113,
+      "../packet": 131,
+      "../util": 158,
+      "./helper": 117,
+      "./key": 119
+    }],
+    117: [function(require, module, exports) {
       'use strict';
 
       Object.defineProperty(exports, "__esModule", {
@@ -34778,66 +36402,495 @@
             throw new TypeError("Invalid attempt to destructure non-iterable instance");
           }
         };
-      }(); // GPG4Browsers - An OpenPGP implementation in javascript
-      // Copyright (C) 2011 Recurity Labs GmbH
-      //
-      // This library is free software; you can redistribute it and/or
-      // modify it under the terms of the GNU Lesser General Public
-      // License as published by the Free Software Foundation; either
-      // version 3.0 of the License, or (at your option) any later version.
-      //
-      // This library is distributed in the hope that it will be useful,
-      // but WITHOUT ANY WARRANTY; without even the implied warranty of
-      // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-      // Lesser General Public License for more details.
-      //
-      // You should have received a copy of the GNU Lesser General Public
-      // License along with this library; if not, write to the Free Software
-      // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
-
+      }();
       /**
-       * @requires encoding/armor
-       * @requires crypto
+       * @fileoverview Provides helpers methods for key module
        * @requires packet
-       * @requires config
        * @requires enums
-       * @requires util
-       * @module key
+       * @requires config
+       * @requires crypto
+       * @module key/helper
        */
 
-      exports.Key = Key;
-      exports.createSignaturePacket = createSignaturePacket;
-      exports.read = read;
-      exports.readArmored = readArmored;
-      exports.generate = generate;
-      exports.reformat = reformat;
+      exports.generateSecretSubkey = generateSecretSubkey;
+      exports.generateSecretKey = generateSecretKey;
+      exports.getLatestValidSignature = getLatestValidSignature;
+      exports.isDataExpired = isDataExpired;
+      exports.createBindingSignature = createBindingSignature;
       exports.getPreferredHashAlgo = getPreferredHashAlgo;
       exports.getPreferredAlgo = getPreferredAlgo;
+      exports.createSignaturePacket = createSignaturePacket;
+      exports.mergeSignatures = mergeSignatures;
+      exports.isDataRevoked = isDataRevoked;
+      exports.getExpirationTime = getExpirationTime;
       exports.isAeadSupported = isAeadSupported;
+      exports.sanitizeKeyOptions = sanitizeKeyOptions;
+      exports.isValidSigningKeyPacket = isValidSigningKeyPacket;
+      exports.isValidEncryptionKeyPacket = isValidEncryptionKeyPacket;
 
-      var _armor = require('./encoding/armor');
-
-      var _armor2 = _interopRequireDefault(_armor);
-
-      var _crypto = require('./crypto');
-
-      var _crypto2 = _interopRequireDefault(_crypto);
-
-      var _packet = require('./packet');
+      var _packet = require('../packet');
 
       var _packet2 = _interopRequireDefault(_packet);
 
-      var _config = require('./config');
-
-      var _config2 = _interopRequireDefault(_config);
-
-      var _enums = require('./enums');
+      var _enums = require('../enums');
 
       var _enums2 = _interopRequireDefault(_enums);
 
-      var _util = require('./util');
+      var _config = require('../config');
+
+      var _config2 = _interopRequireDefault(_config);
+
+      var _crypto = require('../crypto');
+
+      var _crypto2 = _interopRequireDefault(_crypto);
+
+      var _util = require('../util');
 
       var _util2 = _interopRequireDefault(_util);
+
+      function _interopRequireDefault(obj) {
+        return obj && obj.__esModule ? obj : {
+          default: obj
+        };
+      }
+
+      async function generateSecretSubkey(options) {
+        const secretSubkeyPacket = new _packet2.default.SecretSubkey(options.date);
+        secretSubkeyPacket.packets = null;
+        secretSubkeyPacket.algorithm = _enums2.default.read(_enums2.default.publicKey, options.algorithm);
+        await secretSubkeyPacket.generate(options.rsaBits, options.curve);
+        return secretSubkeyPacket;
+      }
+
+      async function generateSecretKey(options) {
+        const secretKeyPacket = new _packet2.default.SecretKey(options.date);
+        secretKeyPacket.packets = null;
+        secretKeyPacket.algorithm = _enums2.default.read(_enums2.default.publicKey, options.algorithm);
+        await secretKeyPacket.generate(options.rsaBits, options.curve);
+        return secretKeyPacket;
+      }
+
+      /**
+       * Returns the valid and non-expired signature that has the latest creation date, while ignoring signatures created in the future.
+       * @param  {Array<module:packet.Signature>} signatures  List of signatures
+       * @param  {Date}                           date        Use the given date instead of the current time
+       * @returns {Promise<module:packet.Signature>} The latest valid signature
+       * @async
+       */
+      async function getLatestValidSignature(signatures, primaryKey, signatureType, dataToVerify, date = new Date()) {
+        let signature;
+        for (let i = signatures.length - 1; i >= 0; i--) {
+          if ((!signature || signatures[i].created >= signature.created) &&
+            // check binding signature is not expired (ie, check for V4 expiration time)
+            !signatures[i].isExpired(date) && (
+              // check binding signature is verified
+              signatures[i].verified || (await signatures[i].verify(primaryKey, signatureType, dataToVerify)))) {
+            signature = signatures[i];
+          }
+        }
+        return signature;
+      }
+
+      function isDataExpired(keyPacket, signature, date = new Date()) {
+        const normDate = _util2.default.normalizeDate(date);
+        if (normDate !== null) {
+          const expirationTime = getExpirationTime(keyPacket, signature);
+          return !(keyPacket.created <= normDate && normDate <= expirationTime) || signature && signature.isExpired(date);
+        }
+        return false;
+      }
+
+      /**
+       * Create Binding signature to the key according to the {@link https://tools.ietf.org/html/rfc4880#section-5.2.1}
+       * @param {module:packet.SecretSubkey|} subkey Subkey key packet
+       * @param {module:packet.SecretKey} primaryKey Primary key packet
+       * @param {Object} options
+       */
+      async function createBindingSignature(subkey, primaryKey, options) {
+        const dataToSign = {};
+        dataToSign.key = primaryKey;
+        dataToSign.bind = subkey;
+        const subkeySignaturePacket = new _packet2.default.Signature(options.date);
+        subkeySignaturePacket.signatureType = _enums2.default.signature.subkey_binding;
+        subkeySignaturePacket.publicKeyAlgorithm = primaryKey.algorithm;
+        subkeySignaturePacket.hashAlgorithm = await getPreferredHashAlgo(null, subkey);
+        if (options.sign) {
+          subkeySignaturePacket.keyFlags = [_enums2.default.keyFlags.sign_data];
+          subkeySignaturePacket.embeddedSignature = await createSignaturePacket(dataToSign, null, subkey, {
+            signatureType: _enums2.default.signature.key_binding
+          }, options.date);
+        }
+        else {
+          subkeySignaturePacket.keyFlags = [_enums2.default.keyFlags.encrypt_communication | _enums2.default.keyFlags.encrypt_storage];
+        }
+        if (options.keyExpirationTime > 0) {
+          subkeySignaturePacket.keyExpirationTime = options.keyExpirationTime;
+          subkeySignaturePacket.keyNeverExpires = false;
+        }
+        await subkeySignaturePacket.sign(primaryKey, dataToSign);
+        return subkeySignaturePacket;
+      }
+
+      /**
+       * Returns the preferred signature hash algorithm of a key
+       * @param  {module:key.Key} key (optional) the key to get preferences from
+       * @param  {module:packet.SecretKey|module:packet.SecretSubkey} keyPacket key packet used for signing
+       * @param  {Date} date (optional) use the given date for verification instead of the current time
+       * @param  {Object} userId (optional) user ID
+       * @returns {Promise<String>}
+       * @async
+       */
+      async function getPreferredHashAlgo(key, keyPacket, date = new Date(), userId = {}) {
+        let hash_algo = _config2.default.prefer_hash_algorithm;
+        let pref_algo = hash_algo;
+        if (key) {
+          const primaryUser = await key.getPrimaryUser(date, userId);
+          if (primaryUser && primaryUser.selfCertification.preferredHashAlgorithms) {
+            var _primaryUser$selfCert = _slicedToArray(primaryUser.selfCertification.preferredHashAlgorithms, 1);
+
+            pref_algo = _primaryUser$selfCert[0];
+
+            hash_algo = _crypto2.default.hash.getHashByteLength(hash_algo) <= _crypto2.default.hash.getHashByteLength(pref_algo) ? pref_algo : hash_algo;
+          }
+        }
+        switch (Object.getPrototypeOf(keyPacket)) {
+          case _packet2.default.SecretKey.prototype:
+          case _packet2.default.PublicKey.prototype:
+          case _packet2.default.SecretSubkey.prototype:
+          case _packet2.default.PublicSubkey.prototype:
+            switch (keyPacket.algorithm) {
+              case 'ecdh':
+              case 'ecdsa':
+              case 'eddsa':
+                pref_algo = _crypto2.default.publicKey.elliptic.getPreferredHashAlgo(keyPacket.params[0]);
+            }
+        }
+        return _crypto2.default.hash.getHashByteLength(hash_algo) <= _crypto2.default.hash.getHashByteLength(pref_algo) ? pref_algo : hash_algo;
+      }
+
+      /**
+       * Returns the preferred symmetric/aead algorithm for a set of keys
+       * @param  {symmetric|aead} type Type of preference to return
+       * @param  {Array<module:key.Key>} keys Set of keys
+       * @param  {Date} date (optional) use the given date for verification instead of the current time
+       * @param  {Array} userIds (optional) user IDs
+       * @returns {Promise<module:enums.symmetric>}   Preferred symmetric algorithm
+       * @async
+       */
+      async function getPreferredAlgo(type, keys, date = new Date(), userIds = []) {
+        const prefProperty = type === 'symmetric' ? 'preferredSymmetricAlgorithms' : 'preferredAeadAlgorithms';
+        const defaultAlgo = type === 'symmetric' ? _enums2.default.symmetric.aes128 : _enums2.default.aead.eax;
+        const prioMap = {};
+        await Promise.all(keys.map(async function(key, i) {
+          const primaryUser = await key.getPrimaryUser(date, userIds[i]);
+          if (!primaryUser || !primaryUser.selfCertification[prefProperty]) {
+            return defaultAlgo;
+          }
+          primaryUser.selfCertification[prefProperty].forEach(function(algo, index) {
+            const entry = prioMap[algo] || (prioMap[algo] = {
+              prio: 0,
+              count: 0,
+              algo: algo
+            });
+            entry.prio += 64 >> index;
+            entry.count++;
+          });
+        }));
+        let prefAlgo = {
+          prio: 0,
+          algo: defaultAlgo
+        };
+        Object.values(prioMap).forEach(({
+          prio,
+          count,
+          algo
+        }) => {
+          try {
+            if (algo !== _enums2.default[type].plaintext && algo !== _enums2.default[type].idea && // not implemented
+              _enums2.default.read(_enums2.default[type], algo) && // known algorithm
+              count === keys.length && // available for all keys
+              prio > prefAlgo.prio) {
+              prefAlgo = prioMap[algo];
+            }
+          }
+          catch (e) {}
+        });
+        return prefAlgo.algo;
+      }
+
+      /**
+       * Create signature packet
+       * @param  {Object}                          dataToSign Contains packets to be signed
+       * @param  {module:packet.SecretKey|
+       *          module:packet.SecretSubkey}      signingKeyPacket secret key packet for signing
+       * @param  {Object} signatureProperties      (optional) properties to write on the signature packet before signing
+       * @param  {Date} date                       (optional) override the creationtime of the signature
+       * @param  {Object} userId                   (optional) user ID
+       * @param  {Object} detached                 (optional) whether to create a detached signature packet
+       * @param  {Boolean} streaming               (optional) whether to process data as a stream
+       * @returns {module:packet/signature}         signature packet
+       */
+      async function createSignaturePacket(dataToSign, privateKey, signingKeyPacket, signatureProperties, date, userId, detached = false, streaming = false) {
+        if (!signingKeyPacket.isDecrypted()) {
+          throw new Error('Private key is not decrypted.');
+        }
+        const signaturePacket = new _packet2.default.Signature(date);
+        Object.assign(signaturePacket, signatureProperties);
+        signaturePacket.publicKeyAlgorithm = signingKeyPacket.algorithm;
+        signaturePacket.hashAlgorithm = await getPreferredHashAlgo(privateKey, signingKeyPacket, date, userId);
+        await signaturePacket.sign(signingKeyPacket, dataToSign, detached, streaming);
+        return signaturePacket;
+      }
+
+      /**
+       * Merges signatures from source[attr] to dest[attr]
+       * @private
+       * @param  {Object} source
+       * @param  {Object} dest
+       * @param  {String} attr
+       * @param  {Function} checkFn optional, signature only merged if true
+       */
+      async function mergeSignatures(source, dest, attr, checkFn) {
+        source = source[attr];
+        if (source) {
+          if (!dest[attr].length) {
+            dest[attr] = source;
+          }
+          else {
+            await Promise.all(source.map(async function(sourceSig) {
+              if (!sourceSig.isExpired() && (!checkFn || (await checkFn(sourceSig))) && !dest[attr].some(function(destSig) {
+                  return _util2.default.equalsUint8Array(destSig.signature, sourceSig.signature);
+                })) {
+                dest[attr].push(sourceSig);
+              }
+            }));
+          }
+        }
+      }
+
+      /**
+       * Checks if a given certificate or binding signature is revoked
+       * @param  {module:packet.SecretKey|
+       *          module:packet.PublicKey}       primaryKey   The primary key packet
+       * @param  {Object}                         dataToVerify The data to check
+       * @param  {Array<module:packet.Signature>} revocations  The revocation signatures to check
+       * @param  {module:packet.Signature}        signature    The certificate or signature to check
+       * @param  {module:packet.PublicSubkey|
+       *          module:packet.SecretSubkey|
+       *          module:packet.PublicKey|
+       *          module:packet.SecretKey} key, optional The key packet to check the signature
+       * @param  {Date}                     date          Use the given date instead of the current time
+       * @returns {Promise<Boolean>}                      True if the signature revokes the data
+       * @async
+       */
+      async function isDataRevoked(primaryKey, signatureType, dataToVerify, revocations, signature, key, date = new Date()) {
+        key = key || primaryKey;
+        const normDate = _util2.default.normalizeDate(date);
+        const revocationKeyIds = [];
+        await Promise.all(revocations.map(async function(revocationSignature) {
+          if (
+            // Note: a third-party revocation signature could legitimately revoke a
+            // self-signature if the signature has an authorized revocation key.
+            // However, we don't support passing authorized revocation keys, nor
+            // verifying such revocation signatures. Instead, we indicate an error
+            // when parsing a key with an authorized revocation key, and ignore
+            // third-party revocation signatures here. (It could also be revoking a
+            // third-party key certification, which should only affect
+            // `verifyAllCertifications`.)
+            (!signature || revocationSignature.issuerKeyId.equals(signature.issuerKeyId)) && !(_config2.default.revocations_expire && revocationSignature.isExpired(normDate)) && (revocationSignature.verified || (await revocationSignature.verify(key, signatureType, dataToVerify)))) {
+            // TODO get an identifier of the revoked object instead
+            revocationKeyIds.push(revocationSignature.issuerKeyId);
+            return true;
+          }
+          return false;
+        }));
+        // TODO further verify that this is the signature that should be revoked
+        if (signature) {
+          signature.revoked = revocationKeyIds.some(keyId => keyId.equals(signature.issuerKeyId)) ? true : signature.revoked || false;
+          return signature.revoked;
+        }
+        return revocationKeyIds.length > 0;
+      }
+
+      function getExpirationTime(keyPacket, signature) {
+        let expirationTime;
+        // check V4 expiration time
+        if (signature.keyNeverExpires === false) {
+          expirationTime = keyPacket.created.getTime() + signature.keyExpirationTime * 1000;
+        }
+        return expirationTime ? new Date(expirationTime) : Infinity;
+      }
+
+      /**
+       * Returns whether aead is supported by all keys in the set
+       * @param  {Array<module:key.Key>} keys Set of keys
+       * @param  {Date} date (optional) use the given date for verification instead of the current time
+       * @param  {Array} userIds (optional) user IDs
+       * @returns {Promise<Boolean>}
+       * @async
+       */
+      async function isAeadSupported(keys, date = new Date(), userIds = []) {
+        let supported = true;
+        // TODO replace when Promise.some or Promise.any are implemented
+        await Promise.all(keys.map(async function(key, i) {
+          const primaryUser = await key.getPrimaryUser(date, userIds[i]);
+          if (!primaryUser || !primaryUser.selfCertification.features || !(primaryUser.selfCertification.features[0] & _enums2.default.features.aead)) {
+            supported = false;
+          }
+        }));
+        return supported;
+      }
+
+      function sanitizeKeyOptions(options, subkeyDefaults = {}) {
+        options.curve = options.curve || subkeyDefaults.curve;
+        options.rsaBits = options.rsaBits || subkeyDefaults.rsaBits;
+        options.keyExpirationTime = options.keyExpirationTime !== undefined ? options.keyExpirationTime : subkeyDefaults.keyExpirationTime;
+        options.passphrase = _util2.default.isString(options.passphrase) ? options.passphrase : subkeyDefaults.passphrase;
+        options.date = options.date || subkeyDefaults.date;
+
+        options.sign = options.sign || false;
+
+        if (options.curve) {
+          try {
+            options.curve = _enums2.default.write(_enums2.default.curve, options.curve);
+          }
+          catch (e) {
+            throw new Error('Not valid curve.');
+          }
+          if (options.curve === _enums2.default.curve.ed25519 || options.curve === _enums2.default.curve.curve25519) {
+            options.curve = options.sign ? _enums2.default.curve.ed25519 : _enums2.default.curve.curve25519;
+          }
+          if (options.sign) {
+            options.algorithm = options.curve === _enums2.default.curve.ed25519 ? _enums2.default.publicKey.eddsa : _enums2.default.publicKey.ecdsa;
+          }
+          else {
+            options.algorithm = _enums2.default.publicKey.ecdh;
+          }
+        }
+        else if (options.rsaBits) {
+          options.algorithm = _enums2.default.publicKey.rsa_encrypt_sign;
+        }
+        else {
+          throw new Error('Unrecognized key type');
+        }
+        return options;
+      }
+
+      function isValidSigningKeyPacket(keyPacket, signature) {
+        if (!signature.verified || signature.revoked !== false) {
+          // Sanity check
+          throw new Error('Signature not verified');
+        }
+        return keyPacket.algorithm !== _enums2.default.read(_enums2.default.publicKey, _enums2.default.publicKey.rsa_encrypt) && keyPacket.algorithm !== _enums2.default.read(_enums2.default.publicKey, _enums2.default.publicKey.elgamal) && keyPacket.algorithm !== _enums2.default.read(_enums2.default.publicKey, _enums2.default.publicKey.ecdh) && (!signature.keyFlags || (signature.keyFlags[0] & _enums2.default.keyFlags.sign_data) !== 0);
+      }
+
+      function isValidEncryptionKeyPacket(keyPacket, signature) {
+        if (!signature.verified || signature.revoked !== false) {
+          // Sanity check
+          throw new Error('Signature not verified');
+        }
+        return keyPacket.algorithm !== _enums2.default.read(_enums2.default.publicKey, _enums2.default.publicKey.dsa) && keyPacket.algorithm !== _enums2.default.read(_enums2.default.publicKey, _enums2.default.publicKey.rsa_sign) && keyPacket.algorithm !== _enums2.default.read(_enums2.default.publicKey, _enums2.default.publicKey.ecdsa) && keyPacket.algorithm !== _enums2.default.read(_enums2.default.publicKey, _enums2.default.publicKey.eddsa) && (!signature.keyFlags || (signature.keyFlags[0] & _enums2.default.keyFlags.encrypt_communication) !== 0 || (signature.keyFlags[0] & _enums2.default.keyFlags.encrypt_storage) !== 0);
+      }
+
+    }, {
+      "../config": 79,
+      "../crypto": 94,
+      "../enums": 113,
+      "../packet": 131,
+      "../util": 158
+    }],
+    118: [function(require, module, exports) {
+      'use strict';
+
+      Object.defineProperty(exports, "__esModule", {
+        value: true
+      });
+      exports.Key = exports.createSignaturePacket = exports.getPreferredHashAlgo = exports.isAeadSupported = exports.getPreferredAlgo = exports.reformat = exports.read = exports.generate = exports.readArmored = undefined;
+
+      var _factory = require('./factory');
+
+      var _helper = require('./helper');
+
+      var _key = require('./key.js');
+
+      var _key2 = _interopRequireDefault(_key);
+
+      function _interopRequireDefault(obj) {
+        return obj && obj.__esModule ? obj : {
+          default: obj
+        };
+      }
+
+      exports.readArmored = _factory.readArmored;
+      exports.generate = _factory.generate;
+      exports.read = _factory.read;
+      exports.reformat = _factory.reformat;
+      exports.getPreferredAlgo = _helper.getPreferredAlgo;
+      exports.isAeadSupported = _helper.isAeadSupported;
+      exports.getPreferredHashAlgo = _helper.getPreferredHashAlgo;
+      exports.createSignaturePacket = _helper.createSignaturePacket;
+      exports.Key = _key2.default;
+      /**
+       * @fileoverview helper, factory methods, constructors dealing with openPGP key object
+       * @module key
+       */
+
+    }, {
+      "./factory": 116,
+      "./helper": 117,
+      "./key.js": 119
+    }],
+    119: [function(require, module, exports) {
+      'use strict';
+
+      Object.defineProperty(exports, "__esModule", {
+        value: true
+      });
+      exports.default = Key;
+
+      var _armor = require('../encoding/armor');
+
+      var _armor2 = _interopRequireDefault(_armor);
+
+      var _packet = require('../packet');
+
+      var _packet2 = _interopRequireDefault(_packet);
+
+      var _enums = require('../enums');
+
+      var _enums2 = _interopRequireDefault(_enums);
+
+      var _util = require('../util');
+
+      var _util2 = _interopRequireDefault(_util);
+
+      var _user = require('./user');
+
+      var _user2 = _interopRequireDefault(_user);
+
+      var _subkey = require('./subkey');
+
+      var _subkey2 = _interopRequireDefault(_subkey);
+
+      var _helper = require('./helper');
+
+      var helper = _interopRequireWildcard(_helper);
+
+      function _interopRequireWildcard(obj) {
+        if (obj && obj.__esModule) {
+          return obj;
+        }
+        else {
+          var newObj = {};
+          if (obj != null) {
+            for (var key in obj) {
+              if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key];
+            }
+          }
+          newObj.default = obj;
+          return newObj;
+        }
+      }
 
       function _interopRequireDefault(obj) {
         return obj && obj.__esModule ? obj : {
@@ -34871,7 +36924,32 @@
         if (!this.keyPacket || !this.users.length) {
           throw new Error('Invalid key: need at least key and user ID packet');
         }
-      }
+      } // GPG4Browsers - An OpenPGP implementation in javascript
+      // Copyright (C) 2011 Recurity Labs GmbH
+      //
+      // This library is free software; you can redistribute it and/or
+      // modify it under the terms of the GNU Lesser General Public
+      // License as published by the Free Software Foundation; either
+      // version 3.0 of the License, or (at your option) any later version.
+      //
+      // This library is distributed in the hope that it will be useful,
+      // but WITHOUT ANY WARRANTY; without even the implied warranty of
+      // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+      // Lesser General Public License for more details.
+      //
+      // You should have received a copy of the GNU Lesser General Public
+      // License along with this library; if not, write to the Free Software
+      // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+
+      /**
+       * @requires encoding/armor
+       * @requires packet
+       * @requires enums
+       * @requires util
+       * @requires key/User
+       * @requires key/Subkey
+       * @module key/Key
+       */
 
       Object.defineProperty(Key.prototype, 'primaryKey', {
         get() {
@@ -34898,13 +36976,13 @@
               break;
             case _enums2.default.packet.userid:
             case _enums2.default.packet.userAttribute:
-              user = new User(packetlist[i]);
+              user = new _user2.default(packetlist[i]);
               this.users.push(user);
               break;
             case _enums2.default.packet.publicSubkey:
             case _enums2.default.packet.secretSubkey:
               user = null;
-              subKey = new SubKey(packetlist[i]);
+              subKey = new _subkey2.default(packetlist[i]);
               this.subKeys.push(subKey);
               break;
             case _enums2.default.packet.signature:
@@ -34918,7 +36996,6 @@
                     continue;
                   }
                   if (packetlist[i].issuerKeyId.equals(primaryKeyId)) {
-                    checkRevocationKey(packetlist[i], primaryKeyId);
                     user.selfCertifications.push(packetlist[i]);
                   }
                   else {
@@ -34934,7 +37011,6 @@
                   }
                   break;
                 case _enums2.default.signature.key:
-                  checkRevocationKey(packetlist[i], primaryKeyId);
                   this.directSignatures.push(packetlist[i]);
                   break;
                 case _enums2.default.signature.subkey_binding:
@@ -34942,7 +37018,6 @@
                     _util2.default.print_debug('Dropping subkey binding signature without preceding subkey packet');
                     continue;
                   }
-                  checkRevocationKey(packetlist[i], primaryKeyId);
                   subKey.bindingSignatures.push(packetlist[i]);
                   break;
                 case _enums2.default.signature.key_revocation:
@@ -35080,30 +37155,9 @@
       };
 
       /**
-       * Returns the valid and non-expired signature that has the latest creation date, while ignoring signatures created in the future.
-       * @param  {Array<module:packet.Signature>} signatures  List of signatures
-       * @param  {Date}                           date        Use the given date instead of the current time
-       * @returns {Promise<module:packet.Signature>} The latest valid signature
-       * @async
-       */
-      async function getLatestValidSignature(signatures, primaryKey, signatureType, dataToVerify, date = new Date()) {
-        let signature;
-        for (let i = signatures.length - 1; i >= 0; i--) {
-          if ((!signature || signatures[i].created >= signature.created) &&
-            // check binding signature is not expired (ie, check for V4 expiration time)
-            !signatures[i].isExpired(date) && (
-              // check binding signature is verified
-              signatures[i].verified || (await signatures[i].verify(primaryKey, signatureType, dataToVerify)))) {
-            signature = signatures[i];
-          }
-        }
-        return signature;
-      }
-
-      /**
        * Returns last created key or key by given keyId that is available for signing and verification
        * @param  {module:type/keyid} keyId, optional
-       * @param  {Date} date use the given date for verification instead of the current time
+       * @param  {Date} date (optional) use the given date for verification instead of the current time
        * @param  {Object} userId, optional user ID
        * @returns {Promise<module:key.Key|module:key~SubKey|null>} key or null if no signing key has been found
        * @async
@@ -35119,27 +37173,19 @@
                   key: primaryKey,
                   bind: subKeys[i].keyPacket
                 };
-                const bindingSignature = await getLatestValidSignature(subKeys[i].bindingSignatures, primaryKey, _enums2.default.signature.subkey_binding, dataToVerify, date);
-                if (bindingSignature && bindingSignature.embeddedSignature && isValidSigningKeyPacket(subKeys[i].keyPacket, bindingSignature) && (await getLatestValidSignature([bindingSignature.embeddedSignature], subKeys[i].keyPacket, _enums2.default.signature.key_binding, dataToVerify, date))) {
+                const bindingSignature = await helper.getLatestValidSignature(subKeys[i].bindingSignatures, primaryKey, _enums2.default.signature.subkey_binding, dataToVerify, date);
+                if (bindingSignature && bindingSignature.embeddedSignature && helper.isValidSigningKeyPacket(subKeys[i].keyPacket, bindingSignature) && (await helper.getLatestValidSignature([bindingSignature.embeddedSignature], subKeys[i].keyPacket, _enums2.default.signature.key_binding, dataToVerify, date))) {
                   return subKeys[i];
                 }
               }
             }
           }
           const primaryUser = await this.getPrimaryUser(date, userId);
-          if (primaryUser && (!keyId || primaryKey.getKeyId().equals(keyId)) && isValidSigningKeyPacket(primaryKey, primaryUser.selfCertification)) {
+          if (primaryUser && (!keyId || primaryKey.getKeyId().equals(keyId)) && helper.isValidSigningKeyPacket(primaryKey, primaryUser.selfCertification)) {
             return this;
           }
         }
         return null;
-
-        function isValidSigningKeyPacket(keyPacket, signature) {
-          if (!signature.verified || signature.revoked !== false) {
-            // Sanity check
-            throw new Error('Signature not verified');
-          }
-          return keyPacket.algorithm !== _enums2.default.read(_enums2.default.publicKey, _enums2.default.publicKey.rsa_encrypt) && keyPacket.algorithm !== _enums2.default.read(_enums2.default.publicKey, _enums2.default.publicKey.elgamal) && keyPacket.algorithm !== _enums2.default.read(_enums2.default.publicKey, _enums2.default.publicKey.ecdh) && (!signature.keyFlags || (signature.keyFlags[0] & _enums2.default.keyFlags.sign_data) !== 0);
-        }
       };
 
       /**
@@ -35153,7 +37199,7 @@
       Key.prototype.getEncryptionKey = async function(keyId, date = new Date(), userId = {}) {
         const primaryKey = this.keyPacket;
         if ((await this.verifyPrimaryKey(date, userId)) === _enums2.default.keyStatus.valid) {
-          // V4: by convention subkeys are preferred for encryption service
+          // V4: by convention subkeys are preffered for encryption service
           const subKeys = this.subKeys.slice().sort((a, b) => b.keyPacket.created - a.keyPacket.created);
           for (let i = 0; i < subKeys.length; i++) {
             if (!keyId || subKeys[i].getKeyId().equals(keyId)) {
@@ -35162,8 +37208,8 @@
                   key: primaryKey,
                   bind: subKeys[i].keyPacket
                 };
-                const bindingSignature = await getLatestValidSignature(subKeys[i].bindingSignatures, primaryKey, _enums2.default.signature.subkey_binding, dataToVerify, date);
-                if (bindingSignature && isValidEncryptionKeyPacket(subKeys[i].keyPacket, bindingSignature)) {
+                const bindingSignature = await helper.getLatestValidSignature(subKeys[i].bindingSignatures, primaryKey, _enums2.default.signature.subkey_binding, dataToVerify, date);
+                if (bindingSignature && helper.isValidEncryptionKeyPacket(subKeys[i].keyPacket, bindingSignature)) {
                   return subKeys[i];
                 }
               }
@@ -35171,19 +37217,11 @@
           }
           // if no valid subkey for encryption, evaluate primary key
           const primaryUser = await this.getPrimaryUser(date, userId);
-          if (primaryUser && (!keyId || primaryKey.getKeyId().equals(keyId)) && isValidEncryptionKeyPacket(primaryKey, primaryUser.selfCertification)) {
+          if (primaryUser && (!keyId || primaryKey.getKeyId().equals(keyId)) && helper.isValidEncryptionKeyPacket(primaryKey, primaryUser.selfCertification)) {
             return this;
           }
         }
         return null;
-
-        function isValidEncryptionKeyPacket(keyPacket, signature) {
-          if (!signature.verified || signature.revoked !== false) {
-            // Sanity check
-            throw new Error('Signature not verified');
-          }
-          return keyPacket.algorithm !== _enums2.default.read(_enums2.default.publicKey, _enums2.default.publicKey.dsa) && keyPacket.algorithm !== _enums2.default.read(_enums2.default.publicKey, _enums2.default.publicKey.rsa_sign) && keyPacket.algorithm !== _enums2.default.read(_enums2.default.publicKey, _enums2.default.publicKey.ecdsa) && keyPacket.algorithm !== _enums2.default.read(_enums2.default.publicKey, _enums2.default.publicKey.eddsa) && (!signature.keyFlags || (signature.keyFlags[0] & _enums2.default.keyFlags.encrypt_communication) !== 0 || (signature.keyFlags[0] & _enums2.default.keyFlags.encrypt_storage) !== 0);
-        }
       };
 
       /**
@@ -35259,7 +37297,7 @@
        * @async
        */
       Key.prototype.isRevoked = async function(signature, key, date = new Date()) {
-        return isDataRevoked(this.keyPacket, _enums2.default.signature.key_revocation, {
+        return helper.isDataRevoked(this.keyPacket, _enums2.default.signature.key_revocation, {
           key: this.keyPacket
         }, this.revocationSignatures, signature, key, date);
       };
@@ -35294,7 +37332,7 @@
           return _enums2.default.keyStatus.invalid;
         }
         // check for expiration time
-        if (isDataExpired(primaryKey, selfCertification, date)) {
+        if (helper.isDataExpired(primaryKey, selfCertification, date)) {
           return _enums2.default.keyStatus.expired;
         }
         return _enums2.default.keyStatus.valid;
@@ -35312,22 +37350,22 @@
        * @async
        */
       Key.prototype.getExpirationTime = async function(capabilities, keyId, userId) {
-        const primaryUser = await this.getPrimaryUser(null);
+        const primaryUser = await this.getPrimaryUser(null, userId);
         if (!primaryUser) {
           throw new Error('Could not find primary user');
         }
         const selfCert = primaryUser.selfCertification;
-        const keyExpiry = getExpirationTime(this.keyPacket, selfCert);
+        const keyExpiry = helper.getExpirationTime(this.keyPacket, selfCert);
         const sigExpiry = selfCert.getExpirationTime();
         let expiry = keyExpiry < sigExpiry ? keyExpiry : sigExpiry;
         if (capabilities === 'encrypt' || capabilities === 'encrypt_sign') {
-          const encryptKey = await this.getEncryptionKey(keyId, null, userId);
+          const encryptKey = (await this.getEncryptionKey(keyId, expiry, userId)) || (await this.getEncryptionKey(keyId, null, userId));
           if (!encryptKey) return null;
           const encryptExpiry = await encryptKey.getExpirationTime(this.keyPacket);
           if (encryptExpiry < expiry) expiry = encryptExpiry;
         }
         if (capabilities === 'sign' || capabilities === 'encrypt_sign') {
-          const signKey = await this.getSigningKey(keyId, null, userId);
+          const signKey = (await this.getSigningKey(keyId, expiry, userId)) || (await this.getSigningKey(keyId, null, userId));
           if (!signKey) return null;
           const signExpiry = await signKey.getExpirationTime(this.keyPacket);
           if (signExpiry < expiry) expiry = signExpiry;
@@ -35339,7 +37377,7 @@
        * Returns primary user and most significant (latest valid) self signature
        * - if multiple primary users exist, returns the one with the latest self signature
        * - otherwise, returns the user with the latest self signature
-       * @param  {Date} date use the given date for verification instead of the current time
+       * @param  {Date} date (optional) use the given date for verification instead of the current time
        * @param  {Object} userId (optional) user ID to get instead of the primary user, if it exists
        * @returns {Promise<{user: module:key.User,
        *                    selfCertification: module:packet.Signature}>} The primary user and the self signature
@@ -35355,7 +37393,7 @@
             userId: user.userId,
             key: primaryKey
           };
-          const selfCertification = await getLatestValidSignature(user.selfCertifications, primaryKey, _enums2.default.signature.cert_generic, dataToVerify, date);
+          const selfCertification = await helper.getLatestValidSignature(user.selfCertifications, primaryKey, _enums2.default.signature.cert_generic, dataToVerify, date);
           if (!selfCertification) continue;
           users.push({
             index: i,
@@ -35369,11 +37407,14 @@
           }
           return null;
         }
+        await Promise.all(users.map(async function(a) {
+          return a.user.revoked || a.user.isRevoked(primaryKey, a.selfCertification, null, date);
+        }));
         // sort by primary user flag and signature creation time
         const primaryUser = users.sort(function(a, b) {
           const A = a.selfCertification;
           const B = b.selfCertification;
-          return A.isPrimaryUserID - B.isPrimaryUserID || A.created - B.created;
+          return B.revoked - A.revoked || A.isPrimaryUserID - B.isPrimaryUserID || A.created - B.created;
         }).pop();
         const user = primaryUser.user,
           cert = primaryUser.selfCertification;
@@ -35415,11 +37456,11 @@
           this.keyPacket = key.keyPacket;
         }
         // revocation signatures
-        await mergeSignatures(key, this, 'revocationSignatures', srcRevSig => {
-          return isDataRevoked(this.keyPacket, _enums2.default.signature.key_revocation, this, [srcRevSig], null, key.keyPacket);
+        await helper.mergeSignatures(key, this, 'revocationSignatures', srcRevSig => {
+          return helper.isDataRevoked(this.keyPacket, _enums2.default.signature.key_revocation, this, [srcRevSig], null, key.keyPacket);
         });
         // direct signatures
-        await mergeSignatures(key, this, 'directSignatures');
+        await helper.mergeSignatures(key, this, 'directSignatures');
         // TODO replace when Promise.some or Promise.any are implemented
         // users
         await Promise.all(key.users.map(async srcUser => {
@@ -35451,32 +37492,6 @@
       };
 
       /**
-       * Merges signatures from source[attr] to dest[attr]
-       * @private
-       * @param  {Object} source
-       * @param  {Object} dest
-       * @param  {String} attr
-       * @param  {Function} checkFn optional, signature only merged if true
-       */
-      async function mergeSignatures(source, dest, attr, checkFn) {
-        source = source[attr];
-        if (source) {
-          if (!dest[attr].length) {
-            dest[attr] = source;
-          }
-          else {
-            await Promise.all(source.map(async function(sourceSig) {
-              if (!sourceSig.isExpired() && (!checkFn || (await checkFn(sourceSig))) && !dest[attr].some(function(destSig) {
-                  return _util2.default.equalsUint8Array(destSig.signature, sourceSig.signature);
-                })) {
-                dest[attr].push(sourceSig);
-              }
-            }));
-          }
-        }
-      }
-
-      /**
        * Revokes the key
        * @param  {Object} reasonForRevocation optional, object indicating the reason for revocation
        * @param  {module:enums.reasonForRevocation} reasonForRevocation.flag optional, flag indicating the reason for revocation
@@ -35496,7 +37511,7 @@
           key: this.keyPacket
         };
         const key = new Key(this.toPacketlist());
-        key.revocationSignatures.push((await createSignaturePacket(dataToSign, null, this.keyPacket, {
+        key.revocationSignatures.push((await helper.createSignaturePacket(dataToSign, null, this.keyPacket, {
           signatureType: _enums2.default.signature.key_revocation,
           reasonForRevocationFlag: _enums2.default.write(_enums2.default.reasonForRevocation, reasonForRevocationFlag),
           reasonForRevocationString
@@ -35514,7 +37529,7 @@
         const dataToVerify = {
           key: this.keyPacket
         };
-        const revocationSignature = await getLatestValidSignature(this.revocationSignatures, this.keyPacket, _enums2.default.signature.key_revocation, dataToVerify);
+        const revocationSignature = await helper.getLatestValidSignature(this.revocationSignatures, this.keyPacket, _enums2.default.signature.key_revocation, dataToVerify);
         if (revocationSignature) {
           const packetlist = new _packet2.default.List();
           packetlist.push(revocationSignature);
@@ -35557,11 +37572,13 @@
       /**
        * Signs primary user of key
        * @param  {Array<module:key.Key>} privateKey decrypted private keys for signing
+       * @param  {Date} date (optional) use the given date for verification instead of the current time
+       * @param  {Object} userId (optional) user ID to get instead of the primary user, if it exists
        * @returns {Promise<module:key.Key>} new public key with new certificate signature
        * @async
        */
-      Key.prototype.signPrimaryUser = async function(privateKeys) {
-        var _ref2 = (await this.getPrimaryUser()) || {};
+      Key.prototype.signPrimaryUser = async function(privateKeys, date, userId) {
+        var _ref2 = (await this.getPrimaryUser(date, userId)) || {};
 
         const index = _ref2.index,
           user = _ref2.user;
@@ -35595,14 +37612,16 @@
        * - if no arguments are given, verifies the self certificates;
        * - otherwise, verifies all certificates signed with given keys.
        * @param  {Array<module:key.Key>} keys array of keys to verify certificate signatures
+       * @param  {Date} date (optional) use the given date for verification instead of the current time
+       * @param  {Object} userId (optional) user ID to get instead of the primary user, if it exists
        * @returns {Promise<Array<{keyid: module:type/keyid,
        *                          valid: Boolean}>>}    List of signer's keyid and validity of signature
        * @async
        */
-      Key.prototype.verifyPrimaryUser = async function(keys) {
+      Key.prototype.verifyPrimaryUser = async function(keys, date, userId) {
         const primaryKey = this.keyPacket;
 
-        var _ref3 = (await this.getPrimaryUser()) || {};
+        var _ref3 = (await this.getPrimaryUser(date, userId)) || {};
 
         const user = _ref3.user;
 
@@ -35646,6 +37665,320 @@
       };
 
       /**
+       * Generates a new OpenPGP subkey, and returns a clone of the Key object with the new subkey added.
+       * Supports RSA and ECC keys. Defaults to the algorithm and bit size/curve of the primary key.
+       * @param {Integer} options.rsaBits    number of bits for the key creation.
+       * @param {Number} [options.keyExpirationTime=0]
+       *                             The number of seconds after the key creation time that the key expires
+       * @param {String} curve       (optional) Elliptic curve for ECC keys
+       * @param {Date} date          (optional) Override the creation date of the key and the key signatures
+       * @param {Boolean} subkeys    (optional) Indicates whether the subkey should sign rather than encrypt. Defaults to false
+       * @returns {Promise<module:key.Key>}
+       * @async
+       */
+      Key.prototype.addSubkey = async function(options = {}) {
+        if (!this.isPrivate()) {
+          throw new Error("Cannot add a subkey to a public key");
+        }
+        if (options.passphrase) {
+          throw new Error("Subkey could not be encrypted here, please encrypt whole key");
+        }
+        if (_util2.default.getWebCryptoAll() && options.rsaBits < 2048) {
+          throw new Error('When using webCrypto rsaBits should be 2048 or 4096, found: ' + options.rsaBits);
+        }
+        const secretKeyPacket = this.primaryKey;
+        if (!secretKeyPacket.isDecrypted()) {
+          throw new Error("Key is not decrypted");
+        }
+        const defaultOptions = secretKeyPacket.getAlgorithmInfo();
+        options = helper.sanitizeKeyOptions(options, defaultOptions);
+        const keyPacket = await helper.generateSecretSubkey(options);
+        const bindingSignature = await helper.createBindingSignature(keyPacket, secretKeyPacket, options);
+        const packetList = this.toPacketlist();
+        packetList.push(keyPacket);
+        packetList.push(bindingSignature);
+        return new Key(packetList);
+      };
+
+      ['getKeyId', 'getFingerprint', 'getAlgorithmInfo', 'getCreationTime', 'isDecrypted', 'hasSameFingerprintAs'].forEach(name => {
+        Key.prototype[name] = _subkey2.default.prototype[name];
+      });
+
+    }, {
+      "../encoding/armor": 111,
+      "../enums": 113,
+      "../packet": 131,
+      "../util": 158,
+      "./helper": 117,
+      "./subkey": 120,
+      "./user": 121
+    }],
+    120: [function(require, module, exports) {
+      'use strict';
+
+      Object.defineProperty(exports, "__esModule", {
+        value: true
+      });
+      exports.default = SubKey;
+
+      var _enums = require('../enums');
+
+      var _enums2 = _interopRequireDefault(_enums);
+
+      var _helper = require('./helper');
+
+      var helper = _interopRequireWildcard(_helper);
+
+      var _packet = require('../packet');
+
+      var _packet2 = _interopRequireDefault(_packet);
+
+      function _interopRequireWildcard(obj) {
+        if (obj && obj.__esModule) {
+          return obj;
+        }
+        else {
+          var newObj = {};
+          if (obj != null) {
+            for (var key in obj) {
+              if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key];
+            }
+          }
+          newObj.default = obj;
+          return newObj;
+        }
+      }
+
+      function _interopRequireDefault(obj) {
+        return obj && obj.__esModule ? obj : {
+          default: obj
+        };
+      }
+
+      /**
+       * @class
+       * @classdesc Class that represents a subkey packet and the relevant signatures.
+       * @borrows module:packet.PublicSubkey#getKeyId as SubKey#getKeyId
+       * @borrows module:packet.PublicSubkey#getFingerprint as SubKey#getFingerprint
+       * @borrows module:packet.PublicSubkey#hasSameFingerprintAs as SubKey#hasSameFingerprintAs
+       * @borrows module:packet.PublicSubkey#getAlgorithmInfo as SubKey#getAlgorithmInfo
+       * @borrows module:packet.PublicSubkey#getCreationTime as SubKey#getCreationTime
+       * @borrows module:packet.PublicSubkey#isDecrypted as SubKey#isDecrypted
+       */
+      function SubKey(subKeyPacket) {
+        if (!(this instanceof SubKey)) {
+          return new SubKey(subKeyPacket);
+        }
+        this.keyPacket = subKeyPacket;
+        this.bindingSignatures = [];
+        this.revocationSignatures = [];
+      }
+
+      /**
+       * Transforms structured subkey data to packetlist
+       * @returns {module:packet.List}
+       */
+      /**
+       * @requires enums
+       * @requires key/helper
+       * @requires packet
+       * @module key/SubKey
+       */
+
+      SubKey.prototype.toPacketlist = function() {
+        const packetlist = new _packet2.default.List();
+        packetlist.push(this.keyPacket);
+        packetlist.concat(this.revocationSignatures);
+        packetlist.concat(this.bindingSignatures);
+        return packetlist;
+      };
+
+      /**
+       * Checks if a binding signature of a subkey is revoked
+       * @param  {module:packet.SecretKey|
+       *          module:packet.PublicKey} primaryKey    The primary key packet
+       * @param  {module:packet.Signature}  signature     The binding signature to verify
+       * @param  {module:packet.PublicSubkey|
+       *          module:packet.SecretSubkey|
+       *          module:packet.PublicKey|
+       *          module:packet.SecretKey} key, optional The key to verify the signature
+       * @param  {Date}                     date          Use the given date instead of the current time
+       * @returns {Promise<Boolean>}                      True if the binding signature is revoked
+       * @async
+       */
+      SubKey.prototype.isRevoked = async function(primaryKey, signature, key, date = new Date()) {
+        return helper.isDataRevoked(primaryKey, _enums2.default.signature.subkey_revocation, {
+          key: primaryKey,
+          bind: this.keyPacket
+        }, this.revocationSignatures, signature, key, date);
+      };
+
+      /**
+       * Verify subkey. Checks for revocation signatures, expiration time
+       * and valid binding signature
+       * @param  {module:packet.SecretKey|
+       *          module:packet.PublicKey} primaryKey The primary key packet
+       * @param  {Date}                     date       Use the given date instead of the current time
+       * @returns {Promise<module:enums.keyStatus>}    The status of the subkey
+       * @async
+       */
+      SubKey.prototype.verify = async function(primaryKey, date = new Date()) {
+        const that = this;
+        const dataToVerify = {
+          key: primaryKey,
+          bind: this.keyPacket
+        };
+        // check subkey binding signatures
+        const bindingSignature = await helper.getLatestValidSignature(this.bindingSignatures, primaryKey, _enums2.default.signature.subkey_binding, dataToVerify, date);
+        // check binding signature is verified
+        if (!bindingSignature) {
+          return _enums2.default.keyStatus.invalid;
+        }
+        // check binding signature is not revoked
+        if (bindingSignature.revoked || (await that.isRevoked(primaryKey, bindingSignature, null, date))) {
+          return _enums2.default.keyStatus.revoked;
+        }
+        // check for expiration time
+        if (helper.isDataExpired(this.keyPacket, bindingSignature, date)) {
+          return _enums2.default.keyStatus.expired;
+        }
+        return _enums2.default.keyStatus.valid; // binding signature passed all checks
+      };
+
+      /**
+       * Returns the expiration time of the subkey or Infinity if key does not expire
+       * Returns null if the subkey is invalid.
+       * @param  {module:packet.SecretKey|
+       *          module:packet.PublicKey} primaryKey  The primary key packet
+       * @param  {Date}                     date       Use the given date instead of the current time
+       * @returns {Promise<Date | Infinity | null>}
+       * @async
+       */
+      SubKey.prototype.getExpirationTime = async function(primaryKey, date = new Date()) {
+        const dataToVerify = {
+          key: primaryKey,
+          bind: this.keyPacket
+        };
+        const bindingSignature = await helper.getLatestValidSignature(this.bindingSignatures, primaryKey, _enums2.default.signature.subkey_binding, dataToVerify, date);
+        if (!bindingSignature) return null;
+        const keyExpiry = helper.getExpirationTime(this.keyPacket, bindingSignature);
+        const sigExpiry = bindingSignature.getExpirationTime();
+        return keyExpiry < sigExpiry ? keyExpiry : sigExpiry;
+      };
+
+      /**
+       * Update subkey with new components from specified subkey
+       * @param  {module:key~SubKey}           subKey     Source subkey to merge
+       * @param  {module:packet.SecretKey|
+                  module:packet.SecretSubkey} primaryKey primary key used for validation
+       * @returns {Promise<undefined>}
+       * @async
+       */
+      SubKey.prototype.update = async function(subKey, primaryKey) {
+        if ((await subKey.verify(primaryKey)) === _enums2.default.keyStatus.invalid) {
+          return;
+        }
+        if (!this.hasSameFingerprintAs(subKey)) {
+          throw new Error('SubKey update method: fingerprints of subkeys not equal');
+        }
+        // key packet
+        if (this.keyPacket.tag === _enums2.default.packet.publicSubkey && subKey.keyPacket.tag === _enums2.default.packet.secretSubkey) {
+          this.keyPacket = subKey.keyPacket;
+        }
+        // update missing binding signatures
+        const that = this;
+        const dataToVerify = {
+          key: primaryKey,
+          bind: that.keyPacket
+        };
+        await helper.mergeSignatures(subKey, this, 'bindingSignatures', async function(srcBindSig) {
+          if (!(srcBindSig.verified || (await srcBindSig.verify(primaryKey, _enums2.default.signature.subkey_binding, dataToVerify)))) {
+            return false;
+          }
+          for (let i = 0; i < that.bindingSignatures.length; i++) {
+            if (that.bindingSignatures[i].issuerKeyId.equals(srcBindSig.issuerKeyId)) {
+              if (srcBindSig.created > that.bindingSignatures[i].created) {
+                that.bindingSignatures[i] = srcBindSig;
+              }
+              return false;
+            }
+          }
+          return true;
+        });
+        // revocation signatures
+        await helper.mergeSignatures(subKey, this, 'revocationSignatures', function(srcRevSig) {
+          return helper.isDataRevoked(primaryKey, _enums2.default.signature.subkey_revocation, dataToVerify, [srcRevSig]);
+        });
+      };
+
+      /**
+       * Revokes the subkey
+       * @param  {module:packet.SecretKey} primaryKey decrypted private primary key for revocation
+       * @param  {Object} reasonForRevocation optional, object indicating the reason for revocation
+       * @param  {module:enums.reasonForRevocation} reasonForRevocation.flag optional, flag indicating the reason for revocation
+       * @param  {String} reasonForRevocation.string optional, string explaining the reason for revocation
+       * @param  {Date} date optional, override the creationtime of the revocation signature
+       * @returns {Promise<module:key~SubKey>} new subkey with revocation signature
+       * @async
+       */
+      SubKey.prototype.revoke = async function(primaryKey, {
+        flag: reasonForRevocationFlag = _enums2.default.reasonForRevocation.no_reason,
+        string: reasonForRevocationString = ''
+      } = {}, date = new Date()) {
+        const dataToSign = {
+          key: primaryKey,
+          bind: this.keyPacket
+        };
+        const subKey = new SubKey(this.keyPacket);
+        subKey.revocationSignatures.push((await helper.createSignaturePacket(dataToSign, null, primaryKey, {
+          signatureType: _enums2.default.signature.subkey_revocation,
+          reasonForRevocationFlag: _enums2.default.write(_enums2.default.reasonForRevocation, reasonForRevocationFlag),
+          reasonForRevocationString
+        }, date)));
+        await subKey.update(this, primaryKey);
+        return subKey;
+      };
+
+      ['getKeyId', 'getFingerprint', 'getAlgorithmInfo', 'getCreationTime', 'isDecrypted'].forEach(name => {
+        SubKey.prototype[name] = function() {
+          return this.keyPacket[name]();
+        };
+      });
+
+      SubKey.prototype.hasSameFingerprintAs = function(other) {
+        return this.keyPacket.hasSameFingerprintAs(other.keyPacket || other);
+      };
+
+    }, {
+      "../enums": 113,
+      "../packet": 131,
+      "./helper": 117
+    }],
+    121: [function(require, module, exports) {
+      'use strict';
+
+      Object.defineProperty(exports, "__esModule", {
+        value: true
+      });
+      exports.default = User;
+
+      var _packet = require('../packet');
+
+      var _packet2 = _interopRequireDefault(_packet);
+
+      var _enums = require('../enums');
+
+      var _enums2 = _interopRequireDefault(_enums);
+
+      var _helper = require('./helper');
+
+      function _interopRequireDefault(obj) {
+        return obj && obj.__esModule ? obj : {
+          default: obj
+        };
+      }
+
+      /**
        * @class
        * @classdesc Class that represents an user ID or attribute packet and the relevant signatures.
        */
@@ -35664,6 +37997,13 @@
        * Transforms structured user data to packetlist
        * @returns {module:packet.List}
        */
+      /**
+       * @requires enums
+       * @requires packet
+       * @requires key/helper
+       * @module key/User
+       */
+
       User.prototype.toPacketlist = function() {
         const packetlist = new _packet2.default.List();
         packetlist.push(this.userId || this.userAttribute);
@@ -35699,7 +38039,7 @@
           if (!signingKey) {
             throw new Error('Could not find valid signing key packet in key ' + privateKey.getKeyId().toHex());
           }
-          return createSignaturePacket(dataToSign, privateKey, signingKey.keyPacket, {
+          return (0, _helper.createSignaturePacket)(dataToSign, privateKey, signingKey.keyPacket, {
             // Most OpenPGP implementations use generic certification (0x10)
             signatureType: _enums2.default.signature.cert_generic,
             keyFlags: [_enums2.default.keyFlags.certify_keys | _enums2.default.keyFlags.sign_data]
@@ -35723,34 +38063,12 @@
        * @async
        */
       User.prototype.isRevoked = async function(primaryKey, certificate, key, date = new Date()) {
-        return isDataRevoked(primaryKey, _enums2.default.signature.cert_revocation, {
+        return (0, _helper.isDataRevoked)(primaryKey, _enums2.default.signature.cert_revocation, {
           key: primaryKey,
           userId: this.userId,
           userAttribute: this.userAttribute
         }, this.revocationSignatures, certificate, key, date);
       };
-
-      /**
-       * Create signature packet
-       * @param  {Object}                          dataToSign Contains packets to be signed
-       * @param  {module:packet.SecretKey|
-       *          module:packet.SecretSubkey}      signingKeyPacket secret key packet for signing
-       * @param  {Object} signatureProperties      (optional) properties to write on the signature packet before signing
-       * @param  {Date} date                       (optional) override the creationtime of the signature
-       * @param  {Object} userId                   (optional) user ID
-       * @returns {module:packet/signature}         signature packet
-       */
-      async function createSignaturePacket(dataToSign, privateKey, signingKeyPacket, signatureProperties, date, userId) {
-        if (!signingKeyPacket.isDecrypted()) {
-          throw new Error('Private key is not decrypted.');
-        }
-        const signaturePacket = new _packet2.default.Signature(date);
-        Object.assign(signaturePacket, signatureProperties);
-        signaturePacket.publicKeyAlgorithm = signingKeyPacket.algorithm;
-        signaturePacket.hashAlgorithm = await getPreferredHashAlgo(privateKey, signingKeyPacket, date, userId);
-        await signaturePacket.sign(signingKeyPacket, dataToSign);
-        return signaturePacket;
-      }
 
       /**
        * Verifies the user certificate
@@ -35775,13 +38093,13 @@
             return;
           }
           const signingKey = await key.getSigningKey(keyid, date);
-          if (certificate.revoked || (await that.isRevoked(primaryKey, certificate, signingKey.keyPacket))) {
+          if (certificate.revoked || (await that.isRevoked(primaryKey, certificate, signingKey.keyPacket, date))) {
             return _enums2.default.keyStatus.revoked;
           }
           if (!(certificate.verified || (await certificate.verify(signingKey.keyPacket, _enums2.default.signature.cert_generic, dataToVerify)))) {
             return _enums2.default.keyStatus.invalid;
           }
-          if (certificate.isExpired()) {
+          if (certificate.isExpired(date)) {
             return _enums2.default.keyStatus.expired;
           }
           return _enums2.default.keyStatus.valid;
@@ -35794,15 +38112,16 @@
        * @param  {module:packet.SecretKey|
        *          module:packet.PublicKey} primaryKey The primary key packet
        * @param  {Array<module:key.Key>}    keys       Array of keys to verify certificate signatures
+       * @param  {Date}                     date        Use the given date instead of the current time
        * @returns {Promise<Array<{keyid: module:type/keyid,
        *                          valid: Boolean}>>}   List of signer's keyid and validity of signature
        * @async
        */
-      User.prototype.verifyAllCertifications = async function(primaryKey, keys) {
+      User.prototype.verifyAllCertifications = async function(primaryKey, keys, date = new Date()) {
         const that = this;
         const certifications = this.selfCertifications.concat(this.otherCertifications);
         return Promise.all(certifications.map(async function(certification) {
-          const status = await that.verifyCertificate(primaryKey, certification, keys);
+          const status = await that.verifyCertificate(primaryKey, certification, keys, date);
           return {
             keyid: certification.issuerKeyId,
             valid: status === undefined ? null : status === _enums2.default.keyStatus.valid
@@ -35815,10 +38134,11 @@
        * and validity of self signature
        * @param  {module:packet.SecretKey|
        *          module:packet.PublicKey} primaryKey The primary key packet
+       * @param  {Date}                    date       Use the given date instead of the current time
        * @returns {Promise<module:enums.keyStatus>}    Status of user
        * @async
        */
-      User.prototype.verify = async function(primaryKey) {
+      User.prototype.verify = async function(primaryKey, date = new Date()) {
         if (!this.selfCertifications.length) {
           return _enums2.default.keyStatus.no_self_cert;
         }
@@ -35830,13 +38150,13 @@
         };
         // TODO replace when Promise.some or Promise.any are implemented
         const results = [_enums2.default.keyStatus.invalid].concat((await Promise.all(this.selfCertifications.map(async function(selfCertification) {
-          if (selfCertification.revoked || (await that.isRevoked(primaryKey, selfCertification))) {
+          if (selfCertification.revoked || (await that.isRevoked(primaryKey, selfCertification, undefined, date))) {
             return _enums2.default.keyStatus.revoked;
           }
           if (!(selfCertification.verified || (await selfCertification.verify(primaryKey, _enums2.default.signature.cert_generic, dataToVerify)))) {
             return _enums2.default.keyStatus.invalid;
           }
-          if (selfCertification.isExpired()) {
+          if (selfCertification.isExpired(date)) {
             return _enums2.default.keyStatus.expired;
           }
           return _enums2.default.keyStatus.valid;
@@ -35859,772 +38179,23 @@
           key: primaryKey
         };
         // self signatures
-        await mergeSignatures(user, this, 'selfCertifications', async function(srcSelfSig) {
+        await (0, _helper.mergeSignatures)(user, this, 'selfCertifications', async function(srcSelfSig) {
           return srcSelfSig.verified || srcSelfSig.verify(primaryKey, _enums2.default.signature.cert_generic, dataToVerify);
         });
         // other signatures
-        await mergeSignatures(user, this, 'otherCertifications');
+        await (0, _helper.mergeSignatures)(user, this, 'otherCertifications');
         // revocation signatures
-        await mergeSignatures(user, this, 'revocationSignatures', function(srcRevSig) {
-          return isDataRevoked(primaryKey, _enums2.default.signature.cert_revocation, dataToVerify, [srcRevSig]);
+        await (0, _helper.mergeSignatures)(user, this, 'revocationSignatures', function(srcRevSig) {
+          return (0, _helper.isDataRevoked)(primaryKey, _enums2.default.signature.cert_revocation, dataToVerify, [srcRevSig]);
         });
       };
-
-      /**
-       * @class
-       * @classdesc Class that represents a subkey packet and the relevant signatures.
-       * @borrows module:packet.PublicSubkey#getKeyId as SubKey#getKeyId
-       * @borrows module:packet.PublicSubkey#getFingerprint as SubKey#getFingerprint
-       * @borrows module:packet.PublicSubkey#hasSameFingerprintAs as SubKey#hasSameFingerprintAs
-       * @borrows module:packet.PublicSubkey#getAlgorithmInfo as SubKey#getAlgorithmInfo
-       * @borrows module:packet.PublicSubkey#getCreationTime as SubKey#getCreationTime
-       * @borrows module:packet.PublicSubkey#isDecrypted as SubKey#isDecrypted
-       */
-      function SubKey(subKeyPacket) {
-        if (!(this instanceof SubKey)) {
-          return new SubKey(subKeyPacket);
-        }
-        this.keyPacket = subKeyPacket;
-        this.bindingSignatures = [];
-        this.revocationSignatures = [];
-      }
-
-      /**
-       * Transforms structured subkey data to packetlist
-       * @returns {module:packet.List}
-       */
-      SubKey.prototype.toPacketlist = function() {
-        const packetlist = new _packet2.default.List();
-        packetlist.push(this.keyPacket);
-        packetlist.concat(this.revocationSignatures);
-        packetlist.concat(this.bindingSignatures);
-        return packetlist;
-      };
-
-      /**
-       * Checks if a binding signature of a subkey is revoked
-       * @param  {module:packet.SecretKey|
-       *          module:packet.PublicKey} primaryKey    The primary key packet
-       * @param  {module:packet.Signature}  signature     The binding signature to verify
-       * @param  {module:packet.PublicSubkey|
-       *          module:packet.SecretSubkey|
-       *          module:packet.PublicKey|
-       *          module:packet.SecretKey} key, optional The key to verify the signature
-       * @param  {Date}                     date          Use the given date instead of the current time
-       * @returns {Promise<Boolean>}                      True if the binding signature is revoked
-       * @async
-       */
-      SubKey.prototype.isRevoked = async function(primaryKey, signature, key, date = new Date()) {
-        return isDataRevoked(primaryKey, _enums2.default.signature.subkey_revocation, {
-          key: primaryKey,
-          bind: this.keyPacket
-        }, this.revocationSignatures, signature, key, date);
-      };
-
-      /**
-       * Verify subkey. Checks for revocation signatures, expiration time
-       * and valid binding signature
-       * @param  {module:packet.SecretKey|
-       *          module:packet.PublicKey} primaryKey The primary key packet
-       * @param  {Date}                     date       Use the given date instead of the current time
-       * @returns {Promise<module:enums.keyStatus>}    The status of the subkey
-       * @async
-       */
-      SubKey.prototype.verify = async function(primaryKey, date = new Date()) {
-        const that = this;
-        const dataToVerify = {
-          key: primaryKey,
-          bind: this.keyPacket
-        };
-        // check subkey binding signatures
-        const bindingSignature = await getLatestValidSignature(this.bindingSignatures, primaryKey, _enums2.default.signature.subkey_binding, dataToVerify, date);
-        // check binding signature is verified
-        if (!bindingSignature) {
-          return _enums2.default.keyStatus.invalid;
-        }
-        // check binding signature is not revoked
-        if (bindingSignature.revoked || (await that.isRevoked(primaryKey, bindingSignature, null, date))) {
-          return _enums2.default.keyStatus.revoked;
-        }
-        // check for expiration time
-        if (isDataExpired(this.keyPacket, bindingSignature, date)) {
-          return _enums2.default.keyStatus.expired;
-        }
-        return _enums2.default.keyStatus.valid; // binding signature passed all checks
-      };
-
-      /**
-       * Returns the expiration time of the subkey or Infinity if key does not expire
-       * Returns null if the subkey is invalid.
-       * @param  {module:packet.SecretKey|
-       *          module:packet.PublicKey} primaryKey  The primary key packet
-       * @param  {Date}                     date       Use the given date instead of the current time
-       * @returns {Promise<Date | Infinity | null>}
-       * @async
-       */
-      SubKey.prototype.getExpirationTime = async function(primaryKey, date = new Date()) {
-        const dataToVerify = {
-          key: primaryKey,
-          bind: this.keyPacket
-        };
-        const bindingSignature = await getLatestValidSignature(this.bindingSignatures, primaryKey, _enums2.default.signature.subkey_binding, dataToVerify, date);
-        if (!bindingSignature) return null;
-        const keyExpiry = getExpirationTime(this.keyPacket, bindingSignature);
-        const sigExpiry = bindingSignature.getExpirationTime();
-        return keyExpiry < sigExpiry ? keyExpiry : sigExpiry;
-      };
-
-      /**
-       * Update subkey with new components from specified subkey
-       * @param  {module:key~SubKey}           subKey     Source subkey to merge
-       * @param  {module:packet.SecretKey|
-                  module:packet.SecretSubkey} primaryKey primary key used for validation
-       * @returns {Promise<undefined>}
-       * @async
-       */
-      SubKey.prototype.update = async function(subKey, primaryKey) {
-        if ((await subKey.verify(primaryKey)) === _enums2.default.keyStatus.invalid) {
-          return;
-        }
-        if (!this.hasSameFingerprintAs(subKey)) {
-          throw new Error('SubKey update method: fingerprints of subkeys not equal');
-        }
-        // key packet
-        if (this.keyPacket.tag === _enums2.default.packet.publicSubkey && subKey.keyPacket.tag === _enums2.default.packet.secretSubkey) {
-          this.keyPacket = subKey.keyPacket;
-        }
-        // update missing binding signatures
-        const that = this;
-        const dataToVerify = {
-          key: primaryKey,
-          bind: that.keyPacket
-        };
-        await mergeSignatures(subKey, this, 'bindingSignatures', async function(srcBindSig) {
-          if (!(srcBindSig.verified || (await srcBindSig.verify(primaryKey, _enums2.default.signature.subkey_binding, dataToVerify)))) {
-            return false;
-          }
-          for (let i = 0; i < that.bindingSignatures.length; i++) {
-            if (that.bindingSignatures[i].issuerKeyId.equals(srcBindSig.issuerKeyId)) {
-              if (srcBindSig.created < that.bindingSignatures[i].created) {
-                that.bindingSignatures[i] = srcBindSig;
-                return false;
-              }
-            }
-          }
-          return true;
-        });
-        // revocation signatures
-        await mergeSignatures(subKey, this, 'revocationSignatures', function(srcRevSig) {
-          return isDataRevoked(primaryKey, _enums2.default.signature.subkey_revocation, dataToVerify, [srcRevSig]);
-        });
-      };
-
-      /**
-       * Revokes the subkey
-       * @param  {module:packet.SecretKey} primaryKey decrypted private primary key for revocation
-       * @param  {Object} reasonForRevocation optional, object indicating the reason for revocation
-       * @param  {module:enums.reasonForRevocation} reasonForRevocation.flag optional, flag indicating the reason for revocation
-       * @param  {String} reasonForRevocation.string optional, string explaining the reason for revocation
-       * @param  {Date} date optional, override the creationtime of the revocation signature
-       * @returns {Promise<module:key~SubKey>} new subkey with revocation signature
-       * @async
-       */
-      SubKey.prototype.revoke = async function(primaryKey, {
-        flag: reasonForRevocationFlag = _enums2.default.reasonForRevocation.no_reason,
-        string: reasonForRevocationString = ''
-      } = {}, date = new Date()) {
-        const dataToSign = {
-          key: primaryKey,
-          bind: this.keyPacket
-        };
-        const subKey = new SubKey(this.keyPacket);
-        subKey.revocationSignatures.push((await createSignaturePacket(dataToSign, null, primaryKey, {
-          signatureType: _enums2.default.signature.subkey_revocation,
-          reasonForRevocationFlag: _enums2.default.write(_enums2.default.reasonForRevocation, reasonForRevocationFlag),
-          reasonForRevocationString
-        }, date)));
-        await subKey.update(this, primaryKey);
-        return subKey;
-      };
-
-      ['getKeyId', 'getFingerprint', 'getAlgorithmInfo', 'getCreationTime', 'isDecrypted'].forEach(name => {
-        Key.prototype[name] = SubKey.prototype[name] = function() {
-          return this.keyPacket[name]();
-        };
-      });
-
-      Key.prototype.hasSameFingerprintAs = SubKey.prototype.hasSameFingerprintAs = function(other) {
-        return this.keyPacket.hasSameFingerprintAs(other.keyPacket || other);
-      };
-
-      /**
-       * Reads an unarmored OpenPGP key list and returns one or multiple key objects
-       * @param {Uint8Array} data to be parsed
-       * @returns {Promise<{keys: Array<module:key.Key>,
-       *            err: (Array<Error>|null)}>} result object with key and error arrays
-       * @async
-       * @static
-       */
-      async function read(data) {
-        const result = {};
-        result.keys = [];
-        const err = [];
-        try {
-          const packetlist = new _packet2.default.List();
-          await packetlist.read(data);
-          const keyIndex = packetlist.indexOfTag(_enums2.default.packet.publicKey, _enums2.default.packet.secretKey);
-          if (keyIndex.length === 0) {
-            throw new Error('No key packet found');
-          }
-          for (let i = 0; i < keyIndex.length; i++) {
-            const oneKeyList = packetlist.slice(keyIndex[i], keyIndex[i + 1]);
-            try {
-              const newKey = new Key(oneKeyList);
-              result.keys.push(newKey);
-            }
-            catch (e) {
-              err.push(e);
-            }
-          }
-        }
-        catch (e) {
-          err.push(e);
-        }
-        if (err.length) {
-          result.err = err;
-        }
-        return result;
-      }
-
-      /**
-       * Reads an OpenPGP armored text and returns one or multiple key objects
-       * @param {String | ReadableStream<String>} armoredText text to be parsed
-       * @returns {Promise<{keys: Array<module:key.Key>,
-       *            err: (Array<Error>|null)}>} result object with key and error arrays
-       * @async
-       * @static
-       */
-      async function readArmored(armoredText) {
-        try {
-          const input = await _armor2.default.decode(armoredText);
-          if (!(input.type === _enums2.default.armor.public_key || input.type === _enums2.default.armor.private_key)) {
-            throw new Error('Armored text not of type key');
-          }
-          return read(input.data);
-        }
-        catch (e) {
-          const result = {
-            keys: [],
-            err: []
-          };
-          result.err.push(e);
-          return result;
-        }
-      }
-
-      /**
-       * Generates a new OpenPGP key. Supports RSA and ECC keys.
-       * Primary and subkey will be of same type.
-       * @param {module:enums.publicKey} [options.keyType=module:enums.publicKey.rsa_encrypt_sign]
-       *                             To indicate what type of key to make.
-       *                             RSA is 1. See {@link https://tools.ietf.org/html/rfc4880#section-9.1}
-       * @param {Integer} options.numBits    number of bits for the key creation.
-       * @param {String|Array<String>}  options.userIds
-       *                             Assumes already in form of "User Name <username@email.com>"
-       *                             If array is used, the first userId is set as primary user Id
-       * @param {String}  options.passphrase The passphrase used to encrypt the resulting private key
-       * @param {Number} [options.keyExpirationTime=0]
-       *                             The number of seconds after the key creation time that the key expires
-       * @param  {String} curve            (optional) elliptic curve for ECC keys
-       * @param  {Date} date         Override the creation date of the key and the key signatures
-       * @param  {Array<Object>} subkeys   (optional) options for each subkey, default to main key options. e.g. [{sign: true, passphrase: '123'}]
-       *                                              sign parameter defaults to false, and indicates whether the subkey should sign rather than encrypt
-       * @returns {Promise<module:key.Key>}
-       * @async
-       * @static
-       */
-      async function generate(options) {
-        options.sign = true; // primary key is always a signing key
-        options = sanitizeKeyOptions(options);
-        options.subkeys = options.subkeys.map(function(subkey, index) {
-          return sanitizeKeyOptions(options.subkeys[index], options);
-        });
-
-        let promises = [generateSecretKey(options)];
-        promises = promises.concat(options.subkeys.map(generateSecretSubkey));
-        return Promise.all(promises).then(packets => wrapKeyObject(packets[0], packets.slice(1), options));
-
-        function sanitizeKeyOptions(options, subkeyDefaults = {}) {
-          options.curve = options.curve || subkeyDefaults.curve;
-          options.numBits = options.numBits || subkeyDefaults.numBits;
-          options.keyExpirationTime = options.keyExpirationTime !== undefined ? options.keyExpirationTime : subkeyDefaults.keyExpirationTime;
-          options.passphrase = _util2.default.isString(options.passphrase) ? options.passphrase : subkeyDefaults.passphrase;
-          options.date = options.date || subkeyDefaults.date;
-
-          options.sign = options.sign || false;
-
-          if (options.curve) {
-            try {
-              options.curve = _enums2.default.write(_enums2.default.curve, options.curve);
-            }
-            catch (e) {
-              throw new Error('Not valid curve.');
-            }
-            if (options.curve === _enums2.default.curve.ed25519 || options.curve === _enums2.default.curve.curve25519) {
-              if (options.sign) {
-                options.algorithm = _enums2.default.publicKey.eddsa;
-                options.curve = _enums2.default.curve.ed25519;
-              }
-              else {
-                options.algorithm = _enums2.default.publicKey.ecdh;
-                options.curve = _enums2.default.curve.curve25519;
-              }
-            }
-            else {
-              if (options.sign) {
-                options.algorithm = _enums2.default.publicKey.ecdsa;
-              }
-              else {
-                options.algorithm = _enums2.default.publicKey.ecdh;
-              }
-            }
-          }
-          else if (options.numBits) {
-            options.algorithm = _enums2.default.publicKey.rsa_encrypt_sign;
-          }
-          else {
-            throw new Error('Unrecognized key type');
-          }
-          return options;
-        }
-
-        async function generateSecretKey(options) {
-          const secretKeyPacket = new _packet2.default.SecretKey(options.date);
-          secretKeyPacket.packets = null;
-          secretKeyPacket.algorithm = _enums2.default.read(_enums2.default.publicKey, options.algorithm);
-          await secretKeyPacket.generate(options.numBits, options.curve);
-          return secretKeyPacket;
-        }
-
-        async function generateSecretSubkey(options) {
-          const secretSubkeyPacket = new _packet2.default.SecretSubkey(options.date);
-          secretSubkeyPacket.packets = null;
-          secretSubkeyPacket.algorithm = _enums2.default.read(_enums2.default.publicKey, options.algorithm);
-          await secretSubkeyPacket.generate(options.numBits, options.curve);
-          return secretSubkeyPacket;
-        }
-      }
-
-      /**
-       * Reformats and signs an OpenPGP key with a given User ID. Currently only supports RSA keys.
-       * @param {module:key.Key} options.privateKey   The private key to reformat
-       * @param {module:enums.publicKey} [options.keyType=module:enums.publicKey.rsa_encrypt_sign]
-       * @param {String|Array<String>}  options.userIds
-       *                             Assumes already in form of "User Name <username@email.com>"
-       *                             If array is used, the first userId is set as primary user Id
-       * @param {String}  options.passphrase The passphrase used to encrypt the resulting private key
-       * @param {Number} [options.keyExpirationTime=0]
-       *                             The number of seconds after the key creation time that the key expires
-       * @param  {Date} date         Override the creation date of the key and the key signatures
-       * @param  {Array<Object>} subkeys   (optional) options for each subkey, default to main key options. e.g. [{sign: true, passphrase: '123'}]
-       *
-       * @returns {Promise<module:key.Key>}
-       * @async
-       * @static
-       */
-      async function reformat(options) {
-        options = sanitizeKeyOptions(options);
-
-        try {
-          const isDecrypted = options.privateKey.getKeys().every(key => key.isDecrypted());
-          if (!isDecrypted) {
-            await options.privateKey.decrypt();
-          }
-        }
-        catch (err) {
-          throw new Error('Key not decrypted');
-        }
-
-        const packetlist = options.privateKey.toPacketlist();
-        let secretKeyPacket;
-        const secretSubkeyPackets = [];
-        for (let i = 0; i < packetlist.length; i++) {
-          if (packetlist[i].tag === _enums2.default.packet.secretKey) {
-            secretKeyPacket = packetlist[i];
-          }
-          else if (packetlist[i].tag === _enums2.default.packet.secretSubkey) {
-            secretSubkeyPackets.push(packetlist[i]);
-          }
-        }
-        if (!secretKeyPacket) {
-          throw new Error('Key does not contain a secret key packet');
-        }
-
-        if (!options.subkeys) {
-          options.subkeys = secretSubkeyPackets.map(() => ({}));
-        }
-
-        if (options.subkeys.length !== secretSubkeyPackets.length) {
-          throw new Error('Number of subkey options does not match number of subkeys');
-        }
-
-        options.subkeys = options.subkeys.map(function(subkey, index) {
-          return sanitizeKeyOptions(options.subkeys[index], options);
-        });
-
-        return wrapKeyObject(secretKeyPacket, secretSubkeyPackets, options);
-
-        function sanitizeKeyOptions(options, subkeyDefaults = {}) {
-          options.keyExpirationTime = options.keyExpirationTime || subkeyDefaults.keyExpirationTime;
-          options.passphrase = _util2.default.isString(options.passphrase) ? options.passphrase : subkeyDefaults.passphrase;
-          options.date = options.date || subkeyDefaults.date;
-
-          return options;
-        }
-      }
-
-      async function wrapKeyObject(secretKeyPacket, secretSubkeyPackets, options) {
-        // set passphrase protection
-        if (options.passphrase) {
-          await secretKeyPacket.encrypt(options.passphrase);
-        }
-
-        await Promise.all(secretSubkeyPackets.map(async function(secretSubkeyPacket, index) {
-          const subkeyPassphrase = options.subkeys[index].passphrase;
-          if (subkeyPassphrase) {
-            await secretSubkeyPacket.encrypt(subkeyPassphrase);
-          }
-        }));
-
-        const packetlist = new _packet2.default.List();
-
-        packetlist.push(secretKeyPacket);
-
-        await Promise.all(options.userIds.map(async function(userId, index) {
-          function createdPreferredAlgos(algos, configAlgo) {
-            if (configAlgo) {
-              // Not `uncompressed` / `plaintext`
-              const configIndex = algos.indexOf(configAlgo);
-              if (configIndex >= 1) {
-                // If it is included and not in first place,
-                algos.splice(configIndex, 1); // remove it.
-              }
-              if (configIndex !== 0) {
-                // If it was included and not in first place, or wasn't included,
-                algos.unshift(configAlgo); // add it to the front.
-              }
-            }
-            return algos;
-          }
-
-          const userIdPacket = new _packet2.default.Userid();
-          userIdPacket.format(userId);
-
-          const dataToSign = {};
-          dataToSign.userId = userIdPacket;
-          dataToSign.key = secretKeyPacket;
-          const signaturePacket = new _packet2.default.Signature(options.date);
-          signaturePacket.signatureType = _enums2.default.signature.cert_generic;
-          signaturePacket.publicKeyAlgorithm = secretKeyPacket.algorithm;
-          signaturePacket.hashAlgorithm = await getPreferredHashAlgo(null, secretKeyPacket);
-          signaturePacket.keyFlags = [_enums2.default.keyFlags.certify_keys | _enums2.default.keyFlags.sign_data];
-          signaturePacket.preferredSymmetricAlgorithms = createdPreferredAlgos([
-            // prefer aes256, aes128, then aes192 (no WebCrypto support: https://www.chromium.org/blink/webcrypto#TOC-AES-support)
-            _enums2.default.symmetric.aes256, _enums2.default.symmetric.aes128, _enums2.default.symmetric.aes192, _enums2.default.symmetric.cast5, _enums2.default.symmetric.tripledes
-          ], _config2.default.encryption_cipher);
-          if (_config2.default.aead_protect && _config2.default.aead_protect_version === 4) {
-            signaturePacket.preferredAeadAlgorithms = createdPreferredAlgos([_enums2.default.aead.eax, _enums2.default.aead.ocb], _config2.default.aead_mode);
-          }
-          signaturePacket.preferredHashAlgorithms = createdPreferredAlgos([
-            // prefer fast asm.js implementations (SHA-256). SHA-1 will not be secure much longer...move to bottom of list
-            _enums2.default.hash.sha256, _enums2.default.hash.sha512, _enums2.default.hash.sha1
-          ], _config2.default.prefer_hash_algorithm);
-          signaturePacket.preferredCompressionAlgorithms = createdPreferredAlgos([_enums2.default.compression.zlib, _enums2.default.compression.zip], _config2.default.compression);
-          if (index === 0) {
-            signaturePacket.isPrimaryUserID = true;
-          }
-          if (_config2.default.integrity_protect) {
-            signaturePacket.features = [0];
-            signaturePacket.features[0] |= _enums2.default.features.modification_detection;
-          }
-          if (_config2.default.aead_protect && _config2.default.aead_protect_version === 4) {
-            signaturePacket.features || (signaturePacket.features = [0]);
-            signaturePacket.features[0] |= _enums2.default.features.aead;
-            signaturePacket.features[0] |= _enums2.default.features.v5_keys;
-          }
-          if (options.keyExpirationTime > 0) {
-            signaturePacket.keyExpirationTime = options.keyExpirationTime;
-            signaturePacket.keyNeverExpires = false;
-          }
-          await signaturePacket.sign(secretKeyPacket, dataToSign);
-
-          return {
-            userIdPacket,
-            signaturePacket
-          };
-        })).then(list => {
-          list.forEach(({
-            userIdPacket,
-            signaturePacket
-          }) => {
-            packetlist.push(userIdPacket);
-            packetlist.push(signaturePacket);
-          });
-        });
-
-        await Promise.all(secretSubkeyPackets.map(async function(secretSubkeyPacket, index) {
-          const subkeyOptions = options.subkeys[index];
-          const dataToSign = {};
-          dataToSign.key = secretKeyPacket;
-          dataToSign.bind = secretSubkeyPacket;
-          const subkeySignaturePacket = new _packet2.default.Signature(subkeyOptions.date);
-          subkeySignaturePacket.signatureType = _enums2.default.signature.subkey_binding;
-          subkeySignaturePacket.publicKeyAlgorithm = secretKeyPacket.algorithm;
-          subkeySignaturePacket.hashAlgorithm = await getPreferredHashAlgo(null, secretSubkeyPacket);
-          if (subkeyOptions.sign) {
-            subkeySignaturePacket.keyFlags = [_enums2.default.keyFlags.sign_data];
-            subkeySignaturePacket.embeddedSignature = await createSignaturePacket(dataToSign, null, secretSubkeyPacket, {
-              signatureType: _enums2.default.signature.key_binding
-            }, subkeyOptions.date);
-          }
-          else {
-            subkeySignaturePacket.keyFlags = [_enums2.default.keyFlags.encrypt_communication | _enums2.default.keyFlags.encrypt_storage];
-          }
-          if (subkeyOptions.keyExpirationTime > 0) {
-            subkeySignaturePacket.keyExpirationTime = subkeyOptions.keyExpirationTime;
-            subkeySignaturePacket.keyNeverExpires = false;
-          }
-          await subkeySignaturePacket.sign(secretKeyPacket, dataToSign);
-
-          return {
-            secretSubkeyPacket,
-            subkeySignaturePacket
-          };
-        })).then(packets => {
-          packets.forEach(({
-            secretSubkeyPacket,
-            subkeySignaturePacket
-          }) => {
-            packetlist.push(secretSubkeyPacket);
-            packetlist.push(subkeySignaturePacket);
-          });
-        });
-
-        // Add revocation signature packet for creating a revocation certificate.
-        // This packet should be removed before returning the key.
-        const dataToSign = {
-          key: secretKeyPacket
-        };
-        packetlist.push((await createSignaturePacket(dataToSign, null, secretKeyPacket, {
-          signatureType: _enums2.default.signature.key_revocation,
-          reasonForRevocationFlag: _enums2.default.reasonForRevocation.no_reason,
-          reasonForRevocationString: ''
-        }, options.date)));
-
-        // set passphrase protection
-        if (options.passphrase) {
-          secretKeyPacket.clearPrivateParams();
-        }
-
-        await Promise.all(secretSubkeyPackets.map(async function(secretSubkeyPacket, index) {
-          const subkeyPassphrase = options.subkeys[index].passphrase;
-          if (subkeyPassphrase) {
-            secretSubkeyPacket.clearPrivateParams();
-          }
-        }));
-
-        return new Key(packetlist);
-      }
-
-      /**
-       * Checks if a given certificate or binding signature is revoked
-       * @param  {module:packet.SecretKey|
-       *          module:packet.PublicKey}       primaryKey   The primary key packet
-       * @param  {Object}                         dataToVerify The data to check
-       * @param  {Array<module:packet.Signature>} revocations  The revocation signatures to check
-       * @param  {module:packet.Signature}        signature    The certificate or signature to check
-       * @param  {module:packet.PublicSubkey|
-       *          module:packet.SecretSubkey|
-       *          module:packet.PublicKey|
-       *          module:packet.SecretKey} key, optional The key packet to check the signature
-       * @param  {Date}                     date          Use the given date instead of the current time
-       * @returns {Promise<Boolean>}                      True if the signature revokes the data
-       * @async
-       */
-      async function isDataRevoked(primaryKey, signatureType, dataToVerify, revocations, signature, key, date = new Date()) {
-        key = key || primaryKey;
-        const normDate = _util2.default.normalizeDate(date);
-        const revocationKeyIds = [];
-        await Promise.all(revocations.map(async function(revocationSignature) {
-          if (
-            // Note: a third-party revocation signature could legitimately revoke a
-            // self-signature if the signature has an authorized revocation key.
-            // However, we don't support passing authorized revocation keys, nor
-            // verifying such revocation signatures. Instead, we indicate an error
-            // when parsing a key with an authorized revocation key, and ignore
-            // third-party revocation signatures here. (It could also be revoking a
-            // third-party key certification, which should only affect
-            // `verifyAllCertifications`.)
-            (!signature || revocationSignature.issuerKeyId.equals(signature.issuerKeyId)) && !(_config2.default.revocations_expire && revocationSignature.isExpired(normDate)) && (revocationSignature.verified || (await revocationSignature.verify(key, signatureType, dataToVerify)))) {
-            // TODO get an identifier of the revoked object instead
-            revocationKeyIds.push(revocationSignature.issuerKeyId);
-            return true;
-          }
-          return false;
-        }));
-        // TODO further verify that this is the signature that should be revoked
-        if (signature) {
-          signature.revoked = revocationKeyIds.some(keyId => keyId.equals(signature.issuerKeyId)) ? true : signature.revoked || false;
-          return signature.revoked;
-        }
-        return revocationKeyIds.length > 0;
-      }
-
-      function isDataExpired(keyPacket, signature, date = new Date()) {
-        const normDate = _util2.default.normalizeDate(date);
-        if (normDate !== null) {
-          const expirationTime = getExpirationTime(keyPacket, signature);
-          return !(keyPacket.created <= normDate && normDate < expirationTime) || signature && signature.isExpired(date);
-        }
-        return false;
-      }
-
-      function getExpirationTime(keyPacket, signature) {
-        let expirationTime;
-        // check V4 expiration time
-        if (signature.keyNeverExpires === false) {
-          expirationTime = keyPacket.created.getTime() + signature.keyExpirationTime * 1000;
-        }
-        return expirationTime ? new Date(expirationTime) : Infinity;
-      }
-
-      /**
-       * Check if signature has revocation key sub packet (not supported by OpenPGP.js)
-       * and throw error if found
-       * @param {module:packet.Signature} signature The certificate or signature to check
-       * @param {type/keyid} keyId Check only certificates or signatures from a certain issuer key ID
-       */
-      function checkRevocationKey(signature, keyId) {
-        if (signature.revocationKeyClass !== null && signature.issuerKeyId.equals(keyId)) {
-          throw new Error('This key is intended to be revoked with an authorized key, which OpenPGP.js does not support.');
-        }
-      }
-
-      /**
-       * Returns the preferred signature hash algorithm of a key
-       * @param  {module:key.Key} key (optional) the key to get preferences from
-       * @param  {module:packet.SecretKey|module:packet.SecretSubkey} keyPacket key packet used for signing
-       * @param  {Date} date (optional) use the given date for verification instead of the current time
-       * @param  {Object} userId (optional) user ID
-       * @returns {Promise<String>}
-       * @async
-       */
-      async function getPreferredHashAlgo(key, keyPacket, date = new Date(), userId = {}) {
-        let hash_algo = _config2.default.prefer_hash_algorithm;
-        let pref_algo = hash_algo;
-        if (key instanceof Key) {
-          const primaryUser = await key.getPrimaryUser(date, userId);
-          if (primaryUser && primaryUser.selfCertification.preferredHashAlgorithms) {
-            var _primaryUser$selfCert = _slicedToArray(primaryUser.selfCertification.preferredHashAlgorithms, 1);
-
-            pref_algo = _primaryUser$selfCert[0];
-
-            hash_algo = _crypto2.default.hash.getHashByteLength(hash_algo) <= _crypto2.default.hash.getHashByteLength(pref_algo) ? pref_algo : hash_algo;
-          }
-        }
-        switch (Object.getPrototypeOf(keyPacket)) {
-          case _packet2.default.SecretKey.prototype:
-          case _packet2.default.PublicKey.prototype:
-          case _packet2.default.SecretSubkey.prototype:
-          case _packet2.default.PublicSubkey.prototype:
-            switch (keyPacket.algorithm) {
-              case 'ecdh':
-              case 'ecdsa':
-              case 'eddsa':
-                pref_algo = _crypto2.default.publicKey.elliptic.getPreferredHashAlgo(keyPacket.params[0]);
-            }
-        }
-        return _crypto2.default.hash.getHashByteLength(hash_algo) <= _crypto2.default.hash.getHashByteLength(pref_algo) ? pref_algo : hash_algo;
-      }
-
-      /**
-       * Returns the preferred symmetric/aead algorithm for a set of keys
-       * @param  {symmetric|aead} type Type of preference to return
-       * @param  {Array<module:key.Key>} keys Set of keys
-       * @param  {Date} date (optional) use the given date for verification instead of the current time
-       * @param  {Object} userId (optional) user ID
-       * @returns {Promise<module:enums.symmetric>}   Preferred symmetric algorithm
-       * @async
-       */
-      async function getPreferredAlgo(type, keys, date = new Date(), userId = {}) {
-        const prefProperty = type === 'symmetric' ? 'preferredSymmetricAlgorithms' : 'preferredAeadAlgorithms';
-        const defaultAlgo = type === 'symmetric' ? _enums2.default.symmetric.aes128 : _enums2.default.aead.eax;
-        const prioMap = {};
-        await Promise.all(keys.map(async function(key) {
-          const primaryUser = await key.getPrimaryUser(date, userId);
-          if (!primaryUser || !primaryUser.selfCertification[prefProperty]) {
-            return defaultAlgo;
-          }
-          primaryUser.selfCertification[prefProperty].forEach(function(algo, index) {
-            const entry = prioMap[algo] || (prioMap[algo] = {
-              prio: 0,
-              count: 0,
-              algo: algo
-            });
-            entry.prio += 64 >> index;
-            entry.count++;
-          });
-        }));
-        let prefAlgo = {
-          prio: 0,
-          algo: defaultAlgo
-        };
-        Object.values(prioMap).forEach(({
-          prio,
-          count,
-          algo
-        }) => {
-          try {
-            if (algo !== _enums2.default[type].plaintext && algo !== _enums2.default[type].idea && // not implemented
-              _enums2.default.read(_enums2.default[type], algo) && // known algorithm
-              count === keys.length && // available for all keys
-              prio > prefAlgo.prio) {
-              prefAlgo = prioMap[algo];
-            }
-          }
-          catch (e) {}
-        });
-        return prefAlgo.algo;
-      }
-
-      /**
-       * Returns whether aead is supported by all keys in the set
-       * @param  {Array<module:key.Key>} keys Set of keys
-       * @param  {Date} date (optional) use the given date for verification instead of the current time
-       * @returns {Promise<Boolean>}
-       * @async
-       */
-      async function isAeadSupported(keys, date = new Date(), userId = {}) {
-        let supported = true;
-        // TODO replace when Promise.some or Promise.any are implemented
-        await Promise.all(keys.map(async function(key) {
-          const primaryUser = await key.getPrimaryUser(date, userId);
-          if (!primaryUser || !primaryUser.selfCertification.features || !(primaryUser.selfCertification.features[0] & _enums2.default.features.aead)) {
-            supported = false;
-          }
-        }));
-        return supported;
-      }
 
     }, {
-      "./config": 81,
-      "./crypto": 96,
-      "./encoding/armor": 113,
-      "./enums": 115,
-      "./packet": 127,
-      "./util": 154
+      "../enums": 113,
+      "../packet": 131,
+      "./helper": 117
     }],
-    119: [function(require, module, exports) {
+    122: [function(require, module, exports) {
       'use strict';
 
       Object.defineProperty(exports, "__esModule", {
@@ -36656,10 +38227,10 @@
       exports.default = _keyring2.default;
 
     }, {
-      "./keyring.js": 120,
-      "./localstore.js": 121
+      "./keyring.js": 123,
+      "./localstore.js": 124
     }],
-    120: [function(require, module, exports) {
+    123: [function(require, module, exports) {
       'use strict';
 
       Object.defineProperty(exports, "__esModule", {
@@ -36905,9 +38476,9 @@
 
     }, {
       "../key": 118,
-      "./localstore": 121
+      "./localstore": 124
     }],
-    121: [function(require, module, exports) {
+    124: [function(require, module, exports) {
       'use strict';
 
       Object.defineProperty(exports, "__esModule", {
@@ -37053,13 +38624,47 @@
       exports.default = LocalStore;
 
     }, {
-      "../config": 81,
+      "../config": 79,
       "../key": 118,
-      "../util": 154,
+      "../util": 158,
       "node-localstorage": "node-localstorage",
-      "web-stream-tools": 77
+      "web-stream-tools": 75
     }],
-    122: [function(require, module, exports) {
+    125: [function(require, module, exports) {
+      'use strict';
+
+      Object.defineProperty(exports, "__esModule", {
+        value: true
+      });
+      /**
+       * Load script from path
+       * @param {String} path
+       */
+      const loadScript = exports.loadScript = path => {
+        if (typeof importScripts !== 'undefined') {
+          return importScripts(path);
+        }
+        return new Promise((resolve, reject) => {
+          const script = document.createElement('script');
+          script.src = path;
+          script.onload = () => resolve();
+          script.onerror = e => reject(new Error(e.message));
+          document.head.appendChild(script);
+        });
+      };
+
+      /**
+       * Download script from path
+       * @param {String} path fetch path
+       * @param {Object} options fetch options
+       */
+      const dl = exports.dl = async function dl(path, options) {
+        const response = await fetch(path, options);
+        return response.arrayBuffer();
+      };
+
+    }, {}],
+    126: [function(require, module, exports) {
       'use strict';
 
       Object.defineProperty(exports, "__esModule", {
@@ -37217,23 +38822,23 @@
 
         const symEncryptedPacket = symEncryptedPacketlist[0];
         let exception = null;
-        for (let i = 0; i < keyObjs.length; i++) {
-          if (!keyObjs[i] || !_util2.default.isUint8Array(keyObjs[i].data) || !_util2.default.isString(keyObjs[i].algorithm)) {
+        const decryptedPromise = Promise.all(keyObjs.map(async keyObj => {
+          if (!keyObj || !_util2.default.isUint8Array(keyObj.data) || !_util2.default.isString(keyObj.algorithm)) {
             throw new Error('Invalid session key for decryption.');
           }
 
           try {
-            await symEncryptedPacket.decrypt(keyObjs[i].algorithm, keyObjs[i].data, streaming);
-            break;
+            await symEncryptedPacket.decrypt(keyObj.algorithm, keyObj.data, streaming);
           }
           catch (e) {
             _util2.default.print_debug_error(e);
             exception = e;
           }
-        }
+        }));
         // We don't await stream.cancel here because it only returns when the other copy is canceled too.
         _webStreamTools2.default.cancel(symEncryptedPacket.encrypted); // Don't keep copy of encrypted data in memory.
         symEncryptedPacket.encrypted = null;
+        await decryptedPromise;
 
         if (!symEncryptedPacket.packets || !symEncryptedPacket.packets.length) {
           throw exception || new Error('Decryption failed.');
@@ -37292,7 +38897,8 @@
               const primaryUser = await privateKey.getPrimaryUser(); // TODO: Pass userId from somewhere.
               let algos = [_enums2.default.symmetric.aes256, // Old OpenPGP.js default fallback
                 _enums2.default.symmetric.aes128, // RFC4880bis fallback
-                _enums2.default.symmetric.tripledes // RFC4880 fallback
+                _enums2.default.symmetric.tripledes, // RFC4880 fallback
+                _enums2.default.symmetric.cast5 // Golang OpenPGP fallback
               ];
               if (primaryUser && primaryUser.selfCertification.preferredSymmetricAlgorithms) {
                 algos = algos.concat(primaryUser.selfCertification.preferredSymmetricAlgorithms);
@@ -37389,12 +38995,12 @@
        * @param  {Object} sessionKey         (optional) session key in the form: { data:Uint8Array, algorithm:String, [aeadAlgorithm:String] }
        * @param  {Boolean} wildcard          (optional) use a key ID of 0 instead of the public key IDs
        * @param  {Date} date                 (optional) override the creation date of the literal package
-       * @param  {Object} userId             (optional) user ID to encrypt for, e.g. { name:'Robert Receiver', email:'robert@openpgp.org' }
+       * @param  {Array} userIds             (optional) user IDs to encrypt for, e.g. [{ name:'Robert Receiver', email:'robert@openpgp.org' }]
        * @param  {Boolean} streaming         (optional) whether to process data as a stream
        * @returns {Promise<Message>}                   new message with encrypted content
        * @async
        */
-      Message.prototype.encrypt = async function(keys, passwords, sessionKey, wildcard = false, date = new Date(), userId = {}, streaming) {
+      Message.prototype.encrypt = async function(keys, passwords, sessionKey, wildcard = false, date = new Date(), userIds = [], streaming) {
         let symAlgo;
         let aeadAlgo;
         let symEncryptedPacket;
@@ -37408,9 +39014,9 @@
           sessionKey = sessionKey.data;
         }
         else if (keys && keys.length) {
-          symAlgo = _enums2.default.read(_enums2.default.symmetric, (await (0, _key.getPreferredAlgo)('symmetric', keys, date, userId)));
-          if (_config2.default.aead_protect && _config2.default.aead_protect_version === 4 && (await (0, _key.isAeadSupported)(keys, date, userId))) {
-            aeadAlgo = _enums2.default.read(_enums2.default.aead, (await (0, _key.getPreferredAlgo)('aead', keys, date, userId)));
+          symAlgo = _enums2.default.read(_enums2.default.symmetric, (await (0, _key.getPreferredAlgo)('symmetric', keys, date, userIds)));
+          if (_config2.default.aead_protect && (await (0, _key.isAeadSupported)(keys, date, userIds))) {
+            aeadAlgo = _enums2.default.read(_enums2.default.aead, (await (0, _key.getPreferredAlgo)('aead', keys, date, userIds)));
           }
         }
         else if (passwords && passwords.length) {
@@ -37425,9 +39031,9 @@
           sessionKey = await _crypto2.default.generateSessionKey(symAlgo);
         }
 
-        const msg = await encryptSessionKey(sessionKey, symAlgo, aeadAlgo, keys, passwords, wildcard, date, userId);
+        const msg = await encryptSessionKey(sessionKey, symAlgo, aeadAlgo, keys, passwords, wildcard, date, userIds);
 
-        if (_config2.default.aead_protect && (_config2.default.aead_protect_version !== 4 || aeadAlgo)) {
+        if (_config2.default.aead_protect && aeadAlgo) {
           symEncryptedPacket = new _packet2.default.SymEncryptedAEADProtected();
           symEncryptedPacket.aeadAlgorithm = aeadAlgo;
         }
@@ -37462,16 +39068,16 @@
        * @param  {Array<String>} passwords   (optional) for message encryption
        * @param  {Boolean} wildcard          (optional) use a key ID of 0 instead of the public key IDs
        * @param  {Date} date                 (optional) override the date
-       * @param  {Object} userId             (optional) user ID to encrypt for, e.g. { name:'Robert Receiver', email:'robert@openpgp.org' }
+       * @param  {Array} userIds             (optional) user IDs to encrypt for, e.g. [{ name:'Robert Receiver', email:'robert@openpgp.org' }]
        * @returns {Promise<Message>}          new message with encrypted content
        * @async
        */
-      async function encryptSessionKey(sessionKey, symAlgo, aeadAlgo, publicKeys, passwords, wildcard = false, date = new Date(), userId = {}) {
+      async function encryptSessionKey(sessionKey, symAlgo, aeadAlgo, publicKeys, passwords, wildcard = false, date = new Date(), userIds = []) {
         const packetlist = new _packet2.default.List();
 
         if (publicKeys) {
           const results = await Promise.all(publicKeys.map(async function(publicKey) {
-            const encryptionKey = await publicKey.getEncryptionKey(undefined, date, userId);
+            const encryptionKey = await publicKey.getEncryptionKey(undefined, date, userIds);
             if (!encryptionKey) {
               throw new Error('Could not find valid key packet for encryption in key ' + publicKey.getKeyId().toHex());
             }
@@ -37531,11 +39137,12 @@
        * @param  {Array<module:key.Key>}        privateKeys private keys with decrypted secret key data for signing
        * @param  {Signature} signature          (optional) any existing detached signature to add to the message
        * @param  {Date} date                    (optional) override the creation time of the signature
-       * @param  {Object} userId                (optional) user ID to sign with, e.g. { name:'Steve Sender', email:'steve@openpgp.org' }
+       * @param  {Array} userIds                (optional) user IDs to sign with, e.g. [{ name:'Steve Sender', email:'steve@openpgp.org' }]
+       * @param  {Boolean} streaming            (optional) whether to process data as a stream
        * @returns {Promise<Message>}             new message with signed content
        * @async
        */
-      Message.prototype.sign = async function(privateKeys = [], signature = null, date = new Date(), userId = {}) {
+      Message.prototype.sign = async function(privateKeys = [], signature = null, date = new Date(), userIds = [], streaming = false) {
         const packetlist = new _packet2.default.List();
 
         const literalDataPacket = this.packets.findPacket(_enums2.default.packet.literal);
@@ -37568,13 +39175,13 @@
           if (privateKey.isPublic()) {
             throw new Error('Need private key for signing');
           }
-          const signingKey = await privateKey.getSigningKey(undefined, date, userId);
+          const signingKey = await privateKey.getSigningKey(undefined, date, userIds);
           if (!signingKey) {
             throw new Error('Could not find valid key packet for signing in key ' + privateKey.getKeyId().toHex());
           }
           const onePassSig = new _packet2.default.OnePassSignature();
           onePassSig.signatureType = signatureType;
-          onePassSig.hashAlgorithm = await (0, _key.getPreferredHashAlgo)(privateKey, signingKey.keyPacket, date, userId);
+          onePassSig.hashAlgorithm = await (0, _key.getPreferredHashAlgo)(privateKey, signingKey.keyPacket, date, userIds);
           onePassSig.publicKeyAlgorithm = signingKey.keyPacket.algorithm;
           onePassSig.issuerKeyId = signingKey.getKeyId();
           if (i === privateKeys.length - 1) {
@@ -37586,7 +39193,7 @@
         });
 
         packetlist.push(literalDataPacket);
-        packetlist.concat((await createSignaturePackets(literalDataPacket, privateKeys, signature, date)));
+        packetlist.concat((await createSignaturePackets(literalDataPacket, privateKeys, signature, date, userIds, false, streaming)));
 
         return new Message(packetlist);
       };
@@ -37616,16 +39223,17 @@
        * @param  {Array<module:key.Key>}               privateKeys private keys with decrypted secret key data for signing
        * @param  {Signature} signature                 (optional) any existing detached signature
        * @param  {Date} date                           (optional) override the creation time of the signature
-       * @param  {Object} userId                       (optional) user ID to sign with, e.g. { name:'Steve Sender', email:'steve@openpgp.org' }
+       * @param  {Array} userIds                       (optional) user IDs to sign with, e.g. [{ name:'Steve Sender', email:'steve@openpgp.org' }]
+       * @param  {Boolean} streaming                   (optional) whether to process data as a stream
        * @returns {Promise<module:signature.Signature>} new detached signature of message content
        * @async
        */
-      Message.prototype.signDetached = async function(privateKeys = [], signature = null, date = new Date(), userId = {}) {
+      Message.prototype.signDetached = async function(privateKeys = [], signature = null, date = new Date(), userIds = [], streaming = false) {
         const literalDataPacket = this.packets.findPacket(_enums2.default.packet.literal);
         if (!literalDataPacket) {
           throw new Error('No literal data packet to sign.');
         }
-        return new _signature.Signature((await createSignaturePackets(literalDataPacket, privateKeys, signature, date, userId)));
+        return new _signature.Signature((await createSignaturePackets(literalDataPacket, privateKeys, signature, date, userIds, true, streaming)));
       };
 
       /**
@@ -37634,17 +39242,20 @@
        * @param  {Array<module:key.Key>}             privateKeys private keys with decrypted secret key data for signing
        * @param  {Signature} signature               (optional) any existing detached signature to append
        * @param  {Date} date                         (optional) override the creationtime of the signature
-       * @param  {Object} userId                     (optional) user ID to sign with, e.g. { name:'Steve Sender', email:'steve@openpgp.org' }
+       * @param  {Array} userIds                     (optional) user IDs to sign with, e.g. [{ name:'Steve Sender', email:'steve@openpgp.org' }]
+       * @param  {Boolean} detached                  (optional) whether to create detached signature packets
+       * @param  {Boolean} streaming                 (optional) whether to process data as a stream
        * @returns {Promise<module:packet.List>} list of signature packets
        * @async
        */
-      async function createSignaturePackets(literalDataPacket, privateKeys, signature = null, date = new Date(), userId = {}) {
+      async function createSignaturePackets(literalDataPacket, privateKeys, signature = null, date = new Date(), userIds = [], detached = false, streaming = false) {
         const packetlist = new _packet2.default.List();
 
         // If data packet was created from Uint8Array, use binary, otherwise use text
         const signatureType = literalDataPacket.text === null ? _enums2.default.signature.binary : _enums2.default.signature.text;
 
-        await Promise.all(privateKeys.map(async privateKey => {
+        await Promise.all(privateKeys.map(async (privateKey, i) => {
+          const userId = userIds[i];
           if (privateKey.isPublic()) {
             throw new Error('Need private key for signing');
           }
@@ -37654,7 +39265,7 @@
           }
           return (0, _key.createSignaturePacket)(literalDataPacket, privateKey, signingKey.keyPacket, {
             signatureType
-          }, date, userId);
+          }, date, userId, detached, streaming);
         })).then(signatureList => {
           signatureList.forEach(signaturePacket => packetlist.push(signaturePacket));
         });
@@ -37680,16 +39291,19 @@
         if (literalDataList.length !== 1) {
           throw new Error('Can only verify message with one literal data packet.');
         }
+        if (!streaming) {
+          msg.packets.concat((await _webStreamTools2.default.readToEnd(msg.packets.stream, _ => _)));
+        }
         const onePassSigList = msg.packets.filterByTag(_enums2.default.packet.onePassSignature).reverse();
         const signatureList = msg.packets.filterByTag(_enums2.default.packet.signature);
-        if (onePassSigList.length && !signatureList.length && msg.packets.stream) {
+        if (streaming && onePassSigList.length && !signatureList.length && msg.packets.stream) {
           await Promise.all(onePassSigList.map(async onePassSig => {
             onePassSig.correspondingSig = new Promise((resolve, reject) => {
               onePassSig.correspondingSigResolve = resolve;
               onePassSig.correspondingSigReject = reject;
             });
             onePassSig.signatureData = _webStreamTools2.default.fromAsync(async () => (await onePassSig.correspondingSig).signatureData);
-            onePassSig.hashed = await onePassSig.hash(onePassSig.signatureType, literalDataList[0], undefined, streaming);
+            onePassSig.hashed = await onePassSig.hash(onePassSig.signatureType, literalDataList[0], undefined, false, streaming);
           }));
           msg.packets.stream = _webStreamTools2.default.transformPair(msg.packets.stream, async (readable, writable) => {
             const reader = _webStreamTools2.default.getReader(readable);
@@ -37713,9 +39327,9 @@
               await writer.abort(e);
             }
           });
-          return createVerificationObjects(onePassSigList, literalDataList, keys, date);
+          return createVerificationObjects(onePassSigList, literalDataList, keys, date, false, streaming);
         }
-        return createVerificationObjects(signatureList, literalDataList, keys, date);
+        return createVerificationObjects(signatureList, literalDataList, keys, date, false, streaming);
       };
 
       /**
@@ -37733,7 +39347,7 @@
           throw new Error('Can only verify message with one literal data packet.');
         }
         const signatureList = signature.packets;
-        return createVerificationObjects(signatureList, literalDataList, keys, date);
+        return createVerificationObjects(signatureList, literalDataList, keys, date, true);
       };
 
       /**
@@ -37743,11 +39357,12 @@
        * @param {Array<module:key.Key>} keys array of keys to verify signatures
        * @param {Date} date Verify the signature against the given date,
        *                    i.e. check signature creation time < date < expiration time
+       * @param {Boolean} detached (optional) whether to verify detached signature packets
        * @returns {Promise<Array<{keyid: module:type/keyid,
        *                          valid: Boolean}>>} list of signer's keyid and validity of signature
        * @async
        */
-      async function createVerificationObject(signature, literalDataList, keys, date = new Date()) {
+      async function createVerificationObject(signature, literalDataList, keys, date = new Date(), detached = false, streaming = false) {
         let primaryKey = null;
         let signingKey = null;
         await Promise.all(keys.map(async function(key) {
@@ -37766,7 +39381,7 @@
             if (!signingKey) {
               return null;
             }
-            const verified = await signature.verify(signingKey.keyPacket, signature.signatureType, literalDataList[0]);
+            const verified = await signature.verify(signingKey.keyPacket, signature.signatureType, literalDataList[0], detached, streaming);
             const sig = await signaturePacket;
             if (sig.isExpired(date) || !(sig.created >= signingKey.getCreationTime() && sig.created < (await (signingKey === primaryKey ? signingKey.getExpirationTime() : signingKey.getExpirationTime(primaryKey, date))))) {
               return null;
@@ -37798,15 +39413,16 @@
        * @param {Array<module:key.Key>} keys array of keys to verify signatures
        * @param {Date} date Verify the signature against the given date,
        *                    i.e. check signature creation time < date < expiration time
+       * @param {Boolean} detached (optional) whether to verify detached signature packets
        * @returns {Promise<Array<{keyid: module:type/keyid,
        *                          valid: Boolean}>>} list of signer's keyid and validity of signature
        * @async
        */
-      async function createVerificationObjects(signatureList, literalDataList, keys, date = new Date()) {
+      async function createVerificationObjects(signatureList, literalDataList, keys, date = new Date(), detached = false, streaming = false) {
         return Promise.all(signatureList.filter(function(signature) {
           return ['text', 'binary'].includes(_enums2.default.read(_enums2.default.signature, signature.signatureType));
         }).map(async function(signature) {
-          return createVerificationObject(signature, literalDataList, keys, date);
+          return createVerificationObject(signature, literalDataList, keys, date, detached, streaming);
         }));
       }
 
@@ -37870,7 +39486,7 @@
           input = _webStreamTools2.default.nodeToWeb(input);
         }
         const packetlist = new _packet2.default.List();
-        await packetlist.read(input);
+        await packetlist.read(input, fromStream);
         const message = new Message(packetlist);
         message.fromStream = fromStream;
         return message;
@@ -37934,18 +39550,18 @@
       }
 
     }, {
-      "./config": 81,
-      "./crypto": 96,
-      "./encoding/armor": 113,
-      "./enums": 115,
+      "./config": 79,
+      "./crypto": 94,
+      "./encoding/armor": 111,
+      "./enums": 113,
       "./key": 118,
-      "./packet": 127,
-      "./signature": 147,
-      "./type/keyid": 150,
-      "./util": 154,
-      "web-stream-tools": 77
+      "./packet": 131,
+      "./signature": 151,
+      "./type/keyid": 154,
+      "./util": 158,
+      "web-stream-tools": 75
     }],
-    123: [function(require, module, exports) {
+    127: [function(require, module, exports) {
       'use strict';
 
       Object.defineProperty(exports, "__esModule", {
@@ -38032,6 +39648,8 @@
        * @param {String} path            relative path to the worker scripts, default: 'openpgp.worker.js'
        * @param {Number} n               number of workers to initialize
        * @param {Array<Object>} workers  alternative to path parameter: web workers initialized with 'openpgp.worker.js'
+       * @returns {Promise<Boolean>}     returns a promise that resolves to true if all workers have succesfully finished loading
+       * @async
        */
       // OpenPGP.js - An OpenPGP implementation in javascript
       // Copyright (C) 2016 Tankred Hase
@@ -38074,20 +39692,25 @@
        * {@link module:openpgp}
        */
 
-      function initWorker({
+      async function initWorker({
         path = 'openpgp.worker.js',
         n = 1,
         workers = []
       } = {}) {
-        if (workers.length || typeof window !== 'undefined' && window.Worker) {
-          asyncProxy = new _async_proxy2.default({
+        if (workers.length || typeof window !== 'undefined' && window.Worker && window.MessageChannel) {
+          const proxy = new _async_proxy2.default({
             path,
             n,
             workers,
             config: _config2.default
           });
-          return true;
+          const loaded = await proxy.loaded();
+          if (loaded) {
+            asyncProxy = proxy;
+            return true;
+          }
         }
+        return false;
       }
 
       /**
@@ -38116,7 +39739,7 @@
        * Generates a new OpenPGP key pair. Supports RSA and ECC keys. Primary and subkey will be of same type.
        * @param  {Array<Object>} userIds   array of user IDs e.g. [{ name:'Phil Zimmermann', email:'phil@openpgp.org' }]
        * @param  {String} passphrase       (optional) The passphrase used to encrypt the resulting private key
-       * @param  {Number} numBits          (optional) number of bits for RSA keys: 2048 or 4096.
+       * @param  {Number} rsaBits          (optional) number of bits for RSA keys: 2048 or 4096.
        * @param  {Number} keyExpirationTime (optional) The number of seconds after the key creation time that the key expires
        * @param  {String} curve            (optional) elliptic curve for ECC keys:
        *                                              curve25519, p256, p384, p521, secp256k1,
@@ -38134,6 +39757,7 @@
         userIds = [],
         passphrase = "",
         numBits = 2048,
+        rsaBits = numBits,
         keyExpirationTime = 0,
         curve = "",
         date = new Date(),
@@ -38143,14 +39767,14 @@
         const options = {
           userIds,
           passphrase,
-          numBits,
+          rsaBits,
           keyExpirationTime,
           curve,
           date,
           subkeys
         };
-        if (_util2.default.getWebCryptoAll() && numBits < 2048) {
-          throw new Error('numBits should be 2048 or 4096, found: ' + numBits);
+        if (_util2.default.getWebCryptoAll() && rsaBits < 2048) {
+          throw new Error('rsaBits should be 2048 or 4096, found: ' + rsaBits);
         }
 
         if (!_util2.default.getWebCryptoAll() && asyncProxy) {
@@ -38356,8 +39980,8 @@
        * @param  {Boolean} returnSessionKey             (optional) if the unencrypted session key should be added to returned object
        * @param  {Boolean} wildcard                     (optional) use a key ID of 0 instead of the public key IDs
        * @param  {Date} date                            (optional) override the creation date of the message signature
-       * @param  {Object} fromUserId                    (optional) user ID to sign with, e.g. { name:'Steve Sender', email:'steve@openpgp.org' }
-       * @param  {Object} toUserId                      (optional) user ID to encrypt for, e.g. { name:'Robert Receiver', email:'robert@openpgp.org' }
+       * @param  {Array} fromUserIds                    (optional) array of user IDs to sign with, one per key in `privateKeys`, e.g. [{ name:'Steve Sender', email:'steve@openpgp.org' }]
+       * @param  {Array} toUserIds                      (optional) array of user IDs to encrypt for, one per key in `publicKeys`, e.g. [{ name:'Robert Receiver', email:'robert@openpgp.org' }]
        * @returns {Promise<Object>}                     Object containing encrypted (and optionally signed) message in the form:
        *
        *     {
@@ -38384,13 +40008,15 @@
         returnSessionKey = false,
         wildcard = false,
         date = new Date(),
-        fromUserId = {},
-        toUserId = {}
+        fromUserIds = [],
+        toUserIds = []
       }) {
         checkMessage(message);
         publicKeys = toArray(publicKeys);
         privateKeys = toArray(privateKeys);
         passwords = toArray(passwords);
+        fromUserIds = toArray(fromUserIds);
+        toUserIds = toArray(toUserIds);
 
         if (!nativeAEAD() && asyncProxy) {
           // use web worker if web crypto apis are not supported
@@ -38408,8 +40034,8 @@
             returnSessionKey,
             wildcard,
             date,
-            fromUserId,
-            toUserId
+            fromUserIds,
+            toUserIds
           });
         }
         const result = {};
@@ -38420,15 +40046,15 @@
           if (privateKeys.length || signature) {
             // sign the message only if private keys or signature is specified
             if (detached) {
-              const detachedSignature = await message.signDetached(privateKeys, signature, date, fromUserId);
+              const detachedSignature = await message.signDetached(privateKeys, signature, date, fromUserIds, message.fromStream);
               result.signature = armor ? detachedSignature.armor() : detachedSignature;
             }
             else {
-              message = await message.sign(privateKeys, signature, date, fromUserId);
+              message = await message.sign(privateKeys, signature, date, fromUserIds, message.fromStream);
             }
           }
           message = message.compress(compression);
-          return message.encrypt(publicKeys, passwords, sessionKey, wildcard, date, toUserId, streaming);
+          return message.encrypt(publicKeys, passwords, sessionKey, wildcard, date, toUserIds, streaming);
         }).then(async encrypted => {
           if (armor) {
             result.data = encrypted.message.armor();
@@ -38513,7 +40139,7 @@
           result.signatures = signature ? await decrypted.verifyDetached(signature, publicKeys, date, streaming) : await decrypted.verify(publicKeys, date, streaming);
           result.data = format === 'binary' ? decrypted.getLiteralData() : decrypted.getText();
           result.filename = decrypted.getFilename();
-          if (streaming) linkStreams(result, message, decrypted.packets.stream);
+          if (streaming) linkStreams(result, message);
           result.data = await convertStream(result.data, streaming);
           if (!streaming) await prepareSignatures(result.signatures);
           return result;
@@ -38535,7 +40161,7 @@
        * @param  {'web'|'node'|false} streaming     (optional) whether to return data as a stream. Defaults to the type of stream `message` was created from, if any.
        * @param  {Boolean} detached                 (optional) if the return value should contain a detached signature
        * @param  {Date} date                        (optional) override the creation date of the signature
-       * @param  {Object} fromUserId                (optional) user ID to sign with, e.g. { name:'Steve Sender', email:'steve@openpgp.org' }
+       * @param  {Array} fromUserIds                (optional) array of user IDs to sign with, one per key in `privateKeys`, e.g. [{ name:'Steve Sender', email:'steve@openpgp.org' }]
        * @returns {Promise<Object>}                 Object containing signed message in the form:
        *
        *     {
@@ -38559,11 +40185,11 @@
         streaming = message && message.fromStream,
         detached = false,
         date = new Date(),
-        fromUserId = {}
+        fromUserIds = []
       }) {
         checkCleartextOrMessage(message);
         privateKeys = toArray(privateKeys);
-
+        fromUserIds = toArray(fromUserIds);
         if (asyncProxy) {
           // use web worker if available
           return asyncProxy.delegate('sign', {
@@ -38573,18 +40199,23 @@
             streaming,
             detached,
             date,
-            fromUserId
+            fromUserIds
           });
         }
 
         const result = {};
         return Promise.resolve().then(async function() {
           if (detached) {
-            const signature = await message.signDetached(privateKeys, undefined, date, fromUserId);
+            const signature = await message.signDetached(privateKeys, undefined, date, fromUserIds, message.fromStream);
             result.signature = armor ? signature.armor() : signature;
+            if (message.packets) {
+              result.signature = _webStreamTools2.default.transformPair(message.packets.write(), async (readable, writable) => {
+                await Promise.all([_webStreamTools2.default.pipe(result.signature, writable), _webStreamTools2.default.readToEnd(readable).catch(() => {})]);
+              });
+            }
           }
           else {
-            message = await message.sign(privateKeys, undefined, date, fromUserId);
+            message = await message.sign(privateKeys, undefined, date, fromUserIds, message.fromStream);
             if (armor) {
               result.data = message.armor();
             }
@@ -38668,7 +40299,7 @@
        * @param  {String|Array<String>} passwords   (optional) passwords for the message
        * @param  {Boolean} wildcard                 (optional) use a key ID of 0 instead of the public key IDs
        * @param  {Date} date                        (optional) override the date
-       * @param  {Object} toUserId                  (optional) user ID to encrypt for, e.g. { name:'Phil Zimmermann', email:'phil@openpgp.org' }
+       * @param  {Array} toUserIds                  (optional) array of user IDs to encrypt for, one per key in `publicKeys`, e.g. [{ name:'Phil Zimmermann', email:'phil@openpgp.org' }]
        * @returns {Promise<Message>}                 the encrypted session key packets contained in a message object
        * @async
        * @static
@@ -38681,12 +40312,13 @@
         passwords,
         wildcard = false,
         date = new Date(),
-        toUserId = {}
+        toUserIds = []
       }) {
         checkBinary(data);
         checkString(algorithm, 'algorithm');
         publicKeys = toArray(publicKeys);
         passwords = toArray(passwords);
+        toUserIds = toArray(toUserIds);
 
         if (asyncProxy) {
           // use web worker if available
@@ -38698,14 +40330,14 @@
             passwords,
             wildcard,
             date,
-            toUserId
+            toUserIds
           });
         }
 
         return Promise.resolve().then(async function() {
 
           return {
-            message: await messageLib.encryptSessionKey(data, algorithm, aeadAlgorithm, publicKeys, passwords, wildcard, date, toUserId)
+            message: await messageLib.encryptSessionKey(data, algorithm, aeadAlgorithm, publicKeys, passwords, wildcard, date, toUserIds)
           };
         }).catch(onError.bind(null, 'Error encrypting session key'));
       }
@@ -38840,26 +40472,13 @@
 
       /**
        * Link result.data to the message stream for cancellation.
-       * Also, forward errors in the message to result.data.
        * @param  {Object} result                  the data to convert
        * @param  {Message} message                message object
-       * @param  {ReadableStream} erroringStream  (optional) stream which either errors or gets closed without data
        * @returns {Object}
        */
-      function linkStreams(result, message, erroringStream) {
+      function linkStreams(result, message) {
         result.data = _webStreamTools2.default.transformPair(message.packets.stream, async (readable, writable) => {
-          await _webStreamTools2.default.pipe(result.data, writable, {
-            preventClose: true
-          });
-          const writer = _webStreamTools2.default.getWriter(writable);
-          try {
-            // Forward errors in erroringStream (defaulting to the message stream) to result.data.
-            await _webStreamTools2.default.readToEnd(erroringStream || readable, arr => arr);
-            await writer.close();
-          }
-          catch (e) {
-            await writer.abort(e);
-          }
+          await _webStreamTools2.default.pipe(result.data, writable);
         });
       }
 
@@ -38870,7 +40489,14 @@
       async function prepareSignatures(signatures) {
         await Promise.all(signatures.map(async signature => {
           signature.signature = await signature.signature;
-          signature.valid = await signature.verified;
+          try {
+            signature.valid = await signature.verified;
+          }
+          catch (e) {
+            signature.valid = null;
+            signature.error = e;
+            _util2.default.print_debug_error(e);
+          }
         }));
       }
 
@@ -38900,21 +40526,21 @@
        * @returns {Boolean}   If authenticated encryption should be used
        */
       function nativeAEAD() {
-        return _config2.default.aead_protect && ((_config2.default.aead_protect_version !== 4 || _config2.default.aead_mode === _enums2.default.aead.experimental_gcm) && _util2.default.getWebCrypto() || _config2.default.aead_protect_version === 4 && _config2.default.aead_mode === _enums2.default.aead.eax && _util2.default.getWebCrypto());
+        return _config2.default.aead_protect && (_config2.default.aead_mode === _enums2.default.aead.eax || _config2.default.aead_mode === _enums2.default.aead.experimental_gcm) && _util2.default.getWebCrypto();
       }
 
     }, {
-      "./cleartext": 79,
-      "./config/config": 80,
-      "./enums": 115,
+      "./cleartext": 77,
+      "./config/config": 78,
+      "./enums": 113,
       "./key": 118,
-      "./message": 122,
-      "./polyfills": 146,
-      "./util": 154,
-      "./worker/async_proxy": 156,
-      "web-stream-tools": 77
+      "./message": 126,
+      "./polyfills": 150,
+      "./util": 158,
+      "./worker/async_proxy": 160,
+      "web-stream-tools": 75
     }],
-    124: [function(require, module, exports) {
+    128: [function(require, module, exports) {
       'use strict';
 
       Object.defineProperty(exports, "__esModule", {
@@ -39147,27 +40773,27 @@
       }
 
     }, {
-      "../enums.js": 115,
-      "./all_packets.js": 124,
-      "./compressed.js": 126,
-      "./literal.js": 128,
-      "./marker.js": 129,
-      "./one_pass_signature.js": 130,
-      "./public_key.js": 133,
-      "./public_key_encrypted_session_key.js": 134,
-      "./public_subkey.js": 135,
-      "./secret_key.js": 136,
-      "./secret_subkey.js": 137,
-      "./signature.js": 138,
-      "./sym_encrypted_aead_protected.js": 139,
-      "./sym_encrypted_integrity_protected.js": 140,
-      "./sym_encrypted_session_key.js": 141,
-      "./symmetrically_encrypted.js": 142,
-      "./trust.js": 143,
-      "./user_attribute.js": 144,
-      "./userid.js": 145
+      "../enums.js": 113,
+      "./all_packets.js": 128,
+      "./compressed.js": 130,
+      "./literal.js": 132,
+      "./marker.js": 133,
+      "./one_pass_signature.js": 134,
+      "./public_key.js": 137,
+      "./public_key_encrypted_session_key.js": 138,
+      "./public_subkey.js": 139,
+      "./secret_key.js": 140,
+      "./secret_subkey.js": 141,
+      "./signature.js": 142,
+      "./sym_encrypted_aead_protected.js": 143,
+      "./sym_encrypted_integrity_protected.js": 144,
+      "./sym_encrypted_session_key.js": 145,
+      "./symmetrically_encrypted.js": 146,
+      "./trust.js": 147,
+      "./user_attribute.js": 148,
+      "./userid.js": 149
     }],
-    125: [function(require, module, exports) {
+    129: [function(require, module, exports) {
       'use strict';
 
       Object.defineProperty(exports, "__esModule", {
@@ -39249,6 +40875,9 @@
         if (options.privateKeys) {
           options.privateKeys = options.privateKeys.map(key => key.toPacketlist());
         }
+        if (options.publicKey) {
+          options.publicKey = options.publicKey.toPacketlist();
+        }
         if (options.privateKey) {
           options.privateKey = options.privateKey.toPacketlist();
         }
@@ -39283,13 +40912,19 @@
           const signature = verObject.signature;
           verObject.signature = _webStreamTools2.default.fromAsync(async () => {
             const packets = (await signature).packets;
-            await verified;
-            delete packets[0].signature;
+            try {
+              await verified;
+              delete packets[0].signature;
+            }
+            catch (e) {}
             return packets;
           });
         }
         else {
           verObject.signature = verObject.signature.packets;
+        }
+        if (verObject.error) {
+          verObject.error = verObject.error.message;
         }
         return verObject;
       }
@@ -39313,6 +40948,9 @@
         }
         if (options.privateKeys) {
           options.privateKeys = options.privateKeys.map(packetlistCloneToKey);
+        }
+        if (options.publicKey) {
+          options.publicKey = packetlistCloneToKey(options.publicKey);
         }
         if (options.privateKey) {
           options.privateKey = packetlistCloneToKey(options.privateKey);
@@ -39355,11 +40993,16 @@
         clone.keyid = _keyid2.default.fromClone(clone.keyid);
         if (_util2.default.isStream(clone.signature)) {
           clone.signature = _webStreamTools2.default.readToEnd(clone.signature, ([signature]) => new _signature.Signature(_packetlist2.default.fromStructuredClone(signature)));
+          clone.signature.catch(() => {});
         }
         else {
           clone.signature = new _signature.Signature(_packetlist2.default.fromStructuredClone(clone.signature));
         }
         clone.verified = _webStreamTools2.default.readToEnd(clone.verified, ([verified]) => verified);
+        clone.verified.catch(() => {});
+        if (clone.error) {
+          clone.error = new Error(clone.error);
+        }
         return clone;
       }
 
@@ -39373,16 +41016,16 @@
       }
 
     }, {
-      "../cleartext": 79,
+      "../cleartext": 77,
       "../key": 118,
-      "../message": 122,
-      "../signature": 147,
-      "../type/keyid": 150,
-      "../util": 154,
-      "./packetlist": 132,
-      "web-stream-tools": 77
+      "../message": 126,
+      "../signature": 151,
+      "../type/keyid": 154,
+      "../util": 158,
+      "./packetlist": 136,
+      "web-stream-tools": 75
     }],
-    126: [function(require, module, exports) {
+    130: [function(require, module, exports) {
       'use strict';
 
       Object.defineProperty(exports, "__esModule", {
@@ -39483,7 +41126,7 @@
        * Parsing function for the packet.
        * @param {Uint8Array | ReadableStream<Uint8Array>} bytes Payload of a tag 8 packet
        */
-      Compressed.prototype.read = async function(bytes) {
+      Compressed.prototype.read = async function(bytes, streaming) {
         await _webStreamTools2.default.parse(bytes, async reader => {
 
           // One octet that gives the algorithm used to compress the packet.
@@ -39492,7 +41135,7 @@
           // Compressed data, which makes up the remainder of the packet.
           this.compressed = reader.remainder();
 
-          await this.decompress();
+          await this.decompress(streaming);
         });
       };
 
@@ -39512,13 +41155,13 @@
        * Decompression method for decompressing the compressed data
        * read by read_packet
        */
-      Compressed.prototype.decompress = async function() {
+      Compressed.prototype.decompress = async function(streaming) {
 
         if (!decompress_fns[this.algorithm]) {
           throw new Error(this.algorithm + ' decompression not supported');
         }
 
-        await this.packets.read(decompress_fns[this.algorithm](this.compressed));
+        await this.packets.read(decompress_fns[this.algorithm](this.compressed), streaming);
       };
 
       /**
@@ -39559,8 +41202,10 @@
               return obj.result;
             }
           }, () => {
-            obj.push([], _pako2.default.Z_FINISH);
-            return obj.result;
+            if (constructor === _pako2.default.Deflate) {
+              obj.push([], _pako2.default.Z_FINISH);
+              return obj.result;
+            }
           });
         };
       }
@@ -39612,14 +41257,14 @@
       }
 
     }, {
-      "../config": 81,
-      "../enums": 115,
-      "../util": 154,
-      "pako": 52,
-      "seek-bzip": 71,
-      "web-stream-tools": 77
+      "../config": 79,
+      "../enums": 113,
+      "../util": 158,
+      "pako": 50,
+      "seek-bzip": 69,
+      "web-stream-tools": 75
     }],
-    127: [function(require, module, exports) {
+    131: [function(require, module, exports) {
       'use strict';
 
       Object.defineProperty(exports, "__esModule", {
@@ -39677,11 +41322,11 @@
       exports.default = mod;
 
     }, {
-      "./all_packets": 124,
-      "./clone": 125,
-      "./packetlist": 132
+      "./all_packets": 128,
+      "./clone": 129,
+      "./packetlist": 136
     }],
-    128: [function(require, module, exports) {
+    132: [function(require, module, exports) {
       'use strict';
 
       Object.defineProperty(exports, "__esModule", {
@@ -39840,29 +41485,40 @@
       };
 
       /**
-       * Creates a string representation of the packet
+       * Creates a Uint8Array representation of the packet, excluding the data
        *
-       * @returns {Uint8Array | ReadableStream<Uint8Array>} Uint8Array representation of the packet
+       * @returns {Uint8Array} Uint8Array representation of the packet
        */
-      Literal.prototype.write = function() {
+      Literal.prototype.writeHeader = function() {
         const filename = _util2.default.encode_utf8(this.filename);
         const filename_length = new Uint8Array([filename.length]);
 
         const format = new Uint8Array([_enums2.default.write(_enums2.default.literal, this.format)]);
         const date = _util2.default.writeDate(this.date);
+
+        return _util2.default.concatUint8Array([format, filename_length, filename, date]);
+      };
+
+      /**
+       * Creates a Uint8Array representation of the packet
+       *
+       * @returns {Uint8Array | ReadableStream<Uint8Array>} Uint8Array representation of the packet
+       */
+      Literal.prototype.write = function() {
+        const header = this.writeHeader();
         const data = this.getBytes();
 
-        return _util2.default.concat([format, filename_length, filename, date, data]);
+        return _util2.default.concat([header, data]);
       };
 
       exports.default = Literal;
 
     }, {
-      "../enums": 115,
-      "../util": 154,
-      "web-stream-tools": 77
+      "../enums": 113,
+      "../util": 158,
+      "web-stream-tools": 75
     }],
-    129: [function(require, module, exports) {
+    133: [function(require, module, exports) {
       'use strict';
 
       Object.defineProperty(exports, "__esModule", {
@@ -39942,14 +41598,18 @@
       exports.default = Marker;
 
     }, {
-      "../enums": 115
+      "../enums": 113
     }],
-    130: [function(require, module, exports) {
+    134: [function(require, module, exports) {
       'use strict';
 
       Object.defineProperty(exports, "__esModule", {
         value: true
       });
+
+      var _webStreamTools = require('web-stream-tools');
+
+      var _webStreamTools2 = _interopRequireDefault(_webStreamTools);
 
       var _signature = require('./signature');
 
@@ -39985,30 +41645,6 @@
        * @memberof module:packet
        * @constructor
        */
-      // GPG4Browsers - An OpenPGP implementation in javascript
-      // Copyright (C) 2011 Recurity Labs GmbH
-      //
-      // This library is free software; you can redistribute it and/or
-      // modify it under the terms of the GNU Lesser General Public
-      // License as published by the Free Software Foundation; either
-      // version 3.0 of the License, or (at your option) any later version.
-      //
-      // This library is distributed in the hope that it will be useful,
-      // but WITHOUT ANY WARRANTY; without even the implied warranty of
-      // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-      // Lesser General Public License for more details.
-      //
-      // You should have received a copy of the GNU Lesser General Public
-      // License along with this library; if not, write to the Free Software
-      // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
-
-      /**
-       * @requires packet/signature
-       * @requires type/keyid
-       * @requires enums
-       * @requires util
-       */
-
       function OnePassSignature() {
         /**
          * Packet type
@@ -40048,6 +41684,31 @@
        * @param {Uint8Array} bytes payload of a tag 4 packet
        * @returns {module:packet.OnePassSignature} object representation
        */
+      // GPG4Browsers - An OpenPGP implementation in javascript
+      // Copyright (C) 2011 Recurity Labs GmbH
+      //
+      // This library is free software; you can redistribute it and/or
+      // modify it under the terms of the GNU Lesser General Public
+      // License as published by the Free Software Foundation; either
+      // version 3.0 of the License, or (at your option) any later version.
+      //
+      // This library is distributed in the hope that it will be useful,
+      // but WITHOUT ANY WARRANTY; without even the implied warranty of
+      // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+      // Lesser General Public License for more details.
+      //
+      // You should have received a copy of the GNU Lesser General Public
+      // License along with this library; if not, write to the Free Software
+      // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+
+      /**
+       * @requires web-stream-tools
+       * @requires packet/signature
+       * @requires type/keyid
+       * @requires enums
+       * @requires util
+       */
+
       OnePassSignature.prototype.read = function(bytes) {
         let mypos = 0;
         // A one-octet version number.  The current version is 3.
@@ -40095,19 +41756,12 @@
         this.issuerKeyId = _keyid2.default.fromClone(this.issuerKeyId);
       };
 
-      OnePassSignature.prototype.hash = function() {
-        const version = this.version;
-        this.version = 4;
-        try {
-          return _signature2.default.prototype.hash.apply(this, arguments);
-        }
-        finally {
-          this.version = version;
-        }
-      };
+      OnePassSignature.prototype.hash = _signature2.default.prototype.hash;
       OnePassSignature.prototype.toHash = _signature2.default.prototype.toHash;
       OnePassSignature.prototype.toSign = _signature2.default.prototype.toSign;
-      OnePassSignature.prototype.calculateTrailer = _signature2.default.prototype.calculateTrailer;
+      OnePassSignature.prototype.calculateTrailer = function(...args) {
+        return _webStreamTools2.default.fromAsync(async () => _signature2.default.prototype.calculateTrailer.apply((await this.correspondingSig), args));
+      };
 
       OnePassSignature.prototype.verify = async function() {
         const correspondingSig = await this.correspondingSig;
@@ -40124,12 +41778,13 @@
       exports.default = OnePassSignature;
 
     }, {
-      "../enums": 115,
-      "../type/keyid": 150,
-      "../util": 154,
-      "./signature": 138
+      "../enums": 113,
+      "../type/keyid": 154,
+      "../util": 158,
+      "./signature": 142,
+      "web-stream-tools": 75
     }],
-    131: [function(require, module, exports) {
+    135: [function(require, module, exports) {
       'use strict';
 
       Object.defineProperty(exports, "__esModule", {
@@ -40293,24 +41948,6 @@
         },
 
         /**
-         * Writes a packet header Version 3 with the given tag_type and length to a
-         * string
-         *
-         * @param {Integer} tag_type Tag type
-         * @param {Integer} length Length of the payload
-         * @returns {String} String of the header
-         */
-        writeOldHeader: function writeOldHeader(tag_type, length) {
-          if (length < 256) {
-            return new Uint8Array([0x80 | tag_type << 2, length]);
-          }
-          else if (length < 65536) {
-            return _util2.default.concatUint8Array([new Uint8Array([0x80 | tag_type << 2 | 1]), _util2.default.writeNumber(length, 2)]);
-          }
-          return _util2.default.concatUint8Array([new Uint8Array([0x80 | tag_type << 2 | 2]), _util2.default.writeNumber(length, 4)]);
-        },
-
-        /**
          * Whether the packet type supports partial lengths per RFC4880
          * @param {Integer} tag_type Tag type
          * @returns {Boolean} String of the header
@@ -40326,9 +41963,10 @@
          * @param {Function} callback Function to call with the parsed packet
          * @returns {Boolean} Returns false if the stream was empty and parsing is done, and true otherwise.
          */
-        read: async function read(input, callback) {
+        read: async function read(input, streaming, callback) {
           const reader = _webStreamTools2.default.getReader(input);
           let writer;
+          let callbackReturned;
           try {
             const peekedBytes = await reader.peekBytes(2);
             // some sanity checks
@@ -40356,10 +41994,9 @@
               packet_length_type = headerByte & 0x03; // bit 1-0
             }
 
-            const streaming = this.supportsStreaming(tag);
+            const supportsStreaming = this.supportsStreaming(tag);
             let packet = null;
-            let callbackReturned;
-            if (streaming) {
+            if (streaming && supportsStreaming) {
               const transform = new TransformStream();
               writer = _webStreamTools2.default.getWriter(transform.writable);
               packet = transform.readable;
@@ -40367,6 +42004,9 @@
                 tag,
                 packet
               });
+            }
+            else {
+              packet = [];
             }
 
             let wasPartialLength;
@@ -40420,7 +42060,7 @@
                 else if (lengthByte > 223 && lengthByte < 255) {
                   packet_length = 1 << (lengthByte & 0x1F);
                   wasPartialLength = true;
-                  if (!streaming) {
+                  if (!supportsStreaming) {
                     throw new TypeError('This packet type does not support partial lengths.');
                   }
                   // 4.2.2.3. Five-Octet Lengths
@@ -40429,10 +42069,10 @@
                   packet_length = (await reader.readByte()) << 24 | (await reader.readByte()) << 16 | (await reader.readByte()) << 8 | (await reader.readByte());
                 }
               }
-              if (writer && packet_length > 0) {
+              if (packet_length > 0) {
                 let bytesRead = 0;
                 while (true) {
-                  await writer.ready;
+                  if (writer) await writer.ready;
 
                   var _ref = await reader.read();
 
@@ -40443,29 +42083,65 @@
                     if (packet_length === Infinity) break;
                     throw new Error('Unexpected end of packet');
                   }
-                  await writer.write(value.slice(0, packet_length - bytesRead));
+                  const chunk = packet_length === Infinity ? value : value.subarray(0, packet_length - bytesRead);
+                  if (writer) await writer.write(chunk);
+                  else packet.push(chunk);
                   bytesRead += value.length;
                   if (bytesRead >= packet_length) {
-                    reader.unshift(value.slice(packet_length - bytesRead + value.length));
+                    reader.unshift(value.subarray(packet_length - bytesRead + value.length));
                     break;
                   }
                 }
               }
             } while (wasPartialLength);
 
-            if (!streaming) {
-              packet = await reader.readBytes(packet_length);
+            // If this was not a packet that "supports streaming", we peek to check
+            // whether it is the last packet in the message. We peek 2 bytes instead
+            // of 1 because the beginning of this function also peeks 2 bytes, and we
+            // want to cut a `subarray` of the correct length into `web-stream-tools`'
+            // `externalBuffer` as a tiny optimization here.
+            //
+            // If it *was* a streaming packet (i.e. the data packets), we peek at the
+            // entire remainder of the stream, in order to forward errors in the
+            // remainder of the stream to the packet data. (Note that this means we
+            // read/peek at all signature packets before closing the literal data
+            // packet, for example.) This forwards armor checksum errors to the
+            // encrypted data stream, for example, so that they don't get lost /
+            // forgotten on encryptedMessage.packets.stream, which we never look at.
+            //
+            // Note that subsequent packet parsing errors could still end up there if
+            // `config.tolerant` is set to false, or on malformed messages with
+            // multiple data packets, but usually it shouldn't happen.
+            //
+            // An example of what we do when stream-parsing a message containing
+            // [ one-pass signature packet, literal data packet, signature packet ]:
+            // 1. Read the one-pass signature packet
+            // 2. Peek 2 bytes of the literal data packet
+            // 3. Parse the one-pass signature packet
+            //
+            // 4. Read the literal data packet, simultaneously stream-parsing it
+            // 5. Peek until the end of the message
+            // 6. Finish parsing the literal data packet
+            //
+            // 7. Read the signature packet again (we already peeked at it in step 5)
+            // 8. Peek at the end of the stream again (`peekBytes` returns undefined)
+            // 9. Parse the signature packet
+            //
+            // Note that this means that if there's an error in the very end of the
+            // stream, such as an MDC error, we throw in step 5 instead of in step 8
+            // (or never), which is the point of this exercise.
+            const nextPacket = await reader.peekBytes(supportsStreaming ? Infinity : 2);
+            if (writer) {
+              await writer.ready;
+              await writer.close();
+            }
+            else {
+              packet = _util2.default.concatUint8Array(packet);
               await callback({
                 tag,
                 packet
               });
             }
-            const nextPacket = await reader.peekBytes(2);
-            if (writer) {
-              await writer.ready;
-              await writer.close();
-            }
-            if (streaming) await callbackReturned;
             return !nextPacket || !nextPacket.length;
           }
           catch (e) {
@@ -40478,17 +42154,20 @@
             }
           }
           finally {
+            if (writer) {
+              await callbackReturned;
+            }
             reader.releaseLock();
           }
         }
       };
 
     }, {
-      "../enums": 115,
-      "../util": 154,
-      "web-stream-tools": 77
+      "../enums": 113,
+      "../util": 158,
+      "web-stream-tools": 75
     }],
-    132: [function(require, module, exports) {
+    136: [function(require, module, exports) {
       'use strict';
 
       Object.defineProperty(exports, "__esModule", {
@@ -40574,19 +42253,19 @@
        * Reads a stream of binary data and interprents it as a list of packets.
        * @param {Uint8Array | ReadableStream<Uint8Array>} A Uint8Array of bytes.
        */
-      List.prototype.read = async function(bytes) {
+      List.prototype.read = async function(bytes, streaming) {
         this.stream = _webStreamTools2.default.transformPair(bytes, async (readable, writable) => {
           const writer = _webStreamTools2.default.getWriter(writable);
           try {
             while (true) {
               await writer.ready;
-              const done = await _packet2.default.read(readable, async parsed => {
+              const done = await _packet2.default.read(readable, streaming, async parsed => {
                 try {
                   const tag = _enums2.default.read(_enums2.default.packet, parsed.tag);
                   const packet = packets.newPacketFromTag(tag);
                   packet.packets = new List();
                   packet.fromStream = _util2.default.isStream(parsed.packet);
-                  await packet.read(parsed.packet);
+                  await packet.read(parsed.packet, streaming);
                   await writer.write(packet);
                 }
                 catch (e) {
@@ -40625,7 +42304,7 @@
           else {
             this.stream = null;
           }
-          if (done || value.fromStream) {
+          if (done || _packet2.default.supportsStreaming(value.tag)) {
             break;
           }
         }
@@ -40769,20 +42448,23 @@
             packet.packets = new List();
           }
         }
+        if (packetlistClone.stream) {
+          packetlist.stream = _webStreamTools2.default.transform(packetlistClone.stream, packet => packets.fromStructuredClone(packet));
+        }
         return packetlist;
       };
 
       exports.default = List;
 
     }, {
-      "../config": 81,
-      "../enums": 115,
-      "../util": 154,
-      "./all_packets": 124,
-      "./packet": 131,
-      "web-stream-tools": 77
+      "../config": 79,
+      "../enums": 113,
+      "../util": 158,
+      "./all_packets": 128,
+      "./packet": 135,
+      "web-stream-tools": 75
     }],
-    133: [function(require, module, exports) {
+    137: [function(require, module, exports) {
       'use strict';
 
       Object.defineProperty(exports, "__esModule", {
@@ -40872,7 +42554,7 @@
          * Packet version
          * @type {Integer}
          */
-        this.version = _config2.default.aead_protect && _config2.default.aead_protect_version === 4 ? 5 : 4;
+        this.version = _config2.default.v5_keys ? 5 : 4;
         /**
          * Key creation date.
          * @type {Date}
@@ -40985,11 +42667,14 @@
       PublicKey.prototype.writePublicKey = PublicKey.prototype.write;
 
       /**
-       * Write an old version packet - it's used by some of the internal routines.
+       * Write packet in order to be hashed; either for a signature or a fingerprint.
        */
-      PublicKey.prototype.writeOld = function() {
+      PublicKey.prototype.writeForHash = function(version) {
         const bytes = this.writePublicKey();
 
+        if (version === 5) {
+          return _util2.default.concatUint8Array([new Uint8Array([0x9A]), _util2.default.writeNumber(bytes.length, 4), bytes]);
+        }
         return _util2.default.concatUint8Array([new Uint8Array([0x99]), _util2.default.writeNumber(bytes.length, 2), bytes]);
       };
 
@@ -41035,14 +42720,11 @@
         if (this.fingerprint) {
           return this.fingerprint;
         }
-        let toHash;
+        const toHash = this.writeForHash(this.version);
         if (this.version === 5) {
-          const bytes = this.writePublicKey();
-          toHash = _util2.default.concatUint8Array([new Uint8Array([0x9A]), _util2.default.writeNumber(bytes.length, 4), bytes]);
           this.fingerprint = _sha2.Sha256.bytes(toHash);
         }
         else if (this.version === 4) {
-          toHash = this.writeOld();
           this.fingerprint = _sha.Sha1.bytes(toHash);
         }
         return this.fingerprint;
@@ -41066,13 +42748,14 @@
 
       /**
        * Returns algorithm information
-       * @returns {Object} An object of the form {algorithm: String, bits:int, curve:String}
+       * @returns {Object} An object of the form {algorithm: String, rsaBits:int, curve:String}
        */
       PublicKey.prototype.getAlgorithmInfo = function() {
         const result = {};
         result.algorithm = this.algorithm;
         if (this.params[0] instanceof _mpi2.default) {
-          result.bits = this.params[0].byteLength() * 8;
+          result.rsaBits = this.params[0].byteLength() * 8;
+          result.bits = result.rsaBits; // Deprecated.
         }
         else {
           result.curve = this.params[0].getName();
@@ -41098,16 +42781,16 @@
       exports.default = PublicKey;
 
     }, {
-      "../config": 81,
-      "../crypto": 96,
-      "../enums": 115,
-      "../type/keyid": 150,
-      "../type/mpi": 151,
-      "../util": 154,
-      "asmcrypto.js/dist_es5/hash/sha1/sha1": 12,
-      "asmcrypto.js/dist_es5/hash/sha256/sha256": 14
+      "../config": 79,
+      "../crypto": 94,
+      "../enums": 113,
+      "../type/keyid": 154,
+      "../type/mpi": 155,
+      "../util": 158,
+      "asmcrypto.js/dist_es5/hash/sha1/sha1": 11,
+      "asmcrypto.js/dist_es5/hash/sha256/sha256": 13
     }],
-    134: [function(require, module, exports) {
+    138: [function(require, module, exports) {
       'use strict';
 
       Object.defineProperty(exports, "__esModule", {
@@ -41117,10 +42800,6 @@
       var _keyid = require('../type/keyid');
 
       var _keyid2 = _interopRequireDefault(_keyid);
-
-      var _mpi = require('../type/mpi');
-
-      var _mpi2 = _interopRequireDefault(_mpi);
 
       var _crypto = require('../crypto');
 
@@ -41158,29 +42837,6 @@
        * @memberof module:packet
        * @constructor
        */
-      function PublicKeyEncryptedSessionKey() {
-        this.tag = _enums2.default.packet.publicKeyEncryptedSessionKey;
-        this.version = 3;
-
-        this.publicKeyId = new _keyid2.default();
-        this.publicKeyAlgorithm = null;
-
-        this.sessionKey = null;
-        this.sessionKeyAlgorithm = null;
-
-        /** @type {Array<module:type/mpi>} */
-        this.encrypted = [];
-      }
-
-      /**
-       * Parsing function for a publickey encrypted session key packet (tag 1).
-       *
-       * @param {Uint8Array} input Payload of a tag 1 packet
-       * @param {Integer} position Position to start reading from the input string
-       * @param {Integer} len Length of the packet or the remaining length of
-       *            input at position
-       * @returns {module:packet.PublicKeyEncryptedSessionKey} Object representation
-       */
       // GPG4Browsers - An OpenPGP implementation in javascript
       // Copyright (C) 2011 Recurity Labs GmbH
       //
@@ -41206,6 +42862,29 @@
        * @requires util
        */
 
+      function PublicKeyEncryptedSessionKey() {
+        this.tag = _enums2.default.packet.publicKeyEncryptedSessionKey;
+        this.version = 3;
+
+        this.publicKeyId = new _keyid2.default();
+        this.publicKeyAlgorithm = null;
+
+        this.sessionKey = null;
+        this.sessionKeyAlgorithm = null;
+
+        /** @type {Array<module:type/mpi>} */
+        this.encrypted = [];
+      }
+
+      /**
+       * Parsing function for a publickey encrypted session key packet (tag 1).
+       *
+       * @param {Uint8Array} input Payload of a tag 1 packet
+       * @param {Integer} position Position to start reading from the input string
+       * @param {Integer} len Length of the packet or the remaining length of
+       *            input at position
+       * @returns {module:packet.PublicKeyEncryptedSessionKey} Object representation
+       */
       PublicKeyEncryptedSessionKey.prototype.read = function(bytes) {
         this.version = bytes[0];
         this.publicKeyId.read(bytes.subarray(1, bytes.length));
@@ -41248,17 +42927,8 @@
 
         data += _util2.default.Uint8Array_to_str(this.sessionKey);
         data += _util2.default.Uint8Array_to_str(_util2.default.write_checksum(this.sessionKey));
-
-        let toEncrypt;
         const algo = _enums2.default.write(_enums2.default.publicKey, this.publicKeyAlgorithm);
-        if (algo === _enums2.default.publicKey.ecdh) {
-          toEncrypt = new _mpi2.default(_crypto2.default.pkcs5.encode(data));
-        }
-        else {
-          toEncrypt = new _mpi2.default((await _crypto2.default.pkcs1.eme.encode(data, key.params[0].byteLength())));
-        }
-
-        this.encrypted = await _crypto2.default.publicKeyEncrypt(algo, key.params, toEncrypt, key.getFingerprintBytes());
+        this.encrypted = await _crypto2.default.publicKeyEncrypt(algo, key.params, data, key.getFingerprintBytes());
         return true;
       };
 
@@ -41273,19 +42943,8 @@
        */
       PublicKeyEncryptedSessionKey.prototype.decrypt = async function(key) {
         const algo = _enums2.default.write(_enums2.default.publicKey, this.publicKeyAlgorithm);
-        const result = await _crypto2.default.publicKeyDecrypt(algo, key.params, this.encrypted, key.getFingerprintBytes());
-
-        let checksum;
-        let decoded;
-        if (algo === _enums2.default.publicKey.ecdh) {
-          decoded = _crypto2.default.pkcs5.decode(result.toString());
-          checksum = _util2.default.str_to_Uint8Array(decoded.substr(decoded.length - 2));
-        }
-        else {
-          decoded = _crypto2.default.pkcs1.eme.decode(result.toString());
-          checksum = result.toUint8Array().slice(result.byteLength() - 2);
-        }
-
+        const decoded = await _crypto2.default.publicKeyDecrypt(algo, key.params, this.encrypted, key.getFingerprintBytes());
+        const checksum = _util2.default.str_to_Uint8Array(decoded.substr(decoded.length - 2));
         key = _util2.default.str_to_Uint8Array(decoded.substring(1, decoded.length - 2));
 
         if (!_util2.default.equalsUint8Array(checksum, _util2.default.write_checksum(key))) {
@@ -41313,13 +42972,12 @@
       exports.default = PublicKeyEncryptedSessionKey;
 
     }, {
-      "../crypto": 96,
-      "../enums": 115,
-      "../type/keyid": 150,
-      "../type/mpi": 151,
-      "../util": 154
+      "../crypto": 94,
+      "../enums": 113,
+      "../type/keyid": 154,
+      "../util": 158
     }],
-    135: [function(require, module, exports) {
+    139: [function(require, module, exports) {
       'use strict';
 
       Object.defineProperty(exports, "__esModule", {
@@ -41383,10 +43041,10 @@
       exports.default = PublicSubkey;
 
     }, {
-      "../enums": 115,
-      "./public_key": 133
+      "../enums": 113,
+      "./public_key": 137
     }],
-    136: [function(require, module, exports) {
+    140: [function(require, module, exports) {
       'use strict';
 
       Object.defineProperty(exports, "__esModule", {
@@ -41465,13 +43123,33 @@
          */
         this.tag = _enums2.default.packet.secretKey;
         /**
-         * Encrypted secret-key data
+         * Secret-key data
          */
-        this.encrypted = null;
+        this.keyMaterial = null;
         /**
-         * Indicator if secret-key data is encrypted. `this.isEncrypted === false` means data is available in decrypted form.
+         * Indicates whether secret-key data is encrypted. `this.isEncrypted === false` means data is available in decrypted form.
          */
         this.isEncrypted = null;
+        /**
+         * S2K usage
+         * @type {Integer}
+         */
+        this.s2k_usage = 0;
+        /**
+         * S2K object
+         * @type {type/s2k}
+         */
+        this.s2k = null;
+        /**
+         * Symmetric algorithm
+         * @type {String}
+         */
+        this.symmetric = null;
+        /**
+         * AEAD algorithm
+         * @type {String}
+         */
+        this.aead = null;
       }
 
       SecretKey.prototype = new _public_key2.default();
@@ -41516,31 +43194,76 @@
        */
       SecretKey.prototype.read = function(bytes) {
         // - A Public-Key or Public-Subkey packet, as described above.
-        const len = this.readPublicKey(bytes);
-
-        bytes = bytes.subarray(len, bytes.length);
+        let i = this.readPublicKey(bytes);
 
         // - One octet indicating string-to-key usage conventions.  Zero
         //   indicates that the secret-key data is not encrypted.  255 or 254
         //   indicates that a string-to-key specifier is being given.  Any
         //   other value is a symmetric-key encryption algorithm identifier.
-        const isEncrypted = bytes[0];
+        this.s2k_usage = bytes[i++];
 
-        if (isEncrypted) {
-          this.encrypted = bytes;
-          this.isEncrypted = true;
+        // - Only for a version 5 packet, a one-octet scalar octet count of
+        //   the next 4 optional fields.
+        if (this.version === 5) {
+          i++;
         }
-        else {
-          // - Plain or encrypted multiprecision integers comprising the secret
-          //   key data.  These algorithm-specific fields are as described
-          //   below.
-          const cleartext = bytes.subarray(1, -2);
-          if (!_util2.default.equalsUint8Array(_util2.default.write_checksum(cleartext), bytes.subarray(-2))) {
+
+        // - [Optional] If string-to-key usage octet was 255, 254, or 253, a
+        //   one-octet symmetric encryption algorithm.
+        if (this.s2k_usage === 255 || this.s2k_usage === 254 || this.s2k_usage === 253) {
+          this.symmetric = bytes[i++];
+          this.symmetric = _enums2.default.read(_enums2.default.symmetric, this.symmetric);
+
+          // - [Optional] If string-to-key usage octet was 253, a one-octet
+          //   AEAD algorithm.
+          if (this.s2k_usage === 253) {
+            this.aead = bytes[i++];
+            this.aead = _enums2.default.read(_enums2.default.aead, this.aead);
+          }
+
+          // - [Optional] If string-to-key usage octet was 255, 254, or 253, a
+          //   string-to-key specifier.  The length of the string-to-key
+          //   specifier is implied by its type, as described above.
+          this.s2k = new _s2k2.default();
+          i += this.s2k.read(bytes.subarray(i, bytes.length));
+
+          if (this.s2k.type === 'gnu-dummy') {
+            return;
+          }
+        }
+        else if (this.s2k_usage) {
+          this.symmetric = this.s2k_usage;
+          this.symmetric = _enums2.default.read(_enums2.default.symmetric, this.symmetric);
+        }
+
+        // - [Optional] If secret data is encrypted (string-to-key usage octet
+        //   not zero), an Initial Vector (IV) of the same length as the
+        //   cipher's block size.
+        if (this.s2k_usage) {
+          this.iv = bytes.subarray(i, i + _crypto2.default.cipher[this.symmetric].blockSize);
+
+          i += this.iv.length;
+        }
+
+        // - Only for a version 5 packet, a four-octet scalar octet count for
+        //   the following key material.
+        if (this.version === 5) {
+          i += 4;
+        }
+
+        // - Plain or encrypted multiprecision integers comprising the secret
+        //   key data.  These algorithm-specific fields are as described
+        //   below.
+        this.keyMaterial = bytes.subarray(i);
+        this.isEncrypted = !!this.s2k_usage;
+
+        if (!this.isEncrypted) {
+          const cleartext = this.keyMaterial.subarray(0, -2);
+          if (!_util2.default.equalsUint8Array(_util2.default.write_checksum(cleartext), this.keyMaterial.subarray(-2))) {
             throw new Error('Key checksum mismatch');
           }
           const privParams = parse_cleartext_params(cleartext, this.algorithm);
           this.params = this.params.concat(privParams);
-          this.isEncrypted = false;
         }
       };
 
@@ -41551,14 +43274,48 @@
       SecretKey.prototype.write = function() {
         const arr = [this.writePublicKey()];
 
-        if (!this.encrypted) {
-          arr.push(new Uint8Array([0]));
-          const cleartextParams = write_cleartext_params(this.params, this.algorithm);
-          arr.push(cleartextParams);
-          arr.push(_util2.default.write_checksum(cleartextParams));
+        arr.push(new Uint8Array([this.s2k_usage]));
+
+        const optionalFieldsArr = [];
+        // - [Optional] If string-to-key usage octet was 255, 254, or 253, a
+        //   one- octet symmetric encryption algorithm.
+        if (this.s2k_usage === 255 || this.s2k_usage === 254 || this.s2k_usage === 253) {
+          optionalFieldsArr.push(_enums2.default.write(_enums2.default.symmetric, this.symmetric));
+
+          // - [Optional] If string-to-key usage octet was 253, a one-octet
+          //   AEAD algorithm.
+          if (this.s2k_usage === 253) {
+            optionalFieldsArr.push(_enums2.default.write(_enums2.default.aead, this.aead));
+          }
+
+          // - [Optional] If string-to-key usage octet was 255, 254, or 253, a
+          //   string-to-key specifier.  The length of the string-to-key
+          //   specifier is implied by its type, as described above.
+          optionalFieldsArr.push(...this.s2k.write());
         }
-        else {
-          arr.push(this.encrypted);
+
+        // - [Optional] If secret data is encrypted (string-to-key usage octet
+        //   not zero), an Initial Vector (IV) of the same length as the
+        //   cipher's block size.
+        if (this.s2k_usage && this.s2k.type !== 'gnu-dummy') {
+          optionalFieldsArr.push(...this.iv);
+        }
+
+        if (this.version === 5) {
+          arr.push(new Uint8Array([optionalFieldsArr.length]));
+        }
+        arr.push(new Uint8Array(optionalFieldsArr));
+
+        if (!this.s2k || this.s2k.type !== 'gnu-dummy') {
+          if (!this.s2k_usage) {
+            const cleartextParams = write_cleartext_params(this.params, this.algorithm);
+            this.keyMaterial = _util2.default.concatUint8Array([cleartextParams, _util2.default.write_checksum(cleartextParams)]);
+          }
+
+          if (this.version === 5) {
+            arr.push(_util2.default.writeNumber(this.keyMaterial.length, 4));
+          }
+          arr.push(this.keyMaterial);
         }
 
         return _util2.default.concatUint8Array(arr);
@@ -41582,43 +43339,41 @@
        * @async
        */
       SecretKey.prototype.encrypt = async function(passphrase) {
+        if (this.s2k && this.s2k.type === 'gnu-dummy') {
+          return false;
+        }
+
+        if (!this.isDecrypted()) {
+          throw new Error('Key packet is already encrypted');
+        }
+
         if (this.isDecrypted() && !passphrase) {
-          this.encrypted = null;
+          this.s2k_usage = 0;
           return false;
         }
         else if (!passphrase) {
           throw new Error('The key must be decrypted before removing passphrase protection.');
         }
 
-        const s2k = new _s2k2.default();
-        s2k.salt = await _crypto2.default.random.getRandomBytes(8);
-        const symmetric = 'aes256';
+        this.s2k = new _s2k2.default();
+        this.s2k.salt = await _crypto2.default.random.getRandomBytes(8);
         const cleartext = write_cleartext_params(this.params, this.algorithm);
-        const key = await produceEncryptionKey(s2k, passphrase, symmetric);
-        const blockLen = _crypto2.default.cipher[symmetric].blockSize;
-        const iv = await _crypto2.default.random.getRandomBytes(blockLen);
-
-        let arr;
+        this.symmetric = 'aes256';
+        const key = await produceEncryptionKey(this.s2k, passphrase, this.symmetric);
+        const blockLen = _crypto2.default.cipher[this.symmetric].blockSize;
+        this.iv = await _crypto2.default.random.getRandomBytes(blockLen);
 
         if (this.version === 5) {
-          const aead = 'eax';
-          const optionalFields = _util2.default.concatUint8Array([new Uint8Array([_enums2.default.write(_enums2.default.symmetric, symmetric), _enums2.default.write(_enums2.default.aead, aead)]), s2k.write(), iv]);
-          arr = [new Uint8Array([253, optionalFields.length])];
-          arr.push(optionalFields);
-          const mode = _crypto2.default[aead];
-          const modeInstance = await mode(symmetric, key);
-          const encrypted = await modeInstance.encrypt(cleartext, iv.subarray(0, mode.ivLength), new Uint8Array());
-          arr.push(_util2.default.writeNumber(encrypted.length, 4));
-          arr.push(encrypted);
+          this.s2k_usage = 253;
+          this.aead = 'eax';
+          const mode = _crypto2.default[this.aead];
+          const modeInstance = await mode(this.symmetric, key);
+          this.keyMaterial = await modeInstance.encrypt(cleartext, this.iv.subarray(0, mode.ivLength), new Uint8Array());
         }
         else {
-          arr = [new Uint8Array([254, _enums2.default.write(_enums2.default.symmetric, symmetric)])];
-          arr.push(s2k.write());
-          arr.push(iv);
-          arr.push(_crypto2.default.cfb.normalEncrypt(symmetric, key, _util2.default.concatUint8Array([cleartext, await _crypto2.default.hash.sha1(cleartext)]), iv));
+          this.s2k_usage = 254;
+          this.keyMaterial = _crypto2.default.cfb.encrypt(this.symmetric, key, _util2.default.concatUint8Array([cleartext, await _crypto2.default.hash.sha1(cleartext)]), this.iv);
         }
-
-        this.encrypted = _util2.default.concatUint8Array(arr);
         return true;
       };
 
@@ -41635,83 +43390,43 @@
        * @async
        */
       SecretKey.prototype.decrypt = async function(passphrase) {
+        if (this.s2k.type === 'gnu-dummy') {
+          this.isEncrypted = false;
+          return false;
+        }
+
         if (this.isDecrypted()) {
           throw new Error('Key packet is already decrypted.');
         }
 
-        let i = 0;
-        let symmetric;
-        let aead;
         let key;
-
-        const s2k_usage = this.encrypted[i++];
-
-        // - Only for a version 5 packet, a one-octet scalar octet count of
-        //   the next 4 optional fields.
-        if (this.version === 5) {
-          i++;
-        }
-
-        // - [Optional] If string-to-key usage octet was 255, 254, or 253, a
-        //   one-octet symmetric encryption algorithm.
-        if (s2k_usage === 255 || s2k_usage === 254 || s2k_usage === 253) {
-          symmetric = this.encrypted[i++];
-          symmetric = _enums2.default.read(_enums2.default.symmetric, symmetric);
-
-          // - [Optional] If string-to-key usage octet was 253, a one-octet
-          //   AEAD algorithm.
-          if (s2k_usage === 253) {
-            aead = this.encrypted[i++];
-            aead = _enums2.default.read(_enums2.default.aead, aead);
-          }
-
-          // - [Optional] If string-to-key usage octet was 255, 254, or 253, a
-          //   string-to-key specifier.  The length of the string-to-key
-          //   specifier is implied by its type, as described above.
-          const s2k = new _s2k2.default();
-          i += s2k.read(this.encrypted.subarray(i, this.encrypted.length));
-
-          key = await produceEncryptionKey(s2k, passphrase, symmetric);
+        if (this.s2k_usage === 255 || this.s2k_usage === 254 || this.s2k_usage === 253) {
+          key = await produceEncryptionKey(this.s2k, passphrase, this.symmetric);
         }
         else {
-          symmetric = s2k_usage;
-          symmetric = _enums2.default.read(_enums2.default.symmetric, symmetric);
           key = await _crypto2.default.hash.md5(passphrase);
         }
 
-        // - [Optional] If secret data is encrypted (string-to-key usage octet
-        //   not zero), an Initial Vector (IV) of the same length as the
-        //   cipher's block size.
-        const iv = this.encrypted.subarray(i, i + _crypto2.default.cipher[symmetric].blockSize);
-
-        i += iv.length;
-
-        // - Only for a version 5 packet, a four-octet scalar octet count for
-        //   the following key material.
-        if (this.version === 5) {
-          i += 4;
-        }
-
-        const ciphertext = this.encrypted.subarray(i, this.encrypted.length);
         let cleartext;
-        if (aead) {
-          const mode = _crypto2.default[aead];
+        if (this.s2k_usage === 253) {
+          const mode = _crypto2.default[this.aead];
           try {
-            const modeInstance = await mode(symmetric, key);
-            cleartext = await modeInstance.decrypt(ciphertext, iv.subarray(0, mode.ivLength), new Uint8Array());
+            const modeInstance = await mode(this.symmetric, key);
+            cleartext = await modeInstance.decrypt(this.keyMaterial, this.iv.subarray(0, mode.ivLength), new Uint8Array());
           }
           catch (err) {
             if (err.message === 'Authentication tag mismatch') {
               throw new Error('Incorrect key passphrase: ' + err.message);
             }
+            throw err;
           }
         }
         else {
-          const cleartextWithHash = _crypto2.default.cfb.normalDecrypt(symmetric, key, ciphertext, iv);
+          const cleartextWithHash = await _crypto2.default.cfb.decrypt(this.symmetric, key, this.keyMaterial, this.iv);
 
           let hash;
           let hashlen;
-          if (s2k_usage === 255) {
+          if (this.s2k_usage === 255) {
             hashlen = 2;
             cleartext = cleartextWithHash.subarray(0, -hashlen);
             hash = _util2.default.write_checksum(cleartext);
@@ -41730,7 +43445,8 @@
         const privParams = parse_cleartext_params(cleartext, this.algorithm);
         this.params = this.params.concat(privParams);
         this.isEncrypted = false;
-        this.encrypted = null;
+        this.keyMaterial = null;
+        this.s2k_usage = 0;
 
         return true;
       };
@@ -41745,7 +43461,12 @@
        * Clear private params, return to initial state
        */
       SecretKey.prototype.clearPrivateParams = function() {
-        if (!this.encrypted) {
+        if (this.s2k && this.s2k.type === 'gnu-dummy') {
+          this.isEncrypted = true;
+          return;
+        }
+
+        if (!this.keyMaterial) {
           throw new Error('If secret key is not encrypted, clearing private params is irreversible.');
         }
         const algo = _enums2.default.write(_enums2.default.publicKey, this.algorithm);
@@ -41766,19 +43487,22 @@
         if (this.keyid) {
           this.keyid = _keyid2.default.fromClone(this.keyid);
         }
+        if (this.s2k) {
+          this.s2k = _s2k2.default.fromClone(this.s2k);
+        }
       };
 
       exports.default = SecretKey;
 
     }, {
-      "../crypto": 96,
-      "../enums": 115,
-      "../type/keyid.js": 150,
-      "../type/s2k": 153,
-      "../util": 154,
-      "./public_key": 133
+      "../crypto": 94,
+      "../enums": 113,
+      "../type/keyid.js": 154,
+      "../type/s2k": 157,
+      "../util": 158,
+      "./public_key": 137
     }],
-    137: [function(require, module, exports) {
+    141: [function(require, module, exports) {
       'use strict';
 
       Object.defineProperty(exports, "__esModule", {
@@ -41839,10 +43563,10 @@
       exports.default = SecretSubkey;
 
     }, {
-      "../enums": 115,
-      "./secret_key": 136
+      "../enums": 113,
+      "./secret_key": 140
     }],
-    138: [function(require, module, exports) {
+    142: [function(require, module, exports) {
       'use strict';
 
       Object.defineProperty(exports, "__esModule", {
@@ -41877,6 +43601,10 @@
 
       var _util2 = _interopRequireDefault(_util);
 
+      var _config = require('../config');
+
+      var _config2 = _interopRequireDefault(_config);
+
       function _interopRequireDefault(obj) {
         return obj && obj.__esModule ? obj : {
           default: obj
@@ -41894,9 +43622,36 @@
        * @constructor
        * @param {Date} date the creation date of the signature
        */
+      // GPG4Browsers - An OpenPGP implementation in javascript
+      // Copyright (C) 2011 Recurity Labs GmbH
+      //
+      // This library is free software; you can redistribute it and/or
+      // modify it under the terms of the GNU Lesser General Public
+      // License as published by the Free Software Foundation; either
+      // version 3.0 of the License, or (at your option) any later version.
+      //
+      // This library is distributed in the hope that it will be useful,
+      // but WITHOUT ANY WARRANTY; without even the implied warranty of
+      // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+      // Lesser General Public License for more details.
+      //
+      // You should have received a copy of the GNU Lesser General Public
+      // License along with this library; if not, write to the Free Software
+      // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+
+      /**
+       * @requires web-stream-tools
+       * @requires packet/packet
+       * @requires type/keyid
+       * @requires type/mpi
+       * @requires crypto
+       * @requires enums
+       * @requires util
+       */
+
       function Signature(date = new Date()) {
         this.tag = _enums2.default.packet.signature;
-        this.version = 4;
+        this.version = 4; // This is set to 5 below if we sign with a V5 key.
         this.signatureType = null;
         this.hashAlgorithm = null;
         this.publicKeyAlgorithm = null;
@@ -41920,7 +43675,7 @@
         this.revocationKeyAlgorithm = null;
         this.revocationKeyFingerprint = null;
         this.issuerKeyId = new _keyid2.default();
-        this.notation = null;
+        this.notations = [];
         this.preferredHashAlgorithms = null;
         this.preferredCompressionAlgorithms = null;
         this.keyServerPreferences = null;
@@ -41951,38 +43706,11 @@
        * @param {Integer} len length of the packet or the remaining length of bytes at position
        * @returns {module:packet.Signature} object representation
        */
-      // GPG4Browsers - An OpenPGP implementation in javascript
-      // Copyright (C) 2011 Recurity Labs GmbH
-      //
-      // This library is free software; you can redistribute it and/or
-      // modify it under the terms of the GNU Lesser General Public
-      // License as published by the Free Software Foundation; either
-      // version 3.0 of the License, or (at your option) any later version.
-      //
-      // This library is distributed in the hope that it will be useful,
-      // but WITHOUT ANY WARRANTY; without even the implied warranty of
-      // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-      // Lesser General Public License for more details.
-      //
-      // You should have received a copy of the GNU Lesser General Public
-      // License along with this library; if not, write to the Free Software
-      // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
-
-      /**
-       * @requires web-stream-tools
-       * @requires packet/packet
-       * @requires type/keyid
-       * @requires type/mpi
-       * @requires crypto
-       * @requires enums
-       * @requires util
-       */
-
       Signature.prototype.read = function(bytes) {
         let i = 0;
         this.version = bytes[i++];
 
-        if (this.version !== 4) {
+        if (this.version !== 4 && this.version !== 5) {
           throw new Error('Version ' + this.version + ' of the signature is unsupported.');
         }
 
@@ -42024,15 +43752,20 @@
        * Signs provided data. This needs to be done prior to serialization.
        * @param {module:packet.SecretKey} key private key used to sign the message.
        * @param {Object} data Contains packets to be signed.
+       * @param {Boolean} detached (optional) whether to create a detached signature
+       * @param {Boolean} streaming (optional) whether to process data as a stream
        * @returns {Promise<Boolean>}
        * @async
        */
-      Signature.prototype.sign = async function(key, data) {
+      Signature.prototype.sign = async function(key, data, detached = false, streaming = false) {
         const signatureType = _enums2.default.write(_enums2.default.signature, this.signatureType);
         const publicKeyAlgorithm = _enums2.default.write(_enums2.default.publicKey, this.publicKeyAlgorithm);
         const hashAlgorithm = _enums2.default.write(_enums2.default.hash, this.hashAlgorithm);
 
-        const arr = [new Uint8Array([4, signatureType, publicKeyAlgorithm, hashAlgorithm])];
+        if (key.version === 5) {
+          this.version = 5;
+        }
+        const arr = [new Uint8Array([this.version, signatureType, publicKeyAlgorithm, hashAlgorithm])];
 
         if (key.version === 5) {
           // We could also generate this subpacket for version 4 keys, but for
@@ -42048,19 +43781,24 @@
 
         this.signatureData = _util2.default.concat(arr);
 
-        const toHash = this.toHash(signatureType, data);
-        const hash = await this.hash(signatureType, data, toHash);
+        const toHash = this.toHash(signatureType, data, detached);
+        const hash = await this.hash(signatureType, data, toHash, detached);
 
         this.signedHashValue = _webStreamTools2.default.slice(_webStreamTools2.default.clone(hash), 0, 2);
-
         const params = key.params;
-        this.signature = _webStreamTools2.default.fromAsync(async () => _crypto2.default.signature.sign(publicKeyAlgorithm, hashAlgorithm, params, toHash, (await _webStreamTools2.default.readToEnd(hash))));
+        const signed = async () => _crypto2.default.signature.sign(publicKeyAlgorithm, hashAlgorithm, params, toHash, (await _webStreamTools2.default.readToEnd(hash)));
+        if (streaming) {
+          this.signature = _webStreamTools2.default.fromAsync(signed);
+        }
+        else {
+          this.signature = await signed();
 
-        // Store the fact that this signature is valid, e.g. for when we call `await
-        // getLatestValidSignature(this.revocationSignatures, key, data)` later. Note
-        // that this only holds up if the key and data passed to verify are the same
-        // as the ones passed to sign.
-        this.verified = true;
+          // Store the fact that this signature is valid, e.g. for when we call `await
+          // getLatestValidSignature(this.revocationSignatures, key, data)` later.
+          // Note that this only holds up if the key and data passed to verify are the
+          // same as the ones passed to sign.
+          this.verified = true;
+        }
         return true;
       };
 
@@ -42103,18 +43841,16 @@
           bytes = _util2.default.concat([bytes, this.revocationKeyFingerprint]);
           arr.push(write_sub_packet(sub.revocation_key, bytes));
         }
-        if (this.notation !== null) {
-          Object.entries(this.notation).forEach(([name, value]) => {
-            bytes = [new Uint8Array([0x80, 0, 0, 0])];
-            // 2 octets of name length
-            bytes.push(_util2.default.writeNumber(name.length, 2));
-            // 2 octets of value length
-            bytes.push(_util2.default.writeNumber(value.length, 2));
-            bytes.push(_util2.default.str_to_Uint8Array(name + value));
-            bytes = _util2.default.concat(bytes);
-            arr.push(write_sub_packet(sub.notation_data, bytes));
-          });
-        }
+        this.notations.forEach(([name, value]) => {
+          bytes = [new Uint8Array([0x80, 0, 0, 0])];
+          // 2 octets of name length
+          bytes.push(_util2.default.writeNumber(name.length, 2));
+          // 2 octets of value length
+          bytes.push(_util2.default.writeNumber(value.length, 2));
+          bytes.push(_util2.default.str_to_Uint8Array(name + value));
+          bytes = _util2.default.concat(bytes);
+          arr.push(write_sub_packet(sub.notation_data, bytes));
+        });
         if (this.preferredHashAlgorithms !== null) {
           bytes = _util2.default.str_to_Uint8Array(_util2.default.Uint8Array_to_str(this.preferredHashAlgorithms));
           arr.push(write_sub_packet(sub.preferred_hash_algorithms, bytes));
@@ -42250,16 +43986,15 @@
             // Signature Creation Time
             this.created = _util2.default.readDate(bytes.subarray(mypos, bytes.length));
             break;
-          case 3:
-            {
-              // Signature Expiration Time in seconds
-              const seconds = _util2.default.readNumber(bytes.subarray(mypos, bytes.length));
+          case 3: {
+            // Signature Expiration Time in seconds
+            const seconds = _util2.default.readNumber(bytes.subarray(mypos, bytes.length));
 
-              this.signatureNeverExpires = seconds === 0;
-              this.signatureExpirationTime = seconds;
+            this.signatureNeverExpires = seconds === 0;
+            this.signatureExpirationTime = seconds;
 
-              break;
-            }
+            break;
+          }
           case 4:
             // Exportable Certification
             this.exportable = bytes[mypos++] === 1;
@@ -42277,16 +44012,15 @@
             // Revocable
             this.revocable = bytes[mypos++] === 1;
             break;
-          case 9:
-            {
-              // Key Expiration Time in seconds
-              const seconds = _util2.default.readNumber(bytes.subarray(mypos, bytes.length));
+          case 9: {
+            // Key Expiration Time in seconds
+            const seconds = _util2.default.readNumber(bytes.subarray(mypos, bytes.length));
 
-              this.keyExpirationTime = seconds;
-              this.keyNeverExpires = seconds === 0;
+            this.keyExpirationTime = seconds;
+            this.keyNeverExpires = seconds === 0;
 
-              break;
-            }
+            break;
+          }
           case 11:
             // Preferred Symmetric Algorithms
             read_array('preferredSymmetricAlgorithms', bytes.subarray(mypos, bytes.length));
@@ -42320,8 +44054,11 @@
               const name = _util2.default.Uint8Array_to_str(bytes.subarray(mypos, mypos + m));
               const value = _util2.default.Uint8Array_to_str(bytes.subarray(mypos + m, mypos + m + n));
 
-              this.notation = this.notation || {};
-              this.notation[name] = value;
+              this.notations.push([name, value]);
+
+              if (critical && _config2.default.known_notations.indexOf(name) === -1) {
+                throw new Error("Unknown critical notation: " + name);
+              }
             }
             else {
               _util2.default.print_debug("Unsupported notation flag " + bytes[mypos]);
@@ -42368,18 +44105,17 @@
             // Features
             read_array('features', bytes.subarray(mypos, bytes.length));
             break;
-          case 31:
-            {
-              // Signature Target
-              // (1 octet public-key algorithm, 1 octet hash algorithm, N octets hash)
-              this.signatureTargetPublicKeyAlgorithm = bytes[mypos++];
-              this.signatureTargetHashAlgorithm = bytes[mypos++];
+          case 31: {
+            // Signature Target
+            // (1 octet public-key algorithm, 1 octet hash algorithm, N octets hash)
+            this.signatureTargetPublicKeyAlgorithm = bytes[mypos++];
+            this.signatureTargetHashAlgorithm = bytes[mypos++];
 
-              const len = _crypto2.default.getHashByteLength(this.signatureTargetHashAlgorithm);
+            const len = _crypto2.default.getHashByteLength(this.signatureTargetHashAlgorithm);
 
-              this.signatureTargetHash = _util2.default.Uint8Array_to_str(bytes.subarray(mypos, mypos + len));
-              break;
-            }
+            this.signatureTargetHash = _util2.default.Uint8Array_to_str(bytes.subarray(mypos, mypos + len));
+            break;
+          }
           case 32:
             // Embedded Signature
             this.embeddedSignature = new Signature();
@@ -42400,16 +44136,15 @@
             // Preferred AEAD Algorithms
             read_array.call(this, 'preferredAeadAlgorithms', bytes.subarray(mypos, bytes.length));
             break;
-          default:
-            {
-              const err = new Error("Unknown signature subpacket type " + type + " @:" + mypos);
-              if (critical) {
-                throw err;
-              }
-              else {
-                _util2.default.print_debug(err);
-              }
+          default: {
+            const err = new Error("Unknown signature subpacket type " + type + " @:" + mypos);
+            if (critical) {
+              throw err;
             }
+            else {
+              _util2.default.print_debug(err);
+            }
+          }
         }
       };
 
@@ -42443,14 +44178,13 @@
             }
             return data.getBytes(true);
 
-          case t.text:
-            {
-              let text = data.getText(true);
-              // normalize EOL to \r\n
-              text = _util2.default.canonicalizeEOL(text);
-              // encode UTF8
-              return _util2.default.encode_utf8(text);
-            }
+          case t.text: {
+            let text = data.getText(true);
+            // normalize EOL to \r\n
+            text = _util2.default.canonicalizeEOL(text);
+            // encode UTF8
+            return _util2.default.encode_utf8(text);
+          }
           case t.standalone:
             return new Uint8Array(0);
 
@@ -42458,27 +44192,26 @@
           case t.cert_persona:
           case t.cert_casual:
           case t.cert_positive:
-          case t.cert_revocation:
-            {
-              let packet;
-              let tag;
+          case t.cert_revocation: {
+            let packet;
+            let tag;
 
-              if (data.userId) {
-                tag = 0xB4;
-                packet = data.userId;
-              }
-              else if (data.userAttribute) {
-                tag = 0xD1;
-                packet = data.userAttribute;
-              }
-              else {
-                throw new Error('Either a userId or userAttribute packet needs to be ' + 'supplied for certification.');
-              }
-
-              const bytes = packet.write();
-
-              return _util2.default.concat([this.toSign(t.key, data), new Uint8Array([tag]), _util2.default.writeNumber(bytes.length, 4), bytes]);
+            if (data.userId) {
+              tag = 0xB4;
+              packet = data.userId;
             }
+            else if (data.userAttribute) {
+              tag = 0xD1;
+              packet = data.userAttribute;
+            }
+            else {
+              throw new Error('Either a userId or userAttribute packet needs to be ' + 'supplied for certification.');
+            }
+
+            const bytes = packet.write();
+
+            return _util2.default.concat([this.toSign(t.key, data), new Uint8Array([tag]), _util2.default.writeNumber(bytes.length, 4), bytes]);
+          }
           case t.subkey_binding:
           case t.subkey_revocation:
           case t.key_binding:
@@ -42490,7 +44223,7 @@
             if (data.key === undefined) {
               throw new Error('Key packet is required for this signature.');
             }
-            return data.key.writeOld();
+            return data.key.writeForHash(this.version);
 
           case t.key_revocation:
             return this.toSign(t.key, data);
@@ -42503,41 +44236,57 @@
         }
       };
 
-      Signature.prototype.calculateTrailer = function() {
+      Signature.prototype.calculateTrailer = function(data, detached) {
         let length = 0;
         return _webStreamTools2.default.transform(_webStreamTools2.default.clone(this.signatureData), value => {
           length += value.length;
         }, () => {
-          const first = new Uint8Array([4, 0xFF]); //Version, ?
-          return _util2.default.concat([first, _util2.default.writeNumber(length, 4)]);
+          const arr = [];
+          if (this.version === 5 && (this.signatureType === _enums2.default.signature.binary || this.signatureType === _enums2.default.signature.text)) {
+            if (detached) {
+              arr.push(new Uint8Array(6));
+            }
+            else {
+              arr.push(data.writeHeader());
+            }
+          }
+          arr.push(new Uint8Array([this.version, 0xFF]));
+          if (this.version === 5) {
+            arr.push(new Uint8Array(4));
+          }
+          arr.push(_util2.default.writeNumber(length, 4));
+          // For v5, this should really be writeNumber(length, 8) rather than the
+          // hardcoded 4 zero bytes above
+          return _util2.default.concat(arr);
         });
       };
 
-      Signature.prototype.toHash = function(signatureType, data) {
+      Signature.prototype.toHash = function(signatureType, data, detached = false) {
         const bytes = this.toSign(signatureType, data);
 
-        return _util2.default.concat([bytes, this.signatureData, this.calculateTrailer()]);
+        return _util2.default.concat([bytes, this.signatureData, this.calculateTrailer(data, detached)]);
       };
 
-      Signature.prototype.hash = async function(signatureType, data, toHash, streaming = true) {
+      Signature.prototype.hash = async function(signatureType, data, toHash, detached = false, streaming = true) {
         const hashAlgorithm = _enums2.default.write(_enums2.default.hash, this.hashAlgorithm);
-        if (!toHash) toHash = this.toHash(signatureType, data);
+        if (!toHash) toHash = this.toHash(signatureType, data, detached);
         if (!streaming && _util2.default.isStream(toHash)) {
-          return _webStreamTools2.default.fromAsync(async () => this.hash(signatureType, data, (await _webStreamTools2.default.readToEnd(toHash))));
+          return _webStreamTools2.default.fromAsync(async () => this.hash(signatureType, data, (await _webStreamTools2.default.readToEnd(toHash)), detached));
         }
         return _crypto2.default.hash.digest(hashAlgorithm, toHash);
       };
 
       /**
-       * verifys the signature packet. Note: not signature types are implemented
+       * verifies the signature packet. Note: not all signature types are implemented
        * @param {module:packet.PublicSubkey|module:packet.PublicKey|
        *         module:packet.SecretSubkey|module:packet.SecretKey} key the public key to verify the signature
        * @param {module:enums.signature} signatureType expected signature type
        * @param {String|Object} data data which on the signature applies
+       * @param {Boolean} detached (optional) whether to verify a detached signature
        * @returns {Promise<Boolean>} True if message is verified, else false.
        * @async
        */
-      Signature.prototype.verify = async function(key, signatureType, data) {
+      Signature.prototype.verify = async function(key, signatureType, data, detached = false, streaming = false) {
         const publicKeyAlgorithm = _enums2.default.write(_enums2.default.publicKey, this.publicKeyAlgorithm);
         const hashAlgorithm = _enums2.default.write(_enums2.default.hash, this.hashAlgorithm);
 
@@ -42551,13 +44300,14 @@
           hash = this.hashed;
         }
         else {
-          toHash = this.toHash(signatureType, data);
+          toHash = this.toHash(signatureType, data, detached);
+          if (!streaming) toHash = await _webStreamTools2.default.readToEnd(toHash);
           hash = await this.hash(signatureType, data, toHash);
         }
         hash = await _webStreamTools2.default.readToEnd(hash);
-
+        let verified;
         if (this.signedHashValue[0] !== hash[0] || this.signedHashValue[1] !== hash[1]) {
-          this.verified = false;
+          verified = false;
         }
         else {
           let mpicount = 0;
@@ -42584,10 +44334,13 @@
             mpi[j] = new _mpi2.default();
             i += mpi[j].read(this.signature.subarray(i, this.signature.length), endian);
           }
-
-          this.verified = await _crypto2.default.signature.verify(publicKeyAlgorithm, hashAlgorithm, mpi, key.params, toHash, hash);
+          verified = await _crypto2.default.signature.verify(publicKeyAlgorithm, hashAlgorithm, mpi, key.params, toHash, hash);
+          if (verified && this.revocationKeyClass !== null) {
+            throw new Error('This key is intended to be revoked with an authorized key, which OpenPGP.js does not support.');
+          }
         }
-        return this.verified;
+        this.verified = verified;
+        return verified;
       };
 
       /**
@@ -42599,7 +44352,7 @@
         const normDate = _util2.default.normalizeDate(date);
         if (normDate !== null) {
           const expirationTime = this.getExpirationTime();
-          return !(this.created <= normDate && normDate < expirationTime);
+          return !(this.created <= normDate && normDate <= expirationTime);
         }
         return false;
       };
@@ -42622,15 +44375,16 @@
       exports.default = Signature;
 
     }, {
-      "../crypto": 96,
-      "../enums": 115,
-      "../type/keyid.js": 150,
-      "../type/mpi.js": 151,
-      "../util": 154,
-      "./packet": 131,
-      "web-stream-tools": 77
+      "../config": 79,
+      "../crypto": 94,
+      "../enums": 113,
+      "../type/keyid.js": 154,
+      "../type/mpi.js": 155,
+      "../util": 158,
+      "./packet": 135,
+      "web-stream-tools": 75
     }],
-    139: [function(require, module, exports) {
+    143: [function(require, module, exports) {
       'use strict';
 
       Object.defineProperty(exports, "__esModule", {
@@ -42724,14 +44478,9 @@
             // The only currently defined value is 1.
             throw new Error('Invalid packet version.');
           }
-          if (_config2.default.aead_protect_version === 4) {
-            this.cipherAlgo = await reader.readByte();
-            this.aeadAlgo = await reader.readByte();
-            this.chunkSizeByte = await reader.readByte();
-          }
-          else {
-            this.aeadAlgo = _enums2.default.aead.experimental_gcm;
-          }
+          this.cipherAlgo = await reader.readByte();
+          this.aeadAlgo = await reader.readByte();
+          this.chunkSizeByte = await reader.readByte();
           const mode = _crypto2.default[_enums2.default.read(_enums2.default.aead, this.aeadAlgo)];
           this.iv = await reader.readBytes(mode.ivLength);
           this.encrypted = reader.remainder();
@@ -42743,10 +44492,7 @@
        * @returns {Uint8Array | ReadableStream<Uint8Array>} The encrypted payload
        */
       SymEncryptedAEADProtected.prototype.write = function() {
-        if (_config2.default.aead_protect_version === 4) {
-          return _util2.default.concat([new Uint8Array([this.version, this.cipherAlgo, this.aeadAlgo, this.chunkSizeByte]), this.iv, this.encrypted]);
-        }
-        return _util2.default.concat([new Uint8Array([this.version]), this.iv, this.encrypted]);
+        return _util2.default.concat([new Uint8Array([this.version, this.cipherAlgo, this.aeadAlgo, this.chunkSizeByte]), this.iv, this.encrypted]);
       };
 
       /**
@@ -42758,10 +44504,7 @@
        * @async
        */
       SymEncryptedAEADProtected.prototype.decrypt = async function(sessionKeyAlgorithm, key, streaming) {
-        if (_config2.default.aead_protect_version !== 4) {
-          this.cipherAlgo = _enums2.default.write(_enums2.default.symmetric, sessionKeyAlgorithm);
-        }
-        await this.packets.read((await this.crypt('decrypt', key, _webStreamTools2.default.clone(this.encrypted), streaming)));
+        await this.packets.read((await this.crypt('decrypt', key, _webStreamTools2.default.clone(this.encrypted), streaming)), streaming);
         return true;
       };
 
@@ -42774,7 +44517,7 @@
        */
       SymEncryptedAEADProtected.prototype.encrypt = async function(sessionKeyAlgorithm, key, streaming) {
         this.cipherAlgo = _enums2.default.write(_enums2.default.symmetric, sessionKeyAlgorithm);
-        this.aeadAlgo = _config2.default.aead_protect_version === 4 ? _enums2.default.write(_enums2.default.aead, this.aeadAlgorithm) : _enums2.default.aead.experimental_gcm;
+        this.aeadAlgo = _enums2.default.write(_enums2.default.aead, this.aeadAlgorithm);
         const mode = _crypto2.default[_enums2.default.read(_enums2.default.aead, this.aeadAlgo)];
         this.iv = await _crypto2.default.random.getRandomBytes(mode.ivLength); // generate new random IV
         this.chunkSizeByte = _config2.default.aead_chunk_size_byte;
@@ -42795,92 +44538,87 @@
         const cipher = _enums2.default.read(_enums2.default.symmetric, this.cipherAlgo);
         const mode = _crypto2.default[_enums2.default.read(_enums2.default.aead, this.aeadAlgo)];
         const modeInstance = await mode(cipher, key);
-        if (_config2.default.aead_protect_version === 4) {
-          const tagLengthIfDecrypting = fn === 'decrypt' ? mode.tagLength : 0;
-          const chunkSize = 2 ** (this.chunkSizeByte + 6) + tagLengthIfDecrypting; // ((uint64_t)1 << (c + 6))
-          const adataBuffer = new ArrayBuffer(21);
-          const adataArray = new Uint8Array(adataBuffer, 0, 13);
-          const adataTagArray = new Uint8Array(adataBuffer);
-          const adataView = new DataView(adataBuffer);
-          const chunkIndexArray = new Uint8Array(adataBuffer, 5, 8);
-          adataArray.set([0xC0 | this.tag, this.version, this.cipherAlgo, this.aeadAlgo, this.chunkSizeByte], 0);
-          let chunkIndex = 0;
-          let latestPromise = Promise.resolve();
-          let cryptedBytes = 0;
-          let queuedBytes = 0;
-          const iv = this.iv;
-          return _webStreamTools2.default.transformPair(data, async (readable, writable) => {
-            const reader = _webStreamTools2.default.getReader(readable);
-            const buffer = new TransformStream({}, {
-              highWaterMark: streaming ? _util2.default.getHardwareConcurrency() * 2 ** (_config2.default.aead_chunk_size_byte + 6) : Infinity,
-              size: array => array.length
-            });
-            _webStreamTools2.default.pipe(buffer.readable, writable);
-            const writer = _webStreamTools2.default.getWriter(buffer.writable);
-            try {
-              while (true) {
-                let chunk = (await reader.readBytes(chunkSize + tagLengthIfDecrypting)) || new Uint8Array();
-                const finalChunk = chunk.subarray(chunk.length - tagLengthIfDecrypting);
-                chunk = chunk.subarray(0, chunk.length - tagLengthIfDecrypting);
-                let cryptedPromise;
-                let done;
-                if (!chunkIndex || chunk.length) {
-                  reader.unshift(finalChunk);
-                  cryptedPromise = modeInstance[fn](chunk, mode.getNonce(iv, chunkIndexArray), adataArray);
-                }
-                else {
-                  // After the last chunk, we either encrypt a final, empty
-                  // data chunk to get the final authentication tag or
-                  // validate that final authentication tag.
-                  adataView.setInt32(13 + 4, cryptedBytes); // Should be setInt64(13, ...)
-                  cryptedPromise = modeInstance[fn](finalChunk, mode.getNonce(iv, chunkIndexArray), adataTagArray);
-                  done = true;
-                }
-                cryptedBytes += chunk.length - tagLengthIfDecrypting;
-                queuedBytes += chunk.length - tagLengthIfDecrypting;
-                // eslint-disable-next-line no-loop-func
-                latestPromise = latestPromise.then(() => cryptedPromise).then(async crypted => {
-                  await writer.ready;
-                  await writer.write(crypted);
-                  queuedBytes -= chunk.length;
-                }).catch(err => writer.abort(err));
-                if (done || queuedBytes > writer.desiredSize) {
-                  await latestPromise; // Respect backpressure
-                }
-                if (!done) {
-                  adataView.setInt32(5 + 4, ++chunkIndex); // Should be setInt64(5, ...)
-                }
-                else {
-                  await writer.close();
-                  break;
-                }
+        const tagLengthIfDecrypting = fn === 'decrypt' ? mode.tagLength : 0;
+        const tagLengthIfEncrypting = fn === 'encrypt' ? mode.tagLength : 0;
+        const chunkSize = 2 ** (this.chunkSizeByte + 6) + tagLengthIfDecrypting; // ((uint64_t)1 << (c + 6))
+        const adataBuffer = new ArrayBuffer(21);
+        const adataArray = new Uint8Array(adataBuffer, 0, 13);
+        const adataTagArray = new Uint8Array(adataBuffer);
+        const adataView = new DataView(adataBuffer);
+        const chunkIndexArray = new Uint8Array(adataBuffer, 5, 8);
+        adataArray.set([0xC0 | this.tag, this.version, this.cipherAlgo, this.aeadAlgo, this.chunkSizeByte], 0);
+        let chunkIndex = 0;
+        let latestPromise = Promise.resolve();
+        let cryptedBytes = 0;
+        let queuedBytes = 0;
+        const iv = this.iv;
+        return _webStreamTools2.default.transformPair(data, async (readable, writable) => {
+          const reader = _webStreamTools2.default.getReader(readable);
+          const buffer = new TransformStream({}, {
+            highWaterMark: streaming ? _util2.default.getHardwareConcurrency() * 2 ** (this.chunkSizeByte + 6) : Infinity,
+            size: array => array.length
+          });
+          _webStreamTools2.default.pipe(buffer.readable, writable);
+          const writer = _webStreamTools2.default.getWriter(buffer.writable);
+          try {
+            while (true) {
+              let chunk = (await reader.readBytes(chunkSize + tagLengthIfDecrypting)) || new Uint8Array();
+              const finalChunk = chunk.subarray(chunk.length - tagLengthIfDecrypting);
+              chunk = chunk.subarray(0, chunk.length - tagLengthIfDecrypting);
+              let cryptedPromise;
+              let done;
+              if (!chunkIndex || chunk.length) {
+                reader.unshift(finalChunk);
+                cryptedPromise = modeInstance[fn](chunk, mode.getNonce(iv, chunkIndexArray), adataArray);
+                queuedBytes += chunk.length - tagLengthIfDecrypting + tagLengthIfEncrypting;
+              }
+              else {
+                // After the last chunk, we either encrypt a final, empty
+                // data chunk to get the final authentication tag or
+                // validate that final authentication tag.
+                adataView.setInt32(13 + 4, cryptedBytes); // Should be setInt64(13, ...)
+                cryptedPromise = modeInstance[fn](finalChunk, mode.getNonce(iv, chunkIndexArray), adataTagArray);
+                queuedBytes += tagLengthIfEncrypting;
+                done = true;
+              }
+              cryptedBytes += chunk.length - tagLengthIfDecrypting;
+              // eslint-disable-next-line no-loop-func
+              latestPromise = latestPromise.then(() => cryptedPromise).then(async crypted => {
+                await writer.ready;
+                await writer.write(crypted);
+                queuedBytes -= crypted.length;
+              }).catch(err => writer.abort(err));
+              if (done || queuedBytes > writer.desiredSize) {
+                await latestPromise; // Respect backpressure
+              }
+              if (!done) {
+                adataView.setInt32(5 + 4, ++chunkIndex); // Should be setInt64(5, ...)
+              }
+              else {
+                await writer.close();
+                break;
               }
             }
-            catch (e) {
-              await writer.abort(e);
-            }
-          });
-        }
-        else {
-          return modeInstance[fn]((await _webStreamTools2.default.readToEnd(data)), this.iv);
-        }
+          }
+          catch (e) {
+            await writer.abort(e);
+          }
+        });
       };
 
     }, {
-      "../config": 81,
-      "../crypto": 96,
-      "../enums": 115,
-      "../util": 154,
-      "web-stream-tools": 77
+      "../config": 79,
+      "../crypto": 94,
+      "../enums": 113,
+      "../util": 158,
+      "web-stream-tools": 75
     }],
-    140: [function(require, module, exports) {
+    144: [function(require, module, exports) {
       'use strict';
 
       Object.defineProperty(exports, "__esModule", {
         value: true
       });
-
-      var _cfb = require('asmcrypto.js/dist_es5/aes/cfb');
 
       var _webStreamTools = require('web-stream-tools');
 
@@ -42908,6 +44646,20 @@
         };
       }
 
+      const VERSION = 1; // A one-octet version number of the data packet.
+
+      /**
+       * Implementation of the Sym. Encrypted Integrity Protected Data Packet (Tag 18)
+       *
+       * {@link https://tools.ietf.org/html/rfc4880#section-5.13|RFC4880 5.13}:
+       * The Symmetrically Encrypted Integrity Protected Data packet is
+       * a variant of the Symmetrically Encrypted Data packet. It is a new feature
+       * created for OpenPGP that addresses the problem of detecting a modification to
+       * encrypted data. It is used in combination with a Modification Detection Code
+       * packet.
+       * @memberof module:packet
+       * @constructor
+       */
       // GPG4Browsers - An OpenPGP implementation in javascript
       // Copyright (C) 2011 Recurity Labs GmbH
       //
@@ -42934,23 +44686,6 @@
        * @requires util
        */
 
-      const nodeCrypto = _util2.default.getNodeCrypto();
-      const Buffer = _util2.default.getNodeBuffer();
-
-      const VERSION = 1; // A one-octet version number of the data packet.
-
-      /**
-       * Implementation of the Sym. Encrypted Integrity Protected Data Packet (Tag 18)
-       *
-       * {@link https://tools.ietf.org/html/rfc4880#section-5.13|RFC4880 5.13}:
-       * The Symmetrically Encrypted Integrity Protected Data packet is
-       * a variant of the Symmetrically Encrypted Data packet. It is a new feature
-       * created for OpenPGP that addresses the problem of detecting a modification to
-       * encrypted data. It is used in combination with a Modification Detection Code
-       * packet.
-       * @memberof module:packet
-       * @constructor
-       */
       function SymEncryptedIntegrityProtected() {
         this.tag = _enums2.default.packet.symEncryptedIntegrityProtected;
         this.version = VERSION;
@@ -42996,24 +44731,14 @@
       SymEncryptedIntegrityProtected.prototype.encrypt = async function(sessionKeyAlgorithm, key, streaming) {
         let bytes = this.packets.write();
         if (!streaming) bytes = await _webStreamTools2.default.readToEnd(bytes);
-        const prefixrandom = await _crypto2.default.getPrefixRandom(sessionKeyAlgorithm);
-        const repeat = new Uint8Array([prefixrandom[prefixrandom.length - 2], prefixrandom[prefixrandom.length - 1]]);
-        const prefix = _util2.default.concat([prefixrandom, repeat]);
+        const prefix = await _crypto2.default.getPrefixRandom(sessionKeyAlgorithm);
         const mdc = new Uint8Array([0xD3, 0x14]); // modification detection code packet
 
-        let tohash = _util2.default.concat([bytes, mdc]);
-        const hash = await _crypto2.default.hash.sha1(_util2.default.concat([prefix, _webStreamTools2.default.passiveClone(tohash)]));
-        tohash = _util2.default.concat([tohash, hash]);
+        const tohash = _util2.default.concat([prefix, bytes, mdc]);
+        const hash = await _crypto2.default.hash.sha1(_webStreamTools2.default.passiveClone(tohash));
+        const plaintext = _util2.default.concat([tohash, hash]);
 
-        if (sessionKeyAlgorithm.substr(0, 3) === 'aes') {
-          // AES optimizations. Native code for node, asmCrypto for browser.
-          this.encrypted = aesEncrypt(sessionKeyAlgorithm, _util2.default.concat([prefix, tohash]), key);
-        }
-        else {
-          tohash = await _webStreamTools2.default.readToEnd(tohash);
-          this.encrypted = _crypto2.default.cfb.encrypt(prefixrandom, sessionKeyAlgorithm, tohash, key, false);
-          this.encrypted = _webStreamTools2.default.slice(this.encrypted, 0, prefix.length + tohash.length);
-        }
+        this.encrypted = await _crypto2.default.cfb.encrypt(sessionKeyAlgorithm, key, plaintext, new Uint8Array(_crypto2.default.cipher[sessionKeyAlgorithm].blockSize));
         return true;
       };
 
@@ -43026,100 +44751,40 @@
        * @async
        */
       SymEncryptedIntegrityProtected.prototype.decrypt = async function(sessionKeyAlgorithm, key, streaming) {
-        if (!streaming) this.encrypted = await _webStreamTools2.default.readToEnd(this.encrypted);
-        const encrypted = _webStreamTools2.default.clone(this.encrypted);
-        const encryptedClone = _webStreamTools2.default.passiveClone(encrypted);
-        let decrypted;
-        if (sessionKeyAlgorithm.substr(0, 3) === 'aes') {
-          // AES optimizations. Native code for node, asmCrypto for browser.
-          decrypted = aesDecrypt(sessionKeyAlgorithm, encrypted, key, streaming);
-        }
-        else {
-          decrypted = _crypto2.default.cfb.decrypt(sessionKeyAlgorithm, key, (await _webStreamTools2.default.readToEnd(encrypted)), false);
-        }
+        let encrypted = _webStreamTools2.default.clone(this.encrypted);
+        if (!streaming) encrypted = await _webStreamTools2.default.readToEnd(encrypted);
+        const decrypted = await _crypto2.default.cfb.decrypt(sessionKeyAlgorithm, key, encrypted, new Uint8Array(_crypto2.default.cipher[sessionKeyAlgorithm].blockSize));
 
         // there must be a modification detection code packet as the
         // last packet and everything gets hashed except the hash itself
-        const encryptedPrefix = await _webStreamTools2.default.readToEnd(_webStreamTools2.default.slice(encryptedClone, 0, _crypto2.default.cipher[sessionKeyAlgorithm].blockSize + 2));
-        const prefix = _crypto2.default.cfb.mdc(sessionKeyAlgorithm, key, encryptedPrefix);
         const realHash = _webStreamTools2.default.slice(_webStreamTools2.default.passiveClone(decrypted), -20);
-        const bytes = _webStreamTools2.default.slice(decrypted, 0, -20);
-        const tohash = _util2.default.concat([prefix, _webStreamTools2.default.passiveClone(bytes)]);
-        const verifyHash = Promise.all([_webStreamTools2.default.readToEnd((await _crypto2.default.hash.sha1(tohash))), _webStreamTools2.default.readToEnd(realHash)]).then(([hash, mdc]) => {
+        const tohash = _webStreamTools2.default.slice(decrypted, 0, -20);
+        const verifyHash = Promise.all([_webStreamTools2.default.readToEnd((await _crypto2.default.hash.sha1(_webStreamTools2.default.passiveClone(tohash)))), _webStreamTools2.default.readToEnd(realHash)]).then(([hash, mdc]) => {
           if (!_util2.default.equalsUint8Array(hash, mdc)) {
             throw new Error('Modification detected.');
           }
           return new Uint8Array();
         });
-        let packetbytes = _webStreamTools2.default.slice(bytes, 0, -2);
+        const bytes = _webStreamTools2.default.slice(tohash, _crypto2.default.cipher[sessionKeyAlgorithm].blockSize + 2); // Remove random prefix
+        let packetbytes = _webStreamTools2.default.slice(bytes, 0, -2); // Remove MDC packet
         packetbytes = _webStreamTools2.default.concat([packetbytes, _webStreamTools2.default.fromAsync(() => verifyHash)]);
         if (!_util2.default.isStream(encrypted) || !_config2.default.allow_unauthenticated_stream) {
           packetbytes = await _webStreamTools2.default.readToEnd(packetbytes);
         }
-        await this.packets.read(packetbytes);
+        await this.packets.read(packetbytes, streaming);
         return true;
       };
 
       exports.default = SymEncryptedIntegrityProtected;
 
-      //////////////////////////
-      //                      //
-      //   Helper functions   //
-      //                      //
-      //////////////////////////
-
-
-      function aesEncrypt(algo, pt, key) {
-        if (nodeCrypto) {
-          // Node crypto library.
-          return nodeEncrypt(algo, pt, key);
-        } // asm.js fallback
-        const cfb = new _cfb.AES_CFB(key);
-        return _webStreamTools2.default.transform(pt, value => cfb.AES_Encrypt_process(value), () => cfb.AES_Encrypt_finish());
-      }
-
-      function aesDecrypt(algo, ct, key) {
-        let pt;
-        if (nodeCrypto) {
-          // Node crypto library.
-          pt = nodeDecrypt(algo, ct, key);
-        }
-        else {
-          // asm.js fallback
-          if (_util2.default.isStream(ct)) {
-            const cfb = new _cfb.AES_CFB(key);
-            pt = _webStreamTools2.default.transform(ct, value => cfb.AES_Decrypt_process(value), () => cfb.AES_Decrypt_finish());
-          }
-          else {
-            pt = _cfb.AES_CFB.decrypt(ct, key);
-          }
-        }
-        return _webStreamTools2.default.slice(pt, _crypto2.default.cipher[algo].blockSize + 2); // Remove random prefix
-      }
-
-      function nodeEncrypt(algo, pt, key) {
-        key = new Buffer(key);
-        const iv = new Buffer(new Uint8Array(_crypto2.default.cipher[algo].blockSize));
-        const cipherObj = new nodeCrypto.createCipheriv('aes-' + algo.substr(3, 3) + '-cfb', key, iv);
-        return _webStreamTools2.default.transform(pt, value => new Uint8Array(cipherObj.update(new Buffer(value))));
-      }
-
-      function nodeDecrypt(algo, ct, key) {
-        key = new Buffer(key);
-        const iv = new Buffer(new Uint8Array(_crypto2.default.cipher[algo].blockSize));
-        const decipherObj = new nodeCrypto.createDecipheriv('aes-' + algo.substr(3, 3) + '-cfb', key, iv);
-        return _webStreamTools2.default.transform(ct, value => new Uint8Array(decipherObj.update(new Buffer(value))));
-      }
-
     }, {
-      "../config": 81,
-      "../crypto": 96,
-      "../enums": 115,
-      "../util": 154,
-      "asmcrypto.js/dist_es5/aes/cfb": 6,
-      "web-stream-tools": 77
+      "../config": 79,
+      "../crypto": 94,
+      "../enums": 113,
+      "../util": 158,
+      "web-stream-tools": 75
     }],
-    141: [function(require, module, exports) {
+    145: [function(require, module, exports) {
       'use strict';
 
       Object.defineProperty(exports, "__esModule", {
@@ -43172,7 +44837,7 @@
        */
       function SymEncryptedSessionKey() {
         this.tag = _enums2.default.packet.symEncryptedSessionKey;
-        this.version = _config2.default.aead_protect && _config2.default.aead_protect_version === 4 ? 5 : 4;
+        this.version = _config2.default.aead_protect ? 5 : 4;
         this.sessionKey = null;
         this.sessionKeyEncryptionAlgorithm = null;
         this.sessionKeyAlgorithm = 'aes256';
@@ -43292,7 +44957,7 @@
           this.sessionKey = await modeInstance.decrypt(this.encrypted, this.iv, adata);
         }
         else if (this.encrypted !== null) {
-          const decrypted = _crypto2.default.cfb.normalDecrypt(algo, key, this.encrypted, null);
+          const decrypted = await _crypto2.default.cfb.decrypt(algo, key, this.encrypted, new Uint8Array(_crypto2.default.cipher[algo].blockSize));
 
           this.sessionKeyAlgorithm = _enums2.default.read(_enums2.default.symmetric, decrypted[0]);
           this.sessionKey = decrypted.subarray(1, decrypted.length);
@@ -43335,7 +45000,7 @@
         else {
           const algo_enum = new Uint8Array([_enums2.default.write(_enums2.default.symmetric, this.sessionKeyAlgorithm)]);
           const private_key = _util2.default.concatUint8Array([algo_enum, this.sessionKey]);
-          this.encrypted = _crypto2.default.cfb.normalEncrypt(algo, key, private_key, null);
+          this.encrypted = await _crypto2.default.cfb.encrypt(algo, key, private_key, new Uint8Array(_crypto2.default.cipher[algo].blockSize));
         }
 
         return true;
@@ -43351,13 +45016,13 @@
       exports.default = SymEncryptedSessionKey;
 
     }, {
-      "../config": 81,
-      "../crypto": 96,
-      "../enums": 115,
-      "../type/s2k": 153,
-      "../util": 154
+      "../config": 79,
+      "../crypto": 94,
+      "../enums": 113,
+      "../type/s2k": 157,
+      "../util": 158
     }],
-    142: [function(require, module, exports) {
+    146: [function(require, module, exports) {
       'use strict';
 
       Object.defineProperty(exports, "__esModule", {
@@ -43380,6 +45045,10 @@
 
       var _enums2 = _interopRequireDefault(_enums);
 
+      var _util = require('../util');
+
+      var _util2 = _interopRequireDefault(_util);
+
       function _interopRequireDefault(obj) {
         return obj && obj.__esModule ? obj : {
           default: obj
@@ -43398,7 +45067,27 @@
        * @memberof module:packet
        * @constructor
        */
-      // GPG4Browsers - An OpenPGP implementation in javascript
+      function SymmetricallyEncrypted() {
+        /**
+         * Packet type
+         * @type {module:enums.packet}
+         */
+        this.tag = _enums2.default.packet.symmetricallyEncrypted;
+        /**
+         * Encrypted secret-key data
+         */
+        this.encrypted = null;
+        /**
+         * Decrypted packets contained within.
+         * @type {module:packet.List}
+         */
+        this.packets = null;
+        /**
+         * When true, decrypt fails if message is not integrity protected
+         * @see module:config.ignore_mdc_error
+         */
+        this.ignore_mdc_error = _config2.default.ignore_mdc_error;
+      } // GPG4Browsers - An OpenPGP implementation in javascript
       // Copyright (C) 2011 Recurity Labs GmbH
       //
       // This library is free software; you can redistribute it and/or
@@ -43420,29 +45109,8 @@
        * @requires config
        * @requires crypto
        * @requires enums
+       * @requires util
        */
-
-      function SymmetricallyEncrypted() {
-        /**
-         * Packet type
-         * @type {module:enums.packet}
-         */
-        this.tag = _enums2.default.packet.symmetricallyEncrypted;
-        /**
-         * Encrypted secret-key data
-         */
-        this.encrypted = null;
-        /**
-         * Decrypted packets contained within.
-         * @type {module:packet.List}
-         */
-        this.packets = null;
-        /**
-         * When true, decrypt fails if message is not integrity protected
-         * @see module:config.ignore_mdc_error
-         */
-        this.ignore_mdc_error = _config2.default.ignore_mdc_error;
-      }
 
       SymmetricallyEncrypted.prototype.read = function(bytes) {
         this.encrypted = bytes;
@@ -43461,12 +45129,14 @@
        * @async
        */
       SymmetricallyEncrypted.prototype.decrypt = async function(sessionKeyAlgorithm, key) {
-        this.encrypted = await _webStreamTools2.default.readToEnd(this.encrypted);
-        const decrypted = _crypto2.default.cfb.decrypt(sessionKeyAlgorithm, key, this.encrypted, true);
         // If MDC errors are not being ignored, all missing MDC packets in symmetrically encrypted data should throw an error
         if (!this.ignore_mdc_error) {
           throw new Error('Decryption failed due to missing MDC.');
         }
+
+        this.encrypted = await _webStreamTools2.default.readToEnd(this.encrypted);
+        const decrypted = await _crypto2.default.cfb.decrypt(sessionKeyAlgorithm, key, this.encrypted.subarray(_crypto2.default.cipher[sessionKeyAlgorithm].blockSize + 2), this.encrypted.subarray(2, _crypto2.default.cipher[sessionKeyAlgorithm].blockSize + 2));
+
         await this.packets.read(decrypted);
 
         return true;
@@ -43483,7 +45153,10 @@
       SymmetricallyEncrypted.prototype.encrypt = async function(algo, key) {
         const data = this.packets.write();
 
-        this.encrypted = _crypto2.default.cfb.encrypt((await _crypto2.default.getPrefixRandom(algo)), algo, (await _webStreamTools2.default.readToEnd(data)), key, true);
+        const prefix = await _crypto2.default.getPrefixRandom(algo);
+        const FRE = await _crypto2.default.cfb.encrypt(algo, key, prefix, new Uint8Array(_crypto2.default.cipher[algo].blockSize));
+        const ciphertext = await _crypto2.default.cfb.encrypt(algo, key, data, FRE.subarray(2));
+        this.encrypted = _util2.default.concat([FRE, ciphertext]);
 
         return true;
       };
@@ -43491,12 +45164,13 @@
       exports.default = SymmetricallyEncrypted;
 
     }, {
-      "../config": 81,
-      "../crypto": 96,
-      "../enums": 115,
-      "web-stream-tools": 77
+      "../config": 79,
+      "../crypto": 94,
+      "../enums": 113,
+      "../util": 158,
+      "web-stream-tools": 75
     }],
-    143: [function(require, module, exports) {
+    147: [function(require, module, exports) {
       'use strict';
 
       Object.defineProperty(exports, "__esModule", {
@@ -43548,9 +45222,9 @@
       exports.default = Trust;
 
     }, {
-      "../enums": 115
+      "../enums": 113
     }],
-    144: [function(require, module, exports) {
+    148: [function(require, module, exports) {
       'use strict';
 
       Object.defineProperty(exports, "__esModule", {
@@ -43667,11 +45341,11 @@
       exports.default = UserAttribute;
 
     }, {
-      "../enums": 115,
-      "../util": 154,
-      "./packet": 131
+      "../enums": 113,
+      "../util": 158,
+      "./packet": 135
     }],
-    145: [function(require, module, exports) {
+    149: [function(require, module, exports) {
       'use strict';
 
       Object.defineProperty(exports, "__esModule", {
@@ -43779,10 +45453,10 @@
       exports.default = Userid;
 
     }, {
-      "../enums": 115,
-      "../util": 154
+      "../enums": 113,
+      "../util": 158
     }],
-    146: [function(require, module, exports) {
+    150: [function(require, module, exports) {
       (function(global) {
         'use strict';
 
@@ -43795,8 +45469,6 @@
             default: obj
           };
         }
-
-        /* eslint-disable import/no-extraneous-dependencies */
 
         if (typeof window !== 'undefined') {
           /********************************************************************
@@ -43848,7 +45520,7 @@
          */
 
         if (typeof TransformStream === 'undefined') {
-          require('@mattiasbuelens/web-streams-polyfill');
+          require('@mattiasbuelens/web-streams-polyfill/es6');
         }
         if (typeof TextEncoder === 'undefined') {
           const nodeUtil = _util2.default.nodeRequire('util') || {};
@@ -43863,8 +45535,8 @@
 
       }).call(this, typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
     }, {
-      "./util": 154,
-      "@mattiasbuelens/web-streams-polyfill": 1,
+      "./util": 158,
+      "@mattiasbuelens/web-streams-polyfill/es6": 1,
       "core-js/fn/array/fill": "core-js/fn/array/fill",
       "core-js/fn/array/find": "core-js/fn/array/find",
       "core-js/fn/array/from": "core-js/fn/array/from",
@@ -43874,10 +45546,10 @@
       "core-js/fn/string/repeat": "core-js/fn/string/repeat",
       "core-js/fn/symbol": "core-js/fn/symbol",
       "core-js/fn/typed/uint8-array": "core-js/fn/typed/uint8-array",
-      "text-encoding-utf-8": 74,
+      "text-encoding-utf-8": 71,
       "whatwg-fetch": "whatwg-fetch"
     }],
-    147: [function(require, module, exports) {
+    151: [function(require, module, exports) {
       'use strict';
 
       Object.defineProperty(exports, "__esModule", {
@@ -43975,11 +45647,11 @@
       }
 
     }, {
-      "./encoding/armor": 113,
-      "./enums": 115,
-      "./packet": 127
+      "./encoding/armor": 111,
+      "./enums": 113,
+      "./packet": 131
     }],
-    148: [function(require, module, exports) {
+    152: [function(require, module, exports) {
       'use strict';
 
       Object.defineProperty(exports, "__esModule", {
@@ -44067,9 +45739,9 @@
       exports.default = ECDHSymmetricKey;
 
     }, {
-      "../util": 154
+      "../util": 158
     }],
-    149: [function(require, module, exports) {
+    153: [function(require, module, exports) {
       'use strict';
 
       Object.defineProperty(exports, "__esModule", {
@@ -44160,9 +45832,9 @@
       exports.default = KDFParams;
 
     }, {
-      "../enums.js": 115
+      "../enums.js": 113
     }],
-    150: [function(require, module, exports) {
+    154: [function(require, module, exports) {
       'use strict';
 
       Object.defineProperty(exports, "__esModule", {
@@ -44273,9 +45945,9 @@
       exports.default = Keyid;
 
     }, {
-      "../util.js": 154
+      "../util.js": 158
     }],
-    151: [function(require, module, exports) {
+    155: [function(require, module, exports) {
       'use strict';
 
       Object.defineProperty(exports, "__esModule", {
@@ -44442,10 +46114,10 @@
       exports.default = MPI;
 
     }, {
-      "../util": 154,
-      "bn.js": 17
+      "../util": 158,
+      "bn.js": 16
     }],
-    152: [function(require, module, exports) {
+    156: [function(require, module, exports) {
       'use strict';
 
       Object.defineProperty(exports, "__esModule", {
@@ -44578,10 +46250,10 @@
       exports.default = OID;
 
     }, {
-      "../enums": 115,
-      "../util": 154
+      "../enums": 113,
+      "../util": 158
     }],
-    153: [function(require, module, exports) {
+    157: [function(require, module, exports) {
       'use strict';
 
       Object.defineProperty(exports, "__esModule", {
@@ -44674,7 +46346,10 @@
       S2K.prototype.read = function(bytes) {
         let i = 0;
         this.type = _enums2.default.read(_enums2.default.s2k, bytes[i++]);
-        this.algorithm = _enums2.default.read(_enums2.default.hash, bytes[i++]);
+        this.algorithm = bytes[i++];
+        if (this.type !== 'gnu') {
+          this.algorithm = _enums2.default.read(_enums2.default.hash, this.algorithm);
+        }
 
         switch (this.type) {
           case 'simple':
@@ -44694,11 +46369,11 @@
             break;
 
           case 'gnu':
-            if (_util2.default.Uint8Array_to_str(bytes.subarray(i, 3)) === "GNU") {
+            if (_util2.default.Uint8Array_to_str(bytes.subarray(i, i + 3)) === "GNU") {
               i += 3; // GNU
               const gnuExtType = 1000 + bytes[i++];
               if (gnuExtType === 1001) {
-                this.type = gnuExtType;
+                this.type = 'gnu-dummy';
                 // GnuPG extension mode 1001 -- don't write secret key at all
               }
               else {
@@ -44722,6 +46397,10 @@
        * @returns {Uint8Array} binary representation of s2k
        */
       S2K.prototype.write = function() {
+        if (this.type === 'gnu-dummy') {
+          return new Uint8Array([101, 0, ..._util2.default.str_to_Uint8Array('GNU'), 1]);
+        }
+
         const arr = [new Uint8Array([_enums2.default.write(_enums2.default.s2k, this.type), _enums2.default.write(_enums2.default.hash, this.algorithm)])];
 
         switch (this.type) {
@@ -44752,51 +46431,41 @@
        */
       S2K.prototype.produce_key = async function(passphrase, numBytes) {
         passphrase = _util2.default.encode_utf8(passphrase);
-
-        async function round(prefix, s2k) {
-          const algorithm = _enums2.default.write(_enums2.default.hash, s2k.algorithm);
-
-          switch (s2k.type) {
-            case 'simple':
-              return _crypto2.default.hash.digest(algorithm, _util2.default.concatUint8Array([prefix, passphrase]));
-
-            case 'salted':
-              return _crypto2.default.hash.digest(algorithm, _util2.default.concatUint8Array([prefix, s2k.salt, passphrase]));
-
-            case 'iterated':
-              {
-                const count = s2k.get_count();
-                const data = _util2.default.concatUint8Array([s2k.salt, passphrase]);
-                const datalen = data.length;
-                const isp = new Uint8Array(prefix.length + count + datalen);
-                isp.set(prefix);
-                for (let pos = prefix.length; pos < count; pos += datalen) {
-                  isp.set(data, pos);
-                }
-                return _crypto2.default.hash.digest(algorithm, isp.subarray(0, prefix.length + count));
-              }
-            case 'gnu':
-              throw new Error("GNU s2k type not supported.");
-
-            default:
-              throw new Error("Unknown s2k type.");
-          }
-        }
+        const algorithm = _enums2.default.write(_enums2.default.hash, this.algorithm);
 
         const arr = [];
         let rlength = 0;
-        const prefix = new Uint8Array(numBytes);
 
-        for (let i = 0; i < numBytes; i++) {
-          prefix[i] = 0;
-        }
-
-        let i = 0;
+        let prefixlen = 0;
         while (rlength < numBytes) {
-          const result = await round(prefix.subarray(0, i), this);
+          let toHash;
+          switch (this.type) {
+            case 'simple':
+              toHash = _util2.default.concatUint8Array([new Uint8Array(prefixlen), passphrase]);
+              break;
+            case 'salted':
+              toHash = _util2.default.concatUint8Array([new Uint8Array(prefixlen), this.salt, passphrase]);
+              break;
+            case 'iterated': {
+              const data = _util2.default.concatUint8Array([this.salt, passphrase]);
+              let datalen = data.length;
+              const count = Math.max(this.get_count(), datalen);
+              toHash = new Uint8Array(prefixlen + count);
+              toHash.set(data, prefixlen);
+              for (let pos = prefixlen + datalen; pos < count; pos += datalen, datalen *= 2) {
+                toHash.copyWithin(pos, prefixlen, pos);
+              }
+              break;
+            }
+            case 'gnu':
+              throw new Error("GNU s2k type not supported.");
+            default:
+              throw new Error("Unknown s2k type.");
+          }
+          const result = await _crypto2.default.hash.digest(algorithm, toHash);
           arr.push(result);
           rlength += result.length;
-          i++;
+          prefixlen++;
         }
 
         return _util2.default.concatUint8Array(arr).subarray(0, numBytes);
@@ -44814,863 +46483,848 @@
       exports.default = S2K;
 
     }, {
-      "../config": 81,
-      "../crypto": 96,
-      "../enums.js": 115,
-      "../util.js": 154
+      "../config": 79,
+      "../crypto": 94,
+      "../enums.js": 113,
+      "../util.js": 158
     }],
-    154: [function(require, module, exports) {
-      'use strict';
+    158: [function(require, module, exports) {
+      (function(global) {
+        'use strict';
 
-      Object.defineProperty(exports, "__esModule", {
-        value: true
-      });
+        Object.defineProperty(exports, "__esModule", {
+          value: true
+        });
 
-      var _slicedToArray = function() {
-        function sliceIterator(arr, i) {
-          var _arr = [];
-          var _n = true;
-          var _d = false;
-          var _e = undefined;
-          try {
-            for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) {
-              _arr.push(_s.value);
-              if (i && _arr.length === i) break;
-            }
-          }
-          catch (err) {
-            _d = true;
-            _e = err;
-          }
-          finally {
-            try {
-              if (!_n && _i["return"]) _i["return"]();
-            }
-            finally {
-              if (_d) throw _e;
-            }
-          }
-          return _arr;
+        var _emailAddresses = require('email-addresses');
+
+        var _emailAddresses2 = _interopRequireDefault(_emailAddresses);
+
+        var _webStreamTools = require('web-stream-tools');
+
+        var _webStreamTools2 = _interopRequireDefault(_webStreamTools);
+
+        var _config = require('./config');
+
+        var _config2 = _interopRequireDefault(_config);
+
+        var _util = require('./util');
+
+        var _util2 = _interopRequireDefault(_util);
+
+        var _base = require('./encoding/base64');
+
+        var _base2 = _interopRequireDefault(_base);
+
+        function _interopRequireDefault(obj) {
+          return obj && obj.__esModule ? obj : {
+            default: obj
+          };
         }
-        return function(arr, i) {
-          if (Array.isArray(arr)) {
-            return arr;
-          }
-          else if (Symbol.iterator in Object(arr)) {
-            return sliceIterator(arr, i);
-          }
-          else {
-            throw new TypeError("Invalid attempt to destructure non-iterable instance");
-          }
-        };
-      }(); // GPG4Browsers - An OpenPGP implementation in javascript
-      // Copyright (C) 2011 Recurity Labs GmbH
-      //
-      // This library is free software; you can redistribute it and/or
-      // modify it under the terms of the GNU Lesser General Public
-      // License as published by the Free Software Foundation; either
-      // version 3.0 of the License, or (at your option) any later version.
-      //
-      // This library is distributed in the hope that it will be useful,
-      // but WITHOUT ANY WARRANTY; without even the implied warranty of
-      // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-      // Lesser General Public License for more details.
-      //
-      // You should have received a copy of the GNU Lesser General Public
-      // License along with this library; if not, write to the Free Software
-      // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
-      /* eslint-disable no-console */
+        exports.default = {
+          isString: function isString(data) {
+            return typeof data === 'string' || String.prototype.isPrototypeOf(data);
+          },
 
-      /**
-       * This object contains utility functions
-       * @requires address-rfc2822
-       * @requires web-stream-tools
-       * @requires config
-       * @requires encoding/base64
-       * @module util
-       */
+          isArray: function isArray(data) {
+            return Array.prototype.isPrototypeOf(data);
+          },
 
-      // re-import module to access util functions
+          isUint8Array: _webStreamTools2.default.isUint8Array,
 
+          isStream: _webStreamTools2.default.isStream,
 
-      var _addressRfc = require('address-rfc2822');
+          /**
+           * Get transferable objects to pass buffers with zero copy (similar to "pass by reference" in C++)
+           *   See: https://developer.mozilla.org/en-US/docs/Web/API/Worker/postMessage
+           * Also, convert ReadableStreams to MessagePorts
+           * @param  {Object} obj           the options object to be passed to the web worker
+           * @returns {Array<ArrayBuffer>}   an array of binary data to be passed
+           */
+          getTransferables: function getTransferables(obj, zero_copy) {
+            const transferables = [];
+            _util2.default.collectTransferables(obj, transferables, zero_copy);
+            return transferables.length ? transferables : undefined;
+          },
 
-      var _addressRfc2 = _interopRequireDefault(_addressRfc);
-
-      var _webStreamTools = require('web-stream-tools');
-
-      var _webStreamTools2 = _interopRequireDefault(_webStreamTools);
-
-      var _config = require('./config');
-
-      var _config2 = _interopRequireDefault(_config);
-
-      var _util = require('./util');
-
-      var _util2 = _interopRequireDefault(_util);
-
-      var _base = require('./encoding/base64');
-
-      var _base2 = _interopRequireDefault(_base);
-
-      function _interopRequireDefault(obj) {
-        return obj && obj.__esModule ? obj : {
-          default: obj
-        };
-      }
-
-      exports.default = {
-        isString: function isString(data) {
-          return typeof data === 'string' || String.prototype.isPrototypeOf(data);
-        },
-
-        isArray: function isArray(data) {
-          return Array.prototype.isPrototypeOf(data);
-        },
-
-        isUint8Array: _webStreamTools2.default.isUint8Array,
-
-        isStream: _webStreamTools2.default.isStream,
-
-        /**
-         * Get transferable objects to pass buffers with zero copy (similar to "pass by reference" in C++)
-         *   See: https://developer.mozilla.org/en-US/docs/Web/API/Worker/postMessage
-         * Also, convert ReadableStreams to MessagePorts
-         * @param  {Object} obj           the options object to be passed to the web worker
-         * @returns {Array<ArrayBuffer>}   an array of binary data to be passed
-         */
-        getTransferables: function getTransferables(obj) {
-          const transferables = [];
-          _util2.default.collectTransferables(obj, transferables);
-          return transferables.length ? transferables : undefined;
-        },
-
-        collectTransferables: function collectTransferables(obj, collection) {
-          if (!obj) {
-            return;
-          }
-
-          if (_util2.default.isUint8Array(obj) && collection.indexOf(obj.buffer) === -1) {
-            if (_config2.default.zero_copy) {
-              collection.push(obj.buffer);
+          collectTransferables: function collectTransferables(obj, collection, zero_copy) {
+            if (!obj) {
+              return;
             }
-            return;
-          }
-          if (Object.prototype.isPrototypeOf(obj)) {
-            Object.entries(obj).forEach(([key, value]) => {
-              // recursively search all children
-              if (_util2.default.isStream(value)) {
-                if (value.locked) {
-                  obj[key] = null;
-                }
-                else {
-                  const transformed = _webStreamTools2.default.transformPair(value, async readable => {
-                    const reader = _webStreamTools2.default.getReader(readable);
 
-                    var _ref = new MessageChannel();
-
-                    const port1 = _ref.port1,
-                      port2 = _ref.port2;
-
-                    port1.onmessage = async function({
-                      data: {
-                        action
-                      }
-                    }) {
-                      if (action === 'read') port1.postMessage((await reader.read()));
-                      else if (action === 'cancel') port1.postMessage((await transformed.cancel()));
-                    };
-                    obj[key] = port2;
-                    collection.push(port2);
-                  });
-                }
-                return;
+            if (_util2.default.isUint8Array(obj)) {
+              if (zero_copy && collection.indexOf(obj.buffer) === -1 && !(navigator.userAgent.indexOf('Version/11.1') !== -1 || // Safari 11.1
+                  (navigator.userAgent.match(/Chrome\/(\d+)/) || [])[1] < 56 && navigator.userAgent.indexOf('Edge') === -1 // Chrome < 56
+                )) {
+                collection.push(obj.buffer);
               }
-              if (typeof MessagePort !== 'undefined' && MessagePort.prototype.isPrototypeOf(value)) {
-                throw new Error("Can't transfer the same stream twice.");
-              }
-              _util2.default.collectTransferables(value, collection);
-            });
-          }
-        },
+              return;
+            }
+            if (Object.prototype.isPrototypeOf(obj)) {
+              Object.entries(obj).forEach(([key, value]) => {
+                // recursively search all children
+                if (_util2.default.isStream(value)) {
+                  if (value.locked) {
+                    obj[key] = null;
+                  }
+                  else {
+                    const transformed = _webStreamTools2.default.transformPair(value, async readable => {
+                      const reader = _webStreamTools2.default.getReader(readable);
 
-        /**
-         * Convert MessagePorts back to ReadableStreams
-         * @param  {Object} obj
-         * @returns {Object}
-         */
-        restoreStreams: function restoreStreams(obj) {
-          if (Object.prototype.isPrototypeOf(obj) && !Uint8Array.prototype.isPrototypeOf(obj)) {
-            Object.entries(obj).forEach(([key, value]) => {
-              // recursively search all children
-              if (MessagePort.prototype.isPrototypeOf(value)) {
-                obj[key] = new ReadableStream({
-                  pull(controller) {
-                    return new Promise(resolve => {
-                      value.onmessage = evt => {
-                        var _evt$data = evt.data;
-                        const done = _evt$data.done,
-                          value = _evt$data.value;
+                      var _ref = new MessageChannel();
 
-                        if (!done) {
-                          controller.enqueue(value);
+                      const port1 = _ref.port1,
+                        port2 = _ref.port2;
+
+                      port1.onmessage = async function({
+                        data: {
+                          action
                         }
-                        else {
-                          controller.close();
+                      }) {
+                        if (action === 'read') {
+                          try {
+                            const result = await reader.read();
+                            port1.postMessage(result, _util2.default.getTransferables(result));
+                          }
+                          catch (e) {
+                            port1.postMessage({
+                              error: e.message
+                            });
+                          }
                         }
-                        resolve();
+                        else if (action === 'cancel') {
+                          await transformed.cancel();
+                          port1.postMessage();
+                        }
                       };
-                      value.postMessage({
-                        action: 'read'
-                      });
-                    });
-                  },
-                  cancel() {
-                    return new Promise(resolve => {
-                      value.onmessage = resolve;
-                      value.postMessage({
-                        action: 'cancel'
-                      });
+                      obj[key] = port2;
+                      collection.push(port2);
                     });
                   }
-                }, {
-                  highWaterMark: 0
-                });
-                return;
+                  return;
+                }
+                if (Object.prototype.toString.call(value) === '[object MessagePort]') {
+                  throw new Error("Can't transfer the same stream twice.");
+                }
+                _util2.default.collectTransferables(value, collection, zero_copy);
+              });
+            }
+          },
+
+          /**
+           * Convert MessagePorts back to ReadableStreams
+           * @param  {Object} obj
+           * @returns {Object}
+           */
+          restoreStreams: function restoreStreams(obj) {
+            if (Object.prototype.isPrototypeOf(obj) && !Uint8Array.prototype.isPrototypeOf(obj)) {
+              Object.entries(obj).forEach(([key, value]) => {
+                // recursively search all children
+                if (Object.prototype.toString.call(value) === '[object MessagePort]') {
+                  obj[key] = new ReadableStream({
+                    pull(controller) {
+                      return new Promise(resolve => {
+                        value.onmessage = evt => {
+                          var _evt$data = evt.data;
+                          const done = _evt$data.done,
+                            value = _evt$data.value,
+                            error = _evt$data.error;
+
+                          if (error) {
+                            controller.error(new Error(error));
+                          }
+                          else if (!done) {
+                            controller.enqueue(value);
+                          }
+                          else {
+                            controller.close();
+                          }
+                          resolve();
+                        };
+                        value.postMessage({
+                          action: 'read'
+                        });
+                      });
+                    },
+                    cancel() {
+                      return new Promise(resolve => {
+                        value.onmessage = resolve;
+                        value.postMessage({
+                          action: 'cancel'
+                        });
+                      });
+                    }
+                  }, {
+                    highWaterMark: 0
+                  });
+                  return;
+                }
+                _util2.default.restoreStreams(value);
+              });
+            }
+            return obj;
+          },
+
+          readNumber: function readNumber(bytes) {
+            let n = 0;
+            for (let i = 0; i < bytes.length; i++) {
+              n += 256 ** i * bytes[bytes.length - 1 - i];
+            }
+            return n;
+          },
+
+          writeNumber: function writeNumber(n, bytes) {
+            const b = new Uint8Array(bytes);
+            for (let i = 0; i < bytes; i++) {
+              b[i] = n >> 8 * (bytes - i - 1) & 0xFF;
+            }
+
+            return b;
+          },
+
+          readDate: function readDate(bytes) {
+            const n = _util2.default.readNumber(bytes);
+            const d = new Date(n * 1000);
+            return d;
+          },
+
+          writeDate: function writeDate(time) {
+            const numeric = Math.floor(time.getTime() / 1000);
+
+            return _util2.default.writeNumber(numeric, 4);
+          },
+
+          normalizeDate: function normalizeDate(time = Date.now()) {
+            return time === null || time === Infinity ? time : new Date(Math.floor(+time / 1000) * 1000);
+          },
+
+          /**
+           * Create hex string from a binary
+           * @param {String} str String to convert
+           * @returns {String} String containing the hexadecimal values
+           */
+          str_to_hex: function str_to_hex(str) {
+            if (str === null) {
+              return "";
+            }
+            const r = [];
+            const e = str.length;
+            let c = 0;
+            let h;
+            while (c < e) {
+              h = str.charCodeAt(c++).toString(16);
+              while (h.length < 2) {
+                h = "0" + h;
               }
-              _util2.default.restoreStreams(value);
-            });
-          }
-          return obj;
-        },
-
-        readNumber: function readNumber(bytes) {
-          let n = 0;
-          for (let i = 0; i < bytes.length; i++) {
-            n += 256 ** i * bytes[bytes.length - 1 - i];
-          }
-          return n;
-        },
-
-        writeNumber: function writeNumber(n, bytes) {
-          const b = new Uint8Array(bytes);
-          for (let i = 0; i < bytes; i++) {
-            b[i] = n >> 8 * (bytes - i - 1) & 0xFF;
-          }
-
-          return b;
-        },
-
-        readDate: function readDate(bytes) {
-          const n = _util2.default.readNumber(bytes);
-          const d = new Date(n * 1000);
-          return d;
-        },
-
-        writeDate: function writeDate(time) {
-          const numeric = Math.floor(time.getTime() / 1000);
-
-          return _util2.default.writeNumber(numeric, 4);
-        },
-
-        normalizeDate: function normalizeDate(time = Date.now()) {
-          return time === null ? time : new Date(Math.floor(+time / 1000) * 1000);
-        },
-
-        /**
-         * Create hex string from a binary
-         * @param {String} str String to convert
-         * @returns {String} String containing the hexadecimal values
-         */
-        str_to_hex: function str_to_hex(str) {
-          if (str === null) {
-            return "";
-          }
-          const r = [];
-          const e = str.length;
-          let c = 0;
-          let h;
-          while (c < e) {
-            h = str.charCodeAt(c++).toString(16);
-            while (h.length < 2) {
-              h = "0" + h;
+              r.push("" + h);
             }
-            r.push("" + h);
-          }
-          return r.join('');
-        },
+            return r.join('');
+          },
 
-        /**
-         * Create binary string from a hex encoded string
-         * @param {String} str Hex string to convert
-         * @returns {String}
-         */
-        hex_to_str: function hex_to_str(hex) {
-          let str = '';
-          for (let i = 0; i < hex.length; i += 2) {
-            str += String.fromCharCode(parseInt(hex.substr(i, 2), 16));
-          }
-          return str;
-        },
-
-        /**
-         * Convert a Uint8Array to an MPI-formatted Uint8Array.
-         * Note: the output is **not** an MPI object.
-         * @see {@link module:type/mpi/MPI.fromUint8Array}
-         * @see {@link module:type/mpi/MPI.toUint8Array}
-         * @param {Uint8Array} bin An array of 8-bit integers to convert
-         * @returns {Uint8Array} MPI-formatted Uint8Array
-         */
-        Uint8Array_to_MPI: function Uint8Array_to_MPI(bin) {
-          const size = (bin.length - 1) * 8 + _util2.default.nbits(bin[0]);
-          const prefix = Uint8Array.from([(size & 0xFF00) >> 8, size & 0xFF]);
-          return _util2.default.concatUint8Array([prefix, bin]);
-        },
-
-        /**
-         * Convert a Base-64 encoded string an array of 8-bit integer
-         *
-         * Note: accepts both Radix-64 and URL-safe strings
-         * @param {String} base64 Base-64 encoded string to convert
-         * @returns {Uint8Array} An array of 8-bit integers
-         */
-        b64_to_Uint8Array: function b64_to_Uint8Array(base64) {
-          return _base2.default.decode(base64.replace(/-/g, '+').replace(/_/g, '/'));
-        },
-
-        /**
-         * Convert an array of 8-bit integer to a Base-64 encoded string
-         * @param {Uint8Array} bytes An array of 8-bit integers to convert
-         * @param {bool}       url   If true, output is URL-safe
-         * @returns {String}          Base-64 encoded string
-         */
-        Uint8Array_to_b64: function Uint8Array_to_b64(bytes, url) {
-          return _base2.default.encode(bytes, url).replace(/(\n)/g, '');
-        },
-
-        /**
-         * Convert a hex string to an array of 8-bit integers
-         * @param {String} hex  A hex string to convert
-         * @returns {Uint8Array} An array of 8-bit integers
-         */
-        hex_to_Uint8Array: function hex_to_Uint8Array(hex) {
-          const result = new Uint8Array(hex.length >> 1);
-          for (let k = 0; k < hex.length >> 1; k++) {
-            result[k] = parseInt(hex.substr(k << 1, 2), 16);
-          }
-          return result;
-        },
-
-        /**
-         * Convert an array of 8-bit integers to a hex string
-         * @param {Uint8Array} bytes Array of 8-bit integers to convert
-         * @returns {String} Hexadecimal representation of the array
-         */
-        Uint8Array_to_hex: function Uint8Array_to_hex(bytes) {
-          const r = [];
-          const e = bytes.length;
-          let c = 0;
-          let h;
-          while (c < e) {
-            h = bytes[c++].toString(16);
-            while (h.length < 2) {
-              h = "0" + h;
+          /**
+           * Create binary string from a hex encoded string
+           * @param {String} str Hex string to convert
+           * @returns {String}
+           */
+          hex_to_str: function hex_to_str(hex) {
+            let str = '';
+            for (let i = 0; i < hex.length; i += 2) {
+              str += String.fromCharCode(parseInt(hex.substr(i, 2), 16));
             }
-            r.push("" + h);
-          }
-          return r.join('');
-        },
+            return str;
+          },
 
-        /**
-         * Convert a string to an array of 8-bit integers
-         * @param {String} str String to convert
-         * @returns {Uint8Array} An array of 8-bit integers
-         */
-        str_to_Uint8Array: function str_to_Uint8Array(str) {
-          return _webStreamTools2.default.transform(str, str => {
-            if (!_util2.default.isString(str)) {
-              throw new Error('str_to_Uint8Array: Data must be in the form of a string');
-            }
+          /**
+           * Convert a Uint8Array to an MPI-formatted Uint8Array.
+           * Note: the output is **not** an MPI object.
+           * @see {@link module:type/mpi/MPI.fromUint8Array}
+           * @see {@link module:type/mpi/MPI.toUint8Array}
+           * @param {Uint8Array} bin An array of 8-bit integers to convert
+           * @returns {Uint8Array} MPI-formatted Uint8Array
+           */
+          Uint8Array_to_MPI: function Uint8Array_to_MPI(bin) {
+            const size = (bin.length - 1) * 8 + _util2.default.nbits(bin[0]);
+            const prefix = Uint8Array.from([(size & 0xFF00) >> 8, size & 0xFF]);
+            return _util2.default.concatUint8Array([prefix, bin]);
+          },
 
-            const result = new Uint8Array(str.length);
-            for (let i = 0; i < str.length; i++) {
-              result[i] = str.charCodeAt(i);
+          /**
+           * Convert a Base-64 encoded string an array of 8-bit integer
+           *
+           * Note: accepts both Radix-64 and URL-safe strings
+           * @param {String} base64 Base-64 encoded string to convert
+           * @returns {Uint8Array} An array of 8-bit integers
+           */
+          b64_to_Uint8Array: function b64_to_Uint8Array(base64) {
+            return _base2.default.decode(base64.replace(/-/g, '+').replace(/_/g, '/'));
+          },
+
+          /**
+           * Convert an array of 8-bit integer to a Base-64 encoded string
+           * @param {Uint8Array} bytes An array of 8-bit integers to convert
+           * @param {bool}       url   If true, output is URL-safe
+           * @returns {String}          Base-64 encoded string
+           */
+          Uint8Array_to_b64: function Uint8Array_to_b64(bytes, url) {
+            return _base2.default.encode(bytes, url).replace(/[\r\n]/g, '');
+          },
+
+          /**
+           * Convert a hex string to an array of 8-bit integers
+           * @param {String} hex  A hex string to convert
+           * @returns {Uint8Array} An array of 8-bit integers
+           */
+          hex_to_Uint8Array: function hex_to_Uint8Array(hex) {
+            const result = new Uint8Array(hex.length >> 1);
+            for (let k = 0; k < hex.length >> 1; k++) {
+              result[k] = parseInt(hex.substr(k << 1, 2), 16);
             }
             return result;
-          });
-        },
+          },
 
-        /**
-         * Convert an array of 8-bit integers to a string
-         * @param {Uint8Array} bytes An array of 8-bit integers to convert
-         * @returns {String} String representation of the array
-         */
-        Uint8Array_to_str: function Uint8Array_to_str(bytes) {
-          bytes = new Uint8Array(bytes);
-          const result = [];
-          const bs = 1 << 14;
-          const j = bytes.length;
+          /**
+           * Convert an array of 8-bit integers to a hex string
+           * @param {Uint8Array} bytes Array of 8-bit integers to convert
+           * @returns {String} Hexadecimal representation of the array
+           */
+          Uint8Array_to_hex: function Uint8Array_to_hex(bytes) {
+            const r = [];
+            const e = bytes.length;
+            let c = 0;
+            let h;
+            while (c < e) {
+              h = bytes[c++].toString(16);
+              while (h.length < 2) {
+                h = "0" + h;
+              }
+              r.push("" + h);
+            }
+            return r.join('');
+          },
 
-          for (let i = 0; i < j; i += bs) {
-            result.push(String.fromCharCode.apply(String, bytes.subarray(i, i + bs < j ? i + bs : j)));
-          }
-          return result.join('');
-        },
+          /**
+           * Convert a string to an array of 8-bit integers
+           * @param {String} str String to convert
+           * @returns {Uint8Array} An array of 8-bit integers
+           */
+          str_to_Uint8Array: function str_to_Uint8Array(str) {
+            return _webStreamTools2.default.transform(str, str => {
+              if (!_util2.default.isString(str)) {
+                throw new Error('str_to_Uint8Array: Data must be in the form of a string');
+              }
 
-        /**
-         * Convert a native javascript string to a Uint8Array of utf8 bytes
-         * @param {String|ReadableStream} str The string to convert
-         * @returns {Uint8Array|ReadableStream} A valid squence of utf8 bytes
-         */
-        encode_utf8: function encode_utf8(str) {
-          const encoder = new TextEncoder('utf-8');
-          // eslint-disable-next-line no-inner-declarations
-          function process(value, lastChunk = false) {
-            return encoder.encode(value, {
-              stream: !lastChunk
+              const result = new Uint8Array(str.length);
+              for (let i = 0; i < str.length; i++) {
+                result[i] = str.charCodeAt(i);
+              }
+              return result;
             });
-          }
-          return _webStreamTools2.default.transform(str, process, () => process('', true));
-        },
+          },
 
-        /**
-         * Convert a Uint8Array of utf8 bytes to a native javascript string
-         * @param {Uint8Array|ReadableStream} utf8 A valid squence of utf8 bytes
-         * @returns {String|ReadableStream} A native javascript string
-         */
-        decode_utf8: function decode_utf8(utf8) {
-          const decoder = new TextDecoder('utf-8');
-          // eslint-disable-next-line no-inner-declarations
-          function process(value, lastChunk = false) {
-            return decoder.decode(value, {
-              stream: !lastChunk
-            });
-          }
-          return _webStreamTools2.default.transform(utf8, process, () => process(new Uint8Array(), true));
-        },
+          /**
+           * Convert an array of 8-bit integers to a string
+           * @param {Uint8Array} bytes An array of 8-bit integers to convert
+           * @returns {String} String representation of the array
+           */
+          Uint8Array_to_str: function Uint8Array_to_str(bytes) {
+            bytes = new Uint8Array(bytes);
+            const result = [];
+            const bs = 1 << 14;
+            const j = bytes.length;
 
-        /**
-         * Concat a list of Uint8Arrays, Strings or Streams
-         * The caller must not mix Uint8Arrays with Strings, but may mix Streams with non-Streams.
-         * @param {Array<Uint8array|String|ReadableStream>} Array of Uint8Arrays/Strings/Streams to concatenate
-         * @returns {Uint8array|String|ReadableStream} Concatenated array
-         */
-        concat: _webStreamTools2.default.concat,
+            for (let i = 0; i < j; i += bs) {
+              result.push(String.fromCharCode.apply(String, bytes.subarray(i, i + bs < j ? i + bs : j)));
+            }
+            return result.join('');
+          },
 
-        /**
-         * Concat Uint8Arrays
-         * @param {Array<Uint8array>} Array of Uint8Arrays to concatenate
-         * @returns {Uint8array} Concatenated array
-         */
-        concatUint8Array: _webStreamTools2.default.concatUint8Array,
+          /**
+           * Convert a native javascript string to a Uint8Array of utf8 bytes
+           * @param {String|ReadableStream} str The string to convert
+           * @returns {Uint8Array|ReadableStream} A valid squence of utf8 bytes
+           */
+          encode_utf8: function encode_utf8(str) {
+            const encoder = new TextEncoder('utf-8');
+            // eslint-disable-next-line no-inner-declarations
+            function process(value, lastChunk = false) {
+              return encoder.encode(value, {
+                stream: !lastChunk
+              });
+            }
+            return _webStreamTools2.default.transform(str, process, () => process('', true));
+          },
 
-        /**
-         * Check Uint8Array equality
-         * @param {Uint8Array} first array
-         * @param {Uint8Array} second array
-         * @returns {Boolean} equality
-         */
-        equalsUint8Array: function equalsUint8Array(array1, array2) {
-          if (!_util2.default.isUint8Array(array1) || !_util2.default.isUint8Array(array2)) {
-            throw new Error('Data must be in the form of a Uint8Array');
-          }
+          /**
+           * Convert a Uint8Array of utf8 bytes to a native javascript string
+           * @param {Uint8Array|ReadableStream} utf8 A valid squence of utf8 bytes
+           * @returns {String|ReadableStream} A native javascript string
+           */
+          decode_utf8: function decode_utf8(utf8) {
+            const decoder = new TextDecoder('utf-8');
+            // eslint-disable-next-line no-inner-declarations
+            function process(value, lastChunk = false) {
+              return decoder.decode(value, {
+                stream: !lastChunk
+              });
+            }
+            return _webStreamTools2.default.transform(utf8, process, () => process(new Uint8Array(), true));
+          },
 
-          if (array1.length !== array2.length) {
-            return false;
-          }
+          /**
+           * Concat a list of Uint8Arrays, Strings or Streams
+           * The caller must not mix Uint8Arrays with Strings, but may mix Streams with non-Streams.
+           * @param {Array<Uint8Array|String|ReadableStream>} Array of Uint8Arrays/Strings/Streams to concatenate
+           * @returns {Uint8Array|String|ReadableStream} Concatenated array
+           */
+          concat: _webStreamTools2.default.concat,
 
-          for (let i = 0; i < array1.length; i++) {
-            if (array1[i] !== array2[i]) {
+          /**
+           * Concat Uint8Arrays
+           * @param {Array<Uint8Array>} Array of Uint8Arrays to concatenate
+           * @returns {Uint8Array} Concatenated array
+           */
+          concatUint8Array: _webStreamTools2.default.concatUint8Array,
+
+          /**
+           * Check Uint8Array equality
+           * @param {Uint8Array} first array
+           * @param {Uint8Array} second array
+           * @returns {Boolean} equality
+           */
+          equalsUint8Array: function equalsUint8Array(array1, array2) {
+            if (!_util2.default.isUint8Array(array1) || !_util2.default.isUint8Array(array2)) {
+              throw new Error('Data must be in the form of a Uint8Array');
+            }
+
+            if (array1.length !== array2.length) {
               return false;
             }
-          }
-          return true;
-        },
 
-        /**
-         * Calculates a 16bit sum of a Uint8Array by adding each character
-         * codes modulus 65535
-         * @param {Uint8Array} Uint8Array to create a sum of
-         * @returns {Uint8Array} 2 bytes containing the sum of all charcodes % 65535
-         */
-        write_checksum: function write_checksum(text) {
-          let s = 0;
-          for (let i = 0; i < text.length; i++) {
-            s = s + text[i] & 0xFFFF;
-          }
-          return _util2.default.writeNumber(s, 2);
-        },
-
-        /**
-         * Helper function to print a debug message. Debug
-         * messages are only printed if
-         * @link module:config/config.debug is set to true.
-         * @param {String} str String of the debug message
-         */
-        print_debug: function print_debug(str) {
-          if (_config2.default.debug) {
-            console.log(str);
-          }
-        },
-
-        /**
-         * Helper function to print a debug message. Debug
-         * messages are only printed if
-         * @link module:config/config.debug is set to true.
-         * Different than print_debug because will call Uint8Array_to_hex iff necessary.
-         * @param {String} str String of the debug message
-         */
-        print_debug_hexarray_dump: function print_debug_hexarray_dump(str, arrToHex) {
-          if (_config2.default.debug) {
-            str += ': ' + _util2.default.Uint8Array_to_hex(arrToHex);
-            console.log(str);
-          }
-        },
-
-        /**
-         * Helper function to print a debug message. Debug
-         * messages are only printed if
-         * @link module:config/config.debug is set to true.
-         * Different than print_debug because will call str_to_hex iff necessary.
-         * @param {String} str String of the debug message
-         */
-        print_debug_hexstr_dump: function print_debug_hexstr_dump(str, strToHex) {
-          if (_config2.default.debug) {
-            str += _util2.default.str_to_hex(strToHex);
-            console.log(str);
-          }
-        },
-
-        /**
-         * Helper function to print a debug error. Debug
-         * messages are only printed if
-         * @link module:config/config.debug is set to true.
-         * @param {String} str String of the debug message
-         */
-        print_debug_error: function print_debug_error(error) {
-          if (_config2.default.debug) {
-            console.error(error);
-          }
-        },
-
-        /**
-         * Read a stream to the end and print it to the console when it's closed.
-         * @param {String} str String of the debug message
-         * @param {ReadableStream|Uint8array|String} input Stream to print
-         * @param {Function} concat Function to concatenate chunks of the stream (defaults to util.concat).
-         */
-        print_entire_stream: function print_entire_stream(str, input, concat) {
-          _webStreamTools2.default.readToEnd(_webStreamTools2.default.clone(input), concat).then(result => {
-            console.log(str + ': ', result);
-          });
-        },
-
-        getLeftNBits: function getLeftNBits(array, bitcount) {
-          const rest = bitcount % 8;
-          if (rest === 0) {
-            return array.subarray(0, bitcount / 8);
-          }
-          const bytes = (bitcount - rest) / 8 + 1;
-          const result = array.subarray(0, bytes);
-          return _util2.default.shiftRight(result, 8 - rest); // +String.fromCharCode(string.charCodeAt(bytes -1) << (8-rest) & 0xFF);
-        },
-
-        // returns bit length of the integer x
-        nbits: function nbits(x) {
-          let r = 1;
-          let t = x >>> 16;
-          if (t !== 0) {
-            x = t;
-            r += 16;
-          }
-          t = x >> 8;
-          if (t !== 0) {
-            x = t;
-            r += 8;
-          }
-          t = x >> 4;
-          if (t !== 0) {
-            x = t;
-            r += 4;
-          }
-          t = x >> 2;
-          if (t !== 0) {
-            x = t;
-            r += 2;
-          }
-          t = x >> 1;
-          if (t !== 0) {
-            x = t;
-            r += 1;
-          }
-          return r;
-        },
-
-        /**
-         * If S[1] == 0, then double(S) == (S[2..128] || 0);
-         * otherwise, double(S) == (S[2..128] || 0) xor
-         * (zeros(120) || 10000111).
-         *
-         * Both OCB and EAX (through CMAC) require this function to be constant-time.
-         *
-         * @param {Uint8Array} data
-         */
-        double: function double(data) {
-          const double = new Uint8Array(data.length);
-          const last = data.length - 1;
-          for (let i = 0; i < last; i++) {
-            double[i] = data[i] << 1 ^ data[i + 1] >> 7;
-          }
-          double[last] = data[last] << 1 ^ (data[0] >> 7) * 0x87;
-          return double;
-        },
-
-        /**
-         * Shift a Uint8Array to the right by n bits
-         * @param {Uint8Array} array The array to shift
-         * @param {Integer} bits Amount of bits to shift (MUST be smaller
-         * than 8)
-         * @returns {String} Resulting array.
-         */
-        shiftRight: function shiftRight(array, bits) {
-          if (bits) {
-            for (let i = array.length - 1; i >= 0; i--) {
-              array[i] >>= bits;
-              if (i > 0) {
-                array[i] |= array[i - 1] << 8 - bits;
+            for (let i = 0; i < array1.length; i++) {
+              if (array1[i] !== array2[i]) {
+                return false;
               }
             }
-          }
-          return array;
-        },
+            return true;
+          },
 
-        /**
-         * Get native Web Cryptography api, only the current version of the spec.
-         * The default configuration is to use the api when available. But it can
-         * be deactivated with config.use_native
-         * @returns {Object}   The SubtleCrypto api or 'undefined'
-         */
-        getWebCrypto: function getWebCrypto() {
-          if (!_config2.default.use_native) {
-            return;
-          }
-
-          return typeof window !== 'undefined' && window.crypto && window.crypto.subtle;
-        },
-
-        /**
-         * Get native Web Cryptography api for all browsers, including legacy
-         * implementations of the spec e.g IE11 and Safari 8/9. The default
-         * configuration is to use the api when available. But it can be deactivated
-         * with config.use_native
-         * @returns {Object}   The SubtleCrypto api or 'undefined'
-         */
-        getWebCryptoAll: function getWebCryptoAll() {
-          if (!_config2.default.use_native) {
-            return;
-          }
-
-          if (typeof window !== 'undefined') {
-            if (window.crypto) {
-              return window.crypto.subtle || window.crypto.webkitSubtle;
+          /**
+           * Calculates a 16bit sum of a Uint8Array by adding each character
+           * codes modulus 65535
+           * @param {Uint8Array} Uint8Array to create a sum of
+           * @returns {Uint8Array} 2 bytes containing the sum of all charcodes % 65535
+           */
+          write_checksum: function write_checksum(text) {
+            let s = 0;
+            for (let i = 0; i < text.length; i++) {
+              s = s + text[i] & 0xFFFF;
             }
-            if (window.msCrypto) {
-              return window.msCrypto.subtle;
+            return _util2.default.writeNumber(s, 2);
+          },
+
+          /**
+           * Helper function to print a debug message. Debug
+           * messages are only printed if
+           * @link module:config/config.debug is set to true.
+           * @param {String} str String of the debug message
+           */
+          print_debug: function print_debug(str) {
+            if (_config2.default.debug) {
+              console.log(str);
             }
-          }
-        },
+          },
 
-        /**
-         * Detect Node.js runtime.
-         */
-        detectNode: function detectNode() {
-          return typeof window === 'undefined';
-        },
-
-        /**
-         * Get native Node.js module
-         * @param {String}     The module to require
-         * @returns {Object}   The required module or 'undefined'
-         */
-        nodeRequire: function nodeRequire(module) {
-          if (!_util2.default.detectNode()) {
-            return;
-          }
-
-          // Requiring the module dynamically allows us to access the native node module.
-          // otherwise, it gets replaced with the browserified version
-          // eslint-disable-next-line import/no-dynamic-require
-          return require(module);
-        },
-
-        /**
-         * Get native Node.js crypto api. The default configuration is to use
-         * the api when available. But it can also be deactivated with config.use_native
-         * @returns {Object}   The crypto module or 'undefined'
-         */
-        getNodeCrypto: function getNodeCrypto() {
-          if (!_config2.default.use_native) {
-            return;
-          }
-
-          return _util2.default.nodeRequire('crypto');
-        },
-
-        getNodeZlib: function getNodeZlib() {
-          if (!_config2.default.use_native) {
-            return;
-          }
-
-          return _util2.default.nodeRequire('zlib');
-        },
-
-        /**
-         * Get native Node.js Buffer constructor. This should be used since
-         * Buffer is not available under browserify.
-         * @returns {Function}   The Buffer constructor or 'undefined'
-         */
-        getNodeBuffer: function getNodeBuffer() {
-          return (_util2.default.nodeRequire('buffer') || {}).Buffer;
-        },
-
-        getNodeStream: function getNodeStream() {
-          return (_util2.default.nodeRequire('stream') || {}).Readable;
-        },
-
-        getHardwareConcurrency: function getHardwareConcurrency() {
-          if (_util2.default.detectNode()) {
-            const os = _util2.default.nodeRequire('os');
-            return os.cpus().length;
-          }
-
-          return navigator.hardwareConcurrency || 1;
-        },
-
-        isEmailAddress: function isEmailAddress(data) {
-          if (!_util2.default.isString(data)) {
-            return false;
-          }
-          const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+([a-zA-Z]{2,}|xn--[a-zA-Z\-0-9]+)))$/;
-          return re.test(data);
-        },
-
-        /**
-         * Format user id for internal use.
-         */
-        formatUserId: function formatUserId(id) {
-          // name and email address can be empty but must be of the correct type
-          if (id.name && !_util2.default.isString(id.name) || id.email && !_util2.default.isEmailAddress(id.email)) {
-            throw new Error('Invalid user id format');
-          }
-          return new _addressRfc2.default.Address(id.name, id.email, id.comment).format();
-        },
-
-        /**
-         * Parse user id.
-         */
-        parseUserId: function parseUserId(userid) {
-          if (userid.length > _config2.default.max_userid_length) {
-            throw new Error('User id string is too long');
-          }
-          try {
-            var _rfc2822$parse = _addressRfc2.default.parse(userid),
-              _rfc2822$parse2 = _slicedToArray(_rfc2822$parse, 1),
-              _rfc2822$parse2$ = _rfc2822$parse2[0];
-
-            const name = _rfc2822$parse2$.phrase,
-              email = _rfc2822$parse2$.address,
-              comment = _rfc2822$parse2$.comment;
-
-            return {
-              name,
-              email,
-              comment: comment.replace(/^\(|\)$/g, '')
-            };
-          }
-          catch (e) {
-            throw new Error('Invalid user id format');
-          }
-        },
-
-        /**
-         * Normalize line endings to \r\n
-         */
-        canonicalizeEOL: function canonicalizeEOL(text) {
-          return _webStreamTools2.default.transform(_util2.default.nativeEOL(text), value => value.replace(/\r/g, "\n").replace(/\n/g, "\r\n"));
-        },
-
-        /**
-         * Convert line endings from canonicalized \r\n to native \n
-         */
-        nativeEOL: function nativeEOL(text) {
-          let lastChar = '';
-          return _webStreamTools2.default.transform(text, value => {
-            value = lastChar + value;
-            if (value[value.length - 1] === '\r') {
-              lastChar = '\r';
-              value = value.slice(0, -1);
+          /**
+           * Helper function to print a debug message. Debug
+           * messages are only printed if
+           * @link module:config/config.debug is set to true.
+           * Different than print_debug because will call Uint8Array_to_hex iff necessary.
+           * @param {String} str String of the debug message
+           */
+          print_debug_hexarray_dump: function print_debug_hexarray_dump(str, arrToHex) {
+            if (_config2.default.debug) {
+              str += ': ' + _util2.default.Uint8Array_to_hex(arrToHex);
+              console.log(str);
             }
-            else {
-              lastChar = '';
+          },
+
+          /**
+           * Helper function to print a debug message. Debug
+           * messages are only printed if
+           * @link module:config/config.debug is set to true.
+           * Different than print_debug because will call str_to_hex iff necessary.
+           * @param {String} str String of the debug message
+           */
+          print_debug_hexstr_dump: function print_debug_hexstr_dump(str, strToHex) {
+            if (_config2.default.debug) {
+              str += _util2.default.str_to_hex(strToHex);
+              console.log(str);
             }
-            return value.replace(/\r\n/g, '\n');
-          }, () => lastChar);
-        },
+          },
 
-        /**
-         * Remove trailing spaces and tabs from each line
-         */
-        removeTrailingSpaces: function removeTrailingSpaces(text) {
-          return text.replace(/[ \t]+$/mg, "");
-        },
+          /**
+           * Helper function to print a debug error. Debug
+           * messages are only printed if
+           * @link module:config/config.debug is set to true.
+           * @param {String} str String of the debug message
+           */
+          print_debug_error: function print_debug_error(error) {
+            if (_config2.default.debug) {
+              console.error(error);
+            }
+          },
 
-        /**
-         * Encode input buffer using Z-Base32 encoding.
-         * See: https://tools.ietf.org/html/rfc6189#section-5.1.6
-         *
-         * @param {Uint8Array} data The binary data to encode
-         * @returns {String} Binary data encoded using Z-Base32
-         */
-        encodeZBase32: function encodeZBase32(data) {
-          if (data.length === 0) {
-            return "";
-          }
-          const ALPHABET = "ybndrfg8ejkmcpqxot1uwisza345h769";
-          const SHIFT = 5;
-          const MASK = 31;
-          let buffer = data[0];
-          let index = 1;
-          let bitsLeft = 8;
-          let result = '';
-          while (bitsLeft > 0 || index < data.length) {
-            if (bitsLeft < SHIFT) {
-              if (index < data.length) {
-                buffer <<= 8;
-                buffer |= data[index++] & 0xff;
-                bitsLeft += 8;
+          /**
+           * Read a stream to the end and print it to the console when it's closed.
+           * @param {String} str String of the debug message
+           * @param {ReadableStream|Uint8array|String} input Stream to print
+           * @param {Function} concat Function to concatenate chunks of the stream (defaults to util.concat).
+           */
+          print_entire_stream: function print_entire_stream(str, input, concat) {
+            _webStreamTools2.default.readToEnd(_webStreamTools2.default.clone(input), concat).then(result => {
+              console.log(str + ': ', result);
+            });
+          },
+
+          // returns bit length of the integer x
+          nbits: function nbits(x) {
+            let r = 1;
+            let t = x >>> 16;
+            if (t !== 0) {
+              x = t;
+              r += 16;
+            }
+            t = x >> 8;
+            if (t !== 0) {
+              x = t;
+              r += 8;
+            }
+            t = x >> 4;
+            if (t !== 0) {
+              x = t;
+              r += 4;
+            }
+            t = x >> 2;
+            if (t !== 0) {
+              x = t;
+              r += 2;
+            }
+            t = x >> 1;
+            if (t !== 0) {
+              x = t;
+              r += 1;
+            }
+            return r;
+          },
+
+          /**
+           * If S[1] == 0, then double(S) == (S[2..128] || 0);
+           * otherwise, double(S) == (S[2..128] || 0) xor
+           * (zeros(120) || 10000111).
+           *
+           * Both OCB and EAX (through CMAC) require this function to be constant-time.
+           *
+           * @param {Uint8Array} data
+           */
+          double: function double(data) {
+            const double_var = new Uint8Array(data.length);
+            const last = data.length - 1;
+            for (let i = 0; i < last; i++) {
+              double_var[i] = data[i] << 1 ^ data[i + 1] >> 7;
+            }
+            double_var[last] = data[last] << 1 ^ (data[0] >> 7) * 0x87;
+            return double_var;
+          },
+
+          /**
+           * Shift a Uint8Array to the right by n bits
+           * @param {Uint8Array} array The array to shift
+           * @param {Integer} bits Amount of bits to shift (MUST be smaller
+           * than 8)
+           * @returns {String} Resulting array.
+           */
+          shiftRight: function shiftRight(array, bits) {
+            if (bits) {
+              for (let i = array.length - 1; i >= 0; i--) {
+                array[i] >>= bits;
+                if (i > 0) {
+                  array[i] |= array[i - 1] << 8 - bits;
+                }
+              }
+            }
+            return array;
+          },
+
+          /**
+           * Get native Web Cryptography api, only the current version of the spec.
+           * The default configuration is to use the api when available. But it can
+           * be deactivated with config.use_native
+           * @returns {Object}   The SubtleCrypto api or 'undefined'
+           */
+          getWebCrypto: function getWebCrypto() {
+            if (!_config2.default.use_native) {
+              return;
+            }
+
+            return typeof window !== 'undefined' && window.crypto && window.crypto.subtle;
+          },
+
+          /**
+           * Get native Web Cryptography api for all browsers, including legacy
+           * implementations of the spec e.g IE11 and Safari 8/9. The default
+           * configuration is to use the api when available. But it can be deactivated
+           * with config.use_native
+           * @returns {Object}   The SubtleCrypto api or 'undefined'
+           */
+          getWebCryptoAll: function getWebCryptoAll() {
+            if (!_config2.default.use_native) {
+              return;
+            }
+
+            if (typeof window !== 'undefined') {
+              if (window.crypto) {
+                return window.crypto.subtle || window.crypto.webkitSubtle;
+              }
+              if (window.msCrypto) {
+                return window.msCrypto.subtle;
+              }
+            }
+          },
+
+          /**
+           * Detect Node.js runtime.
+           */
+          detectNode: function detectNode() {
+            return typeof global.process === 'object' && typeof global.process.versions === 'object';
+          },
+
+          /**
+           * Get native Node.js module
+           * @param {String}     The module to require
+           * @returns {Object}   The required module or 'undefined'
+           */
+          nodeRequire: function nodeRequire(module) {
+            if (!_util2.default.detectNode()) {
+              return;
+            }
+
+            // Requiring the module dynamically allows us to access the native node module.
+            // otherwise, it gets replaced with the browserified version
+            // eslint-disable-next-line import/no-dynamic-require
+            return require(module);
+          },
+
+          /**
+           * Get native Node.js crypto api. The default configuration is to use
+           * the api when available. But it can also be deactivated with config.use_native
+           * @returns {Object}   The crypto module or 'undefined'
+           */
+          getNodeCrypto: function getNodeCrypto() {
+            if (!_config2.default.use_native) {
+              return;
+            }
+
+            return _util2.default.nodeRequire('crypto');
+          },
+
+          getNodeZlib: function getNodeZlib() {
+            if (!_config2.default.use_native) {
+              return;
+            }
+
+            return _util2.default.nodeRequire('zlib');
+          },
+
+          /**
+           * Get native Node.js Buffer constructor. This should be used since
+           * Buffer is not available under browserify.
+           * @returns {Function}   The Buffer constructor or 'undefined'
+           */
+          getNodeBuffer: function getNodeBuffer() {
+            return (_util2.default.nodeRequire('buffer') || {}).Buffer;
+          },
+
+          getNodeStream: function getNodeStream() {
+            return (_util2.default.nodeRequire('stream') || {}).Readable;
+          },
+
+          getHardwareConcurrency: function getHardwareConcurrency() {
+            if (_util2.default.detectNode()) {
+              const os = _util2.default.nodeRequire('os');
+              return os.cpus().length;
+            }
+
+            return navigator.hardwareConcurrency || 1;
+          },
+
+          isEmailAddress: function isEmailAddress(data) {
+            if (!_util2.default.isString(data)) {
+              return false;
+            }
+            const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+([a-zA-Z]{2,}|xn--[a-zA-Z\-0-9]+)))$/;
+            return re.test(data);
+          },
+
+          /**
+           * Format user id for internal use.
+           */
+          formatUserId: function formatUserId(id) {
+            // name, email address and comment can be empty but must be of the correct type
+            if (id.name && !_util2.default.isString(id.name) || id.email && !_util2.default.isEmailAddress(id.email) || id.comment && !_util2.default.isString(id.comment)) {
+              throw new Error('Invalid user id format');
+            }
+            const components = [];
+            if (id.name) {
+              components.push(id.name);
+            }
+            if (id.comment) {
+              components.push(`(${id.comment})`);
+            }
+            if (id.email) {
+              components.push(`<${id.email}>`);
+            }
+            return components.join(' ');
+          },
+
+          /**
+           * Parse user id.
+           */
+          parseUserId: function parseUserId(userid) {
+            if (userid.length > _config2.default.max_userid_length) {
+              throw new Error('User id string is too long');
+            }
+            try {
+              var _emailAddresses$parse = _emailAddresses2.default.parseOneAddress({
+                input: userid,
+                atInDisplayName: true
+              });
+
+              const name = _emailAddresses$parse.name,
+                email = _emailAddresses$parse.address,
+                comments = _emailAddresses$parse.comments;
+
+              return {
+                name,
+                email,
+                comment: comments.replace(/^\(|\)$/g, '')
+              };
+            }
+            catch (e) {
+              throw new Error('Invalid user id format');
+            }
+          },
+
+          /**
+           * Normalize line endings to \r\n
+           */
+          canonicalizeEOL: function canonicalizeEOL(text) {
+            return _webStreamTools2.default.transform(_util2.default.nativeEOL(text), value => value.replace(/\r/g, "\n").replace(/\n/g, "\r\n"));
+          },
+
+          /**
+           * Convert line endings from canonicalized \r\n to native \n
+           */
+          nativeEOL: function nativeEOL(text) {
+            let lastChar = '';
+            return _webStreamTools2.default.transform(text, value => {
+              value = lastChar + value;
+              if (value[value.length - 1] === '\r') {
+                lastChar = '\r';
+                value = value.slice(0, -1);
               }
               else {
-                const pad = SHIFT - bitsLeft;
-                buffer <<= pad;
-                bitsLeft += pad;
+                lastChar = '';
               }
-            }
-            bitsLeft -= SHIFT;
-            result += ALPHABET[MASK & buffer >> bitsLeft];
-          }
-          return result;
-        }
-      };
+              return value.replace(/\r\n/g, '\n');
+            }, () => lastChar);
+          },
 
+          /**
+           * Remove trailing spaces and tabs from each line
+           */
+          removeTrailingSpaces: function removeTrailingSpaces(text) {
+            return text.split('\n').map(line => {
+              let i = line.length - 1;
+              for (; i >= 0 && (line[i] === ' ' || line[i] === '\t'); i--);
+              return line.substr(0, i + 1);
+            }).join('\n');
+          },
+
+          /**
+           * Encode input buffer using Z-Base32 encoding.
+           * See: https://tools.ietf.org/html/rfc6189#section-5.1.6
+           *
+           * @param {Uint8Array} data The binary data to encode
+           * @returns {String} Binary data encoded using Z-Base32
+           */
+          encodeZBase32: function encodeZBase32(data) {
+            if (data.length === 0) {
+              return "";
+            }
+            const ALPHABET = "ybndrfg8ejkmcpqxot1uwisza345h769";
+            const SHIFT = 5;
+            const MASK = 31;
+            let buffer = data[0];
+            let index = 1;
+            let bitsLeft = 8;
+            let result = '';
+            while (bitsLeft > 0 || index < data.length) {
+              if (bitsLeft < SHIFT) {
+                if (index < data.length) {
+                  buffer <<= 8;
+                  buffer |= data[index++] & 0xff;
+                  bitsLeft += 8;
+                }
+                else {
+                  const pad = SHIFT - bitsLeft;
+                  buffer <<= pad;
+                  bitsLeft += pad;
+                }
+              }
+              bitsLeft -= SHIFT;
+              result += ALPHABET[MASK & buffer >> bitsLeft];
+            }
+            return result;
+          }
+        }; // re-import module to access util functions
+        // GPG4Browsers - An OpenPGP implementation in javascript
+        // Copyright (C) 2011 Recurity Labs GmbH
+        //
+        // This library is free software; you can redistribute it and/or
+        // modify it under the terms of the GNU Lesser General Public
+        // License as published by the Free Software Foundation; either
+        // version 3.0 of the License, or (at your option) any later version.
+        //
+        // This library is distributed in the hope that it will be useful,
+        // but WITHOUT ANY WARRANTY; without even the implied warranty of
+        // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+        // Lesser General Public License for more details.
+        //
+        // You should have received a copy of the GNU Lesser General Public
+        // License along with this library; if not, write to the Free Software
+        // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+
+        /* eslint-disable no-console */
+
+        /**
+         * This object contains utility functions
+         * @requires email-addresses
+         * @requires web-stream-tools
+         * @requires config
+         * @requires encoding/base64
+         * @module util
+         */
+
+      }).call(this, typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
     }, {
-      "./config": 81,
-      "./encoding/base64": 114,
-      "./util": 154,
-      "address-rfc2822": 2,
-      "web-stream-tools": 77
+      "./config": 79,
+      "./encoding/base64": 112,
+      "./util": 158,
+      "email-addresses": 33,
+      "web-stream-tools": 75
     }],
-    155: [function(require, module, exports) {
+    159: [function(require, module, exports) {
       'use strict';
 
       Object.defineProperty(exports, "__esModule", {
@@ -45828,12 +47482,12 @@
       exports.default = WKD;
 
     }, {
-      "./crypto": 96,
+      "./crypto": 94,
       "./key": 118,
-      "./util": 154,
+      "./util": 158,
       "node-fetch": "node-fetch"
     }],
-    156: [function(require, module, exports) {
+    160: [function(require, module, exports) {
       'use strict';
 
       Object.defineProperty(exports, "__esModule", {
@@ -45843,6 +47497,10 @@
       var _util = require('../util.js');
 
       var _util2 = _interopRequireDefault(_util);
+
+      var _config = require('../config');
+
+      var _config2 = _interopRequireDefault(_config);
 
       var _crypto = require('../crypto');
 
@@ -45866,6 +47524,36 @@
        * @param {Array<Object>} worker   alternative to path parameter: web worker initialized with 'openpgp.worker.js'
        * @constructor
        */
+      // GPG4Browsers - An OpenPGP implementation in javascript
+      // Copyright (C) 2011 Recurity Labs GmbH
+      //
+      // This library is free software; you can redistribute it and/or
+      // modify it under the terms of the GNU Lesser General Public
+      // License as published by the Free Software Foundation; either
+      // version 3.0 of the License, or (at your option) any later version.
+      //
+      // This library is distributed in the hope that it will be useful,
+      // but WITHOUT ANY WARRANTY; without even the implied warranty of
+      // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+      // Lesser General Public License for more details.
+      //
+      // You should have received a copy of the GNU Lesser General Public
+      // License along with this library; if not, write to the Free Software
+      // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+
+      /**
+       * @fileoverview Provides functions for maintaining browser workers
+       * @see module:openpgp.initWorker
+       * @see module:openpgp.getWorker
+       * @see module:openpgp.destroyWorker
+       * @see module:worker/worker
+       * @requires util
+       * @requires config
+       * @requires crypto
+       * @requires packet
+       * @module worker/async_proxy
+       */
+
       function AsyncProxy({
         path = 'openpgp.worker.js',
         n = 1,
@@ -45878,6 +47566,9 @@
         const handleMessage = workerId => event => {
           const msg = event.data;
           switch (msg.event) {
+            case 'loaded':
+              this.workers[workerId].loadedResolve(true);
+              break;
             case 'method-return':
               if (msg.err) {
                 // fail
@@ -45913,10 +47604,15 @@
 
         let workerId = 0;
         this.workers.forEach(worker => {
+          worker.loadedPromise = new Promise(resolve => {
+            worker.loadedResolve = resolve;
+          });
           worker.requests = 0;
           worker.onmessage = handleMessage(workerId++);
           worker.onerror = e => {
-            throw new Error('Unhandled error in openpgp worker: ' + e.message + ' (' + e.filename + ':' + e.lineno + ')');
+            worker.loadedResolve(false);
+            console.error('Unhandled error in openpgp worker: ' + e.message + ' (' + e.filename + ':' + e.lineno + ')');
+            return false;
           };
 
           if (config) {
@@ -45933,38 +47629,18 @@
       }
 
       /**
+       * Returns a promise that resolves when all workers have finished loading
+       * @returns {Promise<Boolean>} Resolves to true if all workers have loaded succesfully; false otherwise
+       */
+      AsyncProxy.prototype.loaded = async function() {
+        const loaded = await Promise.all(this.workers.map(worker => worker.loadedPromise));
+        return loaded.every(Boolean);
+      };
+
+      /**
        * Get new request ID
        * @returns {integer}          New unique request ID
        */
-      // GPG4Browsers - An OpenPGP implementation in javascript
-      // Copyright (C) 2011 Recurity Labs GmbH
-      //
-      // This library is free software; you can redistribute it and/or
-      // modify it under the terms of the GNU Lesser General Public
-      // License as published by the Free Software Foundation; either
-      // version 3.0 of the License, or (at your option) any later version.
-      //
-      // This library is distributed in the hope that it will be useful,
-      // but WITHOUT ANY WARRANTY; without even the implied warranty of
-      // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-      // Lesser General Public License for more details.
-      //
-      // You should have received a copy of the GNU Lesser General Public
-      // License along with this library; if not, write to the Free Software
-      // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
-
-      /**
-       * @fileoverview Provides functions for maintaining browser workers
-       * @see module:openpgp.initWorker
-       * @see module:openpgp.getWorker
-       * @see module:openpgp.destroyWorker
-       * @see module:worker/worker
-       * @requires util
-       * @requires crypto
-       * @requires packet
-       * @module worker/async_proxy
-       */
-
       AsyncProxy.prototype.getID = function() {
         return this.currentID++;
       };
@@ -45979,7 +47655,7 @@
         this.workers[workerId].postMessage({
           event: 'seed-random',
           buf
-        }, _util2.default.getTransferables(buf));
+        }, _util2.default.getTransferables(buf, true));
       };
 
       /**
@@ -46010,13 +47686,13 @@
           }
         }
 
-        return new Promise(async (_resolve, reject) => {
+        return new Promise((_resolve, reject) => {
           // clone packets (for web worker structured cloning algorithm)
           this.workers[workerId].postMessage({
             id: id,
             event: method,
             options: _packet2.default.clone.clonePackets(options)
-          }, _util2.default.getTransferables(options));
+          }, _util2.default.getTransferables(options, _config2.default.zero_copy));
           this.workers[workerId].requests++;
 
           // remember to handle parsing cloned packets from worker
@@ -46030,9 +47706,11 @@
       exports.default = AsyncProxy;
 
     }, {
-      "../crypto": 96,
-      "../packet": 127,
-      "../util.js": 154
+      "../config": 79,
+      "../crypto": 94,
+      "../packet": 131,
+      "../util.js": 158
     }]
-  }, {}, [117])(117)
+  }, {}, [115])(115)
 });
+

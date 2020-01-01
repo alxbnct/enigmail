@@ -97,4 +97,8 @@ function getOpenPGPLibrary() {
     warn: function() {}
   };
 
+  function require(x) {
+    return x;
+  }
+
   /* OpenPGP-LS library code will be copied below this line */
