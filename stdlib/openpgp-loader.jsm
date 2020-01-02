@@ -3,12 +3,9 @@
  *
  */
 
+"use strict";
 
-/*
- * This bit of code embeds the openPGP-JS libary. This is the part that is added before
- * the library code.
- */
-
+const Services = ChromeUtils.import("resource://gre/modules/Services.jsm").Services;
 
 var EXPORTED_SYMBOLS = ["getOpenPGPLibrary"];
 
@@ -47,7 +44,7 @@ try {
     "indexedDB"
   ]);
 }
-catch(x) {
+catch (x) {
   // Gecko 52
   Components.utils.importGlobalProperties(["Blob",
     "CSS",
@@ -75,29 +72,61 @@ function getOpenPGPLibrary() {
 
   /* Prerequisites required by openpgp-lib.js */
 
-  let setTimeout = ChromeUtils.import("resource://gre/modules/Timer.jsm").setTimeout;
-
   let appShellSvc = Cc["@mozilla.org/appshell/appShellService;1"].getService(Ci.nsIAppShellService);
   let userAgent = appShellSvc.hiddenDOMWindow.navigator.userAgent;
-
-  const window = {};
-  const document = {};
-  const navigator = {
-    userAgent: appShellSvc.hiddenDOMWindow.navigator.userAgent
+  let nav = {
+    userAgent: userAgent
   };
-  window.document = document;
-  window.navigator = navigator;
-  window.crypto = crypto;
+
+  let doc = {
+    createElement: function() {
+      return null;
+    },
+    head: {
+      appendChild: function() {
+        return null;
+      }
+    }
+  };
+
+  // The scope ("global object") for OpenPGP.js
+  let g = {
+    setTimeout: ChromeUtils.import("resource://gre/modules/Timer.jsm").setTimeout,
+    window: {
+      document: doc,
+      crypto: crypto,
+      navigator: nav
+    },
+    document: doc,
+    navigator: nav,
+    userAgent: userAgent,
+    console: {
+      assert: function() {},
+      log: function() {},
+      error: function() {},
+      table: function() {},
+      warn: function() {}
+    },
+
+    // imports from global scope
+    atob: atob,
+    btoa: btoa,
+    Blob: Blob,
+    crypto: crypto,
+    fetch: fetch,
+    URL: URL,
+    TransformStream: TransformStream,
+    ReadableStream: ReadableStream,
+    WritableStream: WritableStream,
+    TextDecoder: TextDecoder,
+    TextEncoder: TextEncoder,
+    XMLHttpRequest: XMLHttpRequest
+  };
 
   // no idea why, but oenpgp.js won't load without this defined
-  let self = window;
+  g.self = g.window;
 
-  const console = {
-    assert: function() {},
-    log: function() {},
-    error: function() {},
-    table: function() {},
-    warn: function() {}
-  };
+  Services.scriptloader.loadSubScript("chrome://enigmail/content/modules/stdlib/openpgp-lib.js", g, "UTF-8");
 
-  /* OpenPGP-LS library code will be copied below this line */
+  return g.window.openpgp;
+}

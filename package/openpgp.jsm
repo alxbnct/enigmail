@@ -39,7 +39,7 @@ var gOpenPGPLib;
 
 function initialize() {
   const EnigmailLog = ChromeUtils.import("chrome://enigmail/content/modules/log.jsm").EnigmailLog;
-  const getOpenPGPLibrary = ChromeUtils.import("chrome://enigmail/content/modules/stdlib/openpgp-lib.jsm").getOpenPGPLibrary;
+  const getOpenPGPLibrary = ChromeUtils.import("chrome://enigmail/content/modules/stdlib/openpgp-loader.jsm").getOpenPGPLibrary;
 
   EnigmailLog.DEBUG("openpgp.jsm: initialize()\n");
 
