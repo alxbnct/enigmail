@@ -11,8 +11,9 @@
 
 
 var Services = ChromeUtils.import("resource://gre/modules/Services.jsm").Services;
-const EnigmailLog = Cu.import("chrome://enigmail/content/modules/log.jsm").EnigmailLog;
-const EnigmailLazy = Cu.import("chrome://enigmail/content/modules/lazy.jsm").EnigmailLazy;
+const EnigmailLog = ChromeUtils.import("chrome://enigmail/content/modules/log.jsm").EnigmailLog;
+const EnigmailLazy = ChromeUtils.import("chrome://enigmail/content/modules/lazy.jsm").EnigmailLazy;
+const getOpenPGPLibrary = ChromeUtils.import("chrome://enigmail/content/modules/stdlib/openpgp-loader.jsm").getOpenPGPLibrary;
 
 const getOpenPGP = EnigmailLazy.loader("enigmail/openpgp.jsm", "EnigmailOpenPGP");
 const getArmor = EnigmailLazy.loader("enigmail/armor.jsm", "EnigmailArmor");
@@ -43,7 +44,7 @@ class OpenPGPjsCryptoAPI extends CryptoAPI {
     }
 
     try {
-      const openpgp = getOpenPGP().openpgp;
+      const openpgp = getOpenPGPLibrary();
       let msg = await openpgp.key.readArmored(armoredKey);
 
       if (!msg || msg.keys.length === 0) {
@@ -114,19 +115,20 @@ class OpenPGPjsCryptoAPI extends CryptoAPI {
     let blocks;
     let isBinary = false;
     const EOpenpgp = getOpenPGP();
+    const openPGPjs = getOpenPGPLibrary();
 
     if (keyBlockStr.search(/-----BEGIN PGP (PUBLIC|PRIVATE) KEY BLOCK-----/) >= 0) {
       blocks = getArmor().splitArmoredBlocks(keyBlockStr);
     } else {
       isBinary = true;
-      blocks = [EOpenpgp.enigmailFuncs.bytesToArmor(EOpenpgp.openpgp.enums.armor.public_key, keyBlockStr)];
+      blocks = [EOpenpgp.bytesToArmor(openPGPjs.enums.armor.public_key, keyBlockStr)];
     }
 
     for (let b of blocks) {
-      let m = await EOpenpgp.openpgp.message.readArmored(b);
+      let m = await openPGPjs.message.readArmored(b);
 
       for (let i = 0; i < m.packets.length; i++) {
-        let packetType = EOpenpgp.openpgp.enums.read(EOpenpgp.openpgp.enums.packet, m.packets[i].tag);
+        let packetType = openPGPjs.enums.read(openPGPjs.enums.packet, m.packets[i].tag);
         switch (packetType) {
           case "publicKey":
           case "secretKey":

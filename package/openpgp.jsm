@@ -1,17 +1,10 @@
 /*
- * This Source Code Form is licensed under the GNU LGPL 3.0 license.
- *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
 "use strict";
-
-/**
- * This code is taken from openpgp.js
- *
- * Do OpenPGP packet parsing
- */
-
-/* eslint no-invalid-this: 0 */
 
 var EXPORTED_SYMBOLS = ["EnigmailOpenPGP"];
 
@@ -35,127 +28,108 @@ var crc_table = [0x00000000, 0x00864cfb, 0x018ad50d, 0x010c99f6, 0x0393e6e1, 0x0
   0x575bc9c3, 0x57dd8538
 ];
 
-var gOpenPGPLib;
-
-function initialize() {
-  const EnigmailLog = ChromeUtils.import("chrome://enigmail/content/modules/log.jsm").EnigmailLog;
-  const getOpenPGPLibrary = ChromeUtils.import("chrome://enigmail/content/modules/stdlib/openpgp-loader.jsm").getOpenPGPLibrary;
-
-  EnigmailLog.DEBUG("openpgp.jsm: initialize()\n");
-
-  try {
-    gOpenPGPLib = getOpenPGPLibrary();
-
-    EnigmailLog.DEBUG(`openpgp.jsm: openpgp: ${gOpenPGPLib}\n`);
-  }
-  catch (ex) {
-    EnigmailLog.ERROR("openpgp.jsm: initialize: error: " + ex.toString() + "\n");
-  }
-}
-
 var EnigmailOpenPGP = {
-  get openpgp() {
-    if (!gOpenPGPLib) {
-      initialize();
-    }
 
-    return gOpenPGPLib;
+  /**
+   * Convert a string to an Uint8Array
+   *
+   * @param  str: String with binary data
+   * @return Uint8Array
+   */
+  str2Uint8Array: function(str) {
+    var buf = new ArrayBuffer(str.length);
+    var bufView = new Uint8Array(buf);
+    for (var i = 0, strLen = str.length; i < strLen; i++) {
+      bufView[i] = str.charCodeAt(i);
+    }
+    return bufView;
   },
 
-  enigmailFuncs: {
+  /**
+   * Create CRC24 checksum
+   *
+   * @param input: Uint8Array of input data
+   *
+   * @return Number
+   */
+  createcrc24: function(input) {
+    var crc = 0xB704CE;
+    var index = 0;
 
-    /**
-     * Convert a string to an Uint8Array
-     *
-     * @param  str: String with binary data
-     * @return Uint8Array
-     */
-    str2Uint8Array: function(str) {
-      var buf = new ArrayBuffer(str.length);
-      var bufView = new Uint8Array(buf);
-      for (var i = 0, strLen = str.length; i < strLen; i++) {
-        bufView[i] = str.charCodeAt(i);
-      }
-      return bufView;
-    },
-
-    /**
-     * Create CRC24 checksum
-     *
-     * @param input: Uint8Array of input data
-     *
-     * @return Number
-     */
-    createcrc24: function(input) {
-      var crc = 0xB704CE;
-      var index = 0;
-
-      while (input.length - index > 16) {
-        crc = crc << 8 ^ crc_table[(crc >> 16 ^ input[index]) & 0xff];
-        crc = crc << 8 ^ crc_table[(crc >> 16 ^ input[index + 1]) & 0xff];
-        crc = crc << 8 ^ crc_table[(crc >> 16 ^ input[index + 2]) & 0xff];
-        crc = crc << 8 ^ crc_table[(crc >> 16 ^ input[index + 3]) & 0xff];
-        crc = crc << 8 ^ crc_table[(crc >> 16 ^ input[index + 4]) & 0xff];
-        crc = crc << 8 ^ crc_table[(crc >> 16 ^ input[index + 5]) & 0xff];
-        crc = crc << 8 ^ crc_table[(crc >> 16 ^ input[index + 6]) & 0xff];
-        crc = crc << 8 ^ crc_table[(crc >> 16 ^ input[index + 7]) & 0xff];
-        crc = crc << 8 ^ crc_table[(crc >> 16 ^ input[index + 8]) & 0xff];
-        crc = crc << 8 ^ crc_table[(crc >> 16 ^ input[index + 9]) & 0xff];
-        crc = crc << 8 ^ crc_table[(crc >> 16 ^ input[index + 10]) & 0xff];
-        crc = crc << 8 ^ crc_table[(crc >> 16 ^ input[index + 11]) & 0xff];
-        crc = crc << 8 ^ crc_table[(crc >> 16 ^ input[index + 12]) & 0xff];
-        crc = crc << 8 ^ crc_table[(crc >> 16 ^ input[index + 13]) & 0xff];
-        crc = crc << 8 ^ crc_table[(crc >> 16 ^ input[index + 14]) & 0xff];
-        crc = crc << 8 ^ crc_table[(crc >> 16 ^ input[index + 15]) & 0xff];
-        index += 16;
-      }
-
-      for (var j = index; j < input.length; j++) {
-        crc = crc << 8 ^ crc_table[(crc >> 16 ^ input[index++]) & 0xff];
-      }
-      return crc & 0xffffff;
-    },
-
-    /**
-     * Create an ASCII armored string from binary data. The message data is NOT
-     * checked for correctness, only the CRC is added at the end.
-     *
-     * @param msgType: Number - type of OpenPGP message to create (ARMOR Enum)
-     * @param str:     String - binary OpenPGP message
-     *
-     * @return String: ASCII armored OpenPGP message
-     */
-    bytesToArmor: function(msgType, str) {
-
-      const ARMOR_TYPE = EnigmailOpenPGP.openpgp.enums.armor;
-
-      let hdr = "";
-      switch (msgType) {
-        case ARMOR_TYPE.signed:
-        case ARMOR_TYPE.message:
-          hdr = "MESSAGE";
-          break;
-        case ARMOR_TYPE.public_key:
-          hdr = "PUBLIC KEY BLOCK";
-          break;
-        case ARMOR_TYPE.private_key:
-          hdr = "PRIVATE KEY BLOCK";
-          break;
-        case ARMOR_TYPE.signature:
-          hdr = "SIGNATURE";
-          break;
-      }
-
-      let crc = EnigmailOpenPGP.enigmailFuncs.createcrc24(EnigmailOpenPGP.enigmailFuncs.str2Uint8Array(str));
-      let crcAsc = String.fromCharCode(crc >> 16) + String.fromCharCode(crc >> 8 & 0xFF) + String.fromCharCode(crc & 0xFF);
-
-      let s = "-----BEGIN PGP " + hdr + "-----\n\n" +
-        btoa(str).replace(/(.{72})/g, "$1\n") + "\n" +
-        "=" + btoa(crcAsc) + "\n" +
-        "-----END PGP " + hdr + "-----\n";
-
-      return s;
+    while (input.length - index > 16) {
+      crc = crc << 8 ^ crc_table[(crc >> 16 ^ input[index]) & 0xff];
+      crc = crc << 8 ^ crc_table[(crc >> 16 ^ input[index + 1]) & 0xff];
+      crc = crc << 8 ^ crc_table[(crc >> 16 ^ input[index + 2]) & 0xff];
+      crc = crc << 8 ^ crc_table[(crc >> 16 ^ input[index + 3]) & 0xff];
+      crc = crc << 8 ^ crc_table[(crc >> 16 ^ input[index + 4]) & 0xff];
+      crc = crc << 8 ^ crc_table[(crc >> 16 ^ input[index + 5]) & 0xff];
+      crc = crc << 8 ^ crc_table[(crc >> 16 ^ input[index + 6]) & 0xff];
+      crc = crc << 8 ^ crc_table[(crc >> 16 ^ input[index + 7]) & 0xff];
+      crc = crc << 8 ^ crc_table[(crc >> 16 ^ input[index + 8]) & 0xff];
+      crc = crc << 8 ^ crc_table[(crc >> 16 ^ input[index + 9]) & 0xff];
+      crc = crc << 8 ^ crc_table[(crc >> 16 ^ input[index + 10]) & 0xff];
+      crc = crc << 8 ^ crc_table[(crc >> 16 ^ input[index + 11]) & 0xff];
+      crc = crc << 8 ^ crc_table[(crc >> 16 ^ input[index + 12]) & 0xff];
+      crc = crc << 8 ^ crc_table[(crc >> 16 ^ input[index + 13]) & 0xff];
+      crc = crc << 8 ^ crc_table[(crc >> 16 ^ input[index + 14]) & 0xff];
+      crc = crc << 8 ^ crc_table[(crc >> 16 ^ input[index + 15]) & 0xff];
+      index += 16;
     }
+
+    for (var j = index; j < input.length; j++) {
+      crc = crc << 8 ^ crc_table[(crc >> 16 ^ input[index++]) & 0xff];
+    }
+    return crc & 0xffffff;
+  },
+
+  /**
+   * Create an ASCII armored string from binary data. The message data is NOT
+   * checked for correctness, only the CRC is added at the end.
+   *
+   * @param msgType: Number - type of OpenPGP message to create (ARMOR Enum)
+   * @param str:     String - binary OpenPGP message
+   *
+   * @return String: ASCII armored OpenPGP message
+   */
+  bytesToArmor: function(msgType, str) {
+
+    const ARMOR_TYPE = {
+      multipart_section: 0,
+      multipart_last: 1,
+      signed: 2,
+      message: 3,
+      public_key: 4,
+      private_key: 5,
+      signature: 6
+    };
+
+
+    let hdr = "";
+    switch (msgType) {
+      case ARMOR_TYPE.signed:
+      case ARMOR_TYPE.message:
+        hdr = "MESSAGE";
+        break;
+      case ARMOR_TYPE.public_key:
+        hdr = "PUBLIC KEY BLOCK";
+        break;
+      case ARMOR_TYPE.private_key:
+        hdr = "PRIVATE KEY BLOCK";
+        break;
+      case ARMOR_TYPE.signature:
+        hdr = "SIGNATURE";
+        break;
+    }
+
+    let crc = EnigmailOpenPGP.createcrc24(EnigmailOpenPGP.str2Uint8Array(str));
+    let crcAsc = String.fromCharCode(crc >> 16) + String.fromCharCode(crc >> 8 & 0xFF) + String.fromCharCode(crc & 0xFF);
+
+    let s = "-----BEGIN PGP " + hdr + "-----\n\n" +
+      btoa(str).replace(/(.{72})/g, "$1\n") + "\n" +
+      "=" + btoa(crcAsc) + "\n" +
+      "-----END PGP " + hdr + "-----\n";
+
+    return s;
   },
 
   signingAlgIdToString: function(id) {

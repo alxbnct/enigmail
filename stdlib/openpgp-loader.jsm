@@ -68,8 +68,17 @@ const {
   WritableStream
 } = ChromeUtils.import("chrome://enigmail/content/modules/stdlib/web-streams.jsm");
 
-function getOpenPGPLibrary() {
+var gLibrary = null;
 
+function getOpenPGPLibrary() {
+  if (gLibrary === null) {
+    gLibrary = loadOpenPGPjsLib();
+  }
+
+  return gLibrary;
+}
+
+function loadOpenPGPjsLib() {
   /* Prerequisites required by openpgp-lib.js */
 
   let appShellSvc = Cc["@mozilla.org/appshell/appShellService;1"].getService(Ci.nsIAppShellService);

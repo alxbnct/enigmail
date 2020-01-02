@@ -5,7 +5,7 @@
 "use strict";
 
 /**
- *  Lookup keys by email addresses using WKD. A an email address is lookep up at most
+ *  Lookup keys by email addresses using WKD. A an email address is looked up at most
  *  once a day. (see https://tools.ietf.org/html/draft-koch-openpgp-webkey-service)
  */
 
@@ -17,6 +17,7 @@ const PromiseUtils = ChromeUtils.import("resource://gre/modules/PromiseUtils.jsm
 const EnigmailKeyRing = ChromeUtils.import("chrome://enigmail/content/modules/keyRing.jsm").EnigmailKeyRing;
 const EnigmailZBase32 = ChromeUtils.import("chrome://enigmail/content/modules/zbase32.jsm").EnigmailZBase32;
 const EnigmailOpenPGP = ChromeUtils.import("chrome://enigmail/content/modules/openpgp.jsm").EnigmailOpenPGP;
+const getOpenPGPLibrary = ChromeUtils.import("chrome://enigmail/content/modules/stdlib/openpgp-loader.jsm").getOpenPGPLibrary;
 const EnigmailKey = ChromeUtils.import("chrome://enigmail/content/modules/key.jsm").EnigmailKey;
 const EnigmailDns = ChromeUtils.import("chrome://enigmail/content/modules/dns.jsm").EnigmailDns;
 const EnigmailData = ChromeUtils.import("chrome://enigmail/content/modules/data.jsm").EnigmailData;
@@ -359,7 +360,7 @@ function importDownloadedKeys(keysArr) {
     if (keysArr[k]) {
       if (keysArr[k].keyData.search(/^-----BEGIN PGP PUBLIC KEY BLOCK-----/) < 0) {
         try {
-          keyData += EnigmailOpenPGP.enigmailFuncs.bytesToArmor(EnigmailOpenPGP.openpgp.enums.armor.public_key, keysArr[k].keyData);
+          keyData += EnigmailOpenPGP.bytesToArmor(getOpenPGPLibrary().enums.armor.public_key, keysArr[k].keyData);
         }
         catch (ex) {
           EnigmailLog.DEBUG("wkdLookup.jsm: importDownloadedKeys: exeption=" + ex + "\n");

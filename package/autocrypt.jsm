@@ -27,6 +27,7 @@ const EnigmailTimer = ChromeUtils.import("chrome://enigmail/content/modules/time
 const EnigmailKey = ChromeUtils.import("chrome://enigmail/content/modules/key.jsm").EnigmailKey;
 const EnigmailKeyRing = ChromeUtils.import("chrome://enigmail/content/modules/keyRing.jsm").EnigmailKeyRing;
 const EnigmailOpenPGP = ChromeUtils.import("chrome://enigmail/content/modules/openpgp.jsm").EnigmailOpenPGP;
+const getOpenPGPLibrary = ChromeUtils.import("chrome://enigmail/content/modules/stdlib/openpgp-loader.jsm").getOpenPGPLibrary;
 const EnigmailRNG = ChromeUtils.import("chrome://enigmail/content/modules/rng.jsm").EnigmailRNG;
 const EnigmailSend = ChromeUtils.import("chrome://enigmail/content/modules/send.jsm").EnigmailSend;
 const EnigmailStreams = ChromeUtils.import("chrome://enigmail/content/modules/streams.jsm").EnigmailStreams;
@@ -260,7 +261,7 @@ var EnigmailAutocrypt = {
     let keysObj = {};
     let importedKeys = [];
 
-    let pubkey = EnigmailOpenPGP.enigmailFuncs.bytesToArmor(EnigmailOpenPGP.openpgp.enums.armor.public_key, keyData);
+    let pubkey = EnigmailOpenPGP.bytesToArmor(getOpenPGPLibrary().enums.armor.public_key, keyData);
     await EnigmailKeyRing.importKeyAsync(null, false, pubkey, "", {}, keysObj);
 
     if (keysObj.value) {
@@ -425,6 +426,8 @@ var EnigmailAutocrypt = {
   createSetupMessage: function(identity) {
     EnigmailLog.DEBUG("autocrypt.jsm: createSetupMessage()\n");
 
+    const openPGPjs = getOpenPGPLibrary();
+
     return new Promise((resolve, reject) => {
       let keyId = "";
       let key;
@@ -469,13 +472,13 @@ var EnigmailAutocrypt = {
 
         let bkpCode = createBackupCode();
         let enc = {
-          message: EnigmailOpenPGP.openpgp.message.fromText(innerMsg),
+          message: openPGPjs.message.fromText(innerMsg),
           passwords: bkpCode,
           armor: true
         };
 
         // create symmetrically encrypted message
-        EnigmailOpenPGP.openpgp.encrypt(enc).then(msg => {
+        openPGPjs.encrypt(enc).then(msg => {
           let msgData = EnigmailArmor.replaceArmorHeaders(msg.data, {
             'Passphrase-Format': 'numeric9x4',
             'Passphrase-Begin': bkpCode.substr(0, 2)
@@ -595,20 +598,21 @@ var EnigmailAutocrypt = {
 
     const cApi = EnigmailCryptoAPI();
     const keyManagement = cApi.getKeyManagement();
+    const openPGPjs = getOpenPGPLibrary();
 
     return new Promise((resolve, reject) => {
       let start = {},
         end = {};
       let msgType = EnigmailArmor.locateArmoredBlock(attachmentData, 0, "", start, end, {});
 
-      EnigmailOpenPGP.openpgp.message.readArmored(attachmentData.substring(start.value, end.value)).then(encMessage => {
+      openPGPjs.message.readArmored(attachmentData.substring(start.value, end.value)).then(encMessage => {
           let enc = {
             message: encMessage,
             passwords: [passwd],
             format: 'utf8'
           };
 
-          return EnigmailOpenPGP.openpgp.decrypt(enc);
+          return openPGPjs.decrypt(enc);
         })
         .then(msg => {
           EnigmailLog.DEBUG("autocrypt.jsm: handleBackupMessage: data: " + msg.data.length + "\n");
