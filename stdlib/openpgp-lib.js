@@ -3,6 +3,7 @@
  *
  * License: LGPL v3.0
  */
+"use strict";
 
 (function(f) {
   if (typeof exports === "object" && typeof module !== "undefined") {
@@ -47713,4 +47714,3 @@
     }]
   }, {}, [115])(115)
 });
-

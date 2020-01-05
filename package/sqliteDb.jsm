@@ -10,11 +10,6 @@
 
 var EXPORTED_SYMBOLS = ["EnigmailSqliteDb"];
 
-
-
-const Cr = Components.results;
-
-
 const Sqlite = ChromeUtils.import("resource://gre/modules/Sqlite.jsm").Sqlite;
 const EnigmailTimer = ChromeUtils.import("chrome://enigmail/content/modules/timer.jsm").EnigmailTimer;
 const EnigmailLog = ChromeUtils.import("chrome://enigmail/content/modules/log.jsm").EnigmailLog;
