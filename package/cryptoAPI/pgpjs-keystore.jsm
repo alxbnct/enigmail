@@ -28,6 +28,8 @@ var pgpjs_keyStore = {
    * Write key(s) into the database.
    *
    * @param {String} keyData: armored or binary key data
+   *
+   * @return {Array<String>} Array of imported fpr
    */
   writeKey: async function(keyData) {
     EnigmailLog.DEBUG("pgpjs-keystore.jsm: writeKey()\n");
@@ -82,7 +84,7 @@ var pgpjs_keyStore = {
     const env = Cc["@mozilla.org/process/environment;1"].getService(Ci.nsIEnvironment);
 
     if (env.get("ENIGMAILKEYS").length > 0) {
-      path = env.get("ENIGMAILKEYS");
+      path = env.get("ENIGMAILKEYS") + (EnigmailOS.isWin32 ? "\\" : "/") + DBName;
     }
     else {
       if (EnigmailOS.isWin32) {
@@ -168,7 +170,7 @@ const keyStoreDatabase = {
    * no return value
    */
   writeKeyToDb: async function(key, connection = null) {
-    EnigmailLog.DEBUG(`pgpjs-keystore.jsm: writeKeyToDb()\n`);
+    EnigmailLog.DEBUG(`pgpjs-keystore.jsm: writeKeyToDb(${key})\n`);
     const fpr = key.getFingerprint().toUpperCase();
     const now = new Date().toJSON();
     const PgpJS = getOpenPGPLibrary();

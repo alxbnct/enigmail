@@ -61,3 +61,4 @@ execTest("webKey-test.js");
 execTest("openpgpjs-test.js");
 execTest("autoSetup-test.js");
 execTest("persistentCrypto-test.js");
+execTest("pgpjs-keystore-test.js");

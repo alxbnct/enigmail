@@ -119,6 +119,7 @@ var TestHelper = {
     var environment = Components.classes["@mozilla.org/process/environment;1"].getService(Components.interfaces.nsIEnvironment);
 
     environment.set("GNUPGHOME", workingDirectory.path);
+    environment.set("ENIGMAILKEYS", workingDirectory.path);
     if (TestEnigmailCore.getEnvList() !== null)
       TestEnigmailCore.setEnvVariable("GNUPGHOME", workingDirectory.path);
     return homedir;
