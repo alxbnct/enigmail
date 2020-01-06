@@ -70,7 +70,7 @@ var pgpjs_keyStore = {
         await keyStoreDatabase.writeKeyToDb(k, conn);
         importedFpr.push(k.getFingerprint().toUpperCase());
       }
-      catch(x) {}
+      catch (x) {}
     }
     conn.close();
     return importedFpr;
@@ -94,6 +94,30 @@ var pgpjs_keyStore = {
     }
 
     return path;
+  },
+
+  /**
+   * Read one or more keys from the key store
+   *
+   * @param {Array<String>} keyArr: [optional] Array of Fingerprints. If not provided, all keys are returned
+   *
+   * @return {Array<Object>} found keys:
+   *    fpr: fingerprint
+   *    key: OpenPGP.js Key object
+   */
+  readKeys: async function(keyArr) {
+    const PgpJS = getOpenPGPLibrary();
+
+    let rows = await keyStoreDatabase.readKeysFromDb(keyArr);
+
+    let foundKeys = [];
+    for (let i in rows) {
+      foundKeys.push({
+        fpr: i,
+        key: await PgpJS.key.readArmored(rows[i])
+      });
+    }
+    return foundKeys;
   },
 
   /**
@@ -135,23 +159,33 @@ const keyStoreDatabase = {
     return true;
   },
 
-  writeKeyToDb: async function(key, conn) {
+  /**
+   * Store a key in the database
+   *
+   * @param {Object} key: OpenPGP.js Key object
+   * @param {Object} connection: [optional] database connection
+   *
+   * no return value
+   */
+  writeKeyToDb: async function(key, connection = null) {
     EnigmailLog.DEBUG(`pgpjs-keystore.jsm: writeKeyToDb()\n`);
     const fpr = key.getFingerprint().toUpperCase();
     const now = new Date().toJSON();
     const PgpJS = getOpenPGPLibrary();
+    let conn;
 
-    let rows = [];
-    await conn.execute("select keydata from openpgpkey where fpr = :fpr;", {
-        fpr: fpr
-      },
-      function _onRow(record) {
-        rows.push(record.getResultByName("keydata"));
-      });
+    if (connection) {
+      conn = connection;
+    }
+    else {
+      conn = await this.openDatabase();
+    }
 
-    if (rows.length > 0) {
+    let rows = await this.readKeysFromDb([fpr], conn);
+
+    if (fpr in rows) {
       // merge existing key with new key data
-      let oldKey = await PgpJS.key.readArmored(rows[0]);
+      let oldKey = await PgpJS.key.readArmored(rows[fpr]);
       await key.update(oldKey.keys[0]);
 
       let updObj = {
@@ -171,7 +205,56 @@ const keyStoreDatabase = {
       await conn.execute("insert into openpgpkey (keydata, fpr, datm) values (:data, :fpr, :now);", insObj);
     }
 
+    if (!connection) {
+      conn.close();
+    }
+
     EnigmailLog.DEBUG(`pgpjs-keystore.jsm: writeKeyToDb: wrote ${fpr}\n`);
+  },
+
+  /**
+   * Read one or more keys from the database
+   *
+   * @param {Array<String>} keyArr: [optional] Array of Fingerprints. If not provided, all keys are returned
+   * @param {Object} connection: [optional] database connection
+   *
+   * @return {Array<Key>} List of OpenPGP.js Key objects.
+   */
+  readKeysFromDb: async function(keyArr = null, connection = null) {
+    EnigmailLog.DEBUG(`pgpjs-keystore.jsm: readKeysFromDb(${keyArr})\n`);
+
+    let conn;
+    let searchStr = "";
+
+    if (connection) {
+      conn = connection;
+    }
+    else {
+      conn = await this.openDatabase();
+    }
+
+    if (keyArr !== null) {
+      searchStr = "where fpr in ('-' ";
+
+      for (let i in keyArr) {
+        // make sure search string only contains A-F and 0-9
+        let s = keyArr[i].replace(/^0x/, "").replace(/[^A-Fa-f0-9]/g, "").toUpperCase();
+        searchStr += `, '${s}'`;
+      }
+      searchStr += ")";
+    }
+
+    let rows = [];
+    await conn.execute(`select fpr, keydata from openpgpkey ${searchStr};`, null,
+      function _onRow(record) {
+        rows[record.getResultByName("fpr")] = record.getResultByName("keydata");
+      });
+
+    if (!connection) {
+      conn.close();
+    }
+
+    return rows;
   }
 };
 
