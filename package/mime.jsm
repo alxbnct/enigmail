@@ -217,6 +217,11 @@ var EnigmailMime = {
     // find first MIME delimiter. Anything before that delimiter is the top MIME structure
     let m = contentData.search(/^--/m);
 
+    if (m < 0) {
+      // we got a single, simple MIME part without any sub-parts
+      m = contentData.length;
+    }
+
     let protectedHdr = ["subject", "date", "from",
       "to", "cc", "reply-to", "references",
       "newsgroups", "followup-to", "message-id"
