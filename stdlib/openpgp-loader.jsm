@@ -137,5 +137,18 @@ function loadOpenPGPjsLib() {
 
   Services.scriptloader.loadSubScript("chrome://enigmail/content/modules/stdlib/openpgp-lib.js", g, "UTF-8");
 
-  return g.window.openpgp;
+  const openPGPLib = g.window.openpgp;
+  openPGPLib.config.s2k_iteration_count_byte = 1;
+  openPGPLib.config.show_comment = false;
+  openPGPLib.config.show_version = false;
+  // openPGPLib.config.debug = true;
+
+  try {
+    let worker = new Worker('chrome://enigmail/content/modules/stdlib/openpgp.worker.js');
+    openPGPLib.initWorker({ workers: [worker] });
+    Services.console.logStringMessage("Enigmail: openpgp-loader.jsm: initialized worker");
+  } catch (ex) {
+    Services.console.logStringMessage("Enigmail: openpgp-loader.jsm: failed to initialize worker");
+  }
+  return openPGPLib;
 }
