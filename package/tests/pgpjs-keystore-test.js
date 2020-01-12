@@ -11,7 +11,7 @@
 
 do_load_module("file://" + do_get_cwd().path + "/testHelper.js");
 
-testing("cryptoAPI/pgpjs-keystore.jsm"); /*global pgpjs_keyStore: false, getOpenPGPLibrary: false, keyStoreDatabase: false */
+testing("cryptoAPI/pgpjs-keystore.jsm"); /*global pgpjs_keyStore: false, getOpenPGPLibrary: false, keyStoreDatabase: false, EnigmailTime: false */
 
 test(withTestGpgHome(function readWrite() {
 
@@ -83,6 +83,40 @@ test(withTestGpgHome(function readWrite() {
     res = await pgpjs_keyStore.readKeys(["65537E212DC19025AD38EDB2781617319CE311C4", "01234"]);
     Assert.equal(res.length, 1);
     Assert.equal(res[0].fpr, "65537E212DC19025AD38EDB2781617319CE311C4");
+    Assert.equal(res[0].key.getFingerprint().toUpperCase(), "65537E212DC19025AD38EDB2781617319CE311C4");
+
+    res = await pgpjs_keyStore.readKeyMetadata();
+    Assert.equal(res.length, 1);
+    Assert.equal(res[0].fpr, "65537E212DC19025AD38EDB2781617319CE311C4");
+    let keyObj = res[0].keyData;
+    Assert.equal(keyObj.fpr, "65537E212DC19025AD38EDB2781617319CE311C4", 'fpr');
+    Assert.equal(keyObj.userId, "anonymous strike <strike.devtest@gmail.com>", "userid");
+    Assert.equal(keyObj.keyCreated, 1430756251 , "keyCreated");
+    Assert.equal(keyObj.created, EnigmailTime.getDateTime(1430756251, true, false), "created");
+    Assert.equal(keyObj.type, "pub", "type");
+    Assert.equal(keyObj.keyTrust, "f", "keyTrust");
+    Assert.equal(keyObj.expiryTime, 0, "expiryTime");
+    Assert.equal(keyObj.ownerTrust, "f", "ownerTrust");
+    Assert.equal(keyObj.keyUseFor, "CSE", "keyUseFor");
+    Assert.equal(keyObj.algoSym, "RSA_ENCRYPT_SIGN", "algoSym");
+    Assert.equal(keyObj.keySize, 4096, "keySize");
+    Assert.equal(keyObj.photoAvailable, false, "photoAvailable");
+
+    Assert.equal(keyObj.userIds.length, 1, "userIds.length");
+    Assert.equal(keyObj.userIds[0].keyTrust, "f", "uid.keyTrust");
+    Assert.equal(keyObj.userIds[0].userId, "anonymous strike <strike.devtest@gmail.com>", "uid.userId");
+    Assert.equal(keyObj.userIds[0].type, "uid", "uid.type");
+
+    Assert.equal(keyObj.subKeys.length, 1, "subKeys.length");
+    Assert.equal(keyObj.subKeys[0].keyId, "D535623BB60E9E71", "subKey.keyId");
+    Assert.equal(keyObj.subKeys[0].keyCreated, 1430756251, "subKey.keyCreated");
+    Assert.equal(keyObj.subKeys[0].created, EnigmailTime.getDateTime(1430756251, true, false), "subKey.created");
+    Assert.equal(keyObj.subKeys[0].expiry, "", "subKey.expiry");
+    Assert.equal(keyObj.subKeys[0].expiryTime, 0, "subKey.expiryTime");
+    Assert.equal(keyObj.subKeys[0].keyTrust, "f", "subKey.keyTrust");
+    Assert.equal(keyObj.subKeys[0].algoSym, "RSA_ENCRYPT_SIGN", "subKey.algoSym");
+    Assert.equal(keyObj.subKeys[0].keySize, 4096, "subKey.keySize");
+    Assert.equal(keyObj.subKeys[0].type, "sub", "subKey.type");
   }
 
   performTest().then(x => {

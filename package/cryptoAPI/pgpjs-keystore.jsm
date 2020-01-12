@@ -20,6 +20,7 @@ const EnigmailFiles = ChromeUtils.import("chrome://enigmail/content/modules/file
 const Sqlite = ChromeUtils.import("resource://gre/modules/Sqlite.jsm").Sqlite;
 const EnigmailLazy = ChromeUtils.import("chrome://enigmail/content/modules/lazy.jsm").EnigmailLazy;
 const getArmor = EnigmailLazy.loader("enigmail/armor.jsm", "EnigmailArmor");
+const EnigmailTime = ChromeUtils.import("chrome://enigmail/content/modules/time.jsm").EnigmailTime;
 
 const SIG_TYPE_REVOCATION = 0x20;
 
@@ -72,7 +73,9 @@ var pgpjs_keyStore = {
         await keyStoreDatabase.writeKeyToDb(k, conn);
         importedFpr.push(k.getFingerprint().toUpperCase());
       }
-      catch (x) {}
+      catch (x) {
+        EnigmailLog.ERROR(`pgpjs-keystore.jsm: writeKey: error ${x.toString()}\n`);
+      }
     }
     conn.close();
     return importedFpr;
@@ -116,7 +119,31 @@ var pgpjs_keyStore = {
     for (let i in rows) {
       foundKeys.push({
         fpr: i,
-        key: await PgpJS.key.readArmored(rows[i])
+        key: (await PgpJS.key.readArmored(rows[i].armoredKey)).keys[0]
+      });
+    }
+    return foundKeys;
+  },
+
+  /**
+   * Read one or more keys from the key store
+   *
+   * @param {Array<String>} keyArr: [optional] Array of Fingerprints. If not provided, all keys are returned
+   *
+   * @return {Array<Object>} found keys:
+   *    fpr: fingerprint
+   *    keyData: object that suits as input for keyObj.contructor
+   */
+  readKeyMetadata: async function(keyArr) {
+    const PgpJS = getOpenPGPLibrary();
+
+    let rows = await keyStoreDatabase.readKeysFromDb(keyArr);
+
+    let foundKeys = [];
+    for (let i in rows) {
+      foundKeys.push({
+        fpr: i,
+        keyData: JSON.parse(rows[i].metadata)
       });
     }
     return foundKeys;
@@ -187,24 +214,34 @@ const keyStoreDatabase = {
 
     if (fpr in rows) {
       // merge existing key with new key data
-      let oldKey = await PgpJS.key.readArmored(rows[fpr]);
-      await key.update(oldKey.keys[0]);
+      let oldKey = await PgpJS.key.readArmored(rows[fpr].armoredKey);
+      try {
+        await key.update(oldKey.keys[0]);
+      }
+      catch(x) {
+        // if the keys can't be merged, use only the new key
+      }
+      let metadata = await getKeyMetadata(key);
 
       let updObj = {
         fpr: fpr,
         now: now,
+        metadata: JSON.stringify(metadata),
         data: await key.armor()
       };
-      await conn.execute("update openpgpkey set keydata = :data, datm = :now where fpr = :fpr;", updObj);
+      await conn.execute("update openpgpkey set keydata = :data, metadata = :metadata, datm = :now where fpr = :fpr;", updObj);
     }
     else {
       // new key
+      let metadata = await getKeyMetadata(key);
+
       let insObj = {
         fpr: fpr,
         now: now,
+        metadata: JSON.stringify(metadata),
         data: await key.armor()
       };
-      await conn.execute("insert into openpgpkey (keydata, fpr, datm) values (:data, :fpr, :now);", insObj);
+      await conn.execute("insert into openpgpkey (keydata, metadata, fpr, datm) values (:data, :metadata, :fpr, :now);", insObj);
     }
 
     if (!connection) {
@@ -247,9 +284,12 @@ const keyStoreDatabase = {
     }
 
     let rows = [];
-    await conn.execute(`select fpr, keydata from openpgpkey ${searchStr};`, null,
+    await conn.execute(`select fpr, keydata, metadata from openpgpkey ${searchStr};`, null,
       function _onRow(record) {
-        rows[record.getResultByName("fpr")] = record.getResultByName("keydata");
+        rows[record.getResultByName("fpr")] = {
+          armoredKey: record.getResultByName("keydata"),
+          metadata: record.getResultByName("metadata")
+        };
       });
 
     if (!connection) {
@@ -336,7 +376,8 @@ async function createKeysTable(connection) {
   EnigmailLog.DEBUG("pgpjs-keystore.jsm: createKeysTable()\n");
 
   await connection.execute("create table openpgpkey (" +
-    "keydata text not null, " + // base64-encoded key
+    "keydata text not null, " + // ASCII armored key
+    "metadata text not null, " + // key metadata (JSON)
     "fpr text not null, " + // fingerprint of key
     "datm text not null " + // timestamp of last modification
     ");"
@@ -392,4 +433,142 @@ function stringToUint8Array(str) {
   return Uint8Array.from(Array.from(str).map(x => {
     return x.charCodeAt(0);
   }));
+}
+
+
+/**
+ * Create a keyObj object as specified in EnigmailKeyObj.constructor
+ *
+ * @param {Object} key: OpenPGP.js key
+ *
+ * @return {Promise<keyObj>}
+ */
+async function getKeyMetadata(key) {
+  let keyObj = {};
+  let uatNum = 0;
+  const now = new Date().getTime() / 1000;
+
+  keyObj.keyId = key.getKeyId().toHex().toUpperCase();
+  let privateKey = key.isPrivate();
+
+  try {
+    keyObj.expiryTime = (await key.getExpirationTime()).getTime() / 1000;
+  }
+  catch (x) {
+    keyObj.expiryTime = 0;
+  }
+
+  keyObj.keyCreated = key.getCreationTime().getTime() / 1000;
+  keyObj.created = EnigmailTime.getDateTime(keyObj.keyCreated, true, false);
+  keyObj.type = privateKey ? "sec" : "pub";
+  let keyStatusNum = await key.verifyPrimaryKey();
+
+  keyObj.keyTrust = getKeyStatus(keyStatusNum, privateKey);
+
+  let sig = await key.getSigningKey();
+  let enc = await key.getEncryptionKey();
+  let prim = null;
+
+  try {
+    prim = (await key.getPrimaryUser()).user;
+  }
+  catch (ex) {
+    if (key.users.length > 0) {
+      prim = key.users[0];
+    }
+  }
+
+  keyObj.keyUseFor = "C" + (sig ? "S" : "") + (enc ? "E" : "");
+  keyObj.ownerTrust = (keyObj.type === "sec" ? "u" : "f");
+  keyObj.algoSym = key.getAlgorithmInfo().algorithm.toUpperCase();
+  keyObj.keySize = key.getAlgorithmInfo().bits;
+  keyObj.fpr = key.getFingerprint().toUpperCase();
+  keyObj.userId = prim ? prim.userId.userid : "n/a";
+  keyObj.photoAvailable = false;
+
+  keyObj.userIds = [];
+
+  for (let i in key.users) {
+    let trustLevel = "f";
+    try {
+      trustLevel = getKeyStatus(await key.users[i].verify());
+    }
+    catch(x) {}
+
+    if (key.users[i].userAttribute !== null) {
+      keyObj.photoAvailable = true;
+      keyObj.userIds.push({
+        userId: "JPEG",
+        keyTrust: trustLevel,
+        uidFpr: "",
+        type: "uat",
+        uatNum: uatNum
+      });
+      ++uatNum;
+    }
+    else {
+      keyObj.userIds.push({
+        userId: key.users[i].userId.userid,
+        keyTrust: trustLevel,
+        uidFpr: "",
+        type: "uid"
+      });
+    }
+  }
+
+  keyObj.subKeys = [];
+
+  let sk = key.getSubkeys();
+  for (let i in sk) {
+    let exp = 0;
+    try {
+      exp = (await sk[i].getExpirationTime()).getTime() / 1000;
+    }
+    catch (x) {}
+
+    let keyTrust = "f";
+    try {
+      keyTrust = getKeyStatus(await sk[i].verify(), privateKey);
+    }
+    catch(x) {}
+
+    keyObj.subKeys.push({
+      keyId: sk[i].getKeyId().toHex().toUpperCase(),
+      expiry: EnigmailTime.getDateTime(exp, true, false),
+      expiryTime: exp,
+      keyTrust: keyTrust,
+      keyUseFor: (sk[i].getAlgorithmInfo().algorithm.search(/sign/) ? "S" : "") +
+        (sk[i].getAlgorithmInfo().algorithm.search(/encrypt/) ? "E" : ""),
+      keySize: sk[i].getAlgorithmInfo().bits,
+      algoSym: sk[i].getAlgorithmInfo().algorithm.toUpperCase(),
+      created: EnigmailTime.getDateTime(sk[i].getCreationTime() / 1000, true, false),
+      keyCreated: sk[i].getCreationTime() / 1000,
+      type: "sub"
+    });
+  }
+
+  return keyObj;
+}
+
+
+function getKeyStatus(statusId, isPrivateKey) {
+  const PgpJS = getOpenPGPLibrary();
+
+  for (let i in PgpJS.enums.keyStatus) {
+    if (statusId === PgpJS.enums.keyStatus[i]) {
+      switch(i) {
+        case "invalid":
+        case "no_self_cert":
+          return "i";
+        case "expired":
+          return "e";
+        case "revoked":
+          return "r";
+        case "valid":
+          return (isPrivateKey ? "u" : "f");
+      }
+    }
+  }
+
+  return "?";
 }
