@@ -11,13 +11,10 @@ var EXPORTED_SYMBOLS = ["getGnuPGAPI"];
 
 var Services = Components.utils.import("resource://gre/modules/Services.jsm").Services;
 
-// Load OpenPGP.js (including generic) API
-Services.scriptloader.loadSubScript("chrome://enigmail/content/modules/cryptoAPI/openpgp-js.js",
-  null, "UTF-8"); /* global OpenPGPjsCryptoAPI: false */
+Services.scriptloader.loadSubScript("chrome://enigmail/content/modules/cryptoAPI/interface.js",
+  null, "UTF-8"); /* global CryptoAPI */
 
-/* Globals loaded from openpgp-js.js: */
-/* global getOpenPGP: false, EnigmailLog: false */
-
+const EnigmailLog = ChromeUtils.import("chrome://enigmail/content/modules/log.jsm").EnigmailLog;
 const EnigmailGpg = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/gnupg-core.jsm").EnigmailGpg;
 const EnigmailExecution = ChromeUtils.import("chrome://enigmail/content/modules/execution.jsm").EnigmailExecution;
 const EnigmailFiles = ChromeUtils.import("chrome://enigmail/content/modules/files.jsm").EnigmailFiles;
@@ -46,6 +43,7 @@ const {
 } = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/gnupg-key.jsm");
 
 const GnuPG_Encryption = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/gnupg-encryption.jsm").GnuPG_Encryption;
+const pgpjs_keys = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/pgpjs-keys.jsm").pgpjs_keys;
 
 const DEFAULT_FILE_PERMS = 0o600;
 
@@ -53,7 +51,7 @@ const DEFAULT_FILE_PERMS = 0o600;
  * GnuPG implementation of CryptoAPI
  */
 
-class GnuPGCryptoAPI extends OpenPGPjsCryptoAPI {
+class GnuPGCryptoAPI extends CryptoAPI {
   constructor() {
     super();
     this.api_name = "GnuPG";
@@ -232,7 +230,7 @@ class GnuPGCryptoAPI extends OpenPGPjsCryptoAPI {
 
     // GnuPG < 2.2.9
     if (exportOK) {
-      let minKey = await this.getStrippedKey(keyBlock, email);
+      let minKey = await pgpjs_keys.getStrippedKey(keyBlock, email);
       if (minKey) {
         minimalKeyBlock = btoa(String.fromCharCode.apply(null, minKey));
       }
@@ -548,7 +546,7 @@ class GnuPGCryptoAPI extends OpenPGPjsCryptoAPI {
     }
     catch (ex) {
       if (ex === "unsupported") {
-        res = await this.OPENPGPjs_getKeyListFromKeyBlock(keyBlockStr);
+        res = await pgpjs_keys.getKeyListFromKeyBlock(keyBlockStr);
       }
       else throw ex;
     }

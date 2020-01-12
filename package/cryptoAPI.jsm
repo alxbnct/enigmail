@@ -12,15 +12,32 @@ var EXPORTED_SYMBOLS = ["EnigmailCryptoAPI"];
 var gCurrentApi = null;
 var Services = ChromeUtils.import("resource://gre/modules/Services.jsm").Services;
 
-
 function EnigmailCryptoAPI() {
   if (!gCurrentApi) {
-    const {
-      getGnuPGAPI
-    } = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/gnupg.js");
+    const EnigmailPrefs = ChromeUtils.import("chrome://enigmail/content/modules/prefs.jsm").EnigmailPrefs;
 
-    gCurrentApi = getGnuPGAPI();
+    switch (EnigmailPrefs.getPref("cryptoAPI")) {
+      case 2:
+        loadOpenPGPjsApi();
+        break;
+      case 0: // TODO: add logic to determine API
+      case 1:
+        loadGnuPGApi();
+        break;
+    }
   }
 
   return gCurrentApi;
+}
+
+function loadGnuPGApi() {
+  const getGnuPGAPI = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/gnupg.js").getGnuPGAPI;
+
+  gCurrentApi = getGnuPGAPI();
+}
+
+function loadOpenPGPjsApi() {
+  const getOpenPGPjsAPI = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/gnupg.js").getOpenPGPjsAPI;
+
+  gCurrentApi = getOpenPGPjsAPI();
 }

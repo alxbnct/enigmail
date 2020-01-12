@@ -7,16 +7,12 @@
 
 "use strict";
 
-//var EXPORTED_SYMBOLS = ["getOpenPGPjsAPI"];
+var EXPORTED_SYMBOLS = ["getOpenPGPjsAPI"];
 
 
 var Services = ChromeUtils.import("resource://gre/modules/Services.jsm").Services;
-const EnigmailLog = ChromeUtils.import("chrome://enigmail/content/modules/log.jsm").EnigmailLog;
-const EnigmailLazy = ChromeUtils.import("chrome://enigmail/content/modules/lazy.jsm").EnigmailLazy;
-const getOpenPGPLibrary = ChromeUtils.import("chrome://enigmail/content/modules/stdlib/openpgp-loader.jsm").getOpenPGPLibrary;
-
-const getOpenPGP = EnigmailLazy.loader("enigmail/openpgp.jsm", "EnigmailOpenPGP");
-const getArmor = EnigmailLazy.loader("enigmail/armor.jsm", "EnigmailArmor");
+const pgpjs_keys = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/pgpjs-keys.jsm").pgpjs_keys;
+const pgpjs_keyStore = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/pgpjs-keystore.jsm").pgpjs_keyStore;
 
 // Load generic API
 Services.scriptloader.loadSubScript("chrome://enigmail/content/modules/cryptoAPI/interface.js",
@@ -33,149 +29,29 @@ class OpenPGPjsCryptoAPI extends CryptoAPI {
     this.api_name = "OpenPGP.js";
   }
 
+/**
+   * Initialize the tools/functions required to run the API
+   *
+   * @param {nsIWindow} parentWindow: parent window, may be NULL
+   * @param {Object} enigSvc: Enigmail service object
+   * @param {String } preferredPath: try to use specific path to locate tool (gpg)
+   */
+  initialize(parentWindow, enigSvc, preferredPath) {
+    let success = this.sync(pgpjs_keyStore.init());
+
+    if (! success) throw "Init Error";
+  }
+
+  async getKeys(onlyKeys = null) {
+    return pgpjs_keyStore.readKeyMetadata(onlyKeys);
+  }
+
   async getStrippedKey(armoredKey, emailAddr) {
-    EnigmailLog.DEBUG("openpgp-js.js: getStrippedKey()\n");
-
-    let searchUid = undefined;
-    if (emailAddr) {
-      if (emailAddr.search(/^<.{1,500}>$/) < 0) {
-        searchUid = `<${emailAddr}>`;
-      } else searchUid = emailAddr;
-    }
-
-    try {
-      const openpgp = getOpenPGPLibrary();
-      let msg = await openpgp.key.readArmored(armoredKey);
-
-      if (!msg || msg.keys.length === 0) {
-        if (msg.err) {
-          EnigmailLog.writeException("openpgp-js.js", msg.err[0]);
-        }
-        return null;
-      }
-
-      let key = msg.keys[0];
-      let uid = await key.getPrimaryUser(null, searchUid);
-      if (!uid || !uid.user) return null;
-
-      let signSubkey = await key.getSigningKey();
-      let encSubkey = await key.getEncryptionKey();
-      /*
-            let encSubkey = null,
-              signSubkey = null;
-
-            for (let i = 0; i < key.subKeys.length; i++) {
-              if (key.subKeys[i].subKey === encSubkeyPacket) {
-                encSubkey = key.subKeys[i];
-                break;
-              }
-            }
-            if (!encSubkey) return null;
-
-            if (!signSubkeyPacket.keyid) {
-              for (let i = 0; i < key.subKeys.length; i++) {
-                if (key.subKeys[i].subKey === signSubkeyPacket) {
-                  signSubkey = key.subKeys[i];
-                  break;
-                }
-              }
-              if (!signSubkey) return null;
-            }
-      */
-
-      let p = new openpgp.packet.List();
-      p.push(key.primaryKey);
-      p.concat(uid.user.toPacketlist());
-      if (key !== signSubkey) {
-        p.concat(signSubkey.toPacketlist());
-      }
-      if (key !== encSubkey) {
-        p.concat(encSubkey.toPacketlist());
-      }
-
-      return p.write();
-    } catch (ex) {
-      EnigmailLog.DEBUG("openpgp-js.js: getStrippedKey: ERROR " + ex.message + "\n" + ex.stack + "\n");
-    }
-    return null;
+    return pgpjs_keys.getStrippedKey(armoredKey, emailAddr);
   }
 
   async getKeyListFromKeyBlock(keyBlockStr) {
-    return await this.OPENPGPjs_getKeyListFromKeyBlockkeyBlockStr(keyBlockStr);
-  }
-
-  async OPENPGPjs_getKeyListFromKeyBlock(keyBlockStr) {
-    EnigmailLog.DEBUG("openpgp-js.js: getKeyListFromKeyBlock()\n");
-    const EnigmailTime = ChromeUtils.import("chrome://enigmail/content/modules/time.jsm").EnigmailTime;
-
-    const SIG_TYPE_REVOCATION = 0x20;
-
-    let keyList = [];
-    let key = {};
-    let blocks;
-    let isBinary = false;
-    const EOpenpgp = getOpenPGP();
-    const openPGPjs = getOpenPGPLibrary();
-
-    if (keyBlockStr.search(/-----BEGIN PGP (PUBLIC|PRIVATE) KEY BLOCK-----/) >= 0) {
-      blocks = getArmor().splitArmoredBlocks(keyBlockStr);
-    } else {
-      isBinary = true;
-      blocks = [EOpenpgp.bytesToArmor(openPGPjs.enums.armor.public_key, keyBlockStr)];
-    }
-
-    for (let b of blocks) {
-      let m = await openPGPjs.message.readArmored(b);
-
-      for (let i = 0; i < m.packets.length; i++) {
-        let packetType = openPGPjs.enums.read(openPGPjs.enums.packet, m.packets[i].tag);
-        switch (packetType) {
-          case "publicKey":
-          case "secretKey":
-            key = {
-              id: m.packets[i].getKeyId().toHex().toUpperCase(),
-              fpr: m.packets[i].getFingerprint().toUpperCase(),
-              uids: [],
-              created: EnigmailTime.getDateTime(m.packets[i].getCreationTime().getTime()/1000, true, false),
-              name: null,
-              isSecret: false,
-              revoke: false
-            };
-
-            if (!(key.id in keyList)) {
-              keyList[key.id] = key;
-            }
-
-            if (packetType === "secretKey") {
-              keyList[key.id].isSecret = true;
-            }
-            break;
-          case "userid":
-            if (!key.name) {
-              key.name = m.packets[i].userid.replace(/[\r\n]+/g, " ");
-            }
-            else {
-              key.uids.push(m.packets[i].userid.replace(/[\r\n]+/g, " "));
-            }
-            break;
-          case "signature":
-            if (m.packets[i].signatureType === SIG_TYPE_REVOCATION) {
-              let keyId = m.packets[i].issuerKeyId.toHex().toUpperCase();
-              if (keyId in keyList) {
-                keyList[keyId].revoke = true;
-              } else {
-                keyList[keyId] = {
-                  revoke: true,
-                  id: keyId
-                };
-              }
-            }
-            break;
-        }
-      }
-    }
-
-    return keyList;
+    return pgpjs_keys.getKeyListFromKeyBlock(keyBlockStr);
   }
 }
 
