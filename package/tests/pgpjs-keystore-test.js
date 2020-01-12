@@ -88,7 +88,7 @@ test(withTestGpgHome(function readWrite() {
     res = await pgpjs_keyStore.readKeyMetadata();
     Assert.equal(res.length, 1);
     Assert.equal(res[0].fpr, "65537E212DC19025AD38EDB2781617319CE311C4");
-    let keyObj = res[0].keyData;
+    let keyObj = res[0];
     Assert.equal(keyObj.fpr, "65537E212DC19025AD38EDB2781617319CE311C4", 'fpr');
     Assert.equal(keyObj.userId, "anonymous strike <strike.devtest@gmail.com>", "userid");
     Assert.equal(keyObj.keyCreated, 1430756251 , "keyCreated");

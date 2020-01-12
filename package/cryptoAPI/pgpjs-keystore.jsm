@@ -141,10 +141,7 @@ var pgpjs_keyStore = {
 
     let foundKeys = [];
     for (let i in rows) {
-      foundKeys.push({
-        fpr: i,
-        keyData: JSON.parse(rows[i].metadata)
-      });
+      foundKeys.push(JSON.parse(rows[i].metadata));
     }
     return foundKeys;
   },
