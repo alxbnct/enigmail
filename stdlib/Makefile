@@ -15,8 +15,10 @@ MODFILES = \
            msgHdrUtils.jsm \
            openpgp-loader.jsm \
            openpgp-lib.js \
-           openpgp.worker.js \
            web-streams.jsm
+
+WORKERS = \
+           openpgp.worker.js
 
 GENFILES = $(addprefix $(GENDIR)/,$(MODFILES))
 
@@ -26,9 +28,11 @@ $(GENDIR)/%.jsm: %.jsm
 $(GENDIR)/%.js: %.js
 	$(DEPTH)/util/prepPostbox $(TARGET_TOOL) $< $@
 
-all: deploy
+all: $(GENFILES) deploy
 
-deploy: $(GENFILES)
+deploy:
+	$(DEPTH)/util/install -m 644 $(DIST)/chrome/content/modules/stdlib $(WORKERS)
 
 clean:
 	$(DEPTH)/util/install -u $(DIST)/chrome/content/modules/stdlib $(MODFILES)
+	$(DEPTH)/util/install -u $(DIST)/chrome/content/modules/stdlib $(WORKERS)
