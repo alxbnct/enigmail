@@ -31,7 +31,7 @@
 
 self.window = self; // to make UMD bundles work
 
-importScripts('openpgp.js');
+importScripts('openpgp-lib.js');
 var openpgp = window.openpgp;
 
 var randomQueue = [];

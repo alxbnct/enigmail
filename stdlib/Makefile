@@ -14,10 +14,10 @@ MODFILES = \
            misc.jsm \
            msgHdrUtils.jsm \
            openpgp-loader.jsm \
-           openpgp-lib.js \
            web-streams.jsm
 
 WORKERS = \
+           openpgp-lib.js \
            openpgp.worker.js
 
 GENFILES = $(addprefix $(GENDIR)/,$(MODFILES))
