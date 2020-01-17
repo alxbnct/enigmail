@@ -36,45 +36,32 @@ var pgpjs_keyStore = {
     EnigmailLog.DEBUG("pgpjs-keystore.jsm: writeKey()\n");
 
     const PgpJS = getOpenPGPLibrary();
-    let data;
+    let keys = [];
 
     if (keyData.search(/-----BEGIN PGP (PUBLIC|PRIVATE) KEY BLOCK-----/) >= 0) {
       let blocks = getArmor().splitArmoredBlocks(keyData);
 
-      let dataArr = [];
-      let totLen = 0;
-
       for (let b of blocks) {
-        let m = await PgpJS.armor.decode(b);
-        if (m && ("data" in m)) {
-          let t = await readFromStream(m.data.getReader());
-          totLen += t.length;
-          dataArr.push(t);
-        }
-      }
-
-      data = new Uint8Array(totLen);
-      let idx = 0;
-      for (let i in dataArr) {
-        data.set(dataArr[i], idx);
-        idx += dataArr[i].length;
+        let res = await PgpJS.key.readArmored(b);
+        keys = keys.concat(res.keys);
       }
     }
     else {
-      data = stringToUint8Array(keyData);
+      let data = stringToUint8Array(keyData);
+      let res = await PgpJS.key.read(data);
+      keys = res.keys;
     }
 
-    let res = await PgpJS.key.read(data);
     let importedFpr = [];
 
     let conn = await keyStoreDatabase.openDatabase();
-    for (let k of res.keys) {
+    for (let k of keys) {
       try {
         await keyStoreDatabase.writeKeyToDb(k, conn);
         importedFpr.push(k.getFingerprint().toUpperCase());
       }
       catch (x) {
-        EnigmailLog.ERROR(`pgpjs-keystore.jsm: writeKey: error ${x.toString()}\n`);
+        EnigmailLog.ERROR(`pgpjs-keystore.jsm: writeKey: error ${x.toString()} / ${x.stack}\n`);
       }
     }
     conn.close();
@@ -131,8 +118,7 @@ var pgpjs_keyStore = {
    * @param {Array<String>} keyArr: [optional] Array of Fingerprints. If not provided, all keys are returned
    *
    * @return {Array<Object>} found keys:
-   *    fpr: fingerprint
-   *    keyData: object that suits as input for keyObj.contructor
+   *    object that suits as input for keyObj.contructor
    */
   readKeyMetadata: async function(keyArr) {
     const PgpJS = getOpenPGPLibrary();
@@ -152,6 +138,7 @@ var pgpjs_keyStore = {
    * @return {Promise<Boolean>} true if successful
    */
   init: function() {
+    EnigmailLog.DEBUG(`pgpjs-keystore.jsm: init())\n`);
     return keyStoreDatabase.checkDatabaseStructure();
   }
 };
@@ -315,7 +302,15 @@ async function openDatabaseConn(resolve, reject, waitms, maxtime) {
   let dbPath = pgpjs_keyStore.getDatabasePath();
   let dbPathObj = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
   EnigmailFiles.initPath(dbPathObj, dbPath);
-  EnigmailFiles.ensureWritableDirectory(dbPathObj.parent, 0o700);
+
+  EnigmailLog.DEBUG(`pgpjs-keystore.jsm: openDatabaseConn: path=${dbPath}\n`);
+  let r = EnigmailFiles.ensureWritableDirectory(dbPathObj.parent, 0o700);
+
+  EnigmailLog.DEBUG(`pgpjs-keystore.jsm: openDatabaseConn: directory OK: ${r}\n`);
+
+  if (r !== 0) {
+    throw "Cannot write directory";
+  }
 
   Sqlite.openConnection({
     path: dbPath,
@@ -446,7 +441,7 @@ async function getKeyMetadata(key) {
   const now = new Date().getTime() / 1000;
 
   keyObj.keyId = key.getKeyId().toHex().toUpperCase();
-  let privateKey = key.isPrivate();
+  keyObj.secretAvailable = key.isPrivate();
 
   try {
     keyObj.expiryTime = (await key.getExpirationTime()).getTime() / 1000;
@@ -457,10 +452,10 @@ async function getKeyMetadata(key) {
 
   keyObj.keyCreated = key.getCreationTime().getTime() / 1000;
   keyObj.created = EnigmailTime.getDateTime(keyObj.keyCreated, true, false);
-  keyObj.type = privateKey ? "sec" : "pub";
+  keyObj.type = "pub";
   let keyStatusNum = await key.verifyPrimaryKey();
 
-  keyObj.keyTrust = getKeyStatus(keyStatusNum, privateKey);
+  keyObj.keyTrust = getKeyStatus(keyStatusNum, keyObj.secretAvailable);
 
   let sig = await key.getSigningKey();
   let enc = await key.getEncryptionKey();
@@ -476,7 +471,7 @@ async function getKeyMetadata(key) {
   }
 
   keyObj.keyUseFor = "C" + (sig ? "S" : "") + (enc ? "E" : "");
-  keyObj.ownerTrust = (keyObj.type === "sec" ? "u" : "f");
+  keyObj.ownerTrust = (keyObj.secretAvailable ? "u" : "f");
   keyObj.algoSym = key.getAlgorithmInfo().algorithm.toUpperCase();
   keyObj.keySize = key.getAlgorithmInfo().bits;
   keyObj.fpr = key.getFingerprint().toUpperCase();
@@ -525,7 +520,7 @@ async function getKeyMetadata(key) {
 
     let keyTrust = "f";
     try {
-      keyTrust = getKeyStatus(await sk[i].verify(), privateKey);
+      keyTrust = getKeyStatus(await sk[i].verify(), keyObj.secretAvailable);
     }
     catch(x) {}
 
