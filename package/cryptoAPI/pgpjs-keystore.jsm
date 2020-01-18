@@ -298,12 +298,19 @@ const keyStoreDatabase = {
  */
 async function openDatabaseConn(resolve, reject, waitms, maxtime) {
   EnigmailLog.DEBUG("pgpjs-keystore.jsm: openDatabaseConn()\n");
+  let dbPathObj = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
 
   let dbPath = pgpjs_keyStore.getDatabasePath();
   EnigmailLog.DEBUG(`pgpjs-keystore.jsm: openDatabaseConn: path=${dbPath}\n`);
 
-  let dbPathObj = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
-  dbPathObj.initWithPath(dbPath);
+  try {
+    dbPathObj.initWithPath(dbPath);
+    EnigmailLog.DEBUG(`pgpjs-keystore.jsm: openDatabaseConn: dbPathObj initialized\n`);
+  }
+  catch(x) {
+    EnigmailLog.DEBUG(`pgpjs-keystore.jsm: openDatabaseConn: failed to init dbPathObj\n`);
+    throw "error";
+  }
 
   let r = EnigmailFiles.ensureWritableDirectory(dbPathObj.parent, 0o700);
 
