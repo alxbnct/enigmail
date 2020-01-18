@@ -138,7 +138,7 @@ var pgpjs_keyStore = {
    * @return {Promise<Boolean>} true if successful
    */
   init: function() {
-    EnigmailLog.DEBUG(`pgpjs-keystore.jsm: init())\n`);
+    EnigmailLog.DEBUG(`pgpjs-keystore.jsm: init()\n`);
     return keyStoreDatabase.checkDatabaseStructure();
   }
 };
@@ -202,7 +202,7 @@ const keyStoreDatabase = {
       try {
         await key.update(oldKey.keys[0]);
       }
-      catch(x) {
+      catch (x) {
         // if the keys can't be merged, use only the new key
       }
       let metadata = await getKeyMetadata(key);
@@ -300,10 +300,11 @@ async function openDatabaseConn(resolve, reject, waitms, maxtime) {
   EnigmailLog.DEBUG("pgpjs-keystore.jsm: openDatabaseConn()\n");
 
   let dbPath = pgpjs_keyStore.getDatabasePath();
+  EnigmailLog.DEBUG(`pgpjs-keystore.jsm: openDatabaseConn: path=${dbPath}\n`);
+
   let dbPathObj = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
   EnigmailFiles.initPath(dbPathObj, dbPath);
 
-  EnigmailLog.DEBUG(`pgpjs-keystore.jsm: openDatabaseConn: path=${dbPath}\n`);
   let r = EnigmailFiles.ensureWritableDirectory(dbPathObj.parent, 0o700);
 
   EnigmailLog.DEBUG(`pgpjs-keystore.jsm: openDatabaseConn: directory OK: ${r}\n`);
@@ -485,7 +486,7 @@ async function getKeyMetadata(key) {
     try {
       trustLevel = getKeyStatus(await key.users[i].verify());
     }
-    catch(x) {}
+    catch (x) {}
 
     if (key.users[i].userAttribute !== null) {
       keyObj.photoAvailable = true;
@@ -522,7 +523,7 @@ async function getKeyMetadata(key) {
     try {
       keyTrust = getKeyStatus(await sk[i].verify(), keyObj.secretAvailable);
     }
-    catch(x) {}
+    catch (x) {}
 
     keyObj.subKeys.push({
       keyId: sk[i].getKeyId().toHex().toUpperCase(),
@@ -548,7 +549,7 @@ function getKeyStatus(statusId, isPrivateKey) {
 
   for (let i in PgpJS.enums.keyStatus) {
     if (statusId === PgpJS.enums.keyStatus[i]) {
-      switch(i) {
+      switch (i) {
         case "invalid":
         case "no_self_cert":
           return "i";

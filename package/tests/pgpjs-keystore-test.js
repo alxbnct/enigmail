@@ -91,7 +91,7 @@ test(withTestGpgHome(function readWrite() {
     let keyObj = res[0];
     Assert.equal(keyObj.fpr, "65537E212DC19025AD38EDB2781617319CE311C4", 'fpr');
     Assert.equal(keyObj.userId, "anonymous strike <strike.devtest@gmail.com>", "userid");
-    Assert.equal(keyObj.keyCreated, 1430756251 , "keyCreated");
+    Assert.equal(keyObj.keyCreated, 1430756251, "keyCreated");
     Assert.equal(keyObj.created, EnigmailTime.getDateTime(1430756251, true, false), "created");
     Assert.equal(keyObj.type, "pub", "type");
     Assert.equal(keyObj.keyTrust, "f", "keyTrust");
@@ -122,6 +122,7 @@ test(withTestGpgHome(function readWrite() {
   performTest().then(x => {
     inspector.exitNestedEventLoop(0);
   }).catch(x => {
+    Assert.ok(false, "exception: " + x.toString());
     inspector.exitNestedEventLoop(0);
   });
   inspector.enterNestedEventLoop(0);
