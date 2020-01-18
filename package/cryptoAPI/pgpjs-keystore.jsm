@@ -303,15 +303,7 @@ async function openDatabaseConn(resolve, reject, waitms, maxtime) {
   let dbPath = pgpjs_keyStore.getDatabasePath();
   EnigmailLog.DEBUG(`pgpjs-keystore.jsm: openDatabaseConn: path=${dbPath}\n`);
 
-  try {
-    dbPathObj.initWithPath(dbPath);
-    EnigmailLog.DEBUG(`pgpjs-keystore.jsm: openDatabaseConn: dbPathObj initialized\n`);
-  }
-  catch(x) {
-    EnigmailLog.DEBUG(`pgpjs-keystore.jsm: openDatabaseConn: failed to init dbPathObj\n`);
-    throw "error";
-  }
-
+  dbPathObj.initWithPath(dbPath);
   let r = EnigmailFiles.ensureWritableDirectory(dbPathObj.parent, 0o700);
 
   EnigmailLog.DEBUG(`pgpjs-keystore.jsm: openDatabaseConn: directory OK: ${r}\n`);
