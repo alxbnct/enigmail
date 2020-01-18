@@ -303,7 +303,7 @@ async function openDatabaseConn(resolve, reject, waitms, maxtime) {
   EnigmailLog.DEBUG(`pgpjs-keystore.jsm: openDatabaseConn: path=${dbPath}\n`);
 
   let dbPathObj = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
-  EnigmailFiles.initPath(dbPathObj, dbPath);
+  dbPathObj.initWithPath(dbPath);
 
   let r = EnigmailFiles.ensureWritableDirectory(dbPathObj.parent, 0o700);
 
