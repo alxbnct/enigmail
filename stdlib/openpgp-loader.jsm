@@ -129,7 +129,8 @@ function loadOpenPGPjsLib() {
     WritableStream: WritableStream,
     TextDecoder: TextDecoder,
     TextEncoder: TextEncoder,
-    XMLHttpRequest: XMLHttpRequest
+    XMLHttpRequest: XMLHttpRequest,
+    MessageChannel: appShellSvc.hiddenDOMWindow.MessageChannel
   };
 
   // no idea why, but oenpgp.js won't load without this defined
