@@ -410,7 +410,14 @@ Enigmail.msg = {
       }
       else {
         // Postbox
-        return gFolderDisplay.selectedMessageUri;
+        if (gFolderDisplay.selectedMessageUri) {
+          return gFolderDisplay.selectedMessageUri;
+        }
+        else if (gFolderDisplay.selectedMessageUris.length > 0) {
+          return gFolderDisplay.selectedMessageUris[0];
+        }
+        else
+          return "";
       }
     }
     catch (ex) {
