@@ -90,7 +90,7 @@ test(withTestGpgHome(function readWrite() {
       Assert.equal(res[0].key.getFingerprint().toUpperCase(), "65537E212DC19025AD38EDB2781617319CE311C4");
 
       res = await pgpjs_keyStore.readKeyMetadata();
-      Assert.equal(res.length, 1);
+      Assert.equal(res.length, 1, "one key found");
       Assert.equal(res[0].fpr, "65537E212DC19025AD38EDB2781617319CE311C4");
       let keyObj = res[0];
       Assert.equal(keyObj.fpr, "65537E212DC19025AD38EDB2781617319CE311C4", 'fpr');
@@ -121,6 +121,10 @@ test(withTestGpgHome(function readWrite() {
       Assert.equal(keyObj.subKeys[0].algoSym, "RSA_ENCRYPT_SIGN", "subKey.algoSym");
       Assert.equal(keyObj.subKeys[0].keySize, 4096, "subKey.keySize");
       Assert.equal(keyObj.subKeys[0].type, "sub", "subKey.type");
+
+      await pgpjs_keyStore.deleteKeys(["65537E212DC19025AD38EDB2781617319CE311C4", "01234"]);
+      res = await pgpjs_keyStore.readKeys(["65537E212DC19025AD38EDB2781617319CE311C4"]);
+      Assert.equal(res.length, 0, "key was deleted");
     }
     catch (ex) {
       Assert.ok(false, "exception: " + ex.toString());

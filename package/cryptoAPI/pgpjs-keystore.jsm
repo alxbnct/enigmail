@@ -30,7 +30,7 @@ var pgpjs_keyStore = {
    *
    * @param {String} keyData: armored or binary key data
    *
-   * @return {Array<String>} Array of imported fpr
+   * @return {Promise<Array<String>>} Array of imported fpr
    */
   writeKey: async function(keyData) {
     EnigmailLog.DEBUG("pgpjs-keystore.jsm: writeKey()\n");
@@ -68,6 +68,11 @@ var pgpjs_keyStore = {
     return importedFpr;
   },
 
+  /**
+   * Determine the path where the key database is stored
+   *
+   * @return {String}: full path including file name
+   */
   getDatabasePath: function() {
     const DBName = "openpgpkeys.sqlite";
     let path = DBName;
@@ -93,7 +98,7 @@ var pgpjs_keyStore = {
    *
    * @param {Array<String>} keyArr: [optional] Array of Fingerprints. If not provided, all keys are returned
    *
-   * @return {Array<Object>} found keys:
+   * @return {Promise<Array<Object>>} found keys:
    *    fpr: fingerprint
    *    key: OpenPGP.js Key object
    */
@@ -117,7 +122,7 @@ var pgpjs_keyStore = {
    *
    * @param {Array<String>} keyArr: [optional] Array of Fingerprints. If not provided, all keys are returned
    *
-   * @return {Array<Object>} found keys:
+   * @return {Promise<Array<Object>>} found keys:
    *    object that suits as input for keyObj.contructor
    */
   readKeyMetadata: async function(keyArr) {
@@ -130,6 +135,18 @@ var pgpjs_keyStore = {
       foundKeys.push(JSON.parse(rows[i].metadata));
     }
     return foundKeys;
+  },
+
+  /**
+   * Delete one or more keys from the key store
+   *
+   * @param {Array<String>} keyArr: Array of Fingerprints
+   *
+   * @return {Promise<Array<Object>>} found keys:
+   *    object that suits as input for keyObj.contructor
+   */
+  deleteKeys: function(keyArr) {
+    return keyStoreDatabase.deleteKeysFromDb(keyArr);
   },
 
   /**
@@ -281,6 +298,38 @@ const keyStoreDatabase = {
     }
 
     return rows;
+  },
+
+
+  /**
+   * Delete one or more keys from the database
+   *
+   * @param {Array<String>} keyArr: Array of Fingerprints
+   * @param {Object} connection: [optional] database connection
+   */
+  deleteKeysFromDb: async function(keyArr = [], connection = null) {
+    EnigmailLog.DEBUG(`pgpjs-keystore.jsm: deleteKeysFromDb(${keyArr})\n`);
+    let conn;
+    let searchStr = "";
+
+    if (connection) {
+      conn = connection;
+    }
+    else {
+      conn = await this.openDatabase();
+    }
+
+    for (let i in keyArr) {
+      // make sure search string only contains A-F and 0-9
+      let s = keyArr[i].replace(/^0x/, "").replace(/[^A-Fa-f0-9]/g, "").toUpperCase();
+      searchStr += `, '${s}'`;
+    }
+
+    await conn.execute(`delete from openpgpkey where fpr in ('-' ${searchStr});`, null);
+
+    if (!connection) {
+      conn.close();
+    }
   }
 };
 
