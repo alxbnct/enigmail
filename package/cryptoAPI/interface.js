@@ -170,7 +170,7 @@ class CryptoAPI {
   }
 
   /**
-   * Import key(s) from a file
+   * Import key(s) from a string
    *
    * @param {String} keyData:  the key data to be imported (ASCII armored)
    * @param {Boolean} minimizeKey: import the minimum key without any 3rd-party signatures

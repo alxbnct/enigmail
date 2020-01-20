@@ -37,7 +37,7 @@ function loadGnuPGApi() {
 }
 
 function loadOpenPGPjsApi() {
-  const getOpenPGPjsAPI = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/gnupg.js").getOpenPGPjsAPI;
+  const getOpenPGPjsAPI = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/openpgp-js.js").getOpenPGPjsAPI;
 
   gCurrentApi = getOpenPGPjsAPI();
 }
