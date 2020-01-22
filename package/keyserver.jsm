@@ -1222,11 +1222,20 @@ const accessVksServer = {
           }
         }
         else {
-          try {
-            searchTerm = EnigmailFuncs.stripEmail(searchTerm);
+          if (searchTerm.search(/^[A-F0-9]+$/) === 0 && searchTerm.length === 16) {
+            lookup = "/vks/v1/by-keyid/" + searchTerm;
           }
-          catch (x) {}
-          lookup = "/vks/v1/by-email/" + searchTerm;
+          else if (searchTerm.search(/^[A-F0-9]+$/) === 0 && searchTerm.length === 40) {
+            lookup = "/vks/v1/by-fingerprint/" + searchTerm;
+          }
+          else {
+            try {
+              searchTerm = EnigmailFuncs.stripEmail(searchTerm);
+            }
+            catch (x) {}
+
+            lookup = "/vks/v1/by-email/" + searchTerm;
+          }
         }
         url += lookup;
       }
