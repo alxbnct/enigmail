@@ -53,6 +53,35 @@ class OpenPGPjsCryptoAPI extends CryptoAPI {
   async getKeyListFromKeyBlock(keyBlockStr) {
     return pgpjs_keys.getKeyListFromKeyBlock(keyBlockStr);
   }
+
+  /**
+   * Import key(s) from a string provided
+   *
+   * @param {String} keyData:  the key data to be imported (ASCII armored)
+   * @param {Boolean} minimizeKey: import the minimum key without any 3rd-party signatures
+   * @param {String} limitedUid: only import the UID specified
+   *
+   * @return {Object} or null in case no data / error:
+   *   - {Number}          exitCode:        result code (0: OK)
+   *   - {Array of String) importedKeys:    imported fingerprints
+   *   - {Number}          importSum:       total number of processed keys
+   *   - {Number}          importUnchanged: number of unchanged keys
+   */
+
+  async importKeyData(keyData, minimizeKey, limitedUid) {
+    if (minimizeKey) {
+      keyData = await pgpjs_keys.getStrippedKey(keyData, limitedUid);
+    }
+
+    let imported = await pgpjs_keyStore.writeKey(keyData);
+
+    return {
+      exitCode: 0,
+      importedKeys: imported,
+      importSum: imported.length,
+      importUnchanged: 0
+    };
+  }
 }
 
 
