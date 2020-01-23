@@ -132,7 +132,7 @@ var pgpjs_keyStore = {
 
     let foundKeys = [];
     for (let i in rows) {
-      foundKeys.push(JSON.parse(rows[i].metadata));
+      foundKeys.push(getKeyFromJSON(rows[i].metadata));
     }
     return foundKeys;
   },
@@ -261,7 +261,7 @@ const keyStoreDatabase = {
    * @return {Array<Key>} List of OpenPGP.js Key objects.
    */
   readKeysFromDb: async function(keyArr = null, connection = null) {
-    EnigmailLog.DEBUG(`pgpjs-keystore.jsm: readKeysFromDb(${keyArr})\n`);
+    EnigmailLog.DEBUG("pgpjs-keystore.jsm: readKeysFromDb(" + (keyArr ? keyArr.length : "null") + ")\n");
 
     let conn;
     let searchStr = "";
@@ -487,7 +487,6 @@ function stringToUint8Array(str) {
 async function getKeyMetadata(key) {
   let keyObj = {};
   let uatNum = 0;
-  const now = new Date().getTime() / 1000;
 
   keyObj.keyId = key.getKeyId().toHex().toUpperCase();
   keyObj.secretAvailable = key.isPrivate();
@@ -505,6 +504,7 @@ async function getKeyMetadata(key) {
   let keyStatusNum = await key.verifyPrimaryKey();
 
   keyObj.keyTrust = getKeyStatus(keyStatusNum, keyObj.secretAvailable);
+  let keyIsValid = (keyObj.keyTrust.search(/^[uf]$/) === 0);
 
   let sig = await key.getSigningKey();
   let enc = await key.getEncryptionKey();
@@ -519,7 +519,7 @@ async function getKeyMetadata(key) {
     }
   }
 
-  keyObj.keyUseFor = "C" + (sig ? "S" : "") + (enc ? "E" : "");
+  keyObj.keyUseFor = "C" + (sig ? "sS" : "") + (enc ? "eE" : "");
   keyObj.ownerTrust = (keyObj.secretAvailable ? "u" : "f");
   keyObj.algoSym = key.getAlgorithmInfo().algorithm.toUpperCase();
   keyObj.keySize = key.getAlgorithmInfo().bits;
@@ -531,10 +531,15 @@ async function getKeyMetadata(key) {
 
   for (let i in key.users) {
     let trustLevel = "f";
-    try {
-      trustLevel = getKeyStatus(await key.users[i].verify());
+    if (keyIsValid) {
+      try {
+        trustLevel = getKeyStatus(await key.users[i].verify());
+      }
+      catch (x) {}
     }
-    catch (x) {}
+    else {
+      trustLevel = keyObj.keyTrust;
+    }
 
     if (key.users[i].userAttribute !== null) {
       keyObj.photoAvailable = true;
@@ -568,18 +573,23 @@ async function getKeyMetadata(key) {
     catch (x) {}
 
     let keyTrust = "f";
-    try {
-      keyTrust = getKeyStatus(await sk[i].verify(), keyObj.secretAvailable);
+    if (keyIsValid) {
+      try {
+        keyTrust = getKeyStatus(await sk[i].verify(), keyObj.secretAvailable);
+      }
+      catch (x) {}
     }
-    catch (x) {}
+    else {
+      keyTrust = keyObj.keyTrust;
+    }
 
     keyObj.subKeys.push({
       keyId: sk[i].getKeyId().toHex().toUpperCase(),
       expiry: EnigmailTime.getDateTime(exp, true, false),
       expiryTime: exp,
       keyTrust: keyTrust,
-      keyUseFor: (sk[i].getAlgorithmInfo().algorithm.search(/sign/) ? "S" : "") +
-        (sk[i].getAlgorithmInfo().algorithm.search(/encrypt/) ? "E" : ""),
+      keyUseFor: (sk[i].getAlgorithmInfo().algorithm.search(/sign/i) ? "s" : "") +
+        (sk[i].getAlgorithmInfo().algorithm.search(/encrypt/i) ? "e" : ""),
       keySize: sk[i].getAlgorithmInfo().bits,
       algoSym: sk[i].getAlgorithmInfo().algorithm.toUpperCase(),
       created: EnigmailTime.getDateTime(sk[i].getCreationTime() / 1000, true, false),
@@ -612,4 +622,43 @@ function getKeyStatus(statusId, isPrivateKey) {
   }
 
   return "?";
+}
+
+
+/**
+ * Parse a JSON string and create a key object. Additionally, determine if the key
+ * or some subkey(s) have expired since the metadata were last updated.
+ *
+ * @param {String} jsonStr: JSON string to parse
+ *
+ * @return {Object} keyObj object
+ */
+function getKeyFromJSON(jsonStr) {
+  let keyObj = JSON.parse(jsonStr);
+  const now = new Date().getTime() / 1000;
+  let keyIsValid = (keyObj.keyTrust.search(/^[uf]$/) === 0);
+
+  if (keyIsValid) {
+    // determine if key has expired
+    if (keyObj.expiryTime > 0 && keyObj.expiryTime < now) {
+      keyObj.keyTrust = "e";
+
+      for (let i in keyObj.subKeys) {
+        keyObj.subKeys[i].keyTrust = "e";
+      }
+      for (let i in keyObj.userIds) {
+        keyObj.userIds[i] = "e";
+      }
+    }
+    else {
+      // determine if a subkey has expired
+      for (let i in keyObj.subKeys) {
+        if (keyObj.subKeys[i].expiryTime > 0 && keyObj.subKeys[i].expiryTime < now) {
+          keyObj.subKeys[i].keyTrust = "e";
+        }
+      }
+    }
+  }
+
+  return keyObj;
 }
