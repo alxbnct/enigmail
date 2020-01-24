@@ -519,7 +519,7 @@ async function getKeyMetadata(key) {
     }
   }
 
-  keyObj.keyUseFor = "C" + (sig ? "sS" : "") + (enc ? "eE" : "");
+  keyObj.keyUseFor = "cC" + (sig ? "sS" : "") + (enc ? "eE" : "");
   keyObj.ownerTrust = (keyObj.secretAvailable ? "u" : "f");
   keyObj.algoSym = key.getAlgorithmInfo().algorithm.toUpperCase();
   keyObj.keySize = key.getAlgorithmInfo().bits;
