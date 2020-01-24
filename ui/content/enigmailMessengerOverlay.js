@@ -216,7 +216,6 @@ Enigmail.msg = {
       EnigmailConfigure.configureEnigmail(window, false);
     }
 
-    EnigmailMsgRead.ensureExtraAddonHeaders();
     gMessageListeners.push(Enigmail.msg.messageListener);
     Enigmail.msg.messageListener.onEndHeaders();
   },
