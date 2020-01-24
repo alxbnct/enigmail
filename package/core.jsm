@@ -33,6 +33,7 @@ const getEnigmailWindows = EnigmailLazy.loader("enigmail/windows.jsm", "Enigmail
 const getEnigmailDialog = EnigmailLazy.loader("enigmail/dialog.jsm", "EnigmailDialog");
 const getEnigmailConfigure = EnigmailLazy.loader("enigmail/configure.jsm", "EnigmailConfigure");
 const getEnigmailApp = EnigmailLazy.loader("enigmail/app.jsm", "EnigmailApp");
+const getMsgRead = EnigmailLazy.loader("enigmail/msgRead.jsm", "EnigmailMsgRead");
 const getEnigmailKeyRefreshService = EnigmailLazy.loader("enigmail/keyRefreshService.jsm", "EnigmailKeyRefreshService");
 const getEnigmailKeyServer = EnigmailLazy.loader("enigmail/keyserver.jsm", "EnigmailKeyServer");
 const getEnigmailWksMimeHandler = EnigmailLazy.loader("enigmail/wksMimeHandler.jsm", "EnigmailWksMimeHandler");
@@ -129,6 +130,7 @@ var EnigmailCore = {
     getEnigmailVerify().registerContentTypeHandler();
     getEnigmailWksMimeHandler().registerContentTypeHandler();
     getEnigmailFiltersWrapper().onStartup();
+    getMsgRead().onStartup();
     getEnigmailPEPAdapter().initialize().then(r => {
       continueStartup(0);
     }).catch(r => {
@@ -149,6 +151,7 @@ var EnigmailCore = {
       }
     }
 
+    getMsgRead().onShutdown();
     getEnigmailFiltersWrapper().onShutdown();
     getEnigmailPEPAdapter().onShutdown();
     getEnigmailVerify().unregisterContentTypeHandler();
