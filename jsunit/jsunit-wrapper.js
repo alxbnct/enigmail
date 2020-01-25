@@ -34,6 +34,32 @@ var do_test_finished = JSUnit.testFinished;
 
 var do_print = JSUnit.printMsg;
 
+function do_open_debugger() {
+  const Cc = Components.classes;
+  const Ci = Components.interfaces;
+  const Cu = Components.utils;
+  let inspector = Cc["@mozilla.org/jsinspector;1"].createInstance(Ci.nsIJSInspector);
+
+  const BrowserToolboxProcess = Cu.import("resource://devtools/client/framework/ToolboxProcess.jsm").BrowserToolboxProcess;
+  const setTimeout = Cu.import("resource://gre/modules/Timer.jsm").setTimeout;
+
+  function onRun() {
+    JSUnit.printMsg("Debugger opened");
+    setTimeout(function f() {
+      JSUnit.printMsg("Debugger - continue processing\n");
+      inspector.exitNestedEventLoop(0);
+    }, 10000);
+
+  }
+
+  function onClose() {
+    inspector.exitNestedEventLoop(0);
+  }
+
+  let deb = new BrowserToolboxProcess(onClose, onRun);
+  inspector.enterNestedEventLoop(0);
+}
+
 function do_subtest(filePath) {
   JSUnit.printMsg("*** Executing sub-test '" + filePath + "' ***");
   return JSUnit.executeScript(filePath);
