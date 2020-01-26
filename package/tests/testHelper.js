@@ -176,6 +176,23 @@ function withTestGpgHome(f) {
   };
 }
 
+/**
+ * Execute an async function (or a function returning a Promise) and wait for it to complete
+ *
+ * @param {function} f: the async function to execute
+ */
+function asyncTest(f) {
+  return function() {
+    let inspector = Cc["@mozilla.org/jsinspector;1"].createInstance(Ci.nsIJSInspector);
+
+    f().then(x => {
+      inspector.exitNestedEventLoop(0);
+    }).catch(x => {
+      inspector.exitNestedEventLoop(0);
+    });
+    inspector.enterNestedEventLoop(0);
+  };
+}
 
 /**
  * Overwrite functions for the scope of a test, and re-set the original function
