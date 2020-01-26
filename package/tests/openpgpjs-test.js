@@ -80,12 +80,9 @@ test(function testGetStrippedKey() {
   Assert.equal(got.length, 3080);
 });
 
-test(withTestGpgHome(asyncTest(async function testImportAndDeleteKey() {
+test(withTestGpgHome(withEnigmail(asyncTest(async function testImportAndDeleteKey() {
   try {
     const cApi = getOpenPGPjsAPI();
-
-    // do_open_debugger();
-    // debugger;
 
     cApi.initialize();
     const pubKeyFile = do_get_file("resources/dev-strike.asc", false);
@@ -105,4 +102,4 @@ test(withTestGpgHome(asyncTest(async function testImportAndDeleteKey() {
   catch (ex) {
     Assert.ok(false, "exception: " + ex.toString());
   }
-})));
+}))));
