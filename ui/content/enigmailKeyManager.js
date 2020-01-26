@@ -38,6 +38,7 @@ var EnigmailKeyServer = ChromeUtils.import("chrome://enigmail/content/modules/ke
 var EnigmailWks = ChromeUtils.import("chrome://enigmail/content/modules/webKey.jsm").EnigmailWks;
 var EnigmailSearchCallback = ChromeUtils.import("chrome://enigmail/content/modules/searchCallback.jsm").EnigmailSearchCallback;
 var EnigmailCompat = ChromeUtils.import("chrome://enigmail/content/modules/compat.jsm").EnigmailCompat;
+var EnigmailCryptoAPI = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI.jsm").EnigmailCryptoAPI;
 
 const INPUT = 0;
 const RESULT = 1;
@@ -393,7 +394,8 @@ function pEpHandleBlacklistClick(rowNum) {
 }
 
 
-function enigmailDeleteKey() {
+async function enigmailDeleteKey() {
+  const cApi = EnigmailCryptoAPI();
   var keyList = getSelectedKeys();
   var deleteSecret = false;
 
@@ -429,14 +431,12 @@ function enigmailDeleteKey() {
     fprArr.push("0x" + gKeyList[keyList[j]].fpr);
   }
 
-  EnigmailKeyManagement.deleteKey(window, fprArr.join(" "), deleteSecret,
-    function(exitCode, errorMsg) {
-      if (exitCode !== 0) {
-        EnigAlert(EnigGetString("deleteKeyFailed") + "\n\n" + errorMsg);
-        return;
-      }
-      refreshKeys();
-    });
+  let r = await cApi.deleteKey(fprArr.join(" "), deleteSecret, window);
+  if (r.exitCode !== 0) {
+    EnigAlert(EnigGetString("deleteKeyFailed") + "\n\n" + r.errorMsg);
+    return;
+  }
+  refreshKeys();
 }
 
 

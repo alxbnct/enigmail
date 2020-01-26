@@ -25,6 +25,7 @@ const EnigmailLocale = ChromeUtils.import("chrome://enigmail/content/modules/loc
 const EnigmailPassword = ChromeUtils.import("chrome://enigmail/content/modules/passwords.jsm").EnigmailPassword;
 const EnigmailErrorHandling = ChromeUtils.import("chrome://enigmail/content/modules/errorHandling.jsm").EnigmailErrorHandling;
 const GnuPGDecryption = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/gnupg-decryption.jsm").GnuPGDecryption;
+const EnigmailKeyEditor = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/gnupg-keyEditor.jsm").EnigmailKeyEditor;
 
 const {
   obtainKeyList,
@@ -292,6 +293,28 @@ class GnuPGCryptoAPI extends CryptoAPI {
   async importKeyData(keyData, minimizeKey, limitedUids) {
     let keys = await GnuPG_importKeyData(keyData, minimizeKey, limitedUids);
     return keys;
+  }
+
+   /**
+   * Delete key from keyring
+   *
+   * @param {String} fpr: fingerprint(s) to delete. Separate multiple keys with space
+   * @param {Boolean} deleteSecretKey: if true, also delete secret keys
+   * @param {nsIWindow} parentWindow: parent window for displaying modal dialogs
+   *
+   * @return {Promise<Object>}:
+   *      - {Number} exitCode: 0 if successful, other values indicate error
+   *      - {String} errorMsg: error message if deletion not successful
+   */
+  deleteKey(fpr, deleteSecretKey, parentWindow) {
+    return new Promise((resolve, reject) => {
+      EnigmailKeyEditor.deleteKey(parentWindow, fpr, deleteSecretKey, function(exitCode, errorMsg) {
+        resolve({
+          exitCode: exitCode,
+          errorMsg: errorMsg
+        });
+      });
+    });
   }
 
 

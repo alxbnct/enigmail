@@ -188,6 +188,21 @@ class CryptoAPI {
   }
 
   /**
+   * Delete key from keyring
+   *
+   * @param {String} fpr: fingerprint(s) to delete. Separate multiple keys with space
+   * @param {Boolean} deleteSecretKey: if true, also delete secret keys
+   * @param {nsIWindow} parentWindow: parent window for displaying modal dialogs
+   *
+   * @return {Promise<Object>}:
+   *      - {Number} exitCode: 0 if successful, other values indicate error
+   *      - {String} errorMsg: error message if deletion not successful
+   */
+  async deleteKey(fpr, deleteSecretKey, parentWindow) {
+    return null;
+  }
+
+  /**
    * Export secret key(s) as ASCII armored data
    *
    * @param {String}  keyId       Specification by fingerprint or keyID
