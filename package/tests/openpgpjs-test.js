@@ -1,5 +1,5 @@
 /*global do_load_module: false, do_get_file: false, do_get_cwd: false, testing: false, test: false, Assert: false, resetting: false */
-/*global do_test_pending: false, do_test_finished: false */
+/*global do_test_pending: false, do_test_finished: false, withTestGpgHome: false */
 
 /*
  * This Source Code Form is subject to the terms of the Mozilla Public
@@ -12,6 +12,10 @@
 do_load_module("file://" + do_get_cwd().path + "/testHelper.js");
 
 testing("cryptoAPI/openpgp-js.js"); /*global getOpenPGPjsAPI: false */
+const EnigmailOS = ChromeUtils.import("chrome://enigmail/content/modules/os.jsm").EnigmailOS;
+
+// make sure isWin32 is set correctly
+EnigmailOS.isWin32 = EnigmailOS.getOS() === "WINNT";
 
 test(function testGetStrippedKey() {
   const cApi = getOpenPGPjsAPI();
@@ -75,3 +79,31 @@ test(function testGetStrippedKey() {
   Assert.equal(got.substr(-127), "QriSRXV4ZhMhGtnhHEYqHP982gBxk4RPvEp7APCLrqgC0+N8N29eC4s3JkVkHAZx+fj5YV2H9/5wJRJ1w+kwmazhpTQsy01kEwS4NZMPe8Uvz0MgoNuF7Jx0rdQ0SQ=");
   Assert.equal(got.length, 3080);
 });
+
+test(withTestGpgHome(function readWrite() {
+  let inspector = Cc["@mozilla.org/jsinspector;1"].createInstance(Ci.nsIJSInspector);
+  const cApi = getOpenPGPjsAPI();
+
+  async function performTest() {
+    try {
+      cApi.initialize();
+      const pubKeyFile = do_get_file("resources/dev-strike.asc", false);
+
+      let r = await cApi.importKeyFromFile(pubKeyFile);
+
+      Assert.equal(r.exitCode, 0);
+      Assert.equal(r.importSum, 1);
+      Assert.equal(r.importedKeys[0], "65537E212DC19025AD38EDB2781617319CE311C4");
+    }
+    catch (ex) {
+      Assert.ok(false, "exception: " + ex.toString());
+    }
+  }
+
+  performTest().then(x => {
+    inspector.exitNestedEventLoop(0);
+  }).catch(x => {
+    inspector.exitNestedEventLoop(0);
+  });
+  inspector.enterNestedEventLoop(0);
+}));

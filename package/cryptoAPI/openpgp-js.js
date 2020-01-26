@@ -73,14 +73,49 @@ class OpenPGPjsCryptoAPI extends CryptoAPI {
       keyData = await pgpjs_keys.getStrippedKey(keyData, limitedUid);
     }
 
-    let imported = await pgpjs_keyStore.writeKey(keyData);
+    try {
+      let imported = await pgpjs_keyStore.writeKey(keyData);
 
-    return {
-      exitCode: 0,
-      importedKeys: imported,
-      importSum: imported.length,
-      importUnchanged: 0
-    };
+      return {
+        exitCode: 0,
+        importedKeys: imported,
+        importSum: imported.length,
+        importUnchanged: 0,
+        secCount: 0,
+        secDups: 0,
+        secImported: 0
+      };
+    }
+    catch(ex) {
+      return {
+        exitCode: 1,
+        importedKeys: [],
+        importSum: 0,
+        importUnchanged: 0,
+        secCount: 0,
+        secDups: 0,
+        secImported: 0
+      };
+    }
+  }
+
+  /**
+   * Import key(s) from a file
+   *
+   * @param {nsIFile} inputFile:  the file holding the keys
+   *
+   * @return {Object} or null in case no data / error:
+   *   - {Number}          exitCode:        result code (0: OK)
+   *   - {Array of String) importedKeys:    imported fingerprints
+   *   - {String}          errorMsg:        human readable error message
+   *   - {Number}          importSum:       total number of processed keys
+   *   - {Number}          importUnchanged: number of unchanged keys
+   */
+  async importKeyFromFile(inputFile) {
+    const EnigmailFiles = ChromeUtils.import("chrome://enigmail/content/modules/files.jsm").EnigmailFiles;
+
+    let fileData = EnigmailFiles.readBinaryFile(inputFile);
+    return this.importKeyData(fileData, false, null);
   }
 }
 
