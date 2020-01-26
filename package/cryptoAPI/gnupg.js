@@ -296,9 +296,9 @@ class GnuPGCryptoAPI extends CryptoAPI {
   }
 
    /**
-   * Delete key from keyring
+   * Delete keys from keyring
    *
-   * @param {String} fpr: fingerprint(s) to delete. Separate multiple keys with space
+   * @param {Array<String>} fpr: fingerprint(s) to delete. Separate multiple keys with space
    * @param {Boolean} deleteSecretKey: if true, also delete secret keys
    * @param {nsIWindow} parentWindow: parent window for displaying modal dialogs
    *
@@ -306,9 +306,9 @@ class GnuPGCryptoAPI extends CryptoAPI {
    *      - {Number} exitCode: 0 if successful, other values indicate error
    *      - {String} errorMsg: error message if deletion not successful
    */
-  deleteKey(fpr, deleteSecretKey, parentWindow) {
+  deleteKeys(fpr, deleteSecretKey, parentWindow) {
     return new Promise((resolve, reject) => {
-      EnigmailKeyEditor.deleteKey(parentWindow, fpr, deleteSecretKey, function(exitCode, errorMsg) {
+      EnigmailKeyEditor.deleteKey(parentWindow, fpr.join(" "), deleteSecretKey, function(exitCode, errorMsg) {
         resolve({
           exitCode: exitCode,
           errorMsg: errorMsg

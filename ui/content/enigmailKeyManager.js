@@ -431,7 +431,7 @@ async function enigmailDeleteKey() {
     fprArr.push("0x" + gKeyList[keyList[j]].fpr);
   }
 
-  let r = await cApi.deleteKey(fprArr.join(" "), deleteSecret, window);
+  let r = await cApi.deleteKeys(fprArr, deleteSecret, window);
   if (r.exitCode !== 0) {
     EnigAlert(EnigGetString("deleteKeyFailed") + "\n\n" + r.errorMsg);
     return;

@@ -80,9 +80,12 @@ test(function testGetStrippedKey() {
   Assert.equal(got.length, 3080);
 });
 
-test(withTestGpgHome(asyncTest(async function testImportKey() {
+test(withTestGpgHome(asyncTest(async function testImportAndDeleteKey() {
   try {
     const cApi = getOpenPGPjsAPI();
+
+    // do_open_debugger();
+    // debugger;
 
     cApi.initialize();
     const pubKeyFile = do_get_file("resources/dev-strike.asc", false);
@@ -92,6 +95,12 @@ test(withTestGpgHome(asyncTest(async function testImportKey() {
     Assert.equal(r.exitCode, 0);
     Assert.equal(r.importSum, 1);
     Assert.equal(r.importedKeys[0], "65537E212DC19025AD38EDB2781617319CE311C4");
+
+    r = await cApi.deleteKeys(["0x65537E212DC19025AD38EDB2781617319CE311C4"]);
+    Assert.equal(r.exitCode, 0);
+
+    r = await cApi.getKeys(["0x65537E212DC19025AD38EDB2781617319CE311C4"]);
+    Assert.equal(r.length, 0);
   }
   catch (ex) {
     Assert.ok(false, "exception: " + ex.toString());

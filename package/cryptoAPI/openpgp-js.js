@@ -13,6 +13,9 @@ var EXPORTED_SYMBOLS = ["getOpenPGPjsAPI"];
 var Services = ChromeUtils.import("resource://gre/modules/Services.jsm").Services;
 const pgpjs_keys = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/pgpjs-keys.jsm").pgpjs_keys;
 const pgpjs_keyStore = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/pgpjs-keystore.jsm").pgpjs_keyStore;
+const EnigmailLazy = ChromeUtils.import("chrome://enigmail/content/modules/lazy.jsm").EnigmailLazy;
+
+const getKeyRing = EnigmailLazy.loader("enigmail/keyRing.jsm", "EnigmailKeyRing");
 
 // Load generic API
 Services.scriptloader.loadSubScript("chrome://enigmail/content/modules/cryptoAPI/interface.js",
@@ -29,7 +32,7 @@ class OpenPGPjsCryptoAPI extends CryptoAPI {
     this.api_name = "OpenPGP.js";
   }
 
-/**
+  /**
    * Initialize the tools/functions required to run the API
    *
    * @param {nsIWindow} parentWindow: parent window, may be NULL
@@ -39,7 +42,7 @@ class OpenPGPjsCryptoAPI extends CryptoAPI {
   initialize(parentWindow, enigSvc, preferredPath) {
     let success = this.sync(pgpjs_keyStore.init());
 
-    if (! success) throw "Init Error";
+    if (!success) throw "Init Error";
   }
 
   async getKeys(onlyKeys = null) {
@@ -86,7 +89,7 @@ class OpenPGPjsCryptoAPI extends CryptoAPI {
         secImported: 0
       };
     }
-    catch(ex) {
+    catch (ex) {
       return {
         exitCode: 1,
         importedKeys: [],
@@ -116,6 +119,33 @@ class OpenPGPjsCryptoAPI extends CryptoAPI {
 
     let fileData = EnigmailFiles.readBinaryFile(inputFile);
     return this.importKeyData(fileData, false, null);
+  }
+
+  /**
+   * Delete keys from keyring
+   *
+   * @param {Array<String>} fpr: fingerprint(s) to delete
+   * @param {Boolean} deleteSecretKey: if true, also delete secret keys [non-op]
+   * @param {nsIWindow} parentWindow: parent window for displaying modal dialogs [non-op]
+   *
+   * @return {Promise<Object>}:
+   *      - {Number} exitCode: 0 if successful, other values indicate error
+   *      - {String} errorMsg: error message if deletion not successful
+   */
+  async deleteKeys(fpr, deleteSecretKey, parentWindow) {
+    let exitCode = 1;
+    try {
+      await pgpjs_keyStore.deleteKeys(fpr);
+      getKeyRing().updateKeys(fpr);
+
+      exitCode = 0;
+    }
+    catch (ex) {}
+
+    return {
+      exitCode: exitCode,
+      errorMsg: ""
+    };
   }
 }
 
