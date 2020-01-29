@@ -28,28 +28,41 @@ Services.scriptloader.loadSubScript("chrome://enigmail/content/modules/cryptoAPI
  */
 
 var pgpjs_keys = {
-  getStrippedKey: async function (armoredKey, emailAddr) {
+  /**
+   * Get a minimal key, possibly reduced to a specific email address
+   *
+   * @param {String|Object} key: String: armored key data
+   *                             Object: OpenPGP.JS Key object
+   * @param {String} emailAddr:  If set, only filter for UIDs with the emailAddr
+   * @param {Boolean} getPacketList: if true, return packet list instead of Uint8Array
+   *
+   */
+  getStrippedKey: async function(key, emailAddr, getPacketList = false) {
     EnigmailLog.DEBUG("pgpjs-keys.jsm: getStrippedKey()\n");
 
     let searchUid = undefined;
     if (emailAddr) {
       if (emailAddr.search(/^<.{1,500}>$/) < 0) {
         searchUid = `<${emailAddr}>`;
-      } else searchUid = emailAddr;
+      }
+      else searchUid = emailAddr;
     }
 
     try {
       const openpgp = getOpenPGPLibrary();
-      let msg = await openpgp.key.readArmored(armoredKey);
+      if (typeof(key) === "string") {
+        let msg = await openpgp.key.readArmored(key);
 
-      if (!msg || msg.keys.length === 0) {
-        if (msg.err) {
-          EnigmailLog.writeException("pgpjs-keys.jsm", msg.err[0]);
+        if (!msg || msg.keys.length === 0) {
+          if (msg.err) {
+            EnigmailLog.writeException("pgpjs-keys.jsm", msg.err[0]);
+          }
+          return null;
         }
-        return null;
+
+        key = msg.keys[0];
       }
 
-      let key = msg.keys[0];
       let uid = await key.getPrimaryUser(null, searchUid);
       if (!uid || !uid.user) return null;
 
@@ -66,14 +79,19 @@ var pgpjs_keys = {
         p.concat(encSubkey.toPacketlist());
       }
 
+      if (getPacketList) {
+        return p;
+      }
+
       return p.write();
-    } catch (ex) {
+    }
+    catch (ex) {
       EnigmailLog.DEBUG("pgpjs-keys.jsm: getStrippedKey: ERROR " + ex.message + "\n" + ex.stack + "\n");
     }
     return null;
   },
 
-  getKeyListFromKeyBlock: async function (keyBlockStr) {
+  getKeyListFromKeyBlock: async function(keyBlockStr) {
     EnigmailLog.DEBUG("pgpjs-keys.jsm: getKeyListFromKeyBlock()\n");
     const EnigmailTime = ChromeUtils.import("chrome://enigmail/content/modules/time.jsm").EnigmailTime;
 
@@ -88,7 +106,8 @@ var pgpjs_keys = {
 
     if (keyBlockStr.search(/-----BEGIN PGP (PUBLIC|PRIVATE) KEY BLOCK-----/) >= 0) {
       blocks = getArmor().splitArmoredBlocks(keyBlockStr);
-    } else {
+    }
+    else {
       isBinary = true;
       blocks = [EOpenpgp.bytesToArmor(openPGPjs.enums.armor.public_key, keyBlockStr)];
     }
@@ -105,7 +124,7 @@ var pgpjs_keys = {
               id: m.packets[i].getKeyId().toHex().toUpperCase(),
               fpr: m.packets[i].getFingerprint().toUpperCase(),
               uids: [],
-              created: EnigmailTime.getDateTime(m.packets[i].getCreationTime().getTime()/1000, true, false),
+              created: EnigmailTime.getDateTime(m.packets[i].getCreationTime().getTime() / 1000, true, false),
               name: null,
               isSecret: false,
               revoke: false
@@ -132,7 +151,8 @@ var pgpjs_keys = {
               let keyId = m.packets[i].issuerKeyId.toHex().toUpperCase();
               if (keyId in keyList) {
                 keyList[keyId].revoke = true;
-              } else {
+              }
+              else {
                 keyList[keyId] = {
                   revoke: true,
                   id: keyId

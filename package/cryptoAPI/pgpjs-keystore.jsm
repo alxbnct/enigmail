@@ -21,6 +21,7 @@ const Sqlite = ChromeUtils.import("resource://gre/modules/Sqlite.jsm").Sqlite;
 const EnigmailLazy = ChromeUtils.import("chrome://enigmail/content/modules/lazy.jsm").EnigmailLazy;
 const getArmor = EnigmailLazy.loader("enigmail/armor.jsm", "EnigmailArmor");
 const EnigmailTime = ChromeUtils.import("chrome://enigmail/content/modules/time.jsm").EnigmailTime;
+const pgpjs_keys = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/pgpjs-keys.jsm").pgpjs_keys;
 
 const SIG_TYPE_REVOCATION = 0x20;
 
@@ -153,6 +154,40 @@ var pgpjs_keyStore = {
     }
 
     return PgpJS.armor.encode(PgpJS.enums.armor.public_key, packets.write(), 0, 0);
+  },
+
+  /**
+   * Export secret key(s) as ASCII armored data
+   *
+   * @param {String}  keyArr       Specification by fingerprint or keyID, separate mutliple keys with spaces
+   * @param {Boolean} minimalKey  if true, reduce key to minimum required
+   *
+   * @return {Object}:
+   *   - {Number} exitCode:  result code (0: OK)
+   *   - {String} keyData:   ASCII armored key data material
+   *   - {String} errorMsg:  error message in case exitCode !== 0
+   */
+
+  readSecretKeys: async function (keyArr, minimalKey) {
+    EnigmailLog.DEBUG(`pgpjs-keystore.jsm: readSecretKeys(${keyArr})\n`);
+
+    const PgpJS = getOpenPGPLibrary();
+
+    let keyList = await this.readKeys(keyArr);
+    let packets = new PgpJS.packet.List();
+
+    for (let k of keyList) {
+      if (k.key.isPrivate()) {
+        if (minimalKey) {
+          packets.concat(await pgpjs_keys.getStrippedKey(k.key, null, true));
+        }
+        else {
+          packets.concat(await k.key.toPacketlist());
+        }
+      }
+    }
+
+    return PgpJS.armor.encode(PgpJS.enums.armor.private_key, packets.write(), 0, 0);
   },
 
   /**

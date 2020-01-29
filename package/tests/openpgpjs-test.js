@@ -114,3 +114,38 @@ test(withTestGpgHome(withEnigmail(asyncTest(async function testImportAndDeleteKe
     Assert.ok(false, "exception: " + ex.toString());
   }
 }))));
+
+test(withTestGpgHome(withEnigmail(asyncTest(async function testImportExport() {
+  try {
+    const cApi = getOpenPGPjsAPI();
+
+    cApi.initialize();
+    const pubKeyFile = do_get_file("resources/dev-strike.sec", false);
+
+    let r = await cApi.importKeyFromFile(pubKeyFile);
+
+    Assert.equal(r.exitCode, 0);
+    Assert.equal(r.importSum, 1);
+    Assert.equal(r.importedKeys[0], "65537E212DC19025AD38EDB2781617319CE311C4");
+
+    let armor = await cApi.extractPublicKey("0x65537E212DC19025AD38EDB2781617319CE311C4");
+    Assert.equal(armor.exitCode, 0);
+    Assert.ok(armor.keyData.search(/-----BEGIN PGP PUBLIC KEY BLOCK-----/) === 0);
+    Assert.ok(armor.keyData.length > 2800);
+
+    armor = await cApi.extractSecretKey("0x65537E212DC19025AD38EDB2781617319CE311C4", true);
+    Assert.equal(armor.exitCode, 0);
+    Assert.ok(armor.keyData.search(/-----BEGIN PGP PRIVATE KEY BLOCK-----/) === 0);
+    Assert.ok(armor.keyData.length > 2800);
+
+    const PgpJS = getOpenPGPLibrary();
+    r = await PgpJS.key.readArmored(armor.keyData);
+    Assert.ok(r.keys.length === 1);
+    Assert.equal(r.keys[0].getFingerprint().toUpperCase(), "65537E212DC19025AD38EDB2781617319CE311C4");
+    Assert.ok(r.keys[0].isPrivate());
+
+  }
+  catch (ex) {
+    Assert.ok(false, "exception: " + ex.toString());
+  }
+}))));
