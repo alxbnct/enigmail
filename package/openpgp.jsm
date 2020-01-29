@@ -86,8 +86,8 @@ var EnigmailOpenPGP = {
    * Create an ASCII armored string from binary data. The message data is NOT
    * checked for correctness, only the CRC is added at the end.
    *
-   * @param msgType: Number - type of OpenPGP message to create (ARMOR Enum)
-   * @param str:     String - binary OpenPGP message
+   * @param {Number} msgType: type of OpenPGP message to create (ARMOR Enum)
+   * @param {String|Uint8Array} str: binary OpenPGP message
    *
    * @return String: ASCII armored OpenPGP message
    */
@@ -121,7 +121,14 @@ var EnigmailOpenPGP = {
         break;
     }
 
-    let crc = EnigmailOpenPGP.createcrc24(EnigmailOpenPGP.str2Uint8Array(str));
+    let crc;
+
+    if (typeof(str) === "string") {
+      crc = EnigmailOpenPGP.createcrc24(EnigmailOpenPGP.str2Uint8Array(str));
+    }
+    else {
+      crc = EnigmailOpenPGP.createcrc24(str);
+    }
     let crcAsc = String.fromCharCode(crc >> 16) + String.fromCharCode(crc >> 8 & 0xFF) + String.fromCharCode(crc & 0xFF);
 
     let s = "-----BEGIN PGP " + hdr + "-----\n\n" +

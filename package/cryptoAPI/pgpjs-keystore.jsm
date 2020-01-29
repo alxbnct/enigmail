@@ -126,6 +126,8 @@ var pgpjs_keyStore = {
    *    object that suits as input for keyObj.contructor
    */
   readKeyMetadata: async function(keyArr) {
+    EnigmailLog.DEBUG(`pgpjs-keystore.jsm: readKeyMetadata(${keyArr})\n`);
+
     const PgpJS = getOpenPGPLibrary();
 
     let rows = await keyStoreDatabase.readKeysFromDb(keyArr);
@@ -135,6 +137,22 @@ var pgpjs_keyStore = {
       foundKeys.push(getKeyFromJSON(rows[i].metadata));
     }
     return foundKeys;
+  },
+
+  readPublicKeys: async function(keyArr) {
+    EnigmailLog.DEBUG(`pgpjs-keystore.jsm: readPublicKeys(${keyArr})\n`);
+
+    const PgpJS = getOpenPGPLibrary();
+
+    let keyList = await this.readKeys(keyArr);
+    let packets = new PgpJS.packet.List();
+
+    for (let i in keyList) {
+      let k = await keyList[i].key.toPublic();
+      packets.concat(await k.toPacketlist());
+    }
+
+    return PgpJS.armor.encode(PgpJS.enums.armor.public_key, packets.write(), 0, 0);
   },
 
   /**

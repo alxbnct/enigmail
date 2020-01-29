@@ -376,7 +376,7 @@ var EnigmailKeyRing = {
    *
    * @param includeSecretKey  Boolean  - if true, secret keys are exported
    * @param userId            String   - space or comma separated list of keys to export. Specification by
-   *                                     key ID, fingerprint, or userId
+   *                                     key ID, email or fingerprint
    * @param outputFile        String or nsIFile - output file name or Object - or NULL
    * @param exitCodeObj       Object   - o.value will contain exit code
    * @param errorMsgObj       Object   - o.value will contain error message from GnuPG
@@ -388,7 +388,27 @@ var EnigmailKeyRing = {
 
     const cApi = EnigmailCryptoAPI();
 
-    let r = cApi.sync(cApi.extractPublicKey(userId));
+    let keys = userId.split(/[ ,\t]+/);
+    let keyList = [];
+    let k;
+
+    for (let keyId of keys) {
+      k = this.getKeyById(keyId);
+      if (k) {
+        keyList.push("0x" + k.fpr);
+      }
+      else {
+        k = EnigmailKeyRing.getKeysByUserId(keyId);
+
+        if (k && k.length > 0) {
+          keyList = keyList.concat(k.map(keyObj => {
+            return "0x" + keyObj.fpr;
+          }));
+        }
+      }
+    }
+
+    let r = cApi.sync(cApi.extractPublicKey(keyList.join(" ")));
 
     let keyBlock = r.keyData;
     exitCodeObj.value = r.exitCode;

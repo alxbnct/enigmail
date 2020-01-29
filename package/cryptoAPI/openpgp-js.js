@@ -147,6 +147,36 @@ class OpenPGPjsCryptoAPI extends CryptoAPI {
       errorMsg: ""
     };
   }
+
+
+  /**
+   * Export public key(s) as ASCII armored data
+   *
+   * @param {String}  fpr         Fingerprint(s), separate mutliple keys with spaces
+   * @param {Boolean} minimalKey  if true, reduce key(s) to minimum required
+   *
+   * @return {Object}:
+   *   - {Number} exitCode:  result code (0: OK)
+   *   - {String} keyData:   ASCII armored key data material
+   *   - {String} errorMsg:  error message in case exitCode !== 0
+   */
+
+  async extractPublicKey(fpr) {
+    let exitCode = 1, keyData = "";
+    try {
+      let fprArr = fpr.split(/[ ,\t]+/);
+      keyData = await pgpjs_keyStore.readPublicKeys(fprArr);
+
+      exitCode = 0;
+    }
+    catch (ex) {}
+
+    return {
+      exitCode: exitCode,
+      keyData: keyData,
+      errorMsg: ""
+    };
+  }
 }
 
 

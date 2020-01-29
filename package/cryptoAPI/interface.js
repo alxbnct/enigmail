@@ -205,7 +205,7 @@ class CryptoAPI {
   /**
    * Export secret key(s) as ASCII armored data
    *
-   * @param {String}  keyId       Specification by fingerprint or keyID
+   * @param {String}  keyId       Specification by fingerprint or keyID, separate mutliple keys with spaces
    * @param {Boolean} minimalKey  if true, reduce key to minimum required
    *
    * @return {Object}:
@@ -221,7 +221,7 @@ class CryptoAPI {
   /**
    * Export public key(s) as ASCII armored data
    *
-   * @param {String}  keyId       Specification by fingerprint or keyID
+   * @param {String}  keyId       Specification by fingerprint or keyID, separate mutliple keys with spaces
    * @param {Boolean} minimalKey  if true, reduce key to minimum required
    *
    * @return {Object}:
