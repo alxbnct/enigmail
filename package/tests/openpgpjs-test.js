@@ -14,6 +14,7 @@ do_load_module("file://" + do_get_cwd().path + "/testHelper.js");
 testing("cryptoAPI/openpgp-js.js"); /*global getOpenPGPjsAPI: false */
 const EnigmailOS = ChromeUtils.import("chrome://enigmail/content/modules/os.jsm").EnigmailOS;
 const getOpenPGPLibrary = ChromeUtils.import("chrome://enigmail/content/modules/stdlib/openpgp-loader.jsm").getOpenPGPLibrary;
+const EnigmailOpenPGP = ChromeUtils.import("chrome://enigmail/content/modules/openpgp.jsm").EnigmailOpenPGP;
 
 // make sure isWin32 is set correctly
 EnigmailOS.isWin32 = EnigmailOS.getOS() === "WINNT";
@@ -144,6 +145,13 @@ test(withTestGpgHome(withEnigmail(asyncTest(async function testImportExport() {
     Assert.equal(r.keys[0].getFingerprint().toUpperCase(), "65537E212DC19025AD38EDB2781617319CE311C4");
     Assert.ok(r.keys[0].isPrivate());
 
+    r = await cApi.getMinimalPubKey("0x65537E212DC19025AD38EDB2781617319CE311C4");
+    Assert.ok(r.keyData.length > 2800);
+
+    r = await PgpJS.key.readArmored(EnigmailOpenPGP.bytesToArmor(PgpJS.enums.armor.public_key, atob(r.keyData)));
+    Assert.ok(r.keys.length === 1);
+    Assert.equal(r.keys[0].getFingerprint().toUpperCase(), "65537E212DC19025AD38EDB2781617319CE311C4");
+    Assert.ok(!r.keys[0].isPrivate());
   }
   catch (ex) {
     Assert.ok(false, "exception: " + ex.toString());

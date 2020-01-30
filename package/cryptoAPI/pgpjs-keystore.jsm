@@ -156,6 +156,38 @@ var pgpjs_keyStore = {
     return PgpJS.armor.encode(PgpJS.enums.armor.public_key, packets.write(), 0, 0);
   },
 
+
+  readMinimalPubKey: async function(fpr, email) {
+    EnigmailLog.DEBUG(`pgpjs-keystore.jsm: readMinimalPubKey(${fpr})\n`);
+
+    let keyList = await this.readKeys([fpr]);
+
+    let ret = {
+      exitCode: 0,
+      keyData: "",
+      errorMsg: ""
+    };
+
+    if (keyList.length > 0) {
+      let k = await keyList[0].key.toPublic();
+      k.toPacketlist();
+
+      if (!email) {
+        try {
+          email = EnigmailFuncs.stripEmail((await k.getPrimaryUser()).user);
+        }
+        catch (ex) {}
+      }
+
+      let keyBlob = await pgpjs_keys.getStrippedKey(k, email);
+      if (keyBlob) {
+        ret.keyData = btoa(String.fromCharCode.apply(null, keyBlob));
+      }
+    }
+
+    return ret;
+  },
+
   /**
    * Export secret key(s) as ASCII armored data
    *
@@ -168,7 +200,7 @@ var pgpjs_keyStore = {
    *   - {String} errorMsg:  error message in case exitCode !== 0
    */
 
-  readSecretKeys: async function (keyArr, minimalKey) {
+  readSecretKeys: async function(keyArr, minimalKey) {
     EnigmailLog.DEBUG(`pgpjs-keystore.jsm: readSecretKeys(${keyArr})\n`);
 
     const PgpJS = getOpenPGPLibrary();
