@@ -119,39 +119,50 @@ test(withTestGpgHome(withEnigmail(asyncTest(async function testImportAndDeleteKe
 test(withTestGpgHome(withEnigmail(asyncTest(async function testImportExport() {
   try {
     const cApi = getOpenPGPjsAPI();
+    const PgpJS = getOpenPGPLibrary();
 
     cApi.initialize();
-    const pubKeyFile = do_get_file("resources/dev-strike.sec", false);
-
-    let r = await cApi.importKeyFromFile(pubKeyFile);
+    let keyFile = do_get_file("resources/multi-uid.asc", false);
+    let r = await cApi.importKeyFromFile(keyFile);
 
     Assert.equal(r.exitCode, 0);
     Assert.equal(r.importSum, 1);
-    Assert.equal(r.importedKeys[0], "65537E212DC19025AD38EDB2781617319CE311C4");
+    Assert.equal(r.importedKeys[0], "ADC49530CB6B132412D856107F1568CB8997F7BA");
 
-    let armor = await cApi.extractPublicKey("0x65537E212DC19025AD38EDB2781617319CE311C4");
+    keyFile = do_get_file("resources/multi-uid.sec", false);
+    r = await cApi.importKeyFromFile(keyFile);
+    Assert.equal(r.exitCode, 0);
+    Assert.equal(r.importSum, 1);
+
+
+    let armor = await cApi.extractPublicKey("0xADC49530CB6B132412D856107F1568CB8997F7BA");
     Assert.equal(armor.exitCode, 0);
     Assert.ok(armor.keyData.search(/-----BEGIN PGP PUBLIC KEY BLOCK-----/) === 0);
     Assert.ok(armor.keyData.length > 2800);
+    r = await PgpJS.key.readArmored(armor.keyData);
+    Assert.ok(r.keys.length === 1);
+    Assert.equal(r.keys[0].users.length, 5);
 
-    armor = await cApi.extractSecretKey("0x65537E212DC19025AD38EDB2781617319CE311C4", true);
+    armor = await cApi.extractSecretKey("0xADC49530CB6B132412D856107F1568CB8997F7BA", true);
     Assert.equal(armor.exitCode, 0);
     Assert.ok(armor.keyData.search(/-----BEGIN PGP PRIVATE KEY BLOCK-----/) === 0);
     Assert.ok(armor.keyData.length > 2800);
 
-    const PgpJS = getOpenPGPLibrary();
     r = await PgpJS.key.readArmored(armor.keyData);
     Assert.ok(r.keys.length === 1);
-    Assert.equal(r.keys[0].getFingerprint().toUpperCase(), "65537E212DC19025AD38EDB2781617319CE311C4");
+    Assert.equal(r.keys[0].getFingerprint().toUpperCase(), "ADC49530CB6B132412D856107F1568CB8997F7BA");
     Assert.ok(r.keys[0].isPrivate());
+    Assert.equal(r.keys[0].users.length, 1);
 
-    r = await cApi.getMinimalPubKey("0x65537E212DC19025AD38EDB2781617319CE311C4");
+    r = await cApi.getMinimalPubKey("0xADC49530CB6B132412D856107F1568CB8997F7BA");
     Assert.ok(r.keyData.length > 2800);
 
     r = await PgpJS.key.readArmored(EnigmailOpenPGP.bytesToArmor(PgpJS.enums.armor.public_key, atob(r.keyData)));
     Assert.ok(r.keys.length === 1);
-    Assert.equal(r.keys[0].getFingerprint().toUpperCase(), "65537E212DC19025AD38EDB2781617319CE311C4");
+    Assert.equal(r.keys[0].getFingerprint().toUpperCase(), "ADC49530CB6B132412D856107F1568CB8997F7BA");
     Assert.ok(!r.keys[0].isPrivate());
+    Assert.equal(r.keys[0].users.length, 1);
+    Assert.equal(r.keys[0].users[0].userId.userid, "Unit Test <alice@example.invalid>");
   }
   catch (ex) {
     Assert.ok(false, "exception: " + ex.toString());
