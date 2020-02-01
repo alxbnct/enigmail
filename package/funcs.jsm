@@ -502,5 +502,21 @@ var EnigmailFuncs = {
     }
 
     return res;
+  },
+
+  /**
+   * Convert an array containing numbers into a Hexadecimal string
+   *
+   * @param {Array} arr: input array
+   *
+   * @return {String} Hex-String
+   */
+  arrayToHex: function(arr) {
+    return arr.reduce((previousValue, i) => {
+      if (typeof(previousValue) === "number") {
+        previousValue = ("0" + previousValue.toString(16)).substr(-2);
+      }
+      return previousValue + ("0" + i.toString(16)).substr(-2);
+    }).toUpperCase();
   }
 };

@@ -76,12 +76,23 @@ class CryptoAPI {
   /**
    * Obtain signatures for a given set of key IDs.
    *
-   * @param {String}  keyId:            space-separated list of key IDs
+   * @param {String}  fpr:            key fingerprint
    * @param {Boolean} ignoreUnknownUid: if true, filter out unknown signer's UIDs
    *
-   * @return {Promise<Array of Object>} - see extractSignatures()
+   * @return {Promise<Array of Object>}
+   *     - {String} userId
+   *     - {String} rawUserId
+   *     - {String} keyId
+   *     - {String} fpr
+   *     - {String} created
+   *     - {Array} sigList:
+   *            - {String} userId
+   *            - {String} created
+   *            - {String} signerKeyId
+   *            - {String} sigType
+   *            - {Boolean} sigKnown
    */
-  async getKeySignatures(keyId, ignoreUnknownUid = false) {
+  async getKeySignatures(fpr, ignoreUnknownUid = false) {
     return null;
   }
 
@@ -379,7 +390,11 @@ class CryptoAPI {
    *          - errorMsg {String}: error message
    */
   async getOwnerTrust(outputFile) {
-    return null;
+    return {
+      exitCode: 0,
+      ownerTrustData: "",
+      errorMsg: ""
+    };
   }
 
 
@@ -393,7 +408,10 @@ class CryptoAPI {
    *         - errorMsg {String}: error message
    */
   async importOwnerTrust(inputFile) {
-    return null;
+    return {
+      exitCode: 0,
+      errorMsg: ""
+    };
   }
 
 

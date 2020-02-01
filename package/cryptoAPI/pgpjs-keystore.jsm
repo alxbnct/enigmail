@@ -126,7 +126,7 @@ var pgpjs_keyStore = {
    * @return {Promise<Array<Object>>} found keys:
    *    object that suits as input for keyObj.contructor
    */
-  readKeyMetadata: async function(keyArr) {
+  readKeyMetadata: async function(keyArr = null) {
     EnigmailLog.DEBUG(`pgpjs-keystore.jsm: readKeyMetadata(${keyArr})\n`);
 
     const PgpJS = getOpenPGPLibrary();

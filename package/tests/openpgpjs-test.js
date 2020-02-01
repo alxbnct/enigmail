@@ -168,3 +168,36 @@ test(withTestGpgHome(withEnigmail(asyncTest(async function testImportExport() {
     Assert.ok(false, "exception: " + ex.toString());
   }
 }))));
+
+test(withTestGpgHome(withEnigmail(asyncTest(async function testSignatures() {
+  try {
+    const cApi = getOpenPGPjsAPI();
+    const PgpJS = getOpenPGPLibrary();
+
+    cApi.initialize();
+    let keyFile = do_get_file("resources/multi-uid.asc", false);
+    let r = await cApi.importKeyFromFile(keyFile);
+
+    Assert.equal(r.exitCode, 0);
+    Assert.equal(r.importSum, 1);
+    Assert.equal(r.importedKeys[0], "ADC49530CB6B132412D856107F1568CB8997F7BA");
+
+    let signedUids = await cApi.getKeySignatures("ADC49530CB6B132412D856107F1568CB8997F7BA", true);
+
+    Assert.equal(signedUids.length, 4);
+    Assert.equal(signedUids[0].userId, "Unit Test <alice@example.invalid>");
+    Assert.equal(signedUids[0].sigList.length, 2);
+    Assert.equal(signedUids[0].sigList[0].signerKeyId, "ADC49530CB6B132412D856107F1568CB8997F7BA");
+    Assert.equal(signedUids[0].sigList[0].sigType, "13x");
+    Assert.equal(signedUids[0].sigList[0].createdTime, 1536940615);
+    Assert.ok(signedUids[0].sigList[0].sigKnown);
+    Assert.equal(signedUids[0].sigList[0].fpr, "ADC49530CB6B132412D856107F1568CB8997F7BA");
+
+    Assert.equal(signedUids[0].sigList[1].signerKeyId, "65537E212DC19025AD38EDB2781617319CE311C4");
+    Assert.equal(signedUids[0].sigList[1].sigKnown, false);
+    Assert.equal(signedUids[0].sigList[1].createdTime, 1536940295);
+  }
+  catch (ex) {
+    Assert.ok(false, "exception: " + ex.toString());
+  }
+}))));

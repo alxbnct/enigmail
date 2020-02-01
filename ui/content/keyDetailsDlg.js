@@ -330,7 +330,7 @@ SigListView.prototype = {
         case "sig_uid_col":
           return s.uid;
         case "sig_fingerprint_col":
-          return EnigmailKey.formatFpr(s.fpr);
+          return s.fpr ? EnigmailKey.formatFpr(s.fpr) : "";
         case "sig_created_col":
           return s.created;
       }

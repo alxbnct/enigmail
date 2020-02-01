@@ -14,7 +14,8 @@ var Services = ChromeUtils.import("resource://gre/modules/Services.jsm").Service
 const EnigmailLog = ChromeUtils.import("chrome://enigmail/content/modules/log.jsm").EnigmailLog;
 const EnigmailLazy = ChromeUtils.import("chrome://enigmail/content/modules/lazy.jsm").EnigmailLazy;
 const getOpenPGPLibrary = ChromeUtils.import("chrome://enigmail/content/modules/stdlib/openpgp-loader.jsm").getOpenPGPLibrary;
-
+const EnigmailTime = ChromeUtils.import("chrome://enigmail/content/modules/time.jsm").EnigmailTime;
+const EnigmailFuncs = ChromeUtils.import("chrome://enigmail/content/modules/funcs.jsm").EnigmailFuncs;
 const getOpenPGP = EnigmailLazy.loader("enigmail/openpgp.jsm", "EnigmailOpenPGP");
 const getArmor = EnigmailLazy.loader("enigmail/armor.jsm", "EnigmailArmor");
 
@@ -93,7 +94,6 @@ var pgpjs_keys = {
 
   getKeyListFromKeyBlock: async function(keyBlockStr) {
     EnigmailLog.DEBUG("pgpjs-keys.jsm: getKeyListFromKeyBlock()\n");
-    const EnigmailTime = ChromeUtils.import("chrome://enigmail/content/modules/time.jsm").EnigmailTime;
 
     const SIG_TYPE_REVOCATION = 0x20;
 
@@ -165,5 +165,82 @@ var pgpjs_keys = {
     }
 
     return keyList;
+  },
+
+  getSignaturesFromKey: function(pgpJsKey) {
+    /*    - {String} userId
+     *     - {String} rawUserId
+     *     - {String} keyId
+     *     - {String} fpr
+     *     - {String} created
+     *     - {Array} sigList:
+     *            - {String} userId
+     *            - {String} created
+     *            - {String} signerKeyId
+     *            - {String} sigType
+     *            - {Boolean} sigKnown
+     */
+
+    const fpr = pgpJsKey.getFingerprint().toUpperCase();
+    const keyId = pgpJsKey.getKeyId().toHex().toUpperCase();
+    let sigs = [];
+    for (let u of pgpJsKey.users) {
+      if (u.userId) {
+        if (u.selfCertifications.length > 0) {
+          let uid = {
+            userId: u.userId.userid,
+            rawUserId: u.userId.userid,
+            keyId: keyId,
+            fpr: fpr,
+            created: EnigmailTime.getDateTime(u.selfCertifications[0].created / 1000, true, false),
+            sigList: []
+          };
+
+          for (let c of u.selfCertifications) {
+            let sig = {
+              created: EnigmailTime.getDateTime(c.created / 1000, true, false),
+              createdTime: c.created / 1000,
+              sigType: Number(c.signatureType).toString(16) + "x",
+              userId: "",
+              fpr: "",
+              sigKnown: true
+            };
+
+            if (c.issuerFingerprint) {
+              sig.signerKeyId = EnigmailFuncs.arrayToHex(c.issuerFingerprint);
+            }
+            else {
+              sig.signerKeyId = c.issuerKeyId.toHex().toUpperCase();
+            }
+            uid.sigList.push(sig);
+          }
+
+          for (let c of u.otherCertifications) {
+            if (c.revoked) continue;
+
+            let sig = {
+              created: EnigmailTime.getDateTime(c.created / 1000, true, false),
+              createdTime: c.created / 1000,
+              sigType: Number(c.signatureType).toString(16) + "x",
+              userId: "",
+              fpr: "",
+              sigKnown: false
+            };
+
+            if (c.issuerFingerprint) {
+              sig.signerKeyId = EnigmailFuncs.arrayToHex(c.issuerFingerprint);
+            }
+            else {
+              sig.signerKeyId = c.issuerKeyId.toHex().toUpperCase();
+            }
+            uid.sigList.push(sig);
+          }
+
+          sigs.push(uid);
+        }
+      }
+    }
+
+    return sigs;
   }
 };

@@ -14,6 +14,7 @@ var Services = ChromeUtils.import("resource://gre/modules/Services.jsm").Service
 const pgpjs_keys = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/pgpjs-keys.jsm").pgpjs_keys;
 const pgpjs_keyStore = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/pgpjs-keystore.jsm").pgpjs_keyStore;
 const EnigmailLazy = ChromeUtils.import("chrome://enigmail/content/modules/lazy.jsm").EnigmailLazy;
+const EnigmailLog = ChromeUtils.import("chrome://enigmail/content/modules/log.jsm").EnigmailLog;
 
 const getKeyRing = EnigmailLazy.loader("enigmail/keyRing.jsm", "EnigmailKeyRing");
 
@@ -227,6 +228,64 @@ class OpenPGPjsCryptoAPI extends CryptoAPI {
     return pgpjs_keyStore.readMinimalPubKey(fpr, email);
   }
 
+  /**
+   * Obtain signatures for a given set of key IDs.
+   *
+   * @param {String}  fpr:            fingerprint of key
+   * @param {Boolean} ignoreUnknownUid: if true, filter out unknown signer's UIDs
+   *
+   * @return {Promise<Array of Object>}:
+   *     - {String} userId
+   *     - {String} rawUserId
+   *     - {String} keyId
+   *     - {String} fpr
+   *     - {String} created
+   *     - {Array} sigList:
+   *            - {String} userId
+   *            - {String} created
+   *            - {String} signerKeyId
+   *            - {String} sigType
+   *            - {Boolean} sigKnown
+   */
+  async getKeySignatures(fpr, ignoreUnknownUid = false) {
+    EnigmailLog.DEBUG(`openpgp-js.js: getKeySignatures ${fpr}\n`);
+
+    let keys = await pgpjs_keyStore.readKeys([fpr]);
+    let allKeys = await pgpjs_keyStore.readKeyMetadata();
+
+    let keyList = [];
+    for (let k of allKeys) {
+      keyList[k.fpr] = k;
+      keyList[k.keyId] = k;
+    }
+
+    let sigs = [];
+
+    for (let k of keys) {
+      let uids = pgpjs_keys.getSignaturesFromKey(k.key);
+
+      for (let uid of uids) {
+        let foundSigs = [];
+
+        for (let sig of uid.sigList) {
+          if (sig.signerKeyId in keyList) {
+            sig.sigKnown = true;
+            sig.userId = keyList[sig.signerKeyId].userId;
+            sig.fpr = keyList[sig.signerKeyId].fpr;
+            foundSigs.push(sig);
+          }
+          else if (ignoreUnknownUid) {
+            foundSigs.push(sig);
+          }
+        }
+
+        uid.sigList = foundSigs;
+        sigs.push(uid);
+      }
+    }
+
+    return sigs;
+  }
 }
 
 
