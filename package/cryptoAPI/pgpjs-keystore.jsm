@@ -97,7 +97,7 @@ var pgpjs_keyStore = {
   /**
    * Read one or more keys from the key store
    *
-   * @param {Array<String>} keyArr: [optional] Array of Fingerprints. If not provided, all keys are returned
+   * @param {Array<String>} keyArr: [optional] Array of Fingerprints or keyIDs. If not provided, all keys are returned
    *
    * @return {Promise<Array<Object>>} found keys:
    *    fpr: fingerprint
@@ -297,6 +297,7 @@ const keyStoreDatabase = {
     }
 
     let rows = await this.readKeysFromDb([fpr], conn);
+    let metadata;
 
     if (fpr in rows) {
       // merge existing key with new key data
@@ -307,7 +308,7 @@ const keyStoreDatabase = {
       catch (x) {
         // if the keys can't be merged, use only the new key
       }
-      let metadata = await getKeyMetadata(key);
+      metadata = await getKeyMetadata(key);
 
       let updObj = {
         fpr: fpr,
@@ -319,7 +320,7 @@ const keyStoreDatabase = {
     }
     else {
       // new key
-      let metadata = await getKeyMetadata(key);
+      metadata = await getKeyMetadata(key);
 
       let insObj = {
         fpr: fpr,
@@ -329,6 +330,8 @@ const keyStoreDatabase = {
       };
       await conn.execute("insert into openpgpkey (keydata, metadata, fpr, datm) values (:data, :metadata, :fpr, :now);", insObj);
     }
+
+    await this.writeKeyIdsToDb(conn, metadata);
 
     if (!connection) {
       conn.close();
@@ -340,7 +343,7 @@ const keyStoreDatabase = {
   /**
    * Read one or more keys from the database
    *
-   * @param {Array<String>} keyArr: [optional] Array of Fingerprints. If not provided, all keys are returned
+   * @param {Array<String>} keyArr: [optional] Array of Fingerprints or keyIDs. If not provided, all keys are returned
    * @param {Object} connection: [optional] database connection
    *
    * @return {Array<Key>} List of OpenPGP.js Key objects.
@@ -359,7 +362,8 @@ const keyStoreDatabase = {
     }
 
     if (keyArr !== null) {
-      searchStr = "where fpr in ('-' ";
+      searchStr = "select o.fpr, o.keydata, o.metadata from openpgpkey o inner join keyid_lookup l on l.fpr = o.fpr "+
+         "where l.keyid in ('-' ";
 
       for (let i in keyArr) {
         // make sure search string only contains A-F and 0-9
@@ -368,9 +372,12 @@ const keyStoreDatabase = {
       }
       searchStr += ")";
     }
+    else {
+      searchStr = "select fpr, keydata, metadata from openpgpkey";
+    }
 
     let rows = [];
-    await conn.execute(`select fpr, keydata, metadata from openpgpkey ${searchStr};`, null,
+    await conn.execute(searchStr, null,
       function _onRow(record) {
         rows[record.getResultByName("fpr")] = {
           armoredKey: record.getResultByName("keydata"),
@@ -385,6 +392,42 @@ const keyStoreDatabase = {
     return rows;
   },
 
+  /**
+   * Fill the keyId lookup table for a given key
+   *
+   * @param {Object} conn: Database connection
+   * @param {Object} keyMetadata: the metadata of the key that is stringified
+   */
+  writeKeyIdsToDb: async function(conn, keyMetadata) {
+    try {
+      let delObj = {
+        fpr: keyMetadata.fpr
+      };
+      let keyIds = [];
+      keyIds[keyMetadata.keyId] = 1;
+      keyIds[keyMetadata.fpr] = 1;
+
+      for (let k of keyMetadata.subKeys) {
+        keyIds[k.keyId] = 1;
+      }
+      await conn.execute("delete from keyid_lookup where fpr = :fpr;", delObj);
+
+      for (let k in keyIds) {
+        let insObj = {
+          fpr: keyMetadata.fpr,
+          keyId: k
+        };
+
+        await conn.execute("insert into keyid_lookup (fpr, keyid) values(:fpr, :keyId);", insObj);
+      }
+    }
+    catch (x) {
+      EnigmailLog.DEBUG(`pgpjs-keystore.jsm: writeKeyIdsToDb: error with ${keyMetadata.fpr}: ${x.toString()}\n`);
+    }
+  },
+
+  /*select o.fpr, keydata from keyid_lookup l inner join openpgpkey o on o.fpr = l.fpr
+    where l.keyid = 'B6EF9CA3B9670465'; */
 
   /**
    * Delete one or more keys from the database
@@ -481,6 +524,13 @@ async function checkKeysTable(connection) {
     if (!exists) {
       await createKeysTable(connection);
     }
+
+    exists = await connection.tableExists("keyid_lookup");
+    EnigmailLog.DEBUG("pgpjs-keystore.jsm: keyid_lookup - success\n");
+    if (!exists) {
+      await createKeysIdsTable(connection);
+    }
+
   }
   catch (error) {
     EnigmailLog.DEBUG(`pgpjs-keystore.jsm: checkKeysTable - error ${error}\n`);
@@ -515,6 +565,20 @@ async function createKeysTable(connection) {
   return null;
 }
 
+async function createKeysIdsTable(connection) {
+  EnigmailLog.DEBUG("pgpjs-keystore.jsm: createKeysIdsTable()\n");
+
+  await connection.execute("create table keyid_lookup (" +
+    "fpr text not null, " + // fingerprint of key
+    "keyid text not null " + // keyid for lokup
+    ");"
+  );
+
+  EnigmailLog.DEBUG("pgpjs-keystore.jsm: createKeysTable - index\n");
+  await connection.execute("create unique index keyid_i1 on keyid_lookup(keyid)");
+
+  return null;
+}
 
 /**
  * Read data from a stream and return a Uint8Array
