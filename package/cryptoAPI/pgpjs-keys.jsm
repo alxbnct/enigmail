@@ -19,11 +19,6 @@ const EnigmailFuncs = ChromeUtils.import("chrome://enigmail/content/modules/func
 const getOpenPGP = EnigmailLazy.loader("enigmail/openpgp.jsm", "EnigmailOpenPGP");
 const getArmor = EnigmailLazy.loader("enigmail/armor.jsm", "EnigmailArmor");
 
-// Load generic API
-Services.scriptloader.loadSubScript("chrome://enigmail/content/modules/cryptoAPI/interface.js",
-  null, "UTF-8"); /* global CryptoAPI */
-
-
 /**
  * OpenPGP.js implementation of CryptoAPI
  */

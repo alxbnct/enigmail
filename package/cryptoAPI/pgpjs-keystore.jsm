@@ -235,6 +235,45 @@ var pgpjs_keyStore = {
   },
 
   /**
+   * Retrieve the OpenPGP.js key objects for a given set of keyIds.
+   *
+   * @param {Boolean} secretKeys: if true, only return secret keys
+   * @param {Array<String>} keyIdArr: keyIDs to look up. If null, then all
+   *              secret or public keys are retrieved
+   *
+   * @return {Array<Object>}: array of the found key objects
+   */
+  getKeysForKeyIds: async function (secretKeys, keyIdArr = null) {
+    let findKeyArr = [];
+
+    if (secretKeys) {
+      let keys = await pgpjs_keyStore.readKeyMetadata(keyIdArr);
+
+      for (let k of keys) {
+        if (k.secretAvailable) {
+          findKeyArr.push(k.fpr);
+        }
+      }
+    }
+    else {
+      findKeyArr = keyIdArr;
+    }
+
+    let returnArray = [];
+    let keys = await pgpjs_keyStore.readKeys(findKeyArr);
+    for (let k of keys) {
+      if (!secretKeys) {
+        returnArray.push(await await k.key.toPublic());
+      }
+      else {
+        returnArray.push(await await k.key);
+      }
+    }
+
+    return returnArray;
+  },
+
+  /**
    * Initialize module
    *
    * @return {Promise<Boolean>} true if successful

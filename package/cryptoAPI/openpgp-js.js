@@ -13,6 +13,7 @@ var EXPORTED_SYMBOLS = ["getOpenPGPjsAPI"];
 var Services = ChromeUtils.import("resource://gre/modules/Services.jsm").Services;
 const pgpjs_keys = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/pgpjs-keys.jsm").pgpjs_keys;
 const pgpjs_keyStore = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/pgpjs-keystore.jsm").pgpjs_keyStore;
+const pgpjs_decrypt = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/pgpjs-decrypt.jsm").pgpjs_decrypt;
 const EnigmailLazy = ChromeUtils.import("chrome://enigmail/content/modules/lazy.jsm").EnigmailLazy;
 const EnigmailLog = ChromeUtils.import("chrome://enigmail/content/modules/log.jsm").EnigmailLog;
 
@@ -286,8 +287,246 @@ class OpenPGPjsCryptoAPI extends CryptoAPI {
 
     return sigs;
   }
-}
 
+  /**
+   * Extract a photo ID from a key, store it as file and return the file object.
+   *
+   * @param {String} keyId:       Key ID / fingerprint
+   * @param {Number} photoNumber: number of the photo on the key, starting with 0
+   *
+   * @return {nsIFile} object or null in case no data / error.
+   */
+  async getPhotoFile(keyId, photoNumber) {
+    // TODO
+    return null;
+  }
+
+
+  /**
+   * Generate a new key pair
+   *
+   * @param {String} name:       name part of UID
+   * @param {String} comment:    comment part of UID (brackets are added)
+   * @param {String} email:      email part of UID (<> will be added)
+   * @param {Number} expiryDate: Unix timestamp of key expiry date; 0 if no expiry
+   * @param {Number} keyLength:  size of key in bytes (e.g 4096)
+   * @param {String} keyType:    'RSA' or 'ECC'
+   * @param {String} passphrase: password; use null if no password
+   *
+   * @return {Object}: Handle to key creation
+   *    - {function} cancel(): abort key creation
+   *    - {Promise<exitCode, generatedKeyId>} promise: resolved when key creation is complete
+   *                 - {Number} exitCode:       result code (0: OK)
+   *                 - {String} generatedKeyId: generated key ID
+   */
+
+  generateKey(name, comment, email, expiryDate, keyLength, keyType, passphrase) {
+    // TODO
+    return null;
+  }
+
+
+  /**
+   * Determine the file name from OpenPGP data.
+   *
+   * @param {byte} byteData    The encrypted data
+   *
+   * @return {String} - the name of the attached file
+   */
+
+  async getFileName(byteData) {
+    // TODO
+    return null;
+  }
+
+  /**
+   * Verify the detached signature of an attachment (or in other words,
+   * check the signature of a file, given the file and the signature).
+   *
+   * @param {Path} filePath    The signed file
+   * @param {Path} sigPath       The signature to verify
+   *
+   * @return {Promise<String>} - A message from the verification.
+   *
+   * Use Promise.catch to handle failed verifications.
+   * The message will be an error message in this case.
+   */
+
+  async verifyAttachment(filePath, sigPath) {
+    // TODO
+    return null;
+  }
+
+  /**
+   * Decrypt an attachment.
+   *
+   * @param {Bytes}  encrypted     The encrypted data
+   *
+   * @return {Promise<Object>} - Return object with decryptedData and
+   * status information
+   *
+   * Use Promise.catch to handle failed decryption.
+   * retObj.errorMsg will be an error message in this case.
+   */
+
+  async decryptAttachment(encrypted) {
+    // TODO
+    return null;
+  }
+
+  /**
+   * Generic function to decrypt and/or verify an OpenPGP message.
+   *
+   * @param {String} encrypted     The encrypted data
+   * @param {Object} options       Decryption options
+   *
+   * @return {Promise<Object>} - Return object with decryptedData and
+   * status information
+   *
+   * Use Promise.catch to handle failed decryption.
+   * retObj.errorMsg will be an error message in this case.
+   */
+
+  async decrypt(encrypted, options) {
+    // TODO
+    return null;
+  }
+
+  /**
+   * Decrypt a PGP/MIME-encrypted message
+   *
+   * @param {String} encrypted     The encrypted data
+   * @param {Object} options       Decryption options
+   *
+   * @return {Promise<Object>} - Return object with decryptedData and
+   * status information
+   *
+   * Use Promise.catch to handle failed decryption.
+   * retObj.errorMsg will be an error message in this case.
+   */
+
+  async decryptMime(encrypted, options) {
+    return pgpjs_decrypt.decryptMime(encrypted, options);
+  }
+
+  /**
+   * Verify a PGP/MIME-signed message
+   *
+   * @param {String} signed        The signed data
+   * @param {Object} options       Decryption options
+   *
+   * @return {Promise<Object>} - Return object with decryptedData and
+   * status information
+   *
+   * Use Promise.catch to handle failed decryption.
+   * retObj.errorMsg will be an error message in this case.
+   */
+
+  async verifyMime(signed, options) {
+    // TODO
+    return null;
+  }
+
+
+  /**
+   * Encrypt messages
+   *
+   * @param {String} from: keyID or email address of sender/signer
+   * @param {String} recipients: keyIDs or email addresses of recipients, separated by spaces
+   * @param {String} hiddenRecipients: keyIDs or email addresses of hidden recipients (bcc), separated by spaces
+   * @param {Number} encryptionFlags: Flags for Signed/encrypted/PGP-MIME etc.
+   * @param {String} plainText: data to encrypt
+   * @param {String} hashAlgorithm: [OPTIONAL] hash algorithm
+   * @param {nsIWindow} parentWindow: [OPTIONAL] window on top of which to display modal dialogs
+   *
+   * @return {Object}:
+   *     - {Number} exitCode:    0 = success / other values: error
+   *     - {String} data:        encrypted data
+   *     - {String} errorMsg:    error message in case exitCode !== 0
+   *     - {Number} statusFlags: Status flags for result
+   */
+
+  async encryptMessage(from, recipients, hiddenRecipients, encryptionFlags, plainText, hashAlgorithm = null, parentWindow = null) {
+    // TODO
+    return null;
+  }
+
+  /**
+   * Encrypt Files
+   *
+   * @param {String} from: keyID or email address of sender/signer
+   * @param {String} recipients: keyIDs or email addresses of recipients, separated by spaces
+   * @param {String} hiddenRecipients: keyIDs or email addresses of hidden recipients (bcc), separated by spaces
+   * @param {Number} encryptionFlags: Flags for Signed/encrypted/PGP-MIME etc.
+   * @param {nsIFile} inputFile: source file to encrypt
+   * @param {nsIFile} outputFile: target file containing encrypted data
+   *
+   * @return {Object}:
+   *     - {Number} exitCode:    0 = success / other values: error
+   *     - {String} data:        encrypted data
+   *     - {String} errorMsg:    error message in case exitCode !== 0
+   *     - {Number} statusFlags: Status flags for result
+   */
+
+  async encryptFile(from, recipients, hiddenRecipients, encryptionFlags, inputFile, outputFile, parentWindow = null) {
+    // TODO
+    return null;
+  }
+
+  /**
+   * Clear any cached passwords
+   *
+   * @return {Boolean} true if successful, false otherwise
+   */
+  async clearPassphrase() {
+    // TODO
+    return null;
+  }
+
+  /***
+   * Determine if a specific feature is available by the used toolset
+   *
+   * @param {String} featureName:  String; one of the following values:
+   *    version-supported    - is the gpg version supported at all (true for gpg >= 2.0.10)
+   *    supports-gpg-agent   - is gpg-agent is auto-started (true for gpg >= 2.0.16)
+   *    keygen-passphrase    - can the passphrase be specified when generating keys (false for gpg 2.1 and 2.1.1)
+   *    windows-photoid-bug  - is there a bug in gpg with the output of photoid on Windows (true for gpg < 2.0.16)
+   *    genkey-no-protection - is "%no-protection" supported for generting keys (true for gpg >= 2.1)
+   *    search-keys-cmd      - what command to use to terminate the --search-key operation. ("save" for gpg > 2.1; "quit" otherwise)
+   *    socks-on-windows     - is SOCKS proxy supported on Windows (true for gpg >= 2.0.20)
+   *    supports-dirmngr     - is dirmngr supported (true for gpg >= 2.1)
+   *    supports-ecc-keys    - are ECC (elliptic curve) keys supported (true for gpg >= 2.1)
+   *    supports-sender      - does gnupg understand the --sender argument (true for gpg >= 2.1.15)
+   *    supports-wkd         - does gpg support wkd (web key directory) (true for gpg >= 2.1.19)
+   *    export-result        - does gpg print EXPORTED when exporting keys (true for gpg >= 2.1.10)
+   *    decryption-info      - does gpg print DECRYPTION_INFO (true for gpg >= 2.0.19)
+   *    export-specific-uid  - does gpg support exporting a key with a specific UID (true for gpg >= 2.2.8)
+   *    supports-show-only   - does gpg support --import-options show-only (true for gpg >= 2.1.14)
+   *    handles-huge-keys    - can gpg deal with huge keys without aborting (true for gpg >= 2.2.17)
+   *    smartcard            - does the library support smartcards
+   *
+   * @return: depending on featureName - Boolean unless specified differently:
+   *    (true if feature is available / false otherwise)
+   *   If the feature cannot be found, undefined is returned
+   */
+  supportsFeature(featureName) {
+    switch (featureName) {
+      case "supports-ecc-keys":
+      case "export-specific-uid":
+      case "keygen-passphrase":
+        return true;
+    }
+    return false;
+  }
+
+  /**
+   * Return the key management functions (sub-API)
+   */
+  getKeyManagement() {
+    // TODO
+    return null;
+  }
+}
 
 function getOpenPGPjsAPI() {
   return new OpenPGPjsCryptoAPI();

@@ -335,9 +335,27 @@ class CryptoAPI {
    *
    * @param {String} encrypted     The encrypted data
    * @param {Object} options       Decryption options
+   *      - logFile (the actual file)
+   *      - keyserver
+   *      - keyserverProxy
+   *      - fromAddr
+   *      - noOutput
+   *      - verifyOnly
+   *      - uiFlags
+   *      - mimeSignatureFile
+   *      - maxOutputLength
    *
-   * @return {Promise<Object>} - Return object with decryptedData and
-   * status information
+   * @return {Promise<Object>} - Return object with decryptedData and status information:
+   *     - {String} decryptedData
+   *     - {Number} exitCode
+   *     - {Number} statusFlags
+   *     - {String} errorMsg
+   *     - {String} blockSeparation
+   *     - {String} userId: signature user Id
+   *     - {String} keyId: signature key ID
+   *     - {String} sigDetails: as printed by GnuPG for VALIDSIG pattern
+    retStatusObj.encToDetails = encToDetails;
+*
    *
    * Use Promise.catch to handle failed decryption.
    * retObj.errorMsg will be an error message in this case.
