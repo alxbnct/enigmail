@@ -19,6 +19,9 @@ const EnigmailFuncs = ChromeUtils.import("chrome://enigmail/content/modules/func
 const getOpenPGP = EnigmailLazy.loader("enigmail/openpgp.jsm", "EnigmailOpenPGP");
 const getArmor = EnigmailLazy.loader("enigmail/armor.jsm", "EnigmailArmor");
 
+const OPENPGPKEY_REALM = "OpenPGPKey";
+const ENIGMAIL_PASSWD_PREFIX = "enigmail://";
+
 /**
  * OpenPGP.js implementation of CryptoAPI
  */
@@ -237,5 +240,34 @@ var pgpjs_keys = {
     }
 
     return sigs;
+  },
+
+  decryptSecretKey: async function(key) {
+    if (!key.isPrivate()) return false;
+
+    if (!key.isDecrypted()) {
+      const pm = Cc["@mozilla.org/login-manager;1"].getService(Ci.nsILoginManager);
+      const queryString = ENIGMAIL_PASSWD_PREFIX + key.getFingerprint().toUpperCase();
+
+      let logins = pm.getAllLogins();
+      let password = null;
+
+      // Find user from returned array of nsILoginInfo objects
+      for (let login of logins) {
+        if (login.hostname === queryString && login.httpRealm === OPENPGPKEY_REALM) {
+          password = login.password;
+          break;
+        }
+      }
+
+      if (!password) {
+        // TODO: query password from user
+      }
+      else {
+        return await key.decrypt(password);
+      }
+    }
+
+    return true;
   }
 };

@@ -48,7 +48,7 @@ var pgpjs_decrypt = {
    * retObj.errorMsg will be an error message in this case.
    */
 
-  decryptMime: async function(encrypted, options) {
+  decrypt: async function(encrypted, options) {
     EnigmailLog.DEBUG(`pgpjs-decrypt.jsm: decryptMime(${encrypted.length})\n`);
 
     const PgpJS = getOpenPGPLibrary();
@@ -81,16 +81,21 @@ var pgpjs_decrypt = {
 
       // try to decrypt the message using the secret keys one-by-one
       for (let secKey of secretKeys) {
-        if (await this.decryptSecretKey(secKey)) {
+        if (await pgpjs_keys.decryptSecretKey(secKey)) {
           let result = await PgpJS.decrypt({
             message: message,
             privateKeys: secKey
           });
 
+          // TODO: check multiple plaintexts, no MDC, etc.
           let verifiation;
           if (result && ("data" in result)) {
             retData.decryptedData = result.data;
             retData.statusFlags = EnigmailConstants.DECRYPTION_OKAY;
+
+            if (options.uiFlags & EnigmailConstants.UI_PGP_MIME) {
+              retData.statusFlags |= EnigmailConstants.PGP_MIME_ENCRYPTED;
+            }
 
             // check signature and return first verified signature
             if ("signatures" in result) {
@@ -106,6 +111,7 @@ var pgpjs_decrypt = {
                 retData.statusFlags += verifiation.statusFlags;
                 retData.sigDetails = verifiation.sigDetails;
                 retData.keyId = verifiation.keyId;
+                retData.userId = verifiation.userId;
                 retData.errorMsg = verifiation.errorMsg;
               }
             }
@@ -120,29 +126,54 @@ var pgpjs_decrypt = {
     return retData;
   },
 
+  verify: async function(data, options) {
+
+  },
+
   /**
    * Verify a message with a detached signature
    *
    * @param {String} data: the data to verify
    * @param {String} signature: ASCII armored signature
    *
-   * @return {Object}:
-   *      - {String} fpr: fingerprint used to sign message
-   *      - {Boolean} valid: signature status (verified = true)
+   * @return {Promise<Object>}: ResultObj
    */
   verifyDetached: async function(data, signature) {
     EnigmailLog.DEBUG(`pgpjs-decrypt.jsm: verifyDetached(${data.length})\n`);
     const PgpJS = getOpenPGPLibrary();
 
-    let result = {
-      statusFlags: 0,
-      exitCode: 1,
-      sigDetails: "",
-      keyId: "",
-      userId: "",
-      errorMsg: ""
-    };
+    let sigObj = await PgpJS.signature.readArmored(signature);
+    let keyIds = sigObj.packets.map(pkt => {
+      return pkt.issuerKeyId.toHex().toUpperCase();
+    });
 
+    let pubKeys = await pgpjs_keyStore.getKeysForKeyIds(false, keyIds);
+    let msg;
+
+    if (sigObj.packets[0].signatureType === PgpJS.enums.signature.binary) {
+      msg = PgpJS.message.fromText(data);
+    }
+    else {
+      msg = PgpJS.cleartext.fromText(data);
+    }
+
+    return this.verifyMessage({
+      message: msg,
+      signature: sigObj,
+      publicKeys: pubKeys
+    });
+  },
+
+  /**
+   * Verify a message and return the signature verification status
+   *
+   * @param {Object} verifyObj: OpenPGP.js Message
+   *
+   * @return {Promise<Object>} ResultObj
+   */
+  verifyMessage: async function(verifyObj) {
+    EnigmailLog.DEBUG(`pgpjs-decrypt.jsm: verifyMessage()\n`);
+    const PgpJS = getOpenPGPLibrary();
     const SIG_STATUS = {
       unknown_key: 0,
       bad_signature: 1,
@@ -151,30 +182,21 @@ var pgpjs_decrypt = {
       valid_signature: 4
     };
 
-    let currentKey = null;
+    const result = {
+      statusFlags: 0,
+      exitCode: 1,
+      sigDetails: "",
+      keyId: "",
+      userId: "",
+      errorMsg: ""
+    };
+
+    let currentKey = null,
+      signatureStatus = -1,
+      pubKeys = verifyObj.publicKeys;
 
     try {
-      let sigObj = await PgpJS.signature.readArmored(signature);
-      let keyIds = sigObj.packets.map(pkt => {
-        return pkt.issuerKeyId.toHex().toUpperCase();
-      });
-
-      let pubKeys = await pgpjs_keyStore.getKeysForKeyIds(false, keyIds);
-      let signatureStatus = -1,
-        msg;
-
-      if (sigObj.packets[0].signatureType === PgpJS.enums.signature.binary) {
-        msg = PgpJS.message.fromText(data);
-      }
-      else {
-        msg = PgpJS.cleartext.fromText(data);
-      }
-
-      let verifiation = await PgpJS.verify({
-        message: msg,
-        signature: sigObj,
-        publicKeys: pubKeys
-      });
+      let verifiation = await PgpJS.verify(verifyObj);
 
       for (let sig of verifiation.signatures) {
         let currentStatus = -1;
@@ -275,36 +297,5 @@ var pgpjs_decrypt = {
     }
 
     return result;
-  },
-
-  decryptSecretKey: async function(key) {
-    if (!key.isPrivate()) return false;
-
-    if (!key.isDecrypted) {
-      const pm = Cc["@mozilla.org/passwordmanager;1"].getService(Ci.nsIPasswordManager);
-      const queryString = 'enigmail://' + key.getFingerprint().toUpperCase();
-
-      let e = pm.enumerator;
-      let password = null;
-      while (e.hasMoreElements()) {
-        try {
-          let pass = e.getNext().QueryInterface(Ci.nsIPassword);
-          if (pass.host == queryString) {
-            password = pass.password;
-            break;
-          }
-        }
-        catch (ex) {}
-      }
-
-      if (!password) {
-        // TODO: query password from user
-      }
-      else {
-        return await key.decrypt(password);
-      }
-    }
-
-    return true;
   }
 };

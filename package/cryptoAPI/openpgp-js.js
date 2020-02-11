@@ -16,6 +16,7 @@ const pgpjs_keyStore = ChromeUtils.import("chrome://enigmail/content/modules/cry
 const pgpjs_decrypt = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/pgpjs-decrypt.jsm").pgpjs_decrypt;
 const EnigmailLazy = ChromeUtils.import("chrome://enigmail/content/modules/lazy.jsm").EnigmailLazy;
 const EnigmailLog = ChromeUtils.import("chrome://enigmail/content/modules/log.jsm").EnigmailLog;
+const EnigmailConstants = ChromeUtils.import("chrome://enigmail/content/modules/constants.jsm").EnigmailConstants;
 
 const getKeyRing = EnigmailLazy.loader("enigmail/keyRing.jsm", "EnigmailKeyRing");
 
@@ -377,8 +378,8 @@ class OpenPGPjsCryptoAPI extends CryptoAPI {
   /**
    * Generic function to decrypt and/or verify an OpenPGP message.
    *
-   * @param {String} encrypted     The encrypted data
-   * @param {Object} options       Decryption options
+   * @param {String} data:         The signed or encrypted data
+   * @param {Object} options       Decryption/verification options
    *
    * @return {Promise<Object>} - Return object with decryptedData and
    * status information
@@ -388,8 +389,14 @@ class OpenPGPjsCryptoAPI extends CryptoAPI {
    */
 
   async decrypt(encrypted, options) {
-    // TODO
-    return null;
+    EnigmailLog.DEBUG(`openpgpg-js.js: decrypt()\n`);
+
+    if (options.verifyOnly) {
+      return pgpjs_decrypt.verify(encrypted, options);
+    }
+    else {
+      return pgpjs_decrypt.decrypt(encrypted, options);
+    }
   }
 
   /**
@@ -406,7 +413,11 @@ class OpenPGPjsCryptoAPI extends CryptoAPI {
    */
 
   async decryptMime(encrypted, options) {
-    return pgpjs_decrypt.decryptMime(encrypted, options);
+    options.noOutput = false;
+    options.verifyOnly = false;
+    options.uiFlags = EnigmailConstants.UI_PGP_MIME;
+
+    return pgpjs_decrypt.decrypt(encrypted, options);
   }
 
   /**
