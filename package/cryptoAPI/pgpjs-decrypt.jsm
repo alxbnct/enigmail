@@ -104,8 +104,7 @@ var pgpjs_decrypt = {
               for (let sig of result.signatures) {
                 pkt.concat(sig.signature.packets);
               }
-              verifiation = await this.verifyDetached(result.data,
-                await PgpJS.armor.encode(PgpJS.enums.armor.signature, pkt.write(), 0, 0));
+              verifiation = await this.verifyDetached(result.data, pkt);
 
               if (verifiation.exitCode === 0) {
                 retData.statusFlags += verifiation.statusFlags;
@@ -127,7 +126,23 @@ var pgpjs_decrypt = {
   },
 
   verify: async function(data, options) {
+    EnigmailLog.DEBUG(`pgpjs-decrypt.jsm: verify(${data.length})\n`);
 
+    const PgpJS = getOpenPGPLibrary();
+    const Armor = getArmor();
+    let blocks = Armor.locateArmoredBlocks(data);
+
+    if (blocks && blocks.length > 0) {
+      if (blocks[0].blocktype === "SIGNED MESSAGE") {
+        let msg = await PgpJS.cleartext.readArmored(data.substring(blocks[0].begin, blocks[0].end));
+
+        if (msg && "signature" in msg) {
+          return this.verifyDetached(msg.text, msg.signature.armor());
+        }
+      }
+    }
+
+    return null;
   },
 
   /**
@@ -142,36 +157,35 @@ var pgpjs_decrypt = {
     EnigmailLog.DEBUG(`pgpjs-decrypt.jsm: verifyDetached(${data.length})\n`);
     const PgpJS = getOpenPGPLibrary();
 
-    let sigObj = await PgpJS.signature.readArmored(signature);
-    let keyIds = sigObj.packets.map(pkt => {
-      return pkt.issuerKeyId.toHex().toUpperCase();
-    });
+    let sigObj;
 
-    let pubKeys = await pgpjs_keyStore.getKeysForKeyIds(false, keyIds);
+    if (typeof(signature) === "string") {
+      sigObj = await PgpJS.signature.readArmored(signature);
+    }
+    else
+      sigObj = {packets: signature};
     let msg;
 
     if (sigObj.packets[0].signatureType === PgpJS.enums.signature.binary) {
       msg = PgpJS.message.fromText(data);
+      msg.packets.concat(sigObj.packets);
     }
     else {
       msg = PgpJS.cleartext.fromText(data);
+      msg.signature.packets.concat(sigObj.packets);
     }
 
-    return this.verifyMessage({
-      message: msg,
-      signature: sigObj,
-      publicKeys: pubKeys
-    });
+    return this.verifyMessage(msg);
   },
 
   /**
    * Verify a message and return the signature verification status
    *
-   * @param {Object} verifyObj: OpenPGP.js Message
+   * @param {Object} messageObj: OpenPGP.js Message
    *
    * @return {Promise<Object>} ResultObj
    */
-  verifyMessage: async function(verifyObj) {
+  verifyMessage: async function(messageObj) {
     EnigmailLog.DEBUG(`pgpjs-decrypt.jsm: verifyMessage()\n`);
     const PgpJS = getOpenPGPLibrary();
     const SIG_STATUS = {
@@ -183,7 +197,7 @@ var pgpjs_decrypt = {
     };
 
     const result = {
-      statusFlags: 0,
+      statusFlags: EnigmailConstants.UNVERIFIED_SIGNATURE,
       exitCode: 1,
       sigDetails: "",
       keyId: "",
@@ -192,14 +206,20 @@ var pgpjs_decrypt = {
     };
 
     let currentKey = null,
-      signatureStatus = -1,
-      pubKeys = verifyObj.publicKeys;
+      signatureStatus = -1;
+
+    let keyIds = messageObj.getSigningKeyIds().map(keyId => {
+      return keyId.toHex().toUpperCase();
+    });
+
+    let pubKeys = await pgpjs_keyStore.getKeysForKeyIds(false, keyIds);
 
     try {
-      let verifiation = await PgpJS.verify(verifyObj);
+      let signatures = await messageObj.verify(pubKeys);
 
-      for (let sig of verifiation.signatures) {
-        let currentStatus = -1;
+      for (let sig of signatures) {
+        let currentStatus = -1,
+          sigValid = await sig.verified;
         currentKey = null;
         let keyId = sig.keyid.toHex();
 
@@ -213,7 +233,7 @@ var pgpjs_decrypt = {
         if (currentKey === null) {
           currentStatus = SIG_STATUS.unknown_key;
         }
-        else if (!sig.valid) {
+        else if (!sigValid) {
           currentStatus = SIG_STATUS.bad_signature;
         }
         else {
@@ -247,7 +267,7 @@ var pgpjs_decrypt = {
                 - <sig-class>
                 - [ <primary-key-fpr> ]
             */
-            const pkt = sig.signature.packets[0];
+            const pkt = (await sig.signature).packets[0];
             result.keyId = currentKey.getFingerprint().toUpperCase();
             result.sigDetails = result.keyId + " " +
               pkt.created.toISOString().substr(0, 10) + " " +

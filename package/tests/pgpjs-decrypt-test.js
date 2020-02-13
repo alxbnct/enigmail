@@ -18,8 +18,7 @@ testing("cryptoAPI/pgpjs-decrypt.jsm");
 const EnigmailFiles = ChromeUtils.import("chrome://enigmail/content/modules/files.jsm").EnigmailFiles;
 const EnigmailArmor = ChromeUtils.import("chrome://enigmail/content/modules/armor.jsm").EnigmailArmor;
 
-test(withTestGpgHome(asyncTest(async function decryptMessage() {
-
+test(withTestGpgHome(asyncTest(async function testDecrypt() {
   try {
     await pgpjs_keyStore.init();
 
@@ -64,5 +63,4 @@ test(withTestGpgHome(asyncTest(async function decryptMessage() {
   catch (ex) {
     Assert.ok(false, "exception: " + ex.toString());
   }
-
 })));
