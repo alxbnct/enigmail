@@ -23,6 +23,7 @@ const pgpjs_keys = ChromeUtils.import("chrome://enigmail/content/modules/cryptoA
 const pgpjs_keyStore = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/pgpjs-keystore.jsm").pgpjs_keyStore;
 const EnigmailLocale = ChromeUtils.import("chrome://enigmail/content/modules/locale.jsm").EnigmailLocale;
 
+Components.utils.importGlobalProperties(["TextDecoder"]);
 
 /**
  * OpenPGP.js implementation of CryptoAPI
@@ -67,13 +68,24 @@ var pgpjs_decrypt = {
     try {
       let message = await PgpJS.message.readArmored(encrypted);
 
+      if (message.packets[0].tag === PgpJS.enums.packet.compressed) {
+        message = await message.unwrapCompressed();
+      }
+
       // determine with which keys the message is encrypted
-      let pubKeyIds = [];
-      for (let i in message.packets) {
-        try {
-          pubKeyIds.push(message.packets[i].publicKeyId.toHex().toUpperCase());
-        }
-        catch (ex) {}
+      let pubKeyIds = message.getEncryptionKeyIds().map(keyId => {
+        return keyId.toHex().toUpperCase();
+      });
+
+      if (pubKeyIds.length === 0 && message.getSigningKeyIds().length > 0) {
+        // message is signed only
+        return pgpjs_decrypt.verifyMessage(message, true);
+      }
+
+      if (message.packets[0].tag === PgpJS.enums.packet.literal) {
+        retData.decryptedData = await readFromStream(message.getLiteralData().getReader());
+        retData.statusFlags = 0;
+        return retData;
       }
 
       // get OpenPGP.js key objects for secret keys
@@ -90,7 +102,7 @@ var pgpjs_decrypt = {
           // TODO: check multiple plaintexts, no MDC, etc.
           let verifiation;
           if (result && ("data" in result)) {
-            retData.decryptedData = result.data;
+            retData.decryptedData = ensureString(result.data);
             retData.statusFlags = EnigmailConstants.DECRYPTION_OKAY;
 
             if (options.uiFlags & EnigmailConstants.UI_PGP_MIME) {
@@ -163,7 +175,9 @@ var pgpjs_decrypt = {
       sigObj = await PgpJS.signature.readArmored(signature);
     }
     else
-      sigObj = {packets: signature};
+      sigObj = {
+        packets: signature
+      };
     let msg;
 
     if (sigObj.packets[0].signatureType === PgpJS.enums.signature.binary) {
@@ -182,10 +196,11 @@ var pgpjs_decrypt = {
    * Verify a message and return the signature verification status
    *
    * @param {Object} messageObj: OpenPGP.js Message
+   * @param {Boolean} returnData: if true, inculde the verified data in the result
    *
    * @return {Promise<Object>} ResultObj
    */
-  verifyMessage: async function(messageObj) {
+  verifyMessage: async function(messageObj, returnData = false) {
     EnigmailLog.DEBUG(`pgpjs-decrypt.jsm: verifyMessage()\n`);
     const PgpJS = getOpenPGPLibrary();
     const SIG_STATUS = {
@@ -215,9 +230,16 @@ var pgpjs_decrypt = {
     let pubKeys = await pgpjs_keyStore.getKeysForKeyIds(false, keyIds);
 
     try {
-      let signatures = await messageObj.verify(pubKeys);
+      let ret = (await PgpJS.verify({
+        message: messageObj,
+        publicKeys: pubKeys
+      }));
 
-      for (let sig of signatures) {
+      if (returnData && ("data" in ret)) {
+        result.decryptedData = ensureString(ret.data);
+      }
+
+      for (let sig of ret.signatures) {
         let currentStatus = -1,
           sigValid = await sig.verified;
         currentKey = null;
@@ -319,3 +341,44 @@ var pgpjs_decrypt = {
     return result;
   }
 };
+
+/**
+ * Take a string or Uint8Array and if needed convert it to a string.
+ *
+ * @param {String|Uint8Array} stringOrUint8Array: input data
+ *
+ * @return {String}
+ */
+function ensureString(stringOrUint8Array) {
+  if (typeof stringOrUint8Array === "string") {
+    return stringOrUint8Array;
+  }
+
+  return String.fromCharCode.apply(null, stringOrUint8Array);
+}
+
+
+function readFromStream(reader) {
+  let result = "";
+
+  return new Promise((resolve, reject) => {
+    reader.read().then(function processText({
+      done,
+      value
+    }) {
+      // Result objects contain two properties:
+      // done  - true if the stream has already given you all its data.
+      // value - some data. Always undefined when done is true.
+      if (done) {
+        resolve(result);
+        return null;
+      }
+
+      // value for fetch streams is a Uint8Array
+      result += ensureString(value);
+
+      // Read some more, and call this function again
+      return reader.read().then(processText);
+    });
+  });
+}

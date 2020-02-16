@@ -242,7 +242,8 @@ var pgpjs_keyStore = {
    *
    * @return {Array<Object>}: array of the found key objects
    */
-  getKeysForKeyIds: async function (secretKeys, keyIdArr = null) {
+  getKeysForKeyIds: async function(secretKeys, keyIdArr = null) {
+    const PgpJS = getOpenPGPLibrary();
     let findKeyArr = [];
 
     if (secretKeys) {
@@ -262,12 +263,22 @@ var pgpjs_keyStore = {
     let keys = await pgpjs_keyStore.readKeys(findKeyArr);
     for (let k of keys) {
       if (!secretKeys) {
-        returnArray.push(await await k.key.toPublic());
+        returnArray.push(k.key.toPublic());
       }
       else {
-        returnArray.push(await await k.key);
+        returnArray.push(k.key);
       }
     }
+
+    returnArray.toPacketlist = function() {
+      let pktList = new PgpJS.packet.List();
+
+      for (let i = 0; i < this.length; i++) {
+        pktList.concat(this[i].toPacketlist());
+      }
+
+      return pktList;
+    };
 
     return returnArray;
   },
@@ -400,8 +411,8 @@ const keyStoreDatabase = {
     }
 
     if (keyArr !== null) {
-      searchStr = "select o.fpr, o.keydata, o.metadata from openpgpkey o inner join keyid_lookup l on l.fpr = o.fpr "+
-         "where l.keyid in ('-' ";
+      searchStr = "select o.fpr, o.keydata, o.metadata from openpgpkey o inner join keyid_lookup l on l.fpr = o.fpr " +
+        "where l.keyid in ('-' ";
 
       for (let i in keyArr) {
         // make sure search string only contains A-F and 0-9
