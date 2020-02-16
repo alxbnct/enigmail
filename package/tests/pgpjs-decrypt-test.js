@@ -37,7 +37,7 @@ test(withTestGpgHome(asyncTest(async function testDecrypt() {
     try {
       pm.addLogin(loginInfo);
     }
-    catch(ex) {}
+    catch (ex) {}
 
     const encFile = do_get_file("resources/pgpMime-msg.eml", false);
     let fileData = EnigmailFiles.readFile(encFile);
@@ -59,6 +59,78 @@ test(withTestGpgHome(asyncTest(async function testDecrypt() {
     Assert.equal(result.decryptedData, "This is a test\n");
     Assert.equal(result.keyId, "65537E212DC19025AD38EDB2781617319CE311C4");
     Assert.equal(result.userId, "anonymous strike <strike.devtest@gmail.com>");
+
+    // this is a simple plain text wrapped such that it looks like a OpenPGP message
+    const storedMsg = `-----BEGIN PGP MESSAGE-----
+
+owE7rZbEEOfZI+yRmpOTr1CeX5SToscVkpFZrABEiQolqcUlCla6mlwA
+=aAp2
+-----END PGP MESSAGE-----`;
+
+    result = await pgpjs_decrypt.decrypt(storedMsg, {});
+    Assert.equal(result.statusFlags, 0);
+    Assert.equal(result.exitCode, 0);
+    Assert.equal(result.sigDetails, "");
+    Assert.equal(result.decryptedData, "Hello world.\nThis is a test :-)\n");
+
+    // this is a signed-only message
+    const signedMsg = `-----BEGIN PGP MESSAGE-----
+
+owEBbQKS/ZANAwAIAXgWFzGc4xHEAcsmYgBeSY3kSGVsbG8gd29ybGQuClRoaXMg
+aXMgYSB0ZXN0IDotKQqJAjMEAAEIAB0WIQRlU34hLcGQJa047bJ4FhcxnOMRxAUC
+XkmN5AAKCRB4FhcxnOMRxAicD/4jPSNH27H+G83beIyZW5UU0vzr51fHQgz+keXH
+XYDpS0j7upZ2c4m5GAkc1hpdU2FMgUeksjCYhEXsIgh5RkCcacW01dr7Jw4ZgVCl
+eCzuMXNWYANVE2dVt3EZb/E6G6by+T1gYn2SBfZSLnBrN6r552J9Ae65MgOKWOAV
+nZ9679ys3N5BLX6cctfTc0+nE3sOmuNK3/C6cn5+FVvnTZXKBXU37Zxrs/BL46Jy
+JKoxpx3yVobKw7Esef4GeAYxIEDn02mNIVXJsnr+g6YtP+gWdcuuHLyGjd/Oakuj
+gbx4JmlUjUTZvoH/c40LEMtWCJ0qUUIeqEQLGYGWrfdpimc48Eli/nxxgTNrPbB3
+KADtiAito4JNWoovqJA+F4MkV3qB5A6xLk5cCmZhw92PfwABoIEJY7WeoRSU8aws
+2G/2QTFtOgKqwYdc15OhMP/+E4EB8sIHheaRAfhsyFq1mCMEMFFTqutu3XwaFFpp
+ifNuTRIruL7nup/f5pmDD8afC2xNUe9as7L26IqRDBHuU8hwAq2t0hoo3eSLN1Ow
+Av8j88klWOEH6vUiOi5gIlCNQH5CNsgBynMfz9IC8p35ExQLVnA3KxTGL3Uxmgvh
+YjlIbvu0YmTlsQvYFW4JBIPNeNy+1r+7PCsSbnOtsSU32/4SnnQVN4khCM+gKTHD
+j8bbyQ==
+=fwVK
+-----END PGP MESSAGE-----`;
+
+    result = await pgpjs_decrypt.decrypt(signedMsg, {});
+    Assert.equal(result.statusFlags, EnigmailConstants.GOOD_SIGNATURE);
+    Assert.equal(result.exitCode, 0);
+    Assert.equal(result.sigDetails, "65537E212DC19025AD38EDB2781617319CE311C4 2020-02-16 1581878756 0 4 0 1 8 00 65537E212DC19025AD38EDB2781617319CE311C4");
+    Assert.equal(result.keyId, "65537E212DC19025AD38EDB2781617319CE311C4");
+    Assert.equal(result.userId, "anonymous strike <strike.devtest@gmail.com>");
+    Assert.equal(result.decryptedData, "Hello world.\nThis is a test :-)\n");
+
+    const clearSigned = `-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA256
+
+Hello world.
+This is a test :-)
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCAAdFiEEZVN+IS3BkCWtOO2yeBYXMZzjEcQFAl5JkHwACgkQeBYXMZzj
+EcQbbA/9Eu9DhB+3rkRIswp+tOmyjyytlL3V++Lfla1hUpfeC3VNC9iY3Y8TwuBW
+yvPzloXD1YvVoG8QZZEqGxWEli9PcLtGLUZecSmMSD5+sKm9Muj2ahxnDSM1qN0V
+yOQ+IXBtfhjDM7Zz7Xxvtv8mcRkBgQ4DAkxHTXhnBjYxo0TpffDwpmqQ0YkZCjt2
+PzzYy050uL7cJZU94P5ENHtKNUkjnKgfTWqefjCG15WSj19tfxG6EHOpEnPy8fwF
+gW+RnnGFRP41GctKDJh3tJ2ydiGr+1XaGmOx/M5PM0RT69mmlSnjSVQC7+xnZdX4
+9AL/jOyDwRK2AFOo+mCoMFTM9WhScQC5zcoDKn1uKb1WPsjH8nrWro43yJPq2w4I
+Nlqhia3bNPadPzfK3/ec++pea8byjjAuLYVe7QskNUIsfdew+m8rlhy2zDzTPSlr
+uB+5+AtxV8yXxh5ATmjXlU/RiK1YIKu7QzueGKNjKrAqLTX+YwVX0HH0v2SAQZoL
+JGWYnspuCiOYm19OkQoZ6NQYbqadqqakvHzrbjODHrnmlq9XJzEZ5cbhf6oeO4FT
+wJEP0gfdDZA1bEV78SRcjJDlfo5vuWX4W/ZlAlA9hy5OVq69DOdlcVdgj18+gy94
++SPb1y4WzJ3KARDpgsruHZ6FnAEU1clxc5pEjll/MIeYP5NW0JM=
+=WyPS
+-----END PGP SIGNATURE-----
+`;
+
+    result = await pgpjs_decrypt.verify(clearSigned, {});
+    Assert.equal(result.statusFlags, EnigmailConstants.GOOD_SIGNATURE);
+    Assert.equal(result.exitCode, 0);
+    Assert.equal(result.sigDetails, "65537E212DC19025AD38EDB2781617319CE311C4 2020-02-16 1581879420 0 4 0 1 8 00 65537E212DC19025AD38EDB2781617319CE311C4");
+    Assert.equal(result.keyId, "65537E212DC19025AD38EDB2781617319CE311C4");
+    Assert.equal(result.userId, "anonymous strike <strike.devtest@gmail.com>");
+    Assert.equal(result.decryptedData, undefined);
   }
   catch (ex) {
     Assert.ok(false, "exception: " + ex.toString());
