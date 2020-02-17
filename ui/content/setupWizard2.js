@@ -41,7 +41,9 @@ const FINAL_ACTION_CREATEKEYS = 2;
 var gEnigmailSvc = null;
 var gResolveInstall = null;
 var gDownoadObj = null;
-var gFoundSetupType = null;
+var gFoundSetupType = {
+  value: -1
+};
 var gPepAvailable = null;
 var gSecretKeys = [];
 var gFinalAction = FINAL_ACTION_DONOTHING;
