@@ -122,7 +122,6 @@ MimeVerify.prototype = {
   statusDisplayed: false,
   window: null,
   inStream: null,
-  sigFile: null,
   sigData: "",
   mimePartNumber: "",
 
@@ -479,22 +478,13 @@ MimeVerify.prototype = {
       var windowManager = Cc[APPSHELL_MEDIATOR_CONTRACTID].getService(Ci.nsIWindowMediator);
       var win = windowManager.getMostRecentWindow(null);
 
-      // create temp file holding signature data
-      this.sigFile = EnigmailFiles.getTempDirObj();
-      this.sigFile.append("data.sig");
-      this.sigFile.createUnique(this.sigFile.NORMAL_FILE_TYPE, 0x180);
-      EnigmailFiles.writeFileContents(this.sigFile, this.sigData, 0x180);
-
       if (!EnigmailDecryption.isReady(win)) return;
 
-
-      let sigFileName = EnigmailFiles.getEscapedFilename(EnigmailFiles.getFilePath(this.sigFile));
       let keyserver = EnigmailPrefs.getPref("autoKeyRetrieve");
       let options = {
         keyserver: keyserver,
         keyserverProxy: EnigmailHttpProxy.getHttpProxy(keyserver),
-        fromAddr: EnigmailDecryption.getFromAddr(win),
-        mimeSignatureFile: sigFileName
+        fromAddr: EnigmailDecryption.getFromAddr(win)
       };
       const cApi = EnigmailCryptoAPI();
 
@@ -503,15 +493,13 @@ MimeVerify.prototype = {
         this.signedData = this.signedData.replace(/\r\n/g, "\n").replace(/\n/g, "\r\n");
       }
 
-      this.returnStatus = cApi.sync(cApi.verifyMime(this.signedData, options));
+      this.returnStatus = cApi.sync(cApi.verifyMime(this.signedData, this.sigData, options));
       this.exitCode = this.returnStatus.exitCode;
 
       if (this.partiallySigned)
         this.returnStatus.statusFlags |= EnigmailConstants.PARTIALLY_PGP;
 
       this.displayStatus();
-
-      if (this.sigFile) this.sigFile.remove(false);
     }
   },
 

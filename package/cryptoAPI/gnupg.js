@@ -295,7 +295,7 @@ class GnuPGCryptoAPI extends CryptoAPI {
     return keys;
   }
 
-   /**
+  /**
    * Delete keys from keyring
    *
    * @param {Array<String>} fpr: fingerprint(s) to delete. Separate multiple keys with space
@@ -541,7 +541,8 @@ class GnuPGCryptoAPI extends CryptoAPI {
 
   /**
    *
-   * @param {String} signed        The signed data
+   * @param {String} signedData    The signed data
+   * @param {String} signature     The signature data
    * @param {Object} options       Decryption options
    *
    * @return {Promise<Object>} - Return object with decryptedData and
@@ -551,14 +552,25 @@ class GnuPGCryptoAPI extends CryptoAPI {
    * retObj.errorMsg will be an error message in this case.
    */
 
-  async verifyMime(signed, options) {
+  async verifyMime(signedData, signature, options) {
     EnigmailLog.DEBUG(`gnupg.js: verifyMime()\n`);
 
     options.noOutput = true;
     options.verifyOnly = true;
     options.uiFlags = EnigmailConstants.UI_PGP_MIME;
 
-    return this.decrypt(signed, options);
+    // create temp file holding signature data
+    let sigFile = EnigmailFiles.getTempDirObj();
+    sigFile.append("data.sig");
+    sigFile.createUnique(sigFile.NORMAL_FILE_TYPE, 0x180);
+    EnigmailFiles.writeFileContents(sigFile, signature, 0x180);
+
+    options.mimeSignatureFile = EnigmailFiles.getEscapedFilename(EnigmailFiles.getFilePath(sigFile));
+
+    let r = await this.decrypt(signedData, options);
+
+    if (sigFile) sigFile.remove(false);
+    return r;
   }
 
   async getKeyListFromKeyBlock(keyBlockStr) {

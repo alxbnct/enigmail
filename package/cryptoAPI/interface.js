@@ -368,7 +368,8 @@ class CryptoAPI {
   /**
    * Verify a PGP/MIME-signed message
    *
-   * @param {String} signed        The signed data
+   * @param {String} signedData    The signed data
+   * @param {String} signature     The signature data
    * @param {Object} options       Decryption options
    *
    * @return {Promise<Object>} - Return object with decryptedData and
@@ -378,7 +379,7 @@ class CryptoAPI {
    * retObj.errorMsg will be an error message in this case.
    */
 
-  async verifyMime(signed, options) {
+  async verifyMime(signedData, signature, options) {
     return null;
   }
 
