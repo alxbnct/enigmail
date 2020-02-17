@@ -50,7 +50,7 @@ var pgpjs_decrypt = {
    */
 
   decrypt: async function(encrypted, options) {
-    EnigmailLog.DEBUG(`pgpjs-decrypt.jsm: decryptMime(${encrypted.length})\n`);
+    EnigmailLog.DEBUG(`pgpjs-decrypt.jsm: decrypt(${encrypted.length})\n`);
 
     const PgpJS = getOpenPGPLibrary();
 
@@ -61,9 +61,9 @@ var pgpjs_decrypt = {
       userId: "",
       sigDetails: "",
       keyId: "",
-      errorMsg: ""
+      errorMsg: "",
+      blockSeparation: ""
     };
-
 
     try {
       let message = await PgpJS.message.readArmored(encrypted);
@@ -110,7 +110,7 @@ var pgpjs_decrypt = {
             }
 
             // check signature and return first verified signature
-            if ("signatures" in result) {
+            if ("signatures" in result && result.signatures.length > 0) {
               let pkt = new PgpJS.packet.List();
 
               for (let sig of result.signatures) {
@@ -149,7 +149,7 @@ var pgpjs_decrypt = {
         let msg = await PgpJS.cleartext.readArmored(data.substring(blocks[0].begin, blocks[0].end));
 
         if (msg && "signature" in msg) {
-          return this.verifyDetached(msg.text, msg.signature.armor());
+          return this.verifyDetached(msg.text, msg.signature.armor(), true);
         }
       }
     }
@@ -162,10 +162,11 @@ var pgpjs_decrypt = {
    *
    * @param {String} data: the data to verify
    * @param {String} signature: ASCII armored signature
+   * @param {Boolean} returnData: if true, inculde the verified data in the result
    *
    * @return {Promise<Object>}: ResultObj
    */
-  verifyDetached: async function(data, signature) {
+  verifyDetached: async function(data, signature, returnData = false) {
     EnigmailLog.DEBUG(`pgpjs-decrypt.jsm: verifyDetached(${data.length})\n`);
     const PgpJS = getOpenPGPLibrary();
 
@@ -178,6 +179,8 @@ var pgpjs_decrypt = {
       sigObj = {
         packets: signature
       };
+
+    if (sigObj.packets.length === 0) return null;
     let msg;
 
     if (sigObj.packets[0].signatureType === PgpJS.enums.signature.binary) {
@@ -189,7 +192,7 @@ var pgpjs_decrypt = {
       msg.signature.packets.concat(sigObj.packets);
     }
 
-    return this.verifyMessage(msg);
+    return this.verifyMessage(msg, returnData);
   },
 
   /**
@@ -217,7 +220,9 @@ var pgpjs_decrypt = {
       sigDetails: "",
       keyId: "",
       userId: "",
-      errorMsg: ""
+      errorMsg: "",
+      blockSeparation: "",
+      decryptedData: ""
     };
 
     let currentKey = null,
