@@ -130,7 +130,7 @@ wJEP0gfdDZA1bEV78SRcjJDlfo5vuWX4W/ZlAlA9hy5OVq69DOdlcVdgj18+gy94
     Assert.equal(result.sigDetails, "65537E212DC19025AD38EDB2781617319CE311C4 2020-02-16 1581879420 0 4 0 1 8 00 65537E212DC19025AD38EDB2781617319CE311C4");
     Assert.equal(result.keyId, "65537E212DC19025AD38EDB2781617319CE311C4");
     Assert.equal(result.userId, "anonymous strike <strike.devtest@gmail.com>");
-    Assert.equal(result.decryptedData, undefined);
+    Assert.equal(result.decryptedData, "Hello world.\nThis is a test :-)");
   }
   catch (ex) {
     Assert.ok(false, "exception: " + ex.toString());
