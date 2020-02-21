@@ -44,7 +44,7 @@ test(withTestGpgHome(asyncTest(async function testDecrypt() {
     let pgpMsg = EnigmailArmor.splitArmoredBlocks(fileData)[0];
 
     let result = await pgpjs_decrypt.decrypt(pgpMsg, {});
-    Assert.equal(result.statusFlags, EnigmailConstants.DECRYPTION_FAILED);
+    Assert.equal(result.statusFlags, EnigmailConstants.DECRYPTION_FAILED | EnigmailConstants.NO_SECKEY);
 
     const pubKeyFile = do_get_file("resources/dev-strike.sec", false);
     fileData = EnigmailFiles.readBinaryFile(pubKeyFile);

@@ -165,5 +165,10 @@ var EnigmailConstants = {
   ADDON_DOWNGRADE: 8, // The add-on is being downgraded.
 
   /* Protected subject replacement as specified in Protected Headers Spec, draft 02*/
-  PROTECTED_SUBJECT: "..."
+  PROTECTED_SUBJECT: "...",
+
+  /* Reason why OpenPGP key needs to be decrypted */
+  KEY_DECRYPT_REASON_ENCRYPTED_MSG: 1,
+  KEY_DECRYPT_REASON_SIGN_MSG: 2,
+  KEY_DECRYPT_REASON_MANIPULATE_KEY: 3
 };

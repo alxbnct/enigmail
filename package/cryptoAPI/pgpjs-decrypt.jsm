@@ -65,6 +65,8 @@ var pgpjs_decrypt = {
       blockSeparation: ""
     };
 
+    let encToDetails = "";
+
     try {
       let message = await PgpJS.message.readArmored(encrypted);
 
@@ -88,18 +90,25 @@ var pgpjs_decrypt = {
         return retData;
       }
 
+      EnigmailLog.DEBUG(`pgpjs-decrypt.jsm: MESSAGE ENCRYPTED TO KEYS: ${pubKeyIds.join(", ")}\n`);
+      encToDetails = getKeydesc(pubKeyIds);
+
       // get OpenPGP.js key objects for secret keys
       let secretKeys = await pgpjs_keyStore.getKeysForKeyIds(true, pubKeyIds.length === 0 ? null : pubKeyIds);
 
+      if (secretKeys.length === 0) {
+        retData.statusFlags |= EnigmailConstants.NO_SECKEY;
+      }
+
       // try to decrypt the message using the secret keys one-by-one
       for (let secKey of secretKeys) {
-        if (await pgpjs_keys.decryptSecretKey(secKey)) {
+        if (await pgpjs_keys.decryptSecretKey(secKey, EnigmailConstants.KEY_DECRYPT_REASON_ENCRYPTED_MSG)) {
           let result = await PgpJS.decrypt({
             message: message,
             privateKeys: secKey
           });
 
-          // TODO: check multiple plaintexts, no MDC, etc.
+          // TODO: check multiple plaintexts, etc.
           let verifiation;
           if (result && ("data" in result)) {
             retData.decryptedData = ensureString(result.data);
@@ -128,12 +137,23 @@ var pgpjs_decrypt = {
             }
           }
         }
+        else {
+          EnigmailLog.DEBUG(`pgpjs-decrypt.jsm: decrypt invalid or no passphrase supplied\n`);
+        }
       }
     }
     catch (ex) {
-      retData.exitCode = 1;
-      retData.errorMsg = ex.toString(); // FIXME
+      if (("message" in ex) && ex.message.search(/missing MDC/) > 0) {
+        retData.statusFlags |= EnigmailConstants.MISSING_MDC;
+        retData.statusMsg = EnigmailLocale.getString("missingMdcError") + "\n";
+      }
+      else {
+        retData.exitCode = 1;
+        retData.errorMsg = ex.toString(); // FIXME
+      }
     }
+
+    retData.encToDetails = encToDetails;
     return retData;
   },
 
@@ -386,4 +406,32 @@ function readFromStream(reader) {
       return reader.read().then(processText);
     });
   });
+}
+
+function getKeydesc(pubKeyIds) {
+  EnigmailLog.DEBUG(`pgpjs-decrypt.jsm: getKeydesc()\n`);
+  const EnigmailKeyRing = ChromeUtils.import("chrome://enigmail/content/modules/keyRing.jsm").EnigmailKeyRing;
+
+  if (pubKeyIds.length > 0) {
+    let encToArray = [];
+    // for each key also show an associated user ID if known:
+    for (let keyId of pubKeyIds) {
+      // except for ID 00000000, which signals hidden keys
+      if (keyId.search(/^0+$/) < 0) {
+        let localKey = EnigmailKeyRing.getKeyById("0x" + keyId);
+        if (localKey) {
+          encToArray.push(`0x${keyId} (${localKey.userId})`);
+        }
+        else {
+          encToArray.push(`0x${keyId}`);
+        }
+      }
+      else {
+        encToArray.push(EnigmailLocale.getString("hiddenKey"));
+      }
+    }
+    return "\n  " + encToArray.join(",\n  ") + "\n";
+  }
+
+  return "";
 }

@@ -15,9 +15,12 @@ const EnigmailLog = ChromeUtils.import("chrome://enigmail/content/modules/log.js
 const EnigmailLazy = ChromeUtils.import("chrome://enigmail/content/modules/lazy.jsm").EnigmailLazy;
 const getOpenPGPLibrary = ChromeUtils.import("chrome://enigmail/content/modules/stdlib/openpgp-loader.jsm").getOpenPGPLibrary;
 const EnigmailTime = ChromeUtils.import("chrome://enigmail/content/modules/time.jsm").EnigmailTime;
+const EnigmailTimer = ChromeUtils.import("chrome://enigmail/content/modules/timer.jsm").EnigmailTimer;
 const EnigmailFuncs = ChromeUtils.import("chrome://enigmail/content/modules/funcs.jsm").EnigmailFuncs;
+const EnigmailLocale = ChromeUtils.import("chrome://enigmail/content/modules/locale.jsm").EnigmailLocale;
 const getOpenPGP = EnigmailLazy.loader("enigmail/openpgp.jsm", "EnigmailOpenPGP");
 const getArmor = EnigmailLazy.loader("enigmail/armor.jsm", "EnigmailArmor");
+const EnigmailConstants = ChromeUtils.import("chrome://enigmail/content/modules/constants.jsm").EnigmailConstants;
 
 const OPENPGPKEY_REALM = "OpenPGPKey";
 const ENIGMAIL_PASSWD_PREFIX = "enigmail://";
@@ -242,7 +245,9 @@ var pgpjs_keys = {
     return sigs;
   },
 
-  decryptSecretKey: async function(key) {
+  decryptSecretKey: async function(key, reason) {
+    EnigmailLog.DEBUG(`pgpjs-keys.jsm: decryptSecretKey(${key.getFingerprint()})\n`);
+
     if (!key.isPrivate()) return false;
 
     if (!key.isDecrypted()) {
@@ -261,13 +266,102 @@ var pgpjs_keys = {
       }
 
       if (!password) {
-        // TODO: query password from user
+        password = requestPassword(key, reason);
       }
-      else {
-        return await key.decrypt(password);
+
+      if (password) {
+        try {
+         return await key.decrypt(password);
+        }
+        catch (ex) {
+          if (ex.toString().search(/s2k/) >= 0) {
+            displayMd5Error();
+          }
+        }
       }
     }
 
     return true;
   }
 };
+
+
+function displayMd5Error() {
+  const EnigmailDialog = ChromeUtils.import("chrome://enigmail/content/modules/dialog.jsm").EnigmailDialog;
+
+  EnigmailDialog.alert(null, EnigmailLocale.getString("decryptKey.md5Error"));
+}
+
+function requestPassword(key, reason) {
+  EnigmailLog.DEBUG(`pgpjs-keys.jsm: requestPassword(${key.getFingerprint()}, ${reason})\n`);
+
+  const promptSvc = Cc["@mozilla.org/embedcomp/prompt-service;1"].getService(Ci.nsIPromptService);
+
+  let passwdObj = {
+      value: ""
+    },
+    checkedObj = {
+      value: false
+    },
+    fpr = key.getFingerprint().toUpperCase(),
+    created = EnigmailTime.getDateTime(key.getCreationTime().getTime() / 1000, true, false),
+    uid = key.users[0].userId.userid;
+
+  let reasonStr = "";
+  switch (reason) {
+    case EnigmailConstants.KEY_DECRYPT_REASON_ENCRYPTED_MSG:
+      reasonStr = "decryptkey.reasonEncryptedMsg";
+      break;
+    case EnigmailConstants.KEY_DECRYPT_REASON_SIGN_MSG:
+      reasonStr = "decryptkey.reasonEncryptedMsg";
+      break;
+    case EnigmailConstants.KEY_DECRYPT_REASON_MANIPULATE_KEY:
+      reasonStr = "decryptkey.reasonEncryptedMsg";
+      break;
+  }
+
+  const passphraseDesc = EnigmailLocale.getString(reasonStr) + "\n\n" +
+    EnigmailLocale.getString("decryptkey.keyDescription", [
+      uid,
+      fpr,
+      created
+    ]);
+  let res = promptSvc.promptPassword(null, EnigmailLocale.getString("decryptkey.dialogTitle"), passphraseDesc, passwdObj, EnigmailLocale.getString("decryptkey.storeInPasswdMgr"), checkedObj);
+
+  if (res && passwdObj.value.length > 0) {
+    if (checkedObj.value) {
+      storePasswordInPasswdManager(fpr, passwdObj.value);
+    }
+
+    return passwdObj.value;
+  }
+
+  return null;
+}
+
+
+function storePasswordInPasswdManager(fpr, password) {
+  EnigmailLog.DEBUG(`pgpjs-keys.jsm: storePasswordInPasswdManager(${fpr})\n`);
+
+  const pm = Cc["@mozilla.org/login-manager;1"].getService(Ci.nsILoginManager);
+  const queryString = ENIGMAIL_PASSWD_PREFIX + fpr;
+
+  let logins = pm.getAllLogins();
+
+  // Find user from returned array of nsILoginInfo objects
+  for (let login of logins) {
+    if (login.hostname === queryString && login.httpRealm === OPENPGPKEY_REALM) {
+      pm.removeLogin(login);
+      break;
+    }
+  }
+
+  const nsLoginInfo = new Components.Constructor(
+    "@mozilla.org/login-manager/loginInfo;1",
+    Ci.nsILoginInfo,
+    "init"
+  );
+
+  let loginInfo = new nsLoginInfo(queryString, null, OPENPGPKEY_REALM, "", password, "", "");
+  pm.addLogin(loginInfo);
+}
