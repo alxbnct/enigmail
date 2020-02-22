@@ -43,7 +43,7 @@ test(withTestGpgHome(asyncTest(async function testDecrypt() {
     let fileData = EnigmailFiles.readFile(encFile);
     let pgpMsg = EnigmailArmor.splitArmoredBlocks(fileData)[0];
 
-    let result = await pgpjs_decrypt.decrypt(pgpMsg, {});
+    let result = await pgpjs_decrypt.processPgpMessage(pgpMsg, {});
     Assert.equal(result.statusFlags, EnigmailConstants.DECRYPTION_FAILED | EnigmailConstants.NO_SECKEY);
 
     const pubKeyFile = do_get_file("resources/dev-strike.sec", false);
@@ -52,7 +52,7 @@ test(withTestGpgHome(asyncTest(async function testDecrypt() {
     let r = await pgpjs_keyStore.writeKey(fileData);
     Assert.equal(r.length, 1);
 
-    result = await pgpjs_decrypt.decrypt(pgpMsg, {});
+    result = await pgpjs_decrypt.processPgpMessage(pgpMsg, {});
     Assert.equal(result.statusFlags, EnigmailConstants.DECRYPTION_OKAY | EnigmailConstants.GOOD_SIGNATURE);
     Assert.equal(result.exitCode, 0);
     Assert.equal(result.sigDetails, "65537E212DC19025AD38EDB2781617319CE311C4 2018-08-26 1535307422 0 4 0 1 8 00 65537E212DC19025AD38EDB2781617319CE311C4");
@@ -67,7 +67,7 @@ owE7rZbEEOfZI+yRmpOTr1CeX5SToscVkpFZrABEiQolqcUlCla6mlwA
 =aAp2
 -----END PGP MESSAGE-----`;
 
-    result = await pgpjs_decrypt.decrypt(storedMsg, {});
+    result = await pgpjs_decrypt.processPgpMessage(storedMsg, {});
     Assert.equal(result.statusFlags, 0);
     Assert.equal(result.exitCode, 0);
     Assert.equal(result.sigDetails, "");
@@ -93,7 +93,7 @@ j8bbyQ==
 =fwVK
 -----END PGP MESSAGE-----`;
 
-    result = await pgpjs_decrypt.decrypt(signedMsg, {});
+    result = await pgpjs_decrypt.processPgpMessage(signedMsg, {});
     Assert.equal(result.statusFlags, EnigmailConstants.GOOD_SIGNATURE);
     Assert.equal(result.exitCode, 0);
     Assert.equal(result.sigDetails, "65537E212DC19025AD38EDB2781617319CE311C4 2020-02-16 1581878756 0 4 0 1 8 00 65537E212DC19025AD38EDB2781617319CE311C4");
@@ -150,7 +150,7 @@ TA==
 =6sUw
 -----END PGP MESSAGE-----`;
 
-    result = await pgpjs_decrypt.decrypt(noMdcProtection, {});
+    result = await pgpjs_decrypt.processPgpMessage(noMdcProtection, {});
     Assert.equal(result.statusFlags, EnigmailConstants.DECRYPTION_FAILED | EnigmailConstants.MISSING_MDC);
     Assert.equal(result.exitCode, 0);
     Assert.equal(result.decryptedData, "");
@@ -173,7 +173,7 @@ fsTKNmsBfsUHg/qzu+yD0e4bTuEKVsDcCg==
 =WPhs
 -----END PGP MESSAGE-----`;
 
-    result = await pgpjs_decrypt.decrypt(badMdc, {});
+    result = await pgpjs_decrypt.processPgpMessage(badMdc, {});
     Assert.equal(result.statusFlags, EnigmailConstants.DECRYPTION_FAILED | EnigmailConstants.MISSING_MDC);
     Assert.equal(result.exitCode, 0);
     Assert.equal(result.decryptedData, "");

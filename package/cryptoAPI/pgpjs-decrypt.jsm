@@ -33,7 +33,7 @@ Components.utils.importGlobalProperties(["TextDecoder"]);
 
 var pgpjs_decrypt = {
   /**
-   * Decrypt a PGP/MIME-encrypted message
+   * Process an OpenPGP message
    *
    * @param {String} encrypted     The encrypted data
    * @param {Object} options       Decryption options
@@ -49,23 +49,11 @@ var pgpjs_decrypt = {
    * retObj.errorMsg will be an error message in this case.
    */
 
-  decrypt: async function(encrypted, options) {
-    EnigmailLog.DEBUG(`pgpjs-decrypt.jsm: decrypt(${encrypted.length})\n`);
+  processPgpMessage: async function(encrypted, options) {
+    EnigmailLog.DEBUG(`pgpjs-decrypt.jsm: processPgpMessage(${encrypted.length})\n`);
 
     const PgpJS = getOpenPGPLibrary();
-
-    const retData = {
-      decryptedData: "",
-      exitCode: 0,
-      statusFlags: EnigmailConstants.DECRYPTION_FAILED,
-      userId: "",
-      sigDetails: "",
-      keyId: "",
-      errorMsg: "",
-      blockSeparation: ""
-    };
-
-    let encToDetails = "";
+    const retData = getReturnObj();
 
     try {
       let message = await PgpJS.message.readArmored(encrypted);
@@ -81,7 +69,7 @@ var pgpjs_decrypt = {
 
       if (pubKeyIds.length === 0 && message.getSigningKeyIds().length > 0) {
         // message is signed only
-        return pgpjs_decrypt.verifyMessage(message, true);
+        return this.verifyMessage(message, true);
       }
 
       if (message.packets[0].tag === PgpJS.enums.packet.literal) {
@@ -90,7 +78,24 @@ var pgpjs_decrypt = {
         return retData;
       }
 
-      EnigmailLog.DEBUG(`pgpjs-decrypt.jsm: MESSAGE ENCRYPTED TO KEYS: ${pubKeyIds.join(", ")}\n`);
+      return this.decryptMessage(message, pubKeyIds, options);
+    }
+    catch (ex) {
+      retData.errorMsg = ex.toString();
+      retData.exitCode = 1;
+    }
+
+    return retData;
+  },
+
+  decryptMessage: async function(message, pubKeyIds, options) {
+    EnigmailLog.DEBUG(`pgpjs-decrypt.jsm: decryptMessage(${pubKeyIds.join(", ")})\n`);
+
+    const PgpJS = getOpenPGPLibrary();
+    const retData = getReturnObj();
+    let encToDetails = "";
+
+    try {
       encToDetails = getKeydesc(pubKeyIds);
 
       // get OpenPGP.js key objects for secret keys
@@ -435,4 +440,17 @@ function getKeydesc(pubKeyIds) {
   }
 
   return "";
+}
+
+function getReturnObj() {
+  return {
+    decryptedData: "",
+    exitCode: 0,
+    statusFlags: EnigmailConstants.DECRYPTION_FAILED,
+    userId: "",
+    sigDetails: "",
+    keyId: "",
+    errorMsg: "",
+    blockSeparation: ""
+  };
 }

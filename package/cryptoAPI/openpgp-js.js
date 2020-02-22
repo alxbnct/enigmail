@@ -378,7 +378,7 @@ class OpenPGPjsCryptoAPI extends CryptoAPI {
   /**
    * Generic function to decrypt and/or verify an OpenPGP message.
    *
-   * @param {String} data:         The signed or encrypted data
+   * @param {String} pgpMessage:   The signed or encrypted OpenPGP message data
    * @param {Object} options       Decryption/verification options
    *
    * @return {Promise<Object>} - Return object with decryptedData and
@@ -388,15 +388,15 @@ class OpenPGPjsCryptoAPI extends CryptoAPI {
    * retObj.errorMsg will be an error message in this case.
    */
 
-  async decrypt(encrypted, options) {
+  async decrypt(pgpMessage, options) {
     EnigmailLog.DEBUG(`openpgpg-js.js: decrypt()\n`);
 
     // TODO: implement download missing key
     if (options.verifyOnly) {
-      return pgpjs_decrypt.verify(encrypted, options);
+      return pgpjs_decrypt.verify(pgpMessage, options);
     }
     else {
-      return pgpjs_decrypt.decrypt(encrypted, options);
+      return pgpjs_decrypt.processPgpMessage(pgpMessage, options);
     }
   }
 
@@ -419,7 +419,7 @@ class OpenPGPjsCryptoAPI extends CryptoAPI {
     options.verifyOnly = false;
     options.uiFlags = EnigmailConstants.UI_PGP_MIME;
 
-    return pgpjs_decrypt.decrypt(encrypted, options);
+    return pgpjs_decrypt.processPgpMessage(encrypted, options);
   }
 
   /**
