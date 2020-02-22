@@ -143,13 +143,13 @@ var pgpjs_decrypt = {
       }
     }
     catch (ex) {
-      if (("message" in ex) && ex.message.search(/missing MDC/) > 0) {
+      if (("message" in ex) && ex.message.search(/(missing MDC|Modification detected)/) > 0) {
         retData.statusFlags |= EnigmailConstants.MISSING_MDC;
         retData.statusMsg = EnigmailLocale.getString("missingMdcError") + "\n";
       }
       else {
         retData.exitCode = 1;
-        retData.errorMsg = ex.toString(); // FIXME
+        retData.errorMsg = ex.toString();
       }
     }
 

@@ -131,6 +131,52 @@ wJEP0gfdDZA1bEV78SRcjJDlfo5vuWX4W/ZlAlA9hy5OVq69DOdlcVdgj18+gy94
     Assert.equal(result.keyId, "65537E212DC19025AD38EDB2781617319CE311C4");
     Assert.equal(result.userId, "anonymous strike <strike.devtest@gmail.com>");
     Assert.equal(result.decryptedData, "Hello world.\nThis is a test :-)");
+
+    const noMdcProtection = `-----BEGIN PGP MESSAGE-----
+
+hQIMA9U1Yju2Dp5xARAAtAZjLVld1nOStJXw18BBbvLXZU5GydCKXKn7XvY8oT6O
+tWAqrEu+rLfx0IhNKLwo5lQE5kTBoydoXBCh0wRX9P6ZCmlZKmGo0AijzhDfQ6sy
+G7hQZbf0D0nxTGbSfuGwna7h/zhluYu8Zf9mqkITkbvPNRKIcouDedcZfmc1JELu
+jK5+sNt1eDqL/Sic1SOwAxhFyVr2s397z74ZQbH/Xs0bhnQaYPOnHAh8SB4WJCjb
+boDJbisJa87VEr9xgw/25YdqGkRFACZ47QIUKJ9jQywqaDwxfcJy8t3sNkE+SBZB
+dbJLRH78923eP/0djDPsfKq3/egUf4sfumv4Rx4hhrM+ZZRMio/2NPjVA3NKmM9z
+Tl/hp/825mL4mNheH/nHW1rBb58DI0VFJ9WeMq5X3mKc7Nqllv2P5KP+JfotifTG
+A89ZArE26tuPLSDtmb7yOWAkIIM7hJnIenWT8Vf/mD76FxBwd/lz0iAjwRtGhlkr
+7ARbWRqdaOwlExllfFJ3DmmBTDdKp3gbRmGTZMA3/zEjxuy/PU7OqSn4KX44MNVb
+I881kAj7rbAprjDC5lNAsCrXibS/yoQd5z2cDOM6WOFpq+65a7Mfp9ByvxdVJ8n1
+lWv9BzKlk2Lo3vhG3zSobOPZ0b4/kgXFuuoRY85sW7S94YahAPfyNFdKDvStF4jJ
+MBv+amSxwYvdlpRMJcBa48saFHionNWfjGlulsbLAnBGQNi4qYye5ZzNi+A/ERnz
+TA==
+=6sUw
+-----END PGP MESSAGE-----`;
+
+    result = await pgpjs_decrypt.decrypt(noMdcProtection, {});
+    Assert.equal(result.statusFlags, EnigmailConstants.DECRYPTION_FAILED | EnigmailConstants.MISSING_MDC);
+    Assert.equal(result.exitCode, 0);
+    Assert.equal(result.decryptedData, "");
+
+    const badMdc = `-----BEGIN PGP MESSAGE-----
+
+hQIMA9U1Yju2Dp5xARAAnIdEzfwCFOHmBpd5FLoldI0sh6b1J5z6h3SlWyb6D07T
+ObvOt3REynBpF1bEb6XfAhqUx5FpKwcoeTlGuxUSMlurwRmDpUOr913+1wxnY0q5
+J1fclLIsFiDCcWYdwYsDTZoAmHbaoGXT+v+/we+hPpm81z9YxsxuwdcXesRxqImq
+Da3IKG+fW8HvD7BmcOZPYoyfZnMUSld9lQ5cZ7DD/BQblEDZQX2rVYSNIoi9YPIa
+puGr8PU1+CJeyJgk+RnMD7vItk3+BqyS7ybbzOFfhyQcBTlVgURMA88Pk42EUleP
+oT3TwXvvB410l/FQAb21QQmmXjc+RObuEaAZoJmXmv+2e+LBZTniTYBK16WaHYNU
+/N+5Hknf2193WAVbxea3Tw8tCpHj8IjbTde+zgMwmoRoLvB3RSpyL6NyBPYTxCXW
+b0aLsu5J74v5UD3SjzEu5kXaQJCvaBy7n6oqccyMe66ZVDHqaS7PYAyjbt3O2Fni
+LxmaM9NkpH7lQAiErRwrN+8yD/ypY5+532naB+QcN7iYsV5o6p78SvGNchvF9x/8
+H0lcXBzL3PfEQBeMy6bWkXjE060lxz7hWi6dA24zHXDImJp9Se8DEg3LXf2h4Gpa
+r45rGHjoRO/oNb6Ccw/dt1dqEISs1LooPTbtBAcy4F33PDvM3LuKZByZIFJTb8PS
+RwFT30I1c1xcp7D4Jgv3cWCks39z0jxfmSPLYyPjI1tT7Zi9m9vZN0ZfVC/XvJiT
+fsTKNmsBfsUHg/qzu+yD0e4bTuEKVsDcCg==
+=WPhs
+-----END PGP MESSAGE-----`;
+
+    result = await pgpjs_decrypt.decrypt(badMdc, {});
+    Assert.equal(result.statusFlags, EnigmailConstants.DECRYPTION_FAILED | EnigmailConstants.MISSING_MDC);
+    Assert.equal(result.exitCode, 0);
+    Assert.equal(result.decryptedData, "");
   }
   catch (ex) {
     Assert.ok(false, "exception: " + ex.toString());
