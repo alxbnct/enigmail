@@ -24,6 +24,7 @@ const EnigmailConstants = ChromeUtils.import("chrome://enigmail/content/modules/
 
 const OPENPGPKEY_REALM = "OpenPGPKey";
 const ENIGMAIL_PASSWD_PREFIX = "enigmail://";
+const MAX_PASSWD_ATTEMPT = 3;
 
 /**
  * OpenPGP.js implementation of CryptoAPI
@@ -255,7 +256,8 @@ var pgpjs_keys = {
       const queryString = ENIGMAIL_PASSWD_PREFIX + key.getFingerprint().toUpperCase();
 
       let logins = pm.getAllLogins();
-      let password = null;
+      let password = null,
+        attempts = 0;
 
       // Find user from returned array of nsILoginInfo objects
       for (let login of logins) {
@@ -265,23 +267,40 @@ var pgpjs_keys = {
         }
       }
 
-      if (!password) {
-        password = requestPassword(key, reason);
-      }
-
-      if (password) {
-        try {
-         return await key.decrypt(password);
+      while (attempts < MAX_PASSWD_ATTEMPT) {
+        if (!password) {
+          ++attempts;
+          password = requestPassword(key, reason, attempts);
+          if (! password) break;
         }
-        catch (ex) {
-          if (ex.toString().search(/s2k/) >= 0) {
-            displayMd5Error();
+
+        if (password) {
+          try {
+            let success = await key.decrypt(password);
+            if (success) {
+              return true;
+            }
+            else {
+              password = null;
+            }
+          }
+          catch (ex) {
+            if (("message" in ex) && ex.message.search(/Incorrect .*passphrase/) >= 0) {
+              password = null;
+            }
+            else {
+              attempts = MAX_PASSWD_ATTEMPT;
+            }
+
+            if (ex.toString().search(/s2k/) >= 0) {
+              displayMd5Error();
+            }
           }
         }
       }
     }
 
-    return true;
+    return false;
   }
 };
 
@@ -292,7 +311,7 @@ function displayMd5Error() {
   EnigmailDialog.alert(null, EnigmailLocale.getString("decryptKey.md5Error"));
 }
 
-function requestPassword(key, reason) {
+function requestPassword(key, reason, attempt) {
   EnigmailLog.DEBUG(`pgpjs-keys.jsm: requestPassword(${key.getFingerprint()}, ${reason})\n`);
 
   const promptSvc = Cc["@mozilla.org/embedcomp/prompt-service;1"].getService(Ci.nsIPromptService);
@@ -326,7 +345,13 @@ function requestPassword(key, reason) {
       fpr,
       created
     ]);
-  let res = promptSvc.promptPassword(null, EnigmailLocale.getString("decryptkey.dialogTitle"), passphraseDesc, passwdObj, EnigmailLocale.getString("decryptkey.storeInPasswdMgr"), checkedObj);
+
+  let dlgTitle = EnigmailLocale.getString("decryptkey.dialogTitle");
+  if (attempt > 1) {
+    dlgTitle += " " + EnigmailLocale.getString("decryptkey.dialog.attempt", [attempt, MAX_PASSWD_ATTEMPT]);
+  }
+
+  let res = promptSvc.promptPassword(null, dlgTitle, passphraseDesc, passwdObj, EnigmailLocale.getString("decryptkey.storeInPasswdMgr"), checkedObj);
 
   if (res && passwdObj.value.length > 0) {
     if (checkedObj.value) {

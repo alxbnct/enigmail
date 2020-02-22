@@ -139,6 +139,7 @@ var pgpjs_decrypt = {
         }
         else {
           EnigmailLog.DEBUG(`pgpjs-decrypt.jsm: decrypt invalid or no passphrase supplied\n`);
+          retData.statusFlags |= EnigmailConstants.BAD_PASSPHRASE;
         }
       }
     }
