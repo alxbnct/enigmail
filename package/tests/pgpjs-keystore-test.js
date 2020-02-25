@@ -13,7 +13,7 @@ do_load_module("file://" + do_get_cwd().path + "/testHelper.js");
 
 testing("cryptoAPI/pgpjs-keystore.jsm");
 /*global pgpjs_keyStore: false, getOpenPGPLibrary: false, keyStoreDatabase: false, EnigmailTime: false,
- EnigmailOS: false */
+ EnigmailOS: false, EnigmailFiles: false */
 
 test(withTestGpgHome(asyncTest(async function readWrite() {
 
@@ -119,6 +119,17 @@ test(withTestGpgHome(asyncTest(async function readWrite() {
     Assert.equal(keyObj.subKeys[0].algoSym, "RSA_ENCRYPT_SIGN", "subKey.algoSym");
     Assert.equal(keyObj.subKeys[0].keySize, 4096, "subKey.keySize");
     Assert.equal(keyObj.subKeys[0].type, "sub", "subKey.type");
+
+    const revKeyFile = do_get_file("resources/dev-strike.rev", false);
+    let fileData = EnigmailFiles.readBinaryFile(revKeyFile);
+
+    let r = await pgpjs_keyStore.writeKey(fileData);
+    Assert.equal(r.length, 1);
+
+    let keys = await pgpjs_keyStore.getKeysForKeyIds(false, ["781617319CE311C4"]);
+
+    Assert.equal(keys.length, 1);
+    Assert.ok(await keys[0].isRevoked());
 
     await pgpjs_keyStore.deleteKeys(["65537E212DC19025AD38EDB2781617319CE311C4", "01234"]);
     res = await pgpjs_keyStore.readKeys(["65537E212DC19025AD38EDB2781617319CE311C4"]);
