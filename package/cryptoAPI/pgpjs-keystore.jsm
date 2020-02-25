@@ -22,8 +22,6 @@ const getArmor = EnigmailLazy.loader("enigmail/armor.jsm", "EnigmailArmor");
 const EnigmailTime = ChromeUtils.import("chrome://enigmail/content/modules/time.jsm").EnigmailTime;
 const pgpjs_keys = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/pgpjs-keys.jsm").pgpjs_keys;
 
-const SIG_TYPE_REVOCATION = 0x20;
-
 var pgpjs_keyStore = {
   /**
    * Write key(s) into the database.
@@ -42,8 +40,25 @@ var pgpjs_keyStore = {
       let blocks = getArmor().splitArmoredBlocks(keyData);
 
       for (let b of blocks) {
-        let res = await PgpJS.key.readArmored(b);
-        keys = keys.concat(res.keys);
+        let res = await PgpJS.message.readArmored(b);
+        if (res.packets.length > 0) {
+          switch (res.packets[0].tag) {
+            case PgpJS.enums.packet.publicKey:
+            case PgpJS.enums.packet.secretKey:
+              res = await PgpJS.key.readArmored(b);
+              break;
+            case PgpJS.enums.packet.signature:
+              if (res.packets[0].signatureType === PgpJS.enums.signature.key_revocation) {
+                res = await appendRevocationCert(res);
+              }
+              else {
+                res = {};
+              }
+              break;
+          }
+        }
+
+        if ("keys" in res) keys = keys.concat(res.keys);
       }
     }
     else {
@@ -859,4 +874,42 @@ function getKeyFromJSON(jsonStr) {
   }
 
   return keyObj;
+}
+
+
+async function appendRevocationCert(pgpMessage) {
+  EnigmailLog.DEBUG("pgpjs-keystore.jsm: appendSignatureToKey()\n");
+
+  let keyId = getFprFromArray(pgpMessage.packets[0].issuerFingerprint);
+
+  if (!keyId) {
+    keyId = pgpMessage.packets[0].issuerKeyId.toHex().toUpperCase();
+  }
+
+  let foundKeys = await pgpjs_keyStore.getKeysForKeyIds(false, [keyId]);
+
+  if (foundKeys.length === 1) {
+    return {
+      keys: [await foundKeys[0].applyRevocationCertificate(pgpMessage.armor())]
+    };
+  }
+
+  return null;
+
+}
+
+
+function getFprFromArray(arr) {
+  const HEX_TABLE = "0123456789ABCDEF";
+
+  if (!arr) return null;
+
+  let hex = '';
+
+  for (let j = 0; j < arr.length; j++) {
+    hex += HEX_TABLE.charAt((arr[j] & 0xf0) >> 4) +
+      HEX_TABLE.charAt((arr[j] & 0x0f));
+  }
+
+  return hex;
 }
