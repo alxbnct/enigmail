@@ -139,10 +139,11 @@ function loadOpenPGPjsLib() {
   Services.scriptloader.loadSubScript("chrome://enigmail/content/modules/stdlib/openpgp-lib.js", g, "UTF-8");
 
   const openPGPLib = g.window.openpgp;
-  openPGPLib.config.s2k_iteration_count_byte = 1;
-  openPGPLib.config.show_comment = false;
-  openPGPLib.config.show_version = false;
-  // openPGPLib.config.debug = true;
+  const cfg = openPGPLib.config;
+  cfg.show_comment = false;
+  cfg.show_version = false;
+  cfg.compression = openPGPLib.enums.compression.zlib;
+  // cfg.debug = true;
 
   try {
     let worker = new Worker('chrome://enigmail/content/modules/stdlib/openpgp.worker.js');

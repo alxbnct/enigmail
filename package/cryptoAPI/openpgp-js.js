@@ -378,7 +378,7 @@ class OpenPGPjsCryptoAPI extends CryptoAPI {
   /**
    * Generic function to decrypt and/or verify an OpenPGP message.
    *
-   * @param {String} pgpMessage:   The signed or encrypted OpenPGP message data
+   * @param {String} pgpMessage:   The signed or encrypted OpenPGP message  data
    * @param {Object} options       Decryption/verification options
    *
    * @return {Promise<Object>} - Return object with decryptedData and

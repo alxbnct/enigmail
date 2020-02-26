@@ -250,51 +250,51 @@ var pgpjs_keys = {
     EnigmailLog.DEBUG(`pgpjs-keys.jsm: decryptSecretKey(${key.getFingerprint()})\n`);
 
     if (!key.isPrivate()) return false;
+    if (key.isDecrypted()) return true;
 
-    if (!key.isDecrypted()) {
-      const pm = Cc["@mozilla.org/login-manager;1"].getService(Ci.nsILoginManager);
-      const queryString = ENIGMAIL_PASSWD_PREFIX + key.getFingerprint().toUpperCase();
+    const pm = Cc["@mozilla.org/login-manager;1"].getService(Ci.nsILoginManager);
+    const queryString = ENIGMAIL_PASSWD_PREFIX + key.getFingerprint().toUpperCase();
 
-      let logins = pm.getAllLogins();
-      let password = null,
-        attempts = 0;
+    let logins = pm.getAllLogins();
+    let password = null,
+      attempts = 0;
 
-      // Find user from returned array of nsILoginInfo objects
-      for (let login of logins) {
-        if (login.hostname === queryString && login.httpRealm === OPENPGPKEY_REALM) {
-          password = login.password;
-          break;
-        }
+    // Find user from returned array of nsILoginInfo objects
+    for (let login of logins) {
+      if (login.hostname === queryString && login.httpRealm === OPENPGPKEY_REALM) {
+        password = login.password;
+        break;
+      }
+    }
+
+    while (attempts < MAX_PASSWD_ATTEMPT) {
+      if (!password) {
+        ++attempts;
+        password = requestPassword(key, reason, attempts);
+        if (!password) break;
       }
 
-      while (attempts < MAX_PASSWD_ATTEMPT) {
-        if (!password) {
-          ++attempts;
-          password = requestPassword(key, reason, attempts);
-          if (! password) break;
-        }
-
-        if (password) {
-          try {
-            let success = await key.decrypt(password);
-            if (success) {
-              return true;
-            }
-            else {
-              password = null;
-            }
+      if (password) {
+        try {
+          let success = await key.decrypt(password);
+          if (success) {
+            return true;
           }
-          catch (ex) {
-            if (("message" in ex) && ex.message.search(/Incorrect .*passphrase/) >= 0) {
-              password = null;
-            }
-            else {
-              attempts = MAX_PASSWD_ATTEMPT;
-            }
+          else {
+            password = null;
+          }
+        }
+        catch (ex) {
+          if (("message" in ex) && ex.message.search(/Incorrect .*passphrase/) >= 0) {
+            password = null;
+          }
+          else {
+            EnigmailLog.DEBUG(`pgpjs-keys.jsm: decryptSecretKey: ERROR: ${ex.toString()}\n`);
+            attempts = MAX_PASSWD_ATTEMPT;
+          }
 
-            if (ex.toString().search(/s2k/) >= 0) {
-              displayMd5Error();
-            }
+          if (ex.toString().search(/s2k/) >= 0) {
+            displayMd5Error();
           }
         }
       }

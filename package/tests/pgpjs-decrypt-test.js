@@ -177,6 +177,24 @@ fsTKNmsBfsUHg/qzu+yD0e4bTuEKVsDcCg==
     Assert.equal(result.statusFlags, EnigmailConstants.DECRYPTION_FAILED | EnigmailConstants.MISSING_MDC);
     Assert.equal(result.exitCode, 0);
     Assert.equal(result.decryptedData, "");
+
+    const packetV3 = `-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+Hello world.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3
+
+iD8DBQE+yUcu4mZch0nhy8kRAuh/AKDM1Xc49BKVfJIFg/btWGfbF/pgcwCgw0Zk
+3bVpfUMtjVsz6ChXUG35fMY=
+=n4PF
+-----END PGP SIGNATURE-----
+`;
+
+    result = await pgpjs_decrypt.verify(packetV3, {});
+    Assert.equal(result.statusFlags, EnigmailConstants.UNVERIFIED_SIGNATURE);
+    Assert.equal(result.exitCode, 1);
+    Assert.equal(result.decryptedData, "");
   }
   catch (ex) {
     Assert.ok(false, "exception: " + ex.toString());

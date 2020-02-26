@@ -187,7 +187,7 @@ var pgpjs_decrypt = {
         }
       }
     }
-    catch(ex) {
+    catch (ex) {
       EnigmailLog.DEBUG(`pgpjs-decrypt.jsm: verify: ERROR: ${ex.toString()}\n`);
       result.errorMsg = ex.toString();
       result.statusFlags = EnigmailConstants.UNVERIFIED_SIGNATURE;
@@ -310,21 +310,26 @@ var pgpjs_decrypt = {
           result.keyId = keyId.toUpperCase();
         }
         else {
-          let keyStatus = await currentKey.verifyPrimaryKey();
-          switch (keyStatus) {
-            case PgpJS.enums.keyStatus.invalid:
-            case PgpJS.enums.keyStatus.revoked:
-            case PgpJS.enums.keyStatus.no_self_cert:
-              currentStatus = SIG_STATUS.good_sig_invalid_key;
-              break;
-            case PgpJS.enums.keyStatus.expired:
-              currentStatus = SIG_STATUS.good_sig_expired_key;
-              break;
-            case PgpJS.enums.keyStatus.valid:
-              currentStatus = SIG_STATUS.valid_signature;
-              break;
-            default:
-              currentStatus = SIG_STATUS.unknown_key;
+          if (!sigValid) {
+            currentStatus = SIG_STATUS.bad_signature;
+          }
+          else {
+            let keyStatus = await currentKey.verifyPrimaryKey();
+            switch (keyStatus) {
+              case PgpJS.enums.keyStatus.invalid:
+              case PgpJS.enums.keyStatus.revoked:
+              case PgpJS.enums.keyStatus.no_self_cert:
+                currentStatus = SIG_STATUS.good_sig_invalid_key;
+                break;
+              case PgpJS.enums.keyStatus.expired:
+                currentStatus = SIG_STATUS.good_sig_expired_key;
+                break;
+              case PgpJS.enums.keyStatus.valid:
+                currentStatus = SIG_STATUS.valid_signature;
+                break;
+              default:
+                currentStatus = SIG_STATUS.unknown_key;
+            }
           }
 
           if (currentStatus >= signatureStatus) {
@@ -355,18 +360,20 @@ var pgpjs_decrypt = {
         signatureStatus = Math.max(signatureStatus, currentStatus);
       }
 
+      result.exitCode = 0;
       switch (signatureStatus) {
         case SIG_STATUS.unknown_key:
           result.statusFlags = EnigmailConstants.NO_PUBKEY | EnigmailConstants.UNVERIFIED_SIGNATURE;
           break;
         case SIG_STATUS.bad_signature:
           result.statusFlags = EnigmailConstants.BAD_SIGNATURE;
+          result.exitCode = 1;
           break;
         case SIG_STATUS.good_sig_invalid_key:
-          result.statusFlags = EnigmailConstants.GOOD_SIGNATURE + EnigmailConstants.REVOKED_KEY;
+          result.statusFlags = EnigmailConstants.GOOD_SIGNATURE | EnigmailConstants.REVOKED_KEY;
           break;
         case SIG_STATUS.good_sig_expired_key:
-          result.statusFlags = EnigmailConstants.GOOD_SIGNATURE + EnigmailConstants.EXPIRED_KEY;
+          result.statusFlags = EnigmailConstants.GOOD_SIGNATURE | EnigmailConstants.EXPIRED_KEY;
           break;
         case SIG_STATUS.valid_signature:
           result.statusFlags = EnigmailConstants.GOOD_SIGNATURE;
@@ -382,8 +389,6 @@ var pgpjs_decrypt = {
       else if (result.statusFlags & EnigmailConstants.BAD_SIGNATURE) {
         result.errorMsg = EnigmailLocale.getString("prefBad", [result.userId]);
       }
-
-      result.exitCode = 0;
     }
     catch (ex) {
       EnigmailLog.DEBUG(`pgpjs-decrypt.jsm: verifyDetached: ERROR: ${ex.toString()} ${ex.stack}\n`);
@@ -471,6 +476,7 @@ function getReturnObj() {
     sigDetails: "",
     keyId: "",
     errorMsg: "",
+    encToDetails: "",
     blockSeparation: ""
   };
 }
