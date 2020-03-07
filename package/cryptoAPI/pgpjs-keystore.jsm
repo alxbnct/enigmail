@@ -860,7 +860,7 @@ function getKeyFromJSON(jsonStr) {
         keyObj.subKeys[i].keyTrust = "e";
       }
       for (let i in keyObj.userIds) {
-        keyObj.userIds[i] = "e";
+        keyObj.userIds[i].keyTrust = "e";
       }
     }
     else {
