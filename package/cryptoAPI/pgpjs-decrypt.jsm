@@ -16,6 +16,7 @@ const EnigmailLazy = ChromeUtils.import("chrome://enigmail/content/modules/lazy.
 const getOpenPGPLibrary = ChromeUtils.import("chrome://enigmail/content/modules/stdlib/openpgp-loader.jsm").getOpenPGPLibrary;
 const EnigmailTime = ChromeUtils.import("chrome://enigmail/content/modules/time.jsm").EnigmailTime;
 const EnigmailFuncs = ChromeUtils.import("chrome://enigmail/content/modules/funcs.jsm").EnigmailFuncs;
+const EnigmailData = ChromeUtils.import("chrome://enigmail/content/modules/data.jsm").EnigmailData;
 const EnigmailConstants = ChromeUtils.import("chrome://enigmail/content/modules/constants.jsm").EnigmailConstants;
 const getOpenPGP = EnigmailLazy.loader("enigmail/openpgp.jsm", "EnigmailOpenPGP");
 const getArmor = EnigmailLazy.loader("enigmail/armor.jsm", "EnigmailArmor");
@@ -111,6 +112,7 @@ var pgpjs_decrypt = {
         if (await pgpjs_keys.decryptSecretKey(secKey, EnigmailConstants.KEY_DECRYPT_REASON_ENCRYPTED_MSG)) {
           let result = await PgpJS.decrypt({
             message: message,
+            format: "binary",
             privateKeys: secKey
           });
 
@@ -133,7 +135,7 @@ var pgpjs_decrypt = {
               }
               verifiation = await this.verifyDetached(result.data, pkt);
 
-              if (verifiation.exitCode === 0) {
+              if (verifiation.exitCode !== 2) {
                 retData.statusFlags += verifiation.statusFlags;
                 retData.sigDetails = verifiation.sigDetails;
                 retData.keyId = verifiation.keyId;
@@ -198,7 +200,7 @@ var pgpjs_decrypt = {
   /**
    * Verify a message with a detached signature
    *
-   * @param {String} data: the data to verify
+   * @param {String|Uint8Array} data: the data to verify
    * @param {String} signature: ASCII armored signature
    * @param {Boolean} returnData: if true, inculde the verified data in the result
    *
@@ -228,11 +230,11 @@ var pgpjs_decrypt = {
     let msg;
 
     if (sigObj.packets[0].signatureType === PgpJS.enums.signature.binary) {
-      msg = PgpJS.message.fromText(data);
+      msg = PgpJS.message.fromBinary(ensureUint8Array(data));
       msg.packets.concat(sigObj.packets);
     }
     else {
-      msg = PgpJS.cleartext.fromText(data);
+      msg = PgpJS.cleartext.fromText(ensureString(data));
       msg.signature.packets.concat(sigObj.packets);
     }
 
@@ -260,7 +262,7 @@ var pgpjs_decrypt = {
 
     const result = {
       statusFlags: EnigmailConstants.UNVERIFIED_SIGNATURE,
-      exitCode: 1,
+      exitCode: 2,
       sigDetails: "",
       keyId: "",
       userId: "",
@@ -410,9 +412,16 @@ function ensureString(stringOrUint8Array) {
     return stringOrUint8Array;
   }
 
-  return String.fromCharCode.apply(null, stringOrUint8Array);
+  return EnigmailData.arrayBufferToString(stringOrUint8Array);
 }
 
+function ensureUint8Array(stringOrUint8Array) {
+  if (typeof stringOrUint8Array === "string") {
+    return new Uint8Array(Array.from(stringOrUint8Array, c => c.charCodeAt(0)));
+  }
+
+  return stringOrUint8Array;
+}
 
 function readFromStream(reader) {
   let result = "";
