@@ -299,6 +299,15 @@ var pgpjs_keyStore = {
   },
 
   /**
+   * Determine the key status and return the corresponding code
+   *
+   * @param {Object} key: OpenPGP.js key object
+   *
+   * @return {String} status code
+   */
+  getKeyStatusCode: getKeyStatusCode,
+
+  /**
    * Initialize module
    *
    * @return {Promise<Boolean>} true if successful
@@ -714,13 +723,12 @@ async function getKeyMetadata(key) {
   keyObj.keyCreated = key.getCreationTime().getTime() / 1000;
   keyObj.created = EnigmailTime.getDateTime(keyObj.keyCreated, true, false);
   keyObj.type = "pub";
-  let keyStatusNum = await key.verifyPrimaryKey();
 
-  keyObj.keyTrust = getKeyStatus(keyStatusNum, keyObj.secretAvailable);
+  keyObj.keyTrust = await getKeyStatusCode(key);
+  if (keyObj.keyTrust === "f" && keyObj.isPrivate) keyObj.keyTrust = "u";
+
   let keyIsValid = (keyObj.keyTrust.search(/^[uf]$/) === 0);
 
-  let sig = await key.getSigningKey();
-  let enc = await key.getEncryptionKey();
   let prim = null;
 
   try {
@@ -732,7 +740,14 @@ async function getKeyMetadata(key) {
     }
   }
 
-  keyObj.keyUseFor = "cC" + (sig ? "sS" : "") + (enc ? "eE" : "");
+  const keyUse = await getKeyFlags(key);
+  keyObj.keyUseFor = (keyUse.cert ? "c" : "") +
+    (keyUse.certValid ? "C" : "") +
+    (keyUse.sign ? "s" : "") +
+    (keyUse.signValid ? "S" : "") +
+    (keyUse.enc ? "e" : "") +
+    (keyUse.encValid ? "E" : "");
+
   keyObj.ownerTrust = (keyObj.secretAvailable ? "u" : "f");
   keyObj.algoSym = key.getAlgorithmInfo().algorithm.toUpperCase();
   keyObj.keySize = key.getAlgorithmInfo().bits;
@@ -746,7 +761,7 @@ async function getKeyMetadata(key) {
     let trustLevel = "f";
     if (keyIsValid) {
       try {
-        trustLevel = getKeyStatus(await key.users[i].verify());
+        trustLevel = await getUserStatusCode(key.users[i]);
       }
       catch (x) {}
     }
@@ -788,7 +803,8 @@ async function getKeyMetadata(key) {
     let keyTrust = "f";
     if (keyIsValid) {
       try {
-        keyTrust = getKeyStatus(await sk[i].verify(), keyObj.secretAvailable);
+        keyTrust = await getSubKeyStatusCode(sk[i]);
+        if (keyTrust === "f" && keyObj.secretAvailable) keyTrust = "u";
       }
       catch (x) {}
     }
@@ -812,29 +828,6 @@ async function getKeyMetadata(key) {
   }
 
   return keyObj;
-}
-
-
-function getKeyStatus(statusId, isPrivateKey) {
-  const PgpJS = getOpenPGPLibrary();
-
-  for (let i in PgpJS.enums.keyStatus) {
-    if (statusId === PgpJS.enums.keyStatus[i]) {
-      switch (i) {
-        case "invalid":
-        case "no_self_cert":
-          return "i";
-        case "expired":
-          return "e";
-        case "revoked":
-          return "r";
-        case "valid":
-          return (isPrivateKey ? "u" : "f");
-      }
-    }
-  }
-
-  return "?";
 }
 
 
@@ -912,4 +905,211 @@ function getFprFromArray(arr) {
   }
 
   return hex;
+}
+
+
+async function getKeyStatusCode(key) {
+  let now = new Date();
+
+  try {
+    if (await key.isRevoked(null, null, now)) {
+      return "r";
+    }
+    else if (!key.users.some(user => user.userId && user.selfCertifications.length)) {
+      return "i";
+    }
+    else {
+      const {
+        user,
+        selfCertification
+      } = await key.getPrimaryUser(now, {}) || {};
+
+      if (!user) return "i";
+
+      // check for expiration time
+      if (isDataExpired(key.keyPacket, selfCertification, now)) {
+        return "e";
+      }
+    }
+  }
+  catch (x) {
+    return "i";
+  }
+
+  return "f";
+}
+
+async function getUserStatusCode(user) {
+  try {
+    if (!user.selfCertifications.length) {
+      return "i";
+    }
+
+    const dataToVerify = {
+      userId: user.userId,
+      userAttribute: user.userAttribute,
+      key: null
+    };
+
+    const results = ["i"].concat(
+      await Promise.all(user.selfCertifications.map(async function(selfCertification) {
+
+        if (selfCertification.revoked || await user.isRevoked(null, selfCertification)) {
+          return "r";
+        }
+
+        if (!(selfCertification.verified || await selfCertification.verify(null, dataToVerify))) {
+          return "i";
+        }
+
+        if (selfCertification.isExpired()) {
+          return "e";
+        }
+
+        return "f";
+      })));
+
+    return results.some(status => status === "f") ? "f" : results.pop();
+  }
+  catch (x) {}
+
+  return "i";
+}
+
+async function getSubKeyStatusCode(key) {
+  const dataToVerify = {
+    key: null,
+    bind: key.keyPacket
+  };
+  const now = new Date();
+
+  // check subkey binding signatures
+  const bindingSignature = getLatestSignature(key.bindingSignatures, now);
+
+  // check binding signature is verified
+  if (!(bindingSignature.verified || await bindingSignature.verify(null, dataToVerify))) {
+    return "i";
+  }
+
+  // check binding signature is not revoked
+  if (bindingSignature.revoked || await key.isRevoked(null, bindingSignature, null, now)) {
+    return "r";
+  }
+
+  // check binding signature is not expired (ie, check for V4 expiration time)
+  if (bindingSignature.isExpired(now)) {
+    return "e";
+  }
+
+  return "f"; // binding signature passed all checks
+}
+
+
+function getLatestSignature(signatures, date = new Date()) {
+  let signature = signatures[0];
+
+  for (let i = 1; i < signatures.length; i++) {
+
+    if (signatures[i].created >= signature.created &&
+      (signatures[i].created <= date || date === null)) {
+      signature = signatures[i];
+    }
+  }
+
+  return signature;
+}
+
+
+function isDataExpired(keyPacket, signature, date = new Date()) {
+  const normDate = normalizeDate(date);
+
+  if (normDate !== null) {
+    const expirationTime = getExpirationTime(keyPacket, signature);
+
+    return !(keyPacket.created <= normDate && normDate < expirationTime) ||
+      (signature && signature.isExpired(date));
+  }
+
+  return false;
+}
+
+function getExpirationTime(keyPacket, signature) {
+  let expirationTime;
+
+  // check V4 expiration time
+  if (signature.keyNeverExpires === false) {
+    expirationTime = keyPacket.created.getTime() + signature.keyExpirationTime * 1000;
+  }
+
+  return expirationTime ? new Date(expirationTime) : Infinity;
+}
+
+function normalizeDate(time = Date.now()) {
+  return time === null ? time : new Date(Math.floor(Number(time) / 1000) * 1000);
+}
+
+
+async function getKeyFlags(key) {
+  const PgpJS = getOpenPGPLibrary();
+
+  const keyUse = {
+    sign: 0,
+    signValid: 0,
+    enc: 0,
+    encValid: 0,
+    cert: 0,
+    certValid: 0
+  };
+
+  function determineFlags(inputFlags, isVerified) {
+    try {
+
+      if (inputFlags & PgpJS.enums.keyFlags.certify_keys) ++keyUse.cert;
+      if (inputFlags & PgpJS.enums.keyFlags.sign_data) ++keyUse.sign;
+      if (inputFlags & PgpJS.enums.keyFlags.encrypt_communication) ++keyUse.enc;
+      if (inputFlags & PgpJS.enums.keyFlags.encrypt_storage) ++keyUse.enc;
+      if (isVerified) {
+        if (inputFlags & PgpJS.enums.keyFlags.certify_keys) ++keyUse.certValid;
+        if (inputFlags & PgpJS.enums.keyFlags.sign_data) ++keyUse.signValid;
+        if (inputFlags & PgpJS.enums.keyFlags.encrypt_communication) ++keyUse.encValid;
+        if (inputFlags & PgpJS.enums.keyFlags.encrypt_storage) ++keyUse.encValid;
+      }
+    }
+    catch (x) {}
+  }
+
+  try {
+    await key.verifyPrimaryKey();
+    await key.verifyAllUsers();
+  }
+  catch (x) {}
+
+  for (let sk of key.subKeys) {
+    try {
+      await sk.verify(key.primaryKey);
+    }
+    catch (x) {}
+
+    for (let sig in sk.bindingSignatures) {
+      for (let flg in sk.bindingSignatures[sig].keyFlags) {
+        determineFlags(sk.bindingSignatures[sig].keyFlags[flg], sk.bindingSignatures[sig].verified);
+      }
+    }
+  }
+
+  for (let usr of key.users) {
+    for (let sig in usr.selfCertifications) {
+      for (let flg in usr.selfCertifications[sig].keyFlags) {
+        determineFlags(usr.selfCertifications[sig].keyFlags[flg], usr.selfCertifications[sig].verified);
+      }
+    }
+  }
+
+  for (let sig in key.directSignatures) {
+    for (let flg in key.directSignatures[sig].keyFlags) {
+      determineFlags(key.directSignatures[sig].keyFlags[flg], key.directSignatures[sig].verified);
+    }
+  }
+
+  return keyUse;
 }
