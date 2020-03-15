@@ -418,7 +418,8 @@ function ensureString(stringOrUint8Array) {
 
 function ensureUint8Array(stringOrUint8Array) {
   if (typeof stringOrUint8Array === "string") {
-    return new Uint8Array(Array.from(stringOrUint8Array, c => c.charCodeAt(0)));
+    const PgpJS = getOpenPGPLibrary();
+    return PgpJS.util.str_to_Uint8Array(stringOrUint8Array);
   }
 
   return stringOrUint8Array;
