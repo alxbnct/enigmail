@@ -111,7 +111,9 @@ function loadOpenPGPjsLib() {
     userAgent: userAgent,
     console: {
       assert: function() {},
-      log: function() {},
+      log: function(str) {
+        Services.console.logStringMessage(str);
+      },
       error: function() {},
       table: function() {},
       warn: function() {}

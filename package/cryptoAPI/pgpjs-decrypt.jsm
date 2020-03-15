@@ -171,7 +171,7 @@ var pgpjs_decrypt = {
     EnigmailLog.DEBUG(`pgpjs-decrypt.jsm: verify(${data.length})\n`);
 
     const PgpJS = getOpenPGPLibrary();
-    const result = getReturnObj();
+    let result = getReturnObj();
     const Armor = getArmor();
     let blocks = Armor.locateArmoredBlocks(data);
 
@@ -184,7 +184,7 @@ var pgpjs_decrypt = {
           let msg = await PgpJS.cleartext.readArmored(data.substring(blocks[0].begin, blocks[0].end));
 
           if (msg && "signature" in msg) {
-            return await this.verifyDetached(msg.text, msg.signature.armor(), true);
+            result = await this.verifyDetached(msg.text, msg.signature.armor(), true);
           }
         }
       }
@@ -229,14 +229,16 @@ var pgpjs_decrypt = {
     }
     let msg;
 
-    if (sigObj.packets[0].signatureType === PgpJS.enums.signature.binary) {
+    //if (sigObj.packets[0].signatureType === PgpJS.enums.signature.binary) {
       msg = PgpJS.message.fromBinary(ensureUint8Array(data));
       msg.packets.concat(sigObj.packets);
-    }
+    /*}
     else {
-      msg = PgpJS.cleartext.fromText(ensureString(data));
-      msg.signature.packets.concat(sigObj.packets);
-    }
+      //msg = PgpJS.cleartext.fromText(ensureString(data));
+      //msg.signature.packets.concat(sigObj.packets);
+      msg = await PgpJS.message.fromBinary(ensureUint8Array(data), null, null, "text");
+      msg.packets.concat(sigObj.packets);
+    }*/
 
     return this.verifyMessage(msg, returnData);
   },
@@ -316,17 +318,16 @@ var pgpjs_decrypt = {
             currentStatus = SIG_STATUS.bad_signature;
           }
           else {
-            let keyStatus = await currentKey.verifyPrimaryKey();
+            let keyStatus = await pgpjs_keyStore.getKeyStatusCode(currentKey);
             switch (keyStatus) {
-              case PgpJS.enums.keyStatus.invalid:
-              case PgpJS.enums.keyStatus.revoked:
-              case PgpJS.enums.keyStatus.no_self_cert:
+              case "i":
+              case "r":
                 currentStatus = SIG_STATUS.good_sig_invalid_key;
                 break;
-              case PgpJS.enums.keyStatus.expired:
+              case "e":
                 currentStatus = SIG_STATUS.good_sig_expired_key;
                 break;
-              case PgpJS.enums.keyStatus.valid:
+              case "f":
                 currentStatus = SIG_STATUS.valid_signature;
                 break;
               default:
