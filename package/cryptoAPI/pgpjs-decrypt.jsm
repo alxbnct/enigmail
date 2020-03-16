@@ -294,7 +294,12 @@ var pgpjs_decrypt = {
 
       for (let sig of ret.signatures) {
         let currentStatus = -1,
+          sigValid = false;
+        try {
           sigValid = await sig.verified;
+        }
+        catch(ex) {}
+
         currentKey = null;
         let keyId = sig.keyid.toHex();
 
