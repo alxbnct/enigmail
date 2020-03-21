@@ -183,8 +183,10 @@ var pgpjs_decrypt = {
         if (blocks[0].blocktype === "SIGNED MESSAGE") {
           let msg = await PgpJS.cleartext.readArmored(data.substring(blocks[0].begin, blocks[0].end));
 
+          let binaryData = extractDataFromClearsignedMsg(data.substring(blocks[0].begin, blocks[0].end));
+
           if (msg && "signature" in msg) {
-            result = await this.verifyDetached(msg.text, msg.signature.armor(), true);
+            result = await this.verifyDetached(binaryData, msg.signature.armor(), true);
           }
         }
       }
@@ -230,8 +232,8 @@ var pgpjs_decrypt = {
     let msg;
 
     //if (sigObj.packets[0].signatureType === PgpJS.enums.signature.binary) {
-      msg = PgpJS.message.fromBinary(ensureUint8Array(data));
-      msg.packets.concat(sigObj.packets);
+    msg = PgpJS.message.fromBinary(ensureUint8Array(data));
+    msg.packets.concat(sigObj.packets);
     /*}
     else {
       //msg = PgpJS.cleartext.fromText(ensureString(data));
@@ -298,7 +300,7 @@ var pgpjs_decrypt = {
         try {
           sigValid = await sig.verified;
         }
-        catch(ex) {}
+        catch (ex) {}
 
         currentKey = null;
         let keyId = sig.keyid.toHex();
@@ -495,4 +497,16 @@ function getReturnObj() {
     encToDetails: "",
     blockSeparation: ""
   };
+}
+
+
+function extractDataFromClearsignedMsg(dataStr) {
+  dataStr = dataStr.replace(/\r?\n/g, "\r\n"); // ensure CRLF
+  dataStr = dataStr.replace(/^- /mg, ""); // Remove dash-escapes
+  let start = dataStr.search(/\r\n\r\n/);
+  let end = dataStr.search(/^-----BEGIN PGP SIGNATURE-----/m);
+
+  if (start < 0 || end < 0 || end < start) return "";
+
+  return dataStr.substring(start + 4, end - 2);
 }
