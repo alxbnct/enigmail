@@ -284,8 +284,8 @@ class CryptoAPI {
    * Verify the detached signature of an attachment (or in other words,
    * check the signature of a file, given the file and the signature).
    *
-   * @param {Path} filePath    The signed file
-   * @param {Path} sigPath       The signature to verify
+   * @param {String} filePath    Path specification for the signed file
+   * @param {String} sigPath     Path specification for the signature file
    *
    * @return {Promise<String>} - A message from the verification.
    *

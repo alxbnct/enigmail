@@ -17,6 +17,7 @@ const getOpenPGPLibrary = ChromeUtils.import("chrome://enigmail/content/modules/
 const EnigmailTime = ChromeUtils.import("chrome://enigmail/content/modules/time.jsm").EnigmailTime;
 const EnigmailFuncs = ChromeUtils.import("chrome://enigmail/content/modules/funcs.jsm").EnigmailFuncs;
 const EnigmailData = ChromeUtils.import("chrome://enigmail/content/modules/data.jsm").EnigmailData;
+const EnigmailFiles = ChromeUtils.import("chrome://enigmail/content/modules/files.jsm").EnigmailFiles;
 const EnigmailConstants = ChromeUtils.import("chrome://enigmail/content/modules/constants.jsm").EnigmailConstants;
 const getOpenPGP = EnigmailLazy.loader("enigmail/openpgp.jsm", "EnigmailOpenPGP");
 const getArmor = EnigmailLazy.loader("enigmail/armor.jsm", "EnigmailArmor");
@@ -57,7 +58,14 @@ var pgpjs_decrypt = {
     const retData = getReturnObj();
 
     try {
-      let message = await PgpJS.message.readArmored(encrypted);
+      let message;
+      if (encrypted.search(/^-----BEGIN PGP/m) >= 0) {
+        message = await PgpJS.message.readArmored(encrypted);
+      }
+      else {
+        let encArr = ensureUint8Array(encrypted);
+        message = await PgpJS.message.read(encArr, false);
+      }
 
       if (message.packets[0].tag === PgpJS.enums.packet.compressed) {
         message = await message.unwrapCompressed();
@@ -116,7 +124,6 @@ var pgpjs_decrypt = {
             privateKeys: secKey
           });
 
-          // TODO: check multiple plaintexts, etc.
           let verifiation;
           if (result && ("data" in result)) {
             retData.decryptedData = ensureString(result.data);
@@ -143,6 +150,10 @@ var pgpjs_decrypt = {
                 retData.errorMsg = verifiation.errorMsg;
               }
             }
+          }
+
+          if ("filename" in result) {
+            retData.encryptedFileName = result.filename;
           }
         }
         else {
@@ -405,6 +416,31 @@ var pgpjs_decrypt = {
     }
 
     return result;
+  },
+
+  verifyFile: async function (dataFilePath, signatureFilePath) {
+    const PgpJS = getOpenPGPLibrary();
+    let dataFile = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
+    let sigFile = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
+    EnigmailFiles.initPath(dataFile, dataFilePath);
+    EnigmailFiles.initPath(sigFile, signatureFilePath);
+
+    if (!dataFile.exists()) {
+      throw new Error(`Data file ${dataFilePath} does not exist`);
+    }
+    if (!sigFile.exists()) {
+      throw new Error(`Signature file ${signatureFilePath} does not exist`);
+    }
+
+    let data = EnigmailFiles.readBinaryFile(dataFile);
+    let sig = EnigmailFiles.readBinaryFile(sigFile);
+
+    if (sig.search(/^-----BEGIN PGP/m) < 0) {
+      let msg = await PgpJS.signature.read(ensureUint8Array(sig));
+      sig = msg.armor();
+    }
+
+    return this.verifyDetached(data, sig, false);
   }
 };
 
