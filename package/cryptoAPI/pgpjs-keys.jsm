@@ -321,7 +321,7 @@ var pgpjs_keys = {
     genName = EnigmailData.convertToUnicode(genName.trim(), 'utf-8');
 
     let options = {
-      userIds: [genName],
+      userIds: genName,
       keyExpirationTime: expiryDate * 86400,
       passphrase: EnigmailData.convertToUnicode(passphrase, 'utf-8'),
       subkeys: [{}]
@@ -338,7 +338,10 @@ var pgpjs_keys = {
         throw Error(`Invalid key type ${keyType}`);
     }
 
-    const { privateKeyArmored, revocationCertificate } = await PgpJS.generateKey(options);
+    const {
+      privateKeyArmored,
+      revocationCertificate
+    } = await PgpJS.generateKey(options);
 
     const key = (await PgpJS.key.readArmored(privateKeyArmored)).keys[0];
 
