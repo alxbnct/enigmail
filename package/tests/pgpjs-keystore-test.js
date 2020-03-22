@@ -100,7 +100,7 @@ test(withTestGpgHome(asyncTest(async function readWrite() {
     Assert.equal(keyObj.expiryTime, 0, "expiryTime");
     Assert.equal(keyObj.ownerTrust, "f", "ownerTrust");
     Assert.equal(keyObj.keyUseFor, "cCsSeE", "keyUseFor");
-    Assert.equal(keyObj.algoSym, "RSA_ENCRYPT_SIGN", "algoSym");
+    Assert.equal(keyObj.algoSym, "RSA", "algoSym");
     Assert.equal(keyObj.keySize, 4096, "keySize");
     Assert.equal(keyObj.photoAvailable, false, "photoAvailable");
 
@@ -116,7 +116,7 @@ test(withTestGpgHome(asyncTest(async function readWrite() {
     Assert.equal(keyObj.subKeys[0].expiry, "", "subKey.expiry");
     Assert.equal(keyObj.subKeys[0].expiryTime, 0, "subKey.expiryTime");
     Assert.equal(keyObj.subKeys[0].keyTrust, "f", "subKey.keyTrust");
-    Assert.equal(keyObj.subKeys[0].algoSym, "RSA_ENCRYPT_SIGN", "subKey.algoSym");
+    Assert.equal(keyObj.subKeys[0].algoSym, "RSA", "subKey.algoSym");
     Assert.equal(keyObj.subKeys[0].keySize, 4096, "subKey.keySize");
     Assert.equal(keyObj.subKeys[0].type, "sub", "subKey.type");
 
