@@ -309,7 +309,7 @@ class OpenPGPjsCryptoAPI extends CryptoAPI {
    * @param {String} name:       name part of UID
    * @param {String} comment:    comment part of UID (brackets are added)
    * @param {String} email:      email part of UID (<> will be added)
-   * @param {Number} expiryDate: Unix timestamp of key expiry date; 0 if no expiry
+   * @param {Number} expiryDate: Key expiry: number of days after now; 0 if no expiry
    * @param {Number} keyLength:  size of key in bytes (e.g 4096)
    * @param {String} keyType:    'RSA' or 'ECC'
    * @param {String} passphrase: password; use null if no password
@@ -322,8 +322,30 @@ class OpenPGPjsCryptoAPI extends CryptoAPI {
    */
 
   generateKey(name, comment, email, expiryDate, keyLength, keyType, passphrase) {
-    // TODO
-    return null;
+    let canceled = false;
+
+    let promise = new Promise((resolve, reject) => {
+      pgpjs_keys.generateKey(name, comment, email, expiryDate, keyLength, keyType, passphrase).then(async (keyData) => {
+        if (canceled) return;
+
+        await pgpjs_keyStore.writeKey(keyData.privateKey);
+        pgpjs_keyStore.storeRevocationCert(keyData.key, keyData.revocationCertificate);
+
+        resolve({
+          exitCode: 0,
+          generatedKeyId: "0x" + keyData.key.getFingerprint().toUpperCase()
+        });
+      }).catch(err => {
+        reject(err);
+      });
+    });
+
+    return {
+      cancel: function() {
+        canceled = true;
+      },
+      promise: promise
+    };
   }
 
 
@@ -338,10 +360,10 @@ class OpenPGPjsCryptoAPI extends CryptoAPI {
   async getFileName(byteData) {
     let fn = null;
     try {
-       let msg = await pgpjs_decrypt.processPgpMessage(byteData, {});
-       fn = msg.encryptedFileName;
+      let msg = await pgpjs_decrypt.processPgpMessage(byteData, {});
+      fn = msg.encryptedFileName;
     }
-    catch(x) {}
+    catch (x) {}
 
     return fn;
   }

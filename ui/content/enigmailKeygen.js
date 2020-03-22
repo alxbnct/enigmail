@@ -388,6 +388,7 @@ function enigmailKeygenStart() {
   }).
   catch(ex => {
     EnigmailLog.DEBUG("enigmailKeygen.js: generateKey() failed with " + ex.toString() + "\n" + ex.stack + "\n");
+    enigmailKeygenTerminate(1);
   });
 }
 

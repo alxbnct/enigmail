@@ -299,6 +299,47 @@ var pgpjs_keyStore = {
   },
 
   /**
+   * Write a revocation certificate to its default location
+   */
+  storeRevocationCert: function(key, certificateData) {
+    const fpr = key.getFingerprint().toUpperCase();
+
+    EnigmailLog.DEBUG(`pgpjs-keystore.jsm: storeRevocationCert(${fpr})\n`);
+    let dbPathObj = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
+
+    let dbPath = pgpjs_keyStore.getDatabasePath();
+
+    dbPathObj.initWithPath(dbPath);
+    dbPathObj = dbPathObj.parent;
+    dbPathObj.append("openpgp-revocs.d");
+
+    EnigmailFiles.ensureWritableDirectory(dbPathObj, 0o700);
+    const uid = key.users[0].userId.userid;
+    dbPathObj.append(`${fpr}.rev`);
+
+    const data = `This is a revocation certificate for the OpenPGP key:
+
+Key ID:      ${fpr}
+uid          ${uid}
+
+A revocation certificate is a kind of "kill switch" to publicly
+declare that a key shall not anymore be used.  It is not possible
+to retract such a revocation certificate once it has been published.
+
+Use it to revoke this key in case of a compromise or loss of
+the secret key.
+
+To avoid an accidental use of this file, a colon has been inserted
+before the 5 dashes below.  Remove this colon with a text editor
+before importing and publishing this revocation certificate.
+
+:${certificateData}
+`;
+
+    EnigmailFiles.writeFileContents(dbPathObj, data);
+  },
+
+  /**
    * Determine the key status and return the corresponding code
    *
    * @param {Object} key: OpenPGP.js key object
@@ -725,7 +766,7 @@ async function getKeyMetadata(key) {
   keyObj.type = "pub";
 
   keyObj.keyTrust = await getKeyStatusCode(key);
-  if (keyObj.keyTrust === "f" && keyObj.isPrivate) keyObj.keyTrust = "u";
+  if (keyObj.keyTrust === "f" && keyObj.secretAvailable) keyObj.keyTrust = "u";
 
   let keyIsValid = (keyObj.keyTrust.search(/^[uf]$/) === 0);
 
@@ -749,7 +790,7 @@ async function getKeyMetadata(key) {
     (keyUse.encValid ? "E" : "");
 
   keyObj.ownerTrust = (keyObj.secretAvailable ? "u" : "f");
-  keyObj.algoSym = key.getAlgorithmInfo().algorithm.toUpperCase();
+  keyObj.algoSym = getAlgorithmDesc(key.getAlgorithmInfo().algorithm);
   keyObj.keySize = key.getAlgorithmInfo().bits;
   keyObj.fpr = key.getFingerprint().toUpperCase();
   keyObj.userId = prim ? prim.userId.userid : "n/a";
@@ -817,10 +858,11 @@ async function getKeyMetadata(key) {
       expiry: EnigmailTime.getDateTime(exp, true, false),
       expiryTime: exp,
       keyTrust: keyTrust,
+      // FIXME:
       keyUseFor: (sk[i].getAlgorithmInfo().algorithm.search(/sign/i) ? "s" : "") +
         (sk[i].getAlgorithmInfo().algorithm.search(/encrypt/i) ? "e" : ""),
       keySize: sk[i].getAlgorithmInfo().bits,
-      algoSym: sk[i].getAlgorithmInfo().algorithm.toUpperCase(),
+      algoSym: getAlgorithmDesc(sk[i].getAlgorithmInfo().algorithm),
       created: EnigmailTime.getDateTime(sk[i].getCreationTime() / 1000, true, false),
       keyCreated: sk[i].getCreationTime() / 1000,
       type: "sub"
@@ -1112,4 +1154,15 @@ async function getKeyFlags(key) {
   }
 
   return keyUse;
+}
+
+
+function getAlgorithmDesc(algorithm) {
+  algorithm = algorithm.toUpperCase();
+
+  if (algorithm.search(/^RSA/) === 0) {
+    algorithm = "RSA";
+  }
+
+  return algorithm;
 }

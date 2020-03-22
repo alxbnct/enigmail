@@ -16,6 +16,7 @@ const EnigmailLazy = ChromeUtils.import("chrome://enigmail/content/modules/lazy.
 const getOpenPGPLibrary = ChromeUtils.import("chrome://enigmail/content/modules/stdlib/openpgp-loader.jsm").getOpenPGPLibrary;
 const EnigmailTime = ChromeUtils.import("chrome://enigmail/content/modules/time.jsm").EnigmailTime;
 const EnigmailTimer = ChromeUtils.import("chrome://enigmail/content/modules/timer.jsm").EnigmailTimer;
+const EnigmailData = ChromeUtils.import("chrome://enigmail/content/modules/data.jsm").EnigmailData;
 const EnigmailFuncs = ChromeUtils.import("chrome://enigmail/content/modules/funcs.jsm").EnigmailFuncs;
 const EnigmailLocale = ChromeUtils.import("chrome://enigmail/content/modules/locale.jsm").EnigmailLocale;
 const getOpenPGP = EnigmailLazy.loader("enigmail/openpgp.jsm", "EnigmailOpenPGP");
@@ -301,6 +302,53 @@ var pgpjs_keys = {
     }
 
     return false;
+  },
+
+  generateKey: async function(name, comment, email, expiryDate, keyLength, keyType, passphrase) {
+    EnigmailLog.DEBUG(`pgpjs-keys.jsm: generateKey(${name}, ${email}, ${expiryDate}, ${keyLength}, ${keyType})\n`);
+
+    const PgpJS = getOpenPGPLibrary();
+    let genName = name;
+    if (comment && comment.length > 0) {
+      genName += ` (${comment})`;
+    }
+
+    if (email) {
+      genName += ` <${email}>`;
+    }
+
+    // Name, comment and email are in UTF-8
+    genName = EnigmailData.convertToUnicode(genName.trim(), 'utf-8');
+
+    let options = {
+      userIds: [genName],
+      keyExpirationTime: expiryDate * 86400,
+      passphrase: EnigmailData.convertToUnicode(passphrase, 'utf-8'),
+      subkeys: [{}]
+    };
+
+    switch (keyType) {
+      case "ECC":
+        options.curve = "ed25519";
+        break;
+      case "RSA":
+        options.rsaBits = keyLength;
+        break;
+      default:
+        throw Error(`Invalid key type ${keyType}`);
+    }
+
+    const { privateKeyArmored, revocationCertificate } = await PgpJS.generateKey(options);
+
+    const key = (await PgpJS.key.readArmored(privateKeyArmored)).keys[0];
+
+
+    EnigmailLog.DEBUG(`pgpjs-keys.jsm: generateKey: key created\n`);
+    return {
+      privateKey: privateKeyArmored,
+      revocationCertificate: revocationCertificate,
+      key: key
+    };
   }
 };
 

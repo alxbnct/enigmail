@@ -201,3 +201,51 @@ test(withTestGpgHome(withEnigmail(asyncTest(async function testSignatures() {
     Assert.ok(false, "exception: " + ex.toString());
   }
 }))));
+
+
+test(withTestGpgHome(withEnigmail(asyncTest(async function testKeyGen() {
+  const DAY = 86400000;
+
+  try {
+    const cApi = getOpenPGPjsAPI();
+    cApi.initialize();
+
+    // Test ECC Key
+    let handle = cApi.generateKey("Test User", "", "testuser@invalid.domain", 5, 0, "ECC", "");
+    let retObj = await handle.promise;
+    Assert.equal(retObj.exitCode, 0);
+    let fpr = retObj.generatedKeyId;
+    Assert.equal(fpr.search(/^0x[0-9A-F]+$/), 0);
+
+    let keyList = await cApi.getKeys([fpr]);
+    Assert.equal(keyList.length, 1);
+
+    let keyObj = keyList[0];
+    Assert.equal(keyObj.keyTrust, "u");
+    Assert.equal(keyObj.userId, "Test User <testuser@invalid.domain>");
+    Assert.equal(keyObj.algoSym, "EDDSA");
+    Assert.equal(keyObj.subKeys.length, 1);
+    Assert.ok(keyObj.expiryTime > 0);
+
+    // Test RSA Key
+    handle = cApi.generateKey("Test User 2", "", "testuser2@invalid.domain", 0, 4096, "RSA", "");
+     retObj = await handle.promise;
+    Assert.equal(retObj.exitCode, 0);
+    fpr = retObj.generatedKeyId;
+    Assert.equal(fpr.search(/^0x[0-9A-F]+$/), 0);
+
+    keyList = await cApi.getKeys([fpr]);
+    Assert.equal(keyList.length, 1);
+
+    keyObj = keyList[0];
+    Assert.equal(keyObj.keyTrust, "u");
+    Assert.equal(keyObj.userId, "Test User 2 <testuser2@invalid.domain>");
+    Assert.equal(keyObj.algoSym, "RSA");
+    Assert.equal(keyObj.subKeys.length, 1);
+    Assert.equal(keyObj.expiryTime, 0);
+
+  }
+  catch (ex) {
+    Assert.ok(false, "exception: " + ex.toString());
+  }
+}))));
