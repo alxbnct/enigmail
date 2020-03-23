@@ -155,6 +155,8 @@ var pgpjs_decrypt = {
           if ("filename" in result) {
             retData.encryptedFileName = result.filename;
           }
+
+          break;
         }
         else {
           EnigmailLog.DEBUG(`pgpjs-decrypt.jsm: decrypt invalid or no passphrase supplied\n`);

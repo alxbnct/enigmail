@@ -43,6 +43,7 @@ var pgpjs_keys = {
    */
   getStrippedKey: async function(key, emailAddr, getPacketList = false) {
     EnigmailLog.DEBUG("pgpjs-keys.jsm: getStrippedKey()\n");
+    const PgpJS = getOpenPGPLibrary();
 
     let searchUid = undefined;
     if (emailAddr) {
@@ -53,9 +54,8 @@ var pgpjs_keys = {
     }
 
     try {
-      const openpgp = getOpenPGPLibrary();
       if (typeof(key) === "string") {
-        let msg = await openpgp.key.readArmored(key);
+        let msg = await PgpJS.key.readArmored(key);
 
         if (!msg || msg.keys.length === 0) {
           if (msg.err) {
@@ -73,7 +73,11 @@ var pgpjs_keys = {
       let signSubkey = await key.getSigningKey();
       let encSubkey = await key.getEncryptionKey();
 
-      let p = new openpgp.packet.List();
+      // remove all 3rd-party signatures
+      if (signSubkey && "directSignatures" in signSubkey) signSubkey.directSignatures = [];
+      if ("otherCertifications" in uid.user) uid.user.otherCertifications = [];
+
+      let p = new PgpJS.packet.List();
       p.push(key.primaryKey);
       p.concat(uid.user.toPacketlist());
       if (key !== signSubkey) {
@@ -105,21 +109,21 @@ var pgpjs_keys = {
     let blocks;
     let isBinary = false;
     const EOpenpgp = getOpenPGP();
-    const openPGPjs = getOpenPGPLibrary();
+    const PgpJS = getOpenPGPLibrary();
 
     if (keyBlockStr.search(/-----BEGIN PGP (PUBLIC|PRIVATE) KEY BLOCK-----/) >= 0) {
       blocks = getArmor().splitArmoredBlocks(keyBlockStr);
     }
     else {
       isBinary = true;
-      blocks = [EOpenpgp.bytesToArmor(openPGPjs.enums.armor.public_key, keyBlockStr)];
+      blocks = [EOpenpgp.bytesToArmor(PgpJS.enums.armor.public_key, keyBlockStr)];
     }
 
     for (let b of blocks) {
-      let m = await openPGPjs.message.readArmored(b);
+      let m = await PgpJS.message.readArmored(b);
 
       for (let i = 0; i < m.packets.length; i++) {
-        let packetType = openPGPjs.enums.read(openPGPjs.enums.packet, m.packets[i].tag);
+        let packetType = PgpJS.enums.read(PgpJS.enums.packet, m.packets[i].tag);
         switch (packetType) {
           case "publicKey":
           case "secretKey":

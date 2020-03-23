@@ -13,6 +13,7 @@ var EXPORTED_SYMBOLS = ["getOpenPGPjsAPI"];
 var Services = ChromeUtils.import("resource://gre/modules/Services.jsm").Services;
 const pgpjs_keys = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/pgpjs-keys.jsm").pgpjs_keys;
 const pgpjs_keyStore = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/pgpjs-keystore.jsm").pgpjs_keyStore;
+const pgpjs_encrypt = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/pgpjs-encrypt.jsm").pgpjs_encrypt;
 const pgpjs_decrypt = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/pgpjs-decrypt.jsm").pgpjs_decrypt;
 const EnigmailLazy = ChromeUtils.import("chrome://enigmail/content/modules/lazy.jsm").EnigmailLazy;
 const EnigmailLog = ChromeUtils.import("chrome://enigmail/content/modules/log.jsm").EnigmailLog;
@@ -480,16 +481,15 @@ class OpenPGPjsCryptoAPI extends CryptoAPI {
    * @param {String} hashAlgorithm: [OPTIONAL] hash algorithm
    * @param {nsIWindow} parentWindow: [OPTIONAL] window on top of which to display modal dialogs
    *
-   * @return {Object}:
+   * @return {Promise<Object>}:
    *     - {Number} exitCode:    0 = success / other values: error
    *     - {String} data:        encrypted data
    *     - {String} errorMsg:    error message in case exitCode !== 0
    *     - {Number} statusFlags: Status flags for result
    */
 
-  async encryptMessage(from, recipients, hiddenRecipients, encryptionFlags, plainText, hashAlgorithm = null, parentWindow = null) {
-    // TODO
-    return null;
+  encryptMessage(from, recipients, hiddenRecipients, encryptionFlags, plainText, hashAlgorithm = null, parentWindow = null) {
+    return pgpjs_encrypt.encryptMessage(from, recipients, hiddenRecipients, encryptionFlags, plainText, hashAlgorithm, parentWindow);
   }
 
   /**
