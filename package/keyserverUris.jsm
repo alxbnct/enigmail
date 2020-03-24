@@ -73,7 +73,7 @@ function combineIntoURI(protocol, domain, port) {
 }
 
 function isValidProtocol(uri) {
-  return uri.match(/:\/\//) === null || /^(hkps|hkp|ldap):\/\//i.test(uri);
+  return uri.match(/:\/\//) === null || /^(hkps|hkp|ldap|vks):\/\//i.test(uri);
 }
 
 function validProtocolsExist() {
