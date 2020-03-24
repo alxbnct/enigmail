@@ -1,3 +1,4 @@
+/* eslint-disable strict */
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
@@ -23,7 +24,7 @@ var EXPORTED_SYMBOLS = [
   // Higher-level functions
   'msgHdrGetHeaders',
   // Modify messages, raw.
-  'msgHdrsModifyRaw',
+  'msgHdrsModifyRaw'
 ]
 
 const Cr = Components.results;
@@ -365,7 +366,7 @@ function createStreamListener(k) {
     _data: "",
     _stream: null,
 
-    QueryInterface: XPCOMUtils.generateQI([Ci.nsIStreamListener, Ci.nsIRequestObserver]),
+    QueryInterface: generateQI([Ci.nsIStreamListener, Ci.nsIRequestObserver]),
 
     // nsIRequestObserver
     onStartRequest: function(aRequest) {},
@@ -467,7 +468,7 @@ function msgHdrsModifyRaw(aMsgHdrs, aTransformer) {
       msgHdr.folder,
       msgHdr.flags,
       msgHdr.getStringProperty("keywords"), {
-        QueryInterface: XPCOMUtils.generateQI([Ci.nsIMsgCopyServiceListener]),
+        QueryInterface: generateQI([Ci.nsIMsgCopyServiceListener]),
 
         OnStartCopy: function() {},
         OnProgress: function(aProgress, aProgressMax) {},
@@ -532,4 +533,15 @@ function isPlatformNewerThan(requestedVersion) {
   let appVer = Cc["@mozilla.org/xre/app-info;1"].getService(Ci.nsIXULAppInfo).platformVersion;
 
   return vc.compare(appVer, requestedVersion) >= 0;
+}
+
+
+function generateQI(aCid) {
+  if (isPlatformNewerThan("68.0")) {
+    // TB > 60
+    return ChromeUtils.generateQI(aCid);
+  }
+  else {
+    return XPCOMUtils.generateQI(aCid);
+  }
 }
