@@ -53,7 +53,7 @@
 <!ENTITY enigmail.maxIdleMinutesHead.label "Ricorda la frase segreta per">
 <!ENTITY enigmail.maxIdleMinutesTail.label "minuti di di inattività (prima di doverlo inserire di nuovo)
 ">
-<!ENTITY enigmail.maxIdleMinutes.tooltip   "">
+<!ENTITY enigmail.maxIdleMinutes.tooltip   "Ricorda la frase segreta per un tempo limitato.">
 
 <!ENTITY enigmail.resetPrefsButton.label "Ripristina">
 <!ENTITY enigmail.resetPrefs.tooltip     "Ripristina i valori predefiniti delle preferenze di Enigmail.">
@@ -64,7 +64,7 @@
 <!ENTITY enigmail.restorePrefsButton.label "Ripristina impostazioni e chiavi">
 <!ENTITY enigmail.restorePrefs.tooltip     "Ripristina tutte le preferenze di Enigmail incluse le tue chiavi OpenPGP da un file.">
 
-<!ENTITY enigmail.pref.acSetupMessage.button "">
+<!ENTITY enigmail.pref.acSetupMessage.button "Configurazione iniziale Autocrypt">
 
 <!ENTITY enigmail.backupRestore.desc       "Esporta (backup) e ripristina le tue impostazioni di Enigmail incluse le tue chiavi OpenPGP.">
 
@@ -449,8 +449,8 @@
 <!ENTITY enigmail.sKeyDlg.checked.label            "Quanto accuratamente hai verificato che la chiave che stai per firmare appartenga effettivamente alla/e persona/e scritta/e qui sopra?">
 <!ENTITY enigmail.sKeyDlg.noAnswer.label           "Non rispondo">
 <!ENTITY enigmail.sKeyDlg.notChecked.label         "Non ho controllato affatto">
-<!ENTITY enigmail.sKeyDlg.casualCheck.label        "">
-<!ENTITY enigmail.sKeyDlg.carefulCheck.label       "">
+<!ENTITY enigmail.sKeyDlg.casualCheck.label        "Ho eseguito un controllo rapido">
+<!ENTITY enigmail.sKeyDlg.carefulCheck.label       "Ho controllato molto attentamente">
 <!ENTITY enigmail.sKeyDlg.createLocal.label        "Firma localmente (non può essere esportata)">
 
 <!ENTITY enigmail.addUidDlg.title                  "Enigmail - Aggiungi ID utente">
@@ -659,7 +659,9 @@
 
 <!-- wizard: welcome step -->
 <!ENTITY enigmail.setupWiz.title                     "Configurazione di Enigmail">
-<!ENTITY enigmail.setupWiz.pgIntro.desc              "">
+<!ENTITY enigmail.setupWiz.pgIntro.desc              "Sembra che tu abbia avviato Enigmail per la prima volta su questo computer.
+                                                      Per utilizzare Enigmail, devi prima configurarlo correttamente.
+                                                      Questo assistente ti guiderà attraverso il processo di configurazione.">
 <!-- wizard: install GnuPG step -->
 <!ENTITY enigmail.setupWiz.pgInstall.desc            "Per utilizzare OpenPGP, GnuPG è richiesto come componente aggiuntivo per le operazioni di cifratura. 
 La procedura guidata ha provato a individuare GnuPG, ma non è riuscita a trovarlo.">
@@ -673,22 +675,24 @@ Se vuoi che ciò avvenga, fai clic sul pulsante 'Installa GnuPG' per scaricare e
 <!ENTITY enigmail.setupWiz.pgInstall.downloadLabel   "Scaricamento di GnuPG in corso...">
 <!ENTITY enigmail.setupWiz.pgInstall.installLabel    "Avvio dell'installazione. Segui i passi della procedura guidata di installazione di GnuPG.">
 
-<!ENTITY enigmail.setupWiz.searchingGnuPG            "">
-<!ENTITY enigmail.setupWiz.checkingSetup             "">
+<!ENTITY enigmail.setupWiz.searchingGnuPG            "Ricerca di GnuPG...">
+<!ENTITY enigmail.setupWiz.checkingSetup             "Controllo della tua configurazione esistente...">
 <!ENTITY enigmail.setupWiz.startSetupButton          "Avvia configurazione">
-<!ENTITY enigmail.setupWiz.usingPepMode              "">
-<!ENTITY enigmail.setupWiz.synchronizeWithPep        "">
-<!ENTITY enigmail.setupWiz.useImportKeys             "">
-<!ENTITY enigmail.setupWiz.existingEncryptedMsg      "">
-<!ENTITY enigmail.setupWiz.existingKeysFound         "">
-<!ENTITY enigmail.setupWiz.applyExistingKeysBtn      "">
-<!ENTITY enigmail.setupWiz.rescanInboxBtn            "">
+<!ENTITY enigmail.setupWiz.usingPepMode              "Abbiamo determinato che stai utilizzando Pretty Easy Privacy (p≡p).">
+<!ENTITY enigmail.setupWiz.synchronizeWithPep        "Se hai un altro dispositivo che esegue p≡p, ti consigliamo di consentire qui che l'altro dispositivo si sincronizzi
+                                                      con il tuo PC. In questo caso, basta chiudere la procedura guidata, e attendere l'avvio della sincronizzazione.">
+<!ENTITY enigmail.setupWiz.useImportKeys             "In alternativa, puoi importare le tue chiavi utilizzando il pulsante 'Importa chiavi' in basso.">
+<!ENTITY enigmail.setupWiz.existingEncryptedMsg      "Abbiamo trovato dei messaggi cifrati nelle tue cartelle mail.
+Ti raccomandiamo di esportare le tue chiavi sul tuo dispositivo esistente, e di importarle qui. (Suggerimento: puoi usare 'Importa Chiavi' più volte, per esempio per importare chiavi pubbliche e segrete).">
+<!ENTITY enigmail.setupWiz.existingKeysFound         "Abbiamo trovato delle chiavi OpenPGP già presenti. Ti raccomandiamo di configurare Enigmail in modo che tu possa continuare a lavorare con queste chiavi.">
+<!ENTITY enigmail.setupWiz.applyExistingKeysBtn      "Applica le mie chiavi">
+<!ENTITY enigmail.setupWiz.rescanInboxBtn            "Nuova analisi posta in arrivo">
 <!ENTITY enigmail.setupWiz.importKeysBtn             "Importa chiavi">
 
 <!ENTITY enigmail.advancedIdentityDlg.title          "Impostazioni avanzate delle identità Enigmail">
 <!ENTITY enigmail.amPrefPgp.sendKeyWithMsg.label     "Allega la mia chiave pubblica ai messaggi">
 
-<!ENTITY enigmail.addPhoto.question.label            "">
+<!ENTITY enigmail.addPhoto.question.label            "Vuoi aggiungere l'immagine seguente alla chiave?">
 <!ENTITY enigmail.addPhoto.title                     "Aggiungi foto alla chiave">
 <!ENTITY enigmail.msgViewColumn.tooltip              "Ordina per stato di OpenPGP">
 <!ENTITY enigmail.addToRule.title                    "Aggiungi chiave alla regola per destinatario">
@@ -704,9 +708,10 @@ Se vuoi che ciò avvenga, fai clic sul pulsante 'Installa GnuPG' per scaricare e
 <!-- Export wizard -->
 <!ENTITY enigmail.exportWiz.title                    "Esporta le tue impostazioni di Enigmail">
 <!ENTITY enigmail.exportWiz.pgIntro.title            "Benvenuto nella procedura di esportazione delle impostazioni">
-<!ENTITY enigmail.exportWiz.pgIntro.desc             "">
-<!ENTITY enigmail.exportWiz.pgIntro.step1            "">
-<!ENTITY enigmail.exportWiz.pgIntro.step2            "">
+<!ENTITY enigmail.exportWiz.pgIntro.desc             "Enigmail consente di trasferire tutte le sue impostazioni incluse le tue chiavi
+                                                       OpenPGP su un nuovo computer. Questo viene fatto in due fasi:">
+<!ENTITY enigmail.exportWiz.pgIntro.step1            "esporta i tuoi dati dal tuo vecchio computer utilizzando questa procedura guidata.">
+<!ENTITY enigmail.exportWiz.pgIntro.step2            "importa i dati nel tuo nuovo computer utilizzando la procedura guidata di configurazione.">
 <!ENTITY enigmail.exportWiz.pgIntro.specifyFile      "Specifica il file per l'esportazione:">
 <!ENTITY enigmail.exportWiz.pgExport.title           "Esportazione impostazioni di Enigmail">
 <!ENTITY enigmail.exportWiz.pgExport.exporting       "Salvataggio in corso. Potresti ricevere la richiesta delle frasi segrete delle tue chiavi.">
@@ -726,7 +731,7 @@ e avvia la procedura guidata dal menu di Enigmail.">
 <!ENTITY enigmail.messeneger.pEpIcon.tootlip          "Questo messaggio è stato cifrato con p≡p. Fai clic sull'icona per ulteriori dettagli.">
 
 <!ENTITY enigmail.pEp.trustWordsDlg.title             "Verifica trustword di p≡p">
-<!ENTITY enigmail.pEp.trustWordsDlg.overallDesc       "">
+<!ENTITY enigmail.pEp.trustWordsDlg.overallDesc       "Per favore, chiedi al tuo corrispondente di leggerti le sue Trustword di persona o per via telefonica. Devono corrispondere alle Trustword qui sotto.">
 <!ENTITY enigmail.pEp.trustWordsDlg.keySyncDesc       "Stai per aggiungere un dispositivo al tuo gruppo di dispositivi di p≡p. Conferma verificando correttamente le seguenti Trustword.">
 <!ENTITY enigmail.pEp.trustWordsDlg.myFingerprint     "Impronta digitale per la mia chiave:">
 <!ENTITY enigmail.pEp.trustWordsDlg.trustwordsShort   "Trustword">
@@ -753,7 +758,7 @@ e avvia la procedura guidata dal menu di Enigmail.">
 <!ENTITY enigmail.pepPref.enableEncryption.label     "Abilita protezione di riservatezza">
 <!ENTITY enigmail.pepPref.passiveMode.label          "Allega la mia chiave ai messaggi in uscita">
 <!ENTITY enigmail.pepPref.protectedSubject.label     "Abilita oggetti dei messaggi protetti">
-<!ENTITY enigmail.pepPref.warnReducedSecurity.label  "">
+<!ENTITY enigmail.pepPref.warnReducedSecurity.label  "Mostra un avviso quando un messaggio perde sicurezza tramite una risposta o un inoltro.">
 <!ENTITY enigmail.pepPref.openpgpCompatibility.label "Compatibilità OpenPGP">
 <!ENTITY enigmail.pepPref.autoKeyLookup.label        "Cerca le chiavi sul server automaticamente">
 <!ENTITY enigmail.pepPref.credits.label              "Ringraziamenti">
@@ -767,19 +772,21 @@ e avvia la procedura guidata dal menu di Enigmail.">
 
 <!ENTITY enigmail.acKeyTransfer.window.title         "Trasferimento chiave di Autocrypt">
 <!ENTITY enigmail.acKeyTransfer.welcome.title        "Inizia trasferimento chiave">
-<!ENTITY enigmail.acKeyTransfer.welcome.desc1        "">
-<!ENTITY enigmail.acKeyTransfer.welcome.desc2        "">
+<!ENTITY enigmail.acKeyTransfer.welcome.desc1        "Se hai un altro dispositivo che ha Autocrypt, puoi trasferirvi le tue chiavi tramite un 'Autocrypt Setup Message'.
+Tale messaggio consentirà al tuo altro dispositivo di mandare e ricevere mail cifrate proprio come Enigmail in pochi click.">
+<!ENTITY enigmail.acKeyTransfer.welcome.desc2        "Seleziona l'account per cui vuoi trasferire la tua chiave.
+Mostreremo un codice di setup (password) sulla prossima schermata, che dovrai inserire sull'altro dispositivo per importare la tua chiave e le relative impostazioni.">
 
 <!ENTITY enigmail.acKeyTransfer.selectAccount.label  "Crea messaggio di configurazione per l'account">
 <!ENTITY enigmail.acKeyTransfer.displayPasswd.title  "Codice per il messaggio di configurazione di Autocrypt">
-<!ENTITY enigmail.acKeyTransfer.msgCreated.desc1     "">
-<!ENTITY enigmail.acKeyTransfer.msgCreated.desc2     "">
+<!ENTITY enigmail.acKeyTransfer.msgCreated.desc1     "Il messaggio di configurazione ti è stato inviato.">
+<!ENTITY enigmail.acKeyTransfer.msgCreated.desc2     "Passa all'altro dispositivo ora e apri il messaggio. Ti sarà richiesto un codice di configurazione. Digita le cifre seguenti nella richiesta:">
 <!ENTITY enigmail.acKeyTransfer.switchDevice.desc    "Quando hai finito, gli altri dispositivi saranno in grado di utilizzare Autocrypt.">
 
 <!ENTITY enigmail.importSetup.dlgTitle               "Ripristina impostazioni e chiavi">
-<!ENTITY enigmail.importSetup.topDesc                "">
-<!ENTITY enigmail.importSetup.specifyImportFile      "">
-<!ENTITY enigmail.importSetup.startRestoreLabel      "">
-<!ENTITY enigmail.importSetup.importingKeys          "">
-<!ENTITY enigmail.importSetup.restoringGnupgSettings "">
-<!ENTITY enigmail.importSetup.restoringEnigmail      "">
+<!ENTITY enigmail.importSetup.topDesc                "Utilizzando questa finestra, puoi ripristinare le tue impostazioni e le tue chiavi da un'installazione esistente di Enigmail. Per creare una copia di sicurezza, utilizza la scheda 'Trasferisci impostazioni' nelle preferenze di Enigmail.">
+<!ENTITY enigmail.importSetup.specifyImportFile      "Specifica il file che di backup da utilizzare per ripristinare le tue impostazioni e le tue chiavi:">
+<!ENTITY enigmail.importSetup.startRestoreLabel      "Avvio ripristino">
+<!ENTITY enigmail.importSetup.importingKeys          "Importazione chiavi in GnuPG. Potrebbe richiedere del tempo...">
+<!ENTITY enigmail.importSetup.restoringGnupgSettings "Ripristino impostazioni GnuPG...">
+<!ENTITY enigmail.importSetup.restoringEnigmail      "Ripristino impostazioni di Enigmail...">

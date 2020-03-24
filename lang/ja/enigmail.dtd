@@ -475,7 +475,7 @@
 <!ENTITY enigmail.keyMan.sign.label                "鍵に署名">
 <!ENTITY enigmail.keyMan.setTrust.label            "所有者の信用を付与">
 <!ENTITY enigmail.keyMan.genRevoke.label           "失効証明書">
-<!ENTITY enigmail.keyMan.ctxGenRevoke.label        "失効証明書を生成および保存">
+<!ENTITY enigmail.keyMan.ctxGenRevoke.label        "失効証明書の生成および保存">
 
 <!ENTITY enigmail.keyMan.fileMenu.label            "ファイル">
 <!ENTITY enigmail.keyMan.editMenu.label            "編集">

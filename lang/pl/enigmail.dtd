@@ -665,7 +665,7 @@
 <!ENTITY enigmail.setupWiz.pgInstall.desc            "Aby używać Enigmail, wymagane jest GnuPG jako dodatkowy komponent służący działaniom kryptograficznym. Niestety asystent nie znalazł pliku wykonywalnego GnuPG.">
 <!ENTITY enigmail.setupWiz.pgInstall.installDesc1    "Enigmail może pobrać GnuPG oraz uruchomić instalator.
 Jeśli wyrażasz zgodę, kliknij przycisk „Zainstaluj GnuPG”, aby pobrać i zainstalować GnuPG.">
-<!ENTITY enigmail.setupWiz.pgInstall.installDesc2    "Albo, jeśli już zainstalowano GnuPG, użyj przycisku „Przeglądaj”, aby ręcznie ustawić ścieżkę do GnuPG.">
+<!ENTITY enigmail.setupWiz.pgInstall.installDesc2    "Jeśli już zainstalowano GnuPG, użyj przycisku „Przeglądaj”, aby ręcznie ustawić ścieżkę do GnuPG.">
 
 <!ENTITY enigmail.setupWiz.pgInstall.locateDesc      "Zlokalizuj GnuPG, naciskając przycisk Przeglądaj…">
 <!ENTITY enigmail.setupWiz.pgInstall.installButton   "Zainstaluj GnuPG…">

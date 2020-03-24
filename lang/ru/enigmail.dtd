@@ -210,8 +210,8 @@
 <!ENTITY enigmail.usePGPMimeAlways.label          "По умолчанию использовать PGP/MIME">
 
 <!ENTITY enigmail.afterDefaultsAndRules.label     "После применения правил по умолчанию:">
-<!ENTITY enigmail.finallySignEncrypted.label      "">
-<!ENTITY enigmail.finallySignNotEncrypted.label   "">
+<!ENTITY enigmail.finallySignEncrypted.label      "Подписывать зашифрованные сообщения">
+<!ENTITY enigmail.finallySignNotEncrypted.label   "Подписывать незашифрованные сообщения">
 
 <!ENTITY enigmail.autoEncryptDrafts.label         "Шифровать черновики при сохранении">
 
@@ -632,7 +632,7 @@ https://gpgtools.tenderapp.com/kb/faq/what-is-ownertrust-trust-levels-explained"
 <!ENTITY enigmail.cardDetails.serial.label           "Серийный номер">
 <!ENTITY enigmail.cardDetails.name.label             "Имя, Фамилия">
 <!ENTITY enigmail.cardDetails.lang.label             "Язык">
-<!ENTITY enigmail.cardDetails.sex.label              "">
+<!ENTITY enigmail.cardDetails.sex.label              "Пол">
 <!ENTITY enigmail.cardDetails.url.label              "URL открытого ключа">
 <!ENTITY enigmail.cardDetails.login.label            "Учетная запись">
 <!ENTITY enigmail.cardDetails.forcepin.label         "Запрашивать PIN при каждой подписи">

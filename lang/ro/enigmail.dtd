@@ -633,7 +633,7 @@
 <!ENTITY enigmail.cardDetails.editData.label         "">
 <!ENTITY enigmail.cardDetails.save.label             "Salvare">
 <!ENTITY enigmail.cardDetails.reset.label            "">
-<!ENTITY enigmail.cardDetails.closeWindow.label      "">
+<!ENTITY enigmail.cardDetails.closeWindow.label      "Închide">
 
 <!ENTITY enigmail.cardDetails.adminPin.accesskey     "">
 <!ENTITY enigmail.cardDetails.genCardKey.accesskey   "">
