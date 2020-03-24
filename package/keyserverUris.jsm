@@ -16,6 +16,7 @@ const AUTO_KEYSERVER_SELECTION_PREF = "autoKeyServerSelection";
 
 const supportedProtocols = {
   "hkps": "443",
+  "vks": "443",
   "hkp": "11371",
   "ldap": "389"
 };
