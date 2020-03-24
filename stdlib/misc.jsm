@@ -179,7 +179,6 @@ function getIdentities(aSkipNntpIdentities = true) {
   }
   else {
     if (!identities.some(x => x.isDefault)) {
-      EnigmailLog.DEBUG("Didn't find any default key - mark the first identity as default!\n");
       identities[0].isDefault = true;
     }
   }
