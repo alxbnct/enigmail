@@ -251,6 +251,13 @@ var pgpjs_keys = {
     return sigs;
   },
 
+  /**
+   * Decrypt a secret key. If needed, request password via dialog, or use password in
+   * password manager
+   *
+   * @param {Object} key:    OpenPGP.js key
+   * @param {Number} reason: Reason code (EnigmailConstants.KEY_DECRYPT_REASON_xxx)
+   */
   decryptSecretKey: async function(key, reason) {
     EnigmailLog.DEBUG(`pgpjs-keys.jsm: decryptSecretKey(${key.getFingerprint()})\n`);
 
@@ -366,6 +373,13 @@ function displayMd5Error() {
   EnigmailDialog.alert(null, EnigmailLocale.getString("decryptKey.md5Error"));
 }
 
+  /**
+   * Prompt for the password of an OpenPGP key
+   *
+   * @param {Object} key:     OpenPGP.js key
+   * @param {Number} reason:  Reason code (EnigmailConstants.KEY_DECRYPT_REASON_xxx)
+   * @param {Number} attempt: The number of attempts to decrypt the key
+   */
 function requestPassword(key, reason, attempt) {
   EnigmailLog.DEBUG(`pgpjs-keys.jsm: requestPassword(${key.getFingerprint()}, ${reason})\n`);
 
@@ -387,10 +401,13 @@ function requestPassword(key, reason, attempt) {
       reasonStr = "decryptkey.reasonEncryptedMsg";
       break;
     case EnigmailConstants.KEY_DECRYPT_REASON_SIGN_MSG:
-      reasonStr = "decryptkey.reasonEncryptedMsg";
+      reasonStr = "decryptkey.reasonSignMsg";
+      break;
+    case EnigmailConstants.KEY_DECRYPT_REASON_SIGNCRYPT_MSG:
+      reasonStr = "decryptkey.reasonSignAndEncryptMsg";
       break;
     case EnigmailConstants.KEY_DECRYPT_REASON_MANIPULATE_KEY:
-      reasonStr = "decryptkey.reasonEncryptedMsg";
+      reasonStr = "decryptkey.reasonKeyOp";
       break;
   }
 

@@ -18,7 +18,7 @@ const pgpjs_keys = ChromeUtils.import("chrome://enigmail/content/modules/cryptoA
 const pgpjs_keyStore = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/pgpjs-keystore.jsm").pgpjs_keyStore;
 const EnigmailLocale = ChromeUtils.import("chrome://enigmail/content/modules/locale.jsm").EnigmailLocale;
 
-
+var gLastKeyDecrypted = null;
 
 /**
  * OpenPGP.js implementation of CryptoAPI
@@ -100,7 +100,7 @@ var pgpjs_encrypt = {
         const detachedSig = ((encryptionFlags & EnigmailConstants.SEND_PGP_MIME) ||
           (encryptionFlags & EnigmailConstants.SEND_ATTACHMENT));
 
-        let result = await signData(from, plainText, detachedSig ? true : false);
+        let result = await signData(from, plainText, detachedSig ? true : false, encryptionFlags);
         if ("signature" in result) {
           retObj.data = result.signature;
           retObj.exitCode = 0;
@@ -121,51 +121,106 @@ var pgpjs_encrypt = {
 
 };
 
-async function encryptData(publicKeyIds, privateKeyId, text) {
-  EnigmailLog.DEBUG(`pgpjs-encrypt.jsm: encryptData(${publicKeyIds.length}, ${privateKeyId})\n`);
+/**
+ * Encrypt (and possibly sign) some text data
+ *
+ * @param {Array<String>} recipientKeyIds: Array of key IDs to which to encrypt the message
+ * @param {String} signingKeyId:           If provided, the message will be signed using that key.
+ *                                         If '' or null, message will not be signed.
+ * @param {String} text:                   The message to encrypt.
+ * @param {Number} encryptionFlags:        Flags for Signed/encrypted/PGP-MIME etc.
+ */
+async function encryptData(recipientKeyIds, signingKeyId, text, encryptionFlags) {
+  EnigmailLog.DEBUG(`pgpjs-encrypt.jsm: encryptData(${recipientKeyIds.length}, ${signingKeyId})\n`);
   const PgpJS = getOpenPGPLibrary();
 
   let privateKeys = null;
+  let pk = {
+    key: null
+  };
 
-  if (privateKeyId) {
-    privateKeys = await pgpjs_keyStore.getKeysForKeyIds(true, [privateKeyId]);
-    if (!await pgpjs_keys.decryptSecretKey(privateKeys[0], "sign message")) {
+  if (signingKeyId) {
+    privateKeys = await pgpjs_keyStore.getKeysForKeyIds(true, [signingKeyId]);
+    pk.key = privateKeys[0];
+    if (!await decryptPrivateKey(pk, EnigmailConstants.KEY_DECRYPT_REASON_SIGNCRYPT_MSG, encryptionFlags)) {
       throw Error("No password provided");
     }
   }
 
-  let uniqueKeyIds = [...new Set(publicKeyIds)]; // make key IDs unique
+  let uniqueKeyIds = [...new Set(recipientKeyIds)]; // make key IDs unique
   let publicKeys = await pgpjs_keyStore.getKeysForKeyIds(false, uniqueKeyIds);
 
   return await PgpJS.encrypt({
     message: PgpJS.message.fromText(text),
     publicKeys: publicKeys,
-    privateKeys: privateKeys, // for signing
+    privateKeys: pk.key ? [pk.key] : null, // for signing
     streaming: false,
     armor: true
   });
 }
 
-async function signData(privateKeyId, text, detachedSignature) {
-  EnigmailLog.DEBUG(`pgpjs-encrypt.jsm: signData(${privateKeyId})\n`);
+/**
+ * Sign some text data
+ *
+ * @param {String} signingKeyId:       Key ID used for signing the message
+ * @param {String} text:               Text data to sign
+ * @param {Boolean} detachedSignature: If true, create a detached signature.
+ *                                     If false, create a clearsigned message.
+ * @param {Number} encryptionFlags:    Flags for Signed/encrypted/PGP-MIME etc.
+ */
+async function signData(signingKeyId, text, detachedSignature, encryptionFlags) {
+  EnigmailLog.DEBUG(`pgpjs-encrypt.jsm: signData(${signingKeyId})\n`);
   const PgpJS = getOpenPGPLibrary();
 
   let privateKeys = null;
 
-  if (!privateKeyId) {
+  if (!signingKeyId) {
     throw Error("No private key provided");
   }
 
-  privateKeys = await pgpjs_keyStore.getKeysForKeyIds(true, [privateKeyId]);
-  if (!await pgpjs_keys.decryptSecretKey(privateKeys[0], "sign message")) {
+  privateKeys = await pgpjs_keyStore.getKeysForKeyIds(true, [signingKeyId]);
+  let pk = {
+    key: privateKeys[0]
+  };
+  if (!await decryptPrivateKey(pk, EnigmailConstants.KEY_DECRYPT_REASON_SIGN_MSG, encryptionFlags)) {
     throw Error("No password provided");
   }
 
   return await PgpJS.sign({
     message: PgpJS.cleartext.fromText(text),
-    privateKeys: privateKeys,
+    privateKeys: [pk.key],
     streaming: false,
     detached: detachedSignature,
     armor: true
   });
+}
+
+/**
+ * Decrypt a private key and, if the flag SEND_TEST is provided, keep the decrypted version for another use
+ * This is done to allow for testing encryption/signing and then sending the message without needing to enter
+ * the password twice.
+ *
+ * @param {Object} keyData:         <key> contains the private key
+ * @param {Text} decryptionMsg:     reason message to display for password dialog
+ * @param {Number} encryptionFlags: Flags for Signed/encrypted/PGP-MIME etc.
+ */
+async function decryptPrivateKey(keyData, decryptionMsg, encryptionFlags) {
+  if (encryptionFlags & EnigmailConstants.SEND_TEST) {
+    gLastKeyDecrypted = null;
+    let success = await pgpjs_keys.decryptSecretKey(keyData.key, decryptionMsg);
+    if (success) {
+      gLastKeyDecrypted = keyData.key;
+    }
+
+    return success;
+  }
+
+  // regular message -> use the key once
+  if (gLastKeyDecrypted && (gLastKeyDecrypted.getFingerprint() === keyData.key.getFingerprint())) {
+    keyData.key = gLastKeyDecrypted;
+    gLastKeyDecrypted = null;
+    return true;
+  }
+  else
+    return pgpjs_keys.decryptSecretKey(keyData.key, decryptionMsg);
 }
