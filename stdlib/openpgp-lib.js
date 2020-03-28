@@ -42572,7 +42572,8 @@ exports.default = {
   },
 
   isArray: function isArray(data) {
-    return Array.prototype.isPrototypeOf(data);
+    //return Array.prototype.isPrototypeOf(data);
+    return Array.isArray(data);
   },
 
   isUint8Array: _webStreamTools2.default.isUint8Array,
