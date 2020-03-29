@@ -305,7 +305,7 @@ var pgpjs_keys = {
             attempts = MAX_PASSWD_ATTEMPT;
           }
 
-          if (ex.toString().search(/s2k/) >= 0) {
+          if (ex.toString().search(/s2k/i) >= 0) {
             displayMd5Error();
           }
         }
