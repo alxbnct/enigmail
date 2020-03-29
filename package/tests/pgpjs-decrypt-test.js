@@ -53,7 +53,7 @@ test(withTestGpgHome(asyncTest(async function testDecrypt() {
     Assert.equal(r.length, 1);
 
     result = await pgpjs_decrypt.processPgpMessage(pgpMsg, {});
-    Assert.equal(result.statusFlags, EnigmailConstants.DECRYPTION_OKAY | EnigmailConstants.GOOD_SIGNATURE);
+    Assert.equal(result.statusFlags, EnigmailConstants.DECRYPTION_OKAY | EnigmailConstants.GOOD_SIGNATURE | EnigmailConstants.TRUSTED_IDENTITY);
     Assert.equal(result.exitCode, 0);
     Assert.equal(result.sigDetails, "65537E212DC19025AD38EDB2781617319CE311C4 2020-03-21 1584808355 0 4 0 1 8 00 65537E212DC19025AD38EDB2781617319CE311C4");
     Assert.equal(result.decryptedData, "This is a test\n");
@@ -95,7 +95,7 @@ j8bbyQ==
 -----END PGP MESSAGE-----`;
 
     result = await pgpjs_decrypt.processPgpMessage(signedMsg, {});
-    Assert.equal(result.statusFlags, EnigmailConstants.GOOD_SIGNATURE);
+    Assert.equal(result.statusFlags, EnigmailConstants.GOOD_SIGNATURE | EnigmailConstants.TRUSTED_IDENTITY);
     Assert.equal(result.exitCode, 0);
     Assert.equal(result.sigDetails, "65537E212DC19025AD38EDB2781617319CE311C4 2020-02-16 1581878756 0 4 0 1 8 00 65537E212DC19025AD38EDB2781617319CE311C4");
     Assert.equal(result.keyId, "65537E212DC19025AD38EDB2781617319CE311C4");
@@ -126,7 +126,7 @@ wJEP0gfdDZA1bEV78SRcjJDlfo5vuWX4W/ZlAlA9hy5OVq69DOdlcVdgj18+gy94
 `;
 
     result = await pgpjs_decrypt.verify(clearSigned, {});
-    Assert.equal(result.statusFlags, EnigmailConstants.GOOD_SIGNATURE);
+    Assert.equal(result.statusFlags, EnigmailConstants.GOOD_SIGNATURE | EnigmailConstants.TRUSTED_IDENTITY);
     Assert.equal(result.exitCode, 0);
     Assert.equal(result.sigDetails, "65537E212DC19025AD38EDB2781617319CE311C4 2020-02-16 1581879420 0 4 0 1 8 00 65537E212DC19025AD38EDB2781617319CE311C4");
     Assert.equal(result.keyId, "65537E212DC19025AD38EDB2781617319CE311C4");
@@ -201,7 +201,7 @@ iD8DBQE+yUcu4mZch0nhy8kRAuh/AKDM1Xc49BKVfJIFg/btWGfbF/pgcwCgw0Zk
     const attachmentFile = do_get_file("resources/attachment.txt", false);
     const attachmentSig = do_get_file("resources/attachment.txt.asc", false);
     result = await pgpjs_decrypt.verifyFile(attachmentFile.path, attachmentSig.path);
-    Assert.equal(result.statusFlags, EnigmailConstants.GOOD_SIGNATURE);
+    Assert.equal(result.statusFlags, EnigmailConstants.GOOD_SIGNATURE | EnigmailConstants.TRUSTED_IDENTITY);
   }
   catch (ex) {
     Assert.ok(false, "exception: " + ex.toString());

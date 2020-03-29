@@ -264,6 +264,15 @@ Enigmail.msg = {
 
   viewOpenpgpInfo: function() {
     if (Enigmail.msg.securityInfo) {
+
+      let securityInfoTxt = EnigmailLocale.getString("securityInfo") + Enigmail.msg.securityInfo.statusInfo;
+      if (Enigmail.msg.securityInfo.statusFlags & EnigmailConstants.REVOKED_KEY) {
+        securityInfoTxt += "\n\n" + EnigmailLocale.getString("keyDetailsDesc.keyRevoked");
+      }
+      else if (Enigmail.msg.securityInfo.statusFlags & EnigmailConstants.EXPIRED_KEY) {
+        securityInfoTxt += "\n\n" + EnigmailLocale.getString("keyDetailsDesc.keyExpired");
+      }
+
       if (EnigmailCompat.isPostbox()) {
         // Postbox
         let op2Label = null;
@@ -277,7 +286,7 @@ Enigmail.msg = {
           dlgOp2 = 2;
         }
         let args = {
-          msgtext: EnigmailLocale.getString("securityInfo") + Enigmail.msg.securityInfo.statusInfo,
+          msgtext: securityInfoTxt,
           dialogTitle: EnigmailLocale.getString("securityInfo"),
           iconType: 1,
           button2: op2Label
@@ -296,7 +305,7 @@ Enigmail.msg = {
       }
       else {
         // Thunderbird
-        EnigmailDialog.info(window, EnigmailLocale.getString("securityInfo") + Enigmail.msg.securityInfo.statusInfo);
+        EnigmailDialog.info(window, securityInfoTxt);
       }
     }
   },

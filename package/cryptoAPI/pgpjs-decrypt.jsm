@@ -297,6 +297,14 @@ var pgpjs_decrypt = {
 
     let pubKeys = await pgpjs_keyStore.getKeysForKeyIds(false, keyIds);
 
+    for (let key of pubKeys) {
+      if (await key.isRevoked()) {
+        // remove revocation signatures to get a valid key for verification purposes
+        key._enigmailRevoked = true;
+        key.revocationSignatures = [];
+      }
+    }
+
     try {
       let ret = (await PgpJS.verify({
         message: messageObj,
@@ -348,6 +356,9 @@ var pgpjs_decrypt = {
           }
           else {
             let keyStatus = await pgpjs_keyStore.getKeyStatusCode(currentKey);
+
+            if (currentKey._enigmailRevoked) keyStatus = "r";
+
             switch (keyStatus) {
               case "i":
               case "r":
@@ -408,7 +419,7 @@ var pgpjs_decrypt = {
           result.statusFlags = EnigmailConstants.GOOD_SIGNATURE | EnigmailConstants.EXPIRED_KEY;
           break;
         case SIG_STATUS.valid_signature:
-          result.statusFlags = EnigmailConstants.GOOD_SIGNATURE;
+          result.statusFlags = EnigmailConstants.GOOD_SIGNATURE | EnigmailConstants.TRUSTED_IDENTITY;
       }
 
       if (currentKey) {

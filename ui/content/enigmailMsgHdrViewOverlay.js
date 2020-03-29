@@ -276,7 +276,6 @@ Enigmail.hdrView = {
       EnigmailConstants.EXPIRED_SIGNATURE |
       EnigmailConstants.UNVERIFIED_SIGNATURE |
       EnigmailConstants.REVOKED_KEY |
-      EnigmailConstants.EXPIRED_KEY_SIGNATURE |
       EnigmailConstants.EXPIRED_SIGNATURE));
     var msgEncrypted = (statusFlags & (EnigmailConstants.DECRYPTION_OKAY |
       EnigmailConstants.DECRYPTION_INCOMPLETE |
