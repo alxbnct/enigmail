@@ -323,6 +323,15 @@ var pgpjs_decrypt = {
             currentKey = k;
             break;
           }
+          else {
+            for (let sk of k.subKeys) {
+              if (sk.getKeyId().toHex() === keyId) {
+                currentKey = k;
+                break;
+              }
+            }
+          }
+
         }
 
         if (currentKey === null) {
