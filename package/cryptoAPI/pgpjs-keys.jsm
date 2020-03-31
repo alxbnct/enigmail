@@ -18,6 +18,7 @@ const EnigmailTime = ChromeUtils.import("chrome://enigmail/content/modules/time.
 const EnigmailTimer = ChromeUtils.import("chrome://enigmail/content/modules/timer.jsm").EnigmailTimer;
 const EnigmailData = ChromeUtils.import("chrome://enigmail/content/modules/data.jsm").EnigmailData;
 const EnigmailFuncs = ChromeUtils.import("chrome://enigmail/content/modules/funcs.jsm").EnigmailFuncs;
+const EnigmailFiles = ChromeUtils.import("chrome://enigmail/content/modules/files.jsm").EnigmailFiles;
 const EnigmailLocale = ChromeUtils.import("chrome://enigmail/content/modules/locale.jsm").EnigmailLocale;
 const getOpenPGP = EnigmailLazy.loader("enigmail/openpgp.jsm", "EnigmailOpenPGP");
 const getArmor = EnigmailLazy.loader("enigmail/armor.jsm", "EnigmailArmor");
@@ -26,6 +27,13 @@ const EnigmailConstants = ChromeUtils.import("chrome://enigmail/content/modules/
 const OPENPGPKEY_REALM = "OpenPGPKey";
 const ENIGMAIL_PASSWD_PREFIX = "enigmail://";
 const MAX_PASSWD_ATTEMPT = 3;
+
+const NS_WRONLY = 0x02;
+const NS_CREATE_FILE = 0x08;
+const NS_TRUNCATE = 0x20;
+const STANDARD_FILE_PERMS = 0o600;
+const NS_LOCALFILEOUTPUTSTREAM_CONTRACTID = "@mozilla.org/network/file-output-stream;1";
+
 
 /**
  * OpenPGP.js implementation of CryptoAPI
@@ -363,6 +371,36 @@ var pgpjs_keys = {
       revocationCertificate: revocationCertificate,
       key: key
     };
+  },
+
+  /**
+   * Extract a photo ID from a key, store it as file and return the file object.
+   *
+   * @param {Object} key:         OpenPGP.js key object
+   * @param {Number} photoNumber: number of the photo on the key, starting with 0
+   *
+   * @return {nsIFile} object or null in case no data / error.
+   */
+
+  getPhotoForKey: async function(key, photoNumber) {
+    EnigmailLog.DEBUG(`pgpjs-keys.jsm: getPhotoForKey: (${key.getFingerprint()}, ${photoNumber})\n`);
+
+    let currUat = 0;
+
+    for (let i in key.users) {
+      if (key.users[i].userAttribute !== null) {
+        if (currUat < photoNumber) {
+          ++currUat;
+          continue;
+        }
+
+        if (key.users[i].userAttribute.attributes.length > 0) {
+          return writeTempPhotoData(key.users[i].userAttribute.write());
+        }
+      }
+    }
+
+    return null;
   }
 };
 
@@ -373,13 +411,13 @@ function displayMd5Error() {
   EnigmailDialog.alert(null, EnigmailLocale.getString("decryptKey.md5Error"));
 }
 
-  /**
-   * Prompt for the password of an OpenPGP key
-   *
-   * @param {Object} key:     OpenPGP.js key
-   * @param {Number} reason:  Reason code (EnigmailConstants.KEY_DECRYPT_REASON_xxx)
-   * @param {Number} attempt: The number of attempts to decrypt the key
-   */
+/**
+ * Prompt for the password of an OpenPGP key
+ *
+ * @param {Object} key:     OpenPGP.js key
+ * @param {Number} reason:  Reason code (EnigmailConstants.KEY_DECRYPT_REASON_xxx)
+ * @param {Number} attempt: The number of attempts to decrypt the key
+ */
 function requestPassword(key, reason, attempt) {
   EnigmailLog.DEBUG(`pgpjs-keys.jsm: requestPassword(${key.getFingerprint()}, ${reason})\n`);
 
@@ -461,4 +499,71 @@ function storePasswordInPasswdManager(fpr, password) {
 
   let loginInfo = new nsLoginInfo(queryString, null, OPENPGPKEY_REALM, "", password, "", "");
   pm.addLogin(loginInfo);
+}
+
+
+function writeTempPhotoData(photoData) {
+  EnigmailLog.DEBUG(`pgpjs-keys.jsm: writeTempPhotoData(${photoData.length})\n`);
+
+  const EnigmailRNG = ChromeUtils.import("chrome://enigmail/content/modules/rng.jsm").EnigmailRNG;
+
+  try {
+    const flags = NS_WRONLY | NS_CREATE_FILE | NS_TRUNCATE;
+    const tempFile = EnigmailFiles.getTempDirObj();
+    let photoStr = EnigmailData.arrayBufferToString(photoData);
+
+    // Determine subpacket header length (RFC 4880, section 5.12.) that needs to be skipped
+    let hdrLength = 0;
+    let dataSize = 0;
+    const firstByte = photoData[0];
+
+    if (firstByte < 192) {
+      hdrLength = 1;
+      dataSize = firstByte;
+    }
+    else if (firstByte <= 223) {
+      hdrLength = 2;
+      dataSize = ((firstByte - 192) << 8) + (photoData[1]) + 192;
+    }
+    else if (firstByte === 255) {
+      hdrLength = 5;
+      dataSize = (photoData[1] << 24) | (photoData[2] << 16) | (photoData[3] << 8) | photoData[4];
+    }
+    else {
+      // no valid length for a photo
+      EnigmailLog.DEBUG(`pgpjs-keys.jsm: writeTempPhotoData: no valid subpacket length ${firstByte}\n`);
+      return null;
+    }
+
+    const subPacketType = photoData[hdrLength];
+
+    if (subPacketType !== 1) {
+      EnigmailLog.DEBUG(`pgpjs-keys.jsm: writeTempPhotoData: subpacket type ${subPacketType} is not recognized\n`);
+      return null;
+    }
+
+    const skipData = 16 + hdrLength + 1;
+    photoStr = photoStr.substr(skipData, dataSize);
+
+    tempFile.append(EnigmailRNG.generateRandomString(8) + ".jpg");
+    tempFile.createUnique(tempFile.NORMAL_FILE_TYPE, STANDARD_FILE_PERMS);
+
+    const fileStream = Cc[NS_LOCALFILEOUTPUTSTREAM_CONTRACTID].createInstance(Ci.nsIFileOutputStream);
+    fileStream.init(tempFile, flags, STANDARD_FILE_PERMS, 0);
+    if (fileStream.write(photoStr, photoStr.length) !== photoStr.length) {
+      fileStream.close();
+      throw Components.results.NS_ERROR_FAILURE;
+    }
+
+    fileStream.flush();
+    fileStream.close();
+
+    // delete picFile upon exit
+    let extAppLauncher = Cc["@mozilla.org/mime;1"].getService(Ci.nsPIExternalAppLauncher);
+    extAppLauncher.deleteTemporaryFileOnExit(tempFile);
+    return tempFile;
+  }
+  catch (ex) {}
+
+  return null;
 }

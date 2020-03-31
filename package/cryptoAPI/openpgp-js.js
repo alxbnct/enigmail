@@ -298,8 +298,12 @@ class OpenPGPjsCryptoAPI extends CryptoAPI {
    *
    * @return {nsIFile} object or null in case no data / error.
    */
-  async getPhotoFile(keyId, photoNumber) {
-    // TODO
+   async getPhotoFile(keyId, photoNumber) {
+    let keys = await pgpjs_keyStore.getKeysForKeyIds(false, [keyId]);
+    if (keys.length > 0) {
+      return pgpjs_keys.getPhotoForKey(keys[0], photoNumber);
+    }
+
     return null;
   }
 
@@ -520,8 +524,8 @@ class OpenPGPjsCryptoAPI extends CryptoAPI {
    * @return {Boolean} true if successful, false otherwise
    */
   async clearPassphrase() {
-    // TODO
-    return null;
+    // this has no meaning
+    return true;
   }
 
   /***
