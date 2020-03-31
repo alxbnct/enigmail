@@ -395,7 +395,7 @@ class OpenPGPjsCryptoAPI extends CryptoAPI {
    *
    * @param {Bytes}  encrypted     The encrypted data
    *
-   * @return {Promise<Object>} - Return object with decryptedData and
+   * @return {Promise<Object>} - Return object with decrypted data in {stdoutData} and
    * status information
    *
    * Use Promise.catch to handle failed decryption.
@@ -403,8 +403,13 @@ class OpenPGPjsCryptoAPI extends CryptoAPI {
    */
 
   async decryptAttachment(encrypted) {
-    // TODO
-    return null;
+    let ret = await pgpjs_decrypt.processPgpMessage(encrypted, {});
+
+    if ("decryptedData" in ret) {
+      ret.stdoutData = ret.decryptedData;
+    }
+
+    return ret;
   }
 
   /**
