@@ -173,6 +173,7 @@ const accessHkpInternal = {
 
     let method = "GET";
     let protocol;
+    let contentType = "text/plain;charset=UTF-8";
 
     switch (keySrv.protocol) {
       case "hkp":
@@ -189,6 +190,7 @@ const accessHkpInternal = {
     if (actionFlag === EnigmailConstants.UPLOAD_KEY) {
       url += "/pks/add";
       method = "POST";
+      contentType = "application/x-www-form-urlencoded";
     }
     else if (actionFlag === EnigmailConstants.DOWNLOAD_KEY) {
       if (searchTerm.indexOf("0x") !== 0) {
@@ -206,6 +208,7 @@ const accessHkpInternal = {
     return {
       url: url,
       host: keySrv.host,
+      contentType: contentType,
       method: method
     };
   },
@@ -328,20 +331,23 @@ const accessHkpInternal = {
       let {
         url,
         host,
-        method
+        method,
+        contentType
       } = this.createRequestUrl(keyserver, actionFlag, keyId);
 
       if (host === HKPS_POOL_HOST && actionFlag !== EnigmailConstants.GET_SKS_CACERT) {
         this.getSksCACert().then(r => {
           EnigmailLog.DEBUG(`keyserver.jsm: accessHkpInternal.accessKeyServer: getting ${url}\n`);
           xmlReq.open(method, url);
+          xmlReq.setRequestHeader("Content-Type", contentType);
           xmlReq.send(payLoad);
         });
       }
       else {
         EnigmailLog.DEBUG(`keyserver.jsm: accessHkpInternal.accessKeyServer: requesting ${url}\n`);
         xmlReq.open(method, url);
-        xmlReq.send(payLoad);
+        xmlReq.setRequestHeader("Content-Type", contentType);
+          xmlReq.send(payLoad);
       }
     });
   },
