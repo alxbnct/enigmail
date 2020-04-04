@@ -473,16 +473,23 @@ var EnigmailKeyEditor = {
     });
   },
 
-  deleteKey: function(parent, keyId, deleteSecretKey, callbackFunc) {
+  deleteKey: function(parent, keyId, deleteSecretKey) {
     EnigmailLog.DEBUG("keyEdit.jsm: Enigmail.addUid: keyId=" + keyId + ", deleteSecretKey=" + deleteSecretKey + "\n");
 
-    var cmd = ["--yes", (deleteSecretKey ? "--delete-secret-and-public-key" : "--delete-key")];
-    return editKey(parent, false, null, keyId, cmd, {
-        usePassphrase: true
-      },
-      deleteKeyCallback,
-      null,
-      callbackFunc);
+    const cmd = ["--yes", (deleteSecretKey ? "--delete-secret-and-public-key" : "--delete-key")];
+    return new Promise((resolve, reject) => {
+      editKey(parent, false, null, keyId, cmd, {
+          usePassphrase: true
+        },
+        deleteKeyCallback,
+        null,
+        function _f(returnCode, errorMsg) {
+          resolve({
+            returnCode: returnCode,
+            errorMsg: errorMsg
+          });
+        });
+    });
   },
 
   changePassphrase: function(parent, keyId, oldPw, newPw, callbackFunc) {

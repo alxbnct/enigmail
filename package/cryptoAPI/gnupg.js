@@ -306,15 +306,13 @@ class GnuPGCryptoAPI extends CryptoAPI {
    *      - {Number} exitCode: 0 if successful, other values indicate error
    *      - {String} errorMsg: error message if deletion not successful
    */
-  deleteKeys(fpr, deleteSecretKey, parentWindow) {
-    return new Promise((resolve, reject) => {
-      EnigmailKeyEditor.deleteKey(parentWindow, fpr.join(" "), deleteSecretKey, function(exitCode, errorMsg) {
-        resolve({
-          exitCode: exitCode,
-          errorMsg: errorMsg
-        });
-      });
-    });
+  async deleteKeys(fpr, deleteSecretKey, parentWindow) {
+    const ret = await EnigmailKeyEditor.deleteKey(parentWindow, fpr.join(" "), deleteSecretKey);
+
+    return {
+      exitCode: ret.returnCode,
+      errorMsg: ret.errorMsg
+    };
   }
 
 
