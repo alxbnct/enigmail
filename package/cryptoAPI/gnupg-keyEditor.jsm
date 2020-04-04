@@ -492,33 +492,47 @@ var EnigmailKeyEditor = {
     });
   },
 
-  changePassphrase: function(parent, keyId, oldPw, newPw, callbackFunc) {
+  changePassphrase: function(parent, keyId, oldPw, newPw) {
     EnigmailLog.DEBUG("keyEdit.jsm: Enigmail.changePassphrase: keyId=" + keyId + "\n");
 
-    var pwdObserver = new ChangePasswdObserver();
-    return editKey(parent, false, null, keyId, "passwd", {
-        oldPw: oldPw,
-        newPw: newPw,
-        step: 0,
-        observer: pwdObserver,
-        usePassphrase: true
-      },
-      changePassphraseCallback,
-      pwdObserver,
-      callbackFunc);
+    let pwdObserver = new ChangePasswdObserver();
+    return new Promise((resolve, reject) => {
+      editKey(parent, false, null, keyId, "passwd", {
+          oldPw: oldPw,
+          newPw: newPw,
+          step: 0,
+          observer: pwdObserver,
+          usePassphrase: true
+        },
+        changePassphraseCallback,
+        pwdObserver,
+        function _f(returnCode, errorMsg) {
+          resolve({
+            returnCode: returnCode,
+            errorMsg: errorMsg
+          });
+        });
+    });
   },
 
 
-  enableDisableKey: function(parent, keyId, disableKey, callbackFunc) {
+  enableDisableKey: function(parent, keyId, disableKey) {
     EnigmailLog.DEBUG("keyEdit.jsm: Enigmail.enableDisableKey: keyId=" + keyId + ", disableKey=" + disableKey + "\n");
 
-    var cmd = (disableKey ? "disable" : "enable");
-    return editKey(parent, false, null, keyId, cmd, {
-        usePassphrase: true
-      },
-      null,
-      null,
-      callbackFunc);
+    const cmd = (disableKey ? "disable" : "enable");
+    return new Promise((resolve, reject) => {
+      editKey(parent, false, null, keyId, cmd, {
+          usePassphrase: true
+        },
+        null,
+        null,
+        function _f(returnCode, errorMsg) {
+          resolve({
+            returnCode: returnCode,
+            errorMsg: errorMsg
+          });
+        });
+    });
   },
 
   setPrimaryUid: function(parent, keyId, idNumber) {
@@ -562,23 +576,28 @@ var EnigmailKeyEditor = {
     });
   },
 
-  addPhoto: function(parent, keyId, photoFile, callbackFunc) {
+  addPhoto: function(parent, keyId, photoFile) {
     EnigmailLog.DEBUG("keyEdit.jsm: Enigmail.addPhoto: keyId=" + keyId + "\n");
 
-    var photoFileName = EnigmailFiles.getEscapedFilename(EnigmailFiles.getFilePath(photoFile.QueryInterface(Ci.nsIFile)));
+    const photoFileName = EnigmailFiles.getEscapedFilename(EnigmailFiles.getFilePath(photoFile.QueryInterface(Ci.nsIFile)));
 
-    return editKey(parent, true, null, keyId, "addphoto", {
-        file: photoFileName,
-        step: 0,
-        usePassphrase: true
-      },
-      addPhotoCallback,
-      null,
-      function _f(returnCode, errorMsg) {
-        runKeyTrustCheck();
-        EnigmailKeyRing.updateKeys([keyId]);
-        callbackFunc(returnCode, errorMsg);
-      });
+    return new Promise((resolve, reject) => {
+      editKey(parent, true, null, keyId, "addphoto", {
+          file: photoFileName,
+          step: 0,
+          usePassphrase: true
+        },
+        addPhotoCallback,
+        null,
+        function _f(returnCode, errorMsg) {
+          runKeyTrustCheck();
+          EnigmailKeyRing.updateKeys([keyId]);
+          resolve({
+            returnCode: returnCode,
+            errorMsg: errorMsg
+          });
+        });
+    });
   },
 
 

@@ -470,19 +470,18 @@ function EnigSignKey(userId, keyId) {
 }
 
 
-function EnigChangeKeyPwd(keyId, userId) {
+async function EnigChangeKeyPwd(keyId, userId) {
   // gpg-agent used: gpg-agent will handle everything
 
   if (keyId.substr(0, 2) !== "0x") {
     keyId = "0x" + keyId;
   }
 
-  EnigmailKeyManagement.changePassphrase(window, keyId, "", "",
-    function _changePwdCb(exitCode, errorMsg) {
-      if (exitCode !== 0) {
-        EnigAlert(EnigGetString("changePassFailed") + "\n\n" + errorMsg);
-      }
-    });
+  let ret = await EnigmailKeyManagement.changePassphrase(window, keyId, "", "");
+
+  if (ret.returnCode !== 0) {
+    EnigAlert(EnigGetString("changePassFailed") + "\n\n" + ret.errorMsg);
+  }
 }
 
 
