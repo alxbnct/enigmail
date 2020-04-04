@@ -352,44 +352,49 @@ var EnigmailKeyEditor = {
    * @param  Integer   expiryLength  A number between 1 and 100
    * @param  Integer   timeScale     1 or 30 or 365 meaning days, months, years
    * @param  Boolean   noExpiry      True: Expire never. False: Use expiryLength.
-   * @param  Function  callbackFunc  will be executed by editKey()
-   * @return  Integer
-   *          returnCode = 0 in case of success
-   *          returnCode != 0 and errorMsg set in case of failure
+   * @return  {Promise<Object>}
    */
-  setKeyExpiration: function(parent, keyId, subKeys, expiryLength, timeScale, noExpiry, callbackFunc) {
+  setKeyExpiration: function(parent, keyId, subKeys, expiryLength, timeScale, noExpiry) {
     EnigmailLog.DEBUG("keyEdit.jsm: Enigmail.setKeyExpiry: keyId=" + keyId + "\n");
 
-    expiryLength = String(expiryLength);
-    if (noExpiry === true) {
-      expiryLength = "0";
-    }
-    else {
-      switch (parseInt(timeScale, 10)) {
-        case 365:
-          expiryLength += "y";
-          break;
-        case 30:
-          expiryLength += "m";
-          break;
-        case 7:
-          expiryLength += "w";
-          break;
+    return new Promise((resolve, reject) => {
+      expiryLength = String(expiryLength);
+      if (noExpiry === true) {
+        expiryLength = "0";
       }
-    }
+      else {
+        switch (parseInt(timeScale, 10)) {
+          case 365:
+            expiryLength += "y";
+            break;
+          case 30:
+            expiryLength += "m";
+            break;
+          case 7:
+            expiryLength += "w";
+            break;
+        }
+      }
 
-    return editKey(parent,
-      true,
-      null,
-      keyId,
-      "", /* "expire", */ {
-        expiryLength: expiryLength,
-        subKeys: subKeys,
-        currentSubKey: false
-      },
-      keyExpiryCallback, /* contains the gpg communication logic */
-      null,
-      callbackFunc);
+      return editKey(parent,
+        true,
+        null,
+        keyId,
+        "", /* "expire", */ {
+          expiryLength: expiryLength,
+          subKeys: subKeys,
+          currentSubKey: false
+        },
+        keyExpiryCallback, /* contains the gpg communication logic */
+        null,
+        function _f(returnCode, errorMsg) {
+          resolve({
+            returnCode: returnCode,
+            errorMsg: errorMsg
+          });
+        }
+      );
+    });
   },
 
 

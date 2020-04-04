@@ -219,32 +219,31 @@ function enigmailKeySelCallback(event) {
 }
 
 
-function processKey(subKeys) {
+async function processKey(subKeys) {
   EnigmailLog.DEBUG("enigmailEditKeyExpiryDlg.js: processKey()\n");
 
   var noExpiry = document.getElementById("noExpiry").checked;
   var expiryTime = Number(document.getElementById("expireInput").value);
   var timeScale = document.getElementById("timeScale").value;
 
-  EnigmailKeyManagement.setKeyExpiration(
+  let retObj = await EnigmailKeyManagement.setKeyExpiration(
     window,
     window.arguments[0].keyId[0],
     subKeys,
     expiryTime,
     timeScale,
-    noExpiry,
-    function(exitCode, errorMsg) {
-      if (exitCode !== 0) {
-        EnigmailTimer.setTimeout(function() {
-          EnigmailDialog.alert(window, EnigmailLocale.getString("setKeyExpirationDateFailed") + "\n\n" + errorMsg);
-        }, 10);
-      }
-      else {
-        window.arguments[1].refresh = true;
-        window.close();
-      }
-    }
+    noExpiry
   );
+
+  if (retObj.returnCode !== 0) {
+    EnigmailTimer.setTimeout(function() {
+      EnigmailDialog.alert(window, EnigmailLocale.getString("setKeyExpirationDateFailed") + "\n\n" + retObj.errorMsg);
+    }, 10);
+  }
+  else {
+    window.arguments[1].refresh = true;
+    window.close();
+  }
 }
 
 /**
