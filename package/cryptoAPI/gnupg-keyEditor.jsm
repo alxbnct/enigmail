@@ -428,13 +428,13 @@ var EnigmailKeyEditor = {
      */
 
     return new Promise((resolve, reject) => {
-      function checkGeneratedCert(resultCode, errorMsg) {
+      function checkGeneratedCert(returnCode, errorMsg) {
         if (!outFile.exists()) {
-          resultCode = 1;
+          returnCode = 1;
           errorMsg = "";
         }
         resolve({
-          resultCode: resultCode,
+          returnCode: returnCode,
           errorMsg: errorMsg
         });
       }
@@ -451,19 +451,26 @@ var EnigmailKeyEditor = {
     });
   },
 
-  addUid: function(parent, keyId, name, email, comment, callbackFunc) {
+  addUid: function(parent, keyId, name, email, comment) {
     EnigmailLog.DEBUG("keyEdit.jsm: Enigmail.addUid: keyId=" + keyId + ", name=" + name + ", email=" + email + "\n");
-    return editKey(parent, true, null, keyId, "adduid", {
-        email: email,
-        name: name,
-        comment: comment,
-        nameAsked: 0,
-        emailAsked: 0,
-        usePassphrase: true
-      },
-      addUidCallback,
-      null,
-      callbackFunc);
+    return new Promise((resolve, reject) => {
+      editKey(parent, true, null, keyId, "adduid", {
+          email: email,
+          name: name,
+          comment: comment,
+          nameAsked: 0,
+          emailAsked: 0,
+          usePassphrase: true
+        },
+        addUidCallback,
+        null,
+        function _f(returnCode, errorMsg) {
+          resolve({
+            returnCode: returnCode,
+            errorMsg: errorMsg
+          });
+        });
+    });
   },
 
   deleteKey: function(parent, keyId, deleteSecretKey, callbackFunc) {
@@ -507,42 +514,45 @@ var EnigmailKeyEditor = {
       callbackFunc);
   },
 
-  setPrimaryUid: function(parent, keyId, idNumber, callbackFunc) {
+  setPrimaryUid: function(parent, keyId, idNumber) {
     EnigmailLog.DEBUG("keyEdit.jsm: Enigmail.setPrimaryUid: keyId=" + keyId + ", idNumber=" + idNumber + "\n");
-    return editKey(parent, true, null, keyId, "", {
-        idNumber: idNumber,
-        step: 0,
-        usePassphrase: true
-      },
-      setPrimaryUidCallback,
-      null,
-      callbackFunc);
-  },
 
-
-  deleteUid: function(parent, keyId, idNumber, callbackFunc) {
-    EnigmailLog.DEBUG("keyEdit.jsm: Enigmail.deleteUid: keyId=" + keyId + ", idNumber=" + idNumber + "\n");
-    return editKey(parent, true, null, keyId, "", {
-        idNumber: idNumber,
-        step: 0,
-        usePassphrase: true
-      },
-      deleteUidCallback,
-      null,
-      callbackFunc);
+    return new Promise((resolve, reject) => {
+      editKey(parent, true, null, keyId, "", {
+          idNumber: idNumber,
+          step: 0,
+          usePassphrase: true
+        },
+        setPrimaryUidCallback,
+        null,
+        function _f(returnCode, errorMsg) {
+          resolve({
+            returnCode: returnCode,
+            errorMsg: errorMsg
+          });
+        });
+    });
   },
 
 
   revokeUid: function(parent, keyId, idNumber, callbackFunc) {
     EnigmailLog.DEBUG("keyEdit.jsm: Enigmail.revokeUid: keyId=" + keyId + ", idNumber=" + idNumber + "\n");
-    return editKey(parent, true, null, keyId, "", {
-        idNumber: idNumber,
-        step: 0,
-        usePassphrase: true
-      },
-      revokeUidCallback,
-      null,
-      callbackFunc);
+
+    return new Promise((resolve, reject) => {
+      editKey(parent, true, null, keyId, "", {
+          idNumber: idNumber,
+          step: 0,
+          usePassphrase: true
+        },
+        revokeUidCallback,
+        null,
+        function _f(returnCode, errorMsg) {
+          resolve({
+            returnCode: returnCode,
+            errorMsg: errorMsg
+          });
+        });
+    });
   },
 
   addPhoto: function(parent, keyId, photoFile, callbackFunc) {

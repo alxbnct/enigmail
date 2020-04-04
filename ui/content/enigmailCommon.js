@@ -513,7 +513,7 @@ function EnigRevokeKey(keyId, userId, callbackFunc) {
 
   EnigmailKeyManagement.genRevokeCert(window, keyId, revFile, "0", "").
   then(resultObj => {
-    if (resultObj.resultCode !== 0) {
+    if (resultObj.returnCode !== 0) {
       revFile.remove(false);
       EnigAlert(EnigGetString("revokeKeyFailed") + "\n\n" + resultObj.errorMsg);
       return;

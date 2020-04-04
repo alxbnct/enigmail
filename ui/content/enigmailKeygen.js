@@ -200,7 +200,7 @@ async function genAndSaveRevCert(keyId, uid) {
   // create a revokation cert in the TB profile directoy
   let retObj = await EnigmailKeyManagement.genRevokeCert(window, "0x" + keyId, keyFile, "1", "");
 
-  if (retObj.resultCode !== 0) {
+  if (retObj.returnCode !== 0) {
     EnigAlert(EnigGetString("revokeCertFailed") + "\n\n" + retObj.errorMsg);
     throw 1;
   }

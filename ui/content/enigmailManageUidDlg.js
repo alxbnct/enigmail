@@ -18,7 +18,7 @@ var EnigmailKeyRing = ChromeUtils.import("chrome://enigmail/content/modules/keyR
 var EnigmailCore = ChromeUtils.import("chrome://enigmail/content/modules/core.jsm").EnigmailCore;
 var EnigmailWindows = ChromeUtils.import("chrome://enigmail/content/modules/windows.jsm").EnigmailWindows;
 var EnigmailCryptoAPI = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI.jsm").EnigmailCryptoAPI;
-var EnigmailKeyManagement =  EnigmailCryptoAPI().getKeyManagement();
+var EnigmailKeyManagement = EnigmailCryptoAPI().getKeyManagement();
 
 var gUserId;
 var gEnigmailUid;
@@ -42,8 +42,10 @@ function appendUid(uidList, uidObj, uidNum) {
   if (uidType === "uat") {
     if (uidObj.userId.indexOf("1 ") === 0) {
       uidTxt = EnigmailLocale.getString("userAtt.photo");
-    } else return;
-  } else {
+    }
+    else return;
+  }
+  else {
     uidTxt = uidObj.userId;
     if (!gEnigmailUid) {
       gEnigmailUid = uidTxt;
@@ -99,22 +101,26 @@ function uidSelectCb() {
 
   if (uidList.selectedCount > 0) {
     selValue = uidList.selectedItem.value;
-  } else {
+  }
+  else {
     selValue = "uid:1";
   }
   if (window.arguments[0].ownKey) {
     var uidType = selValue.substr(0, 3);
     if (uidType == "uat" || uidType == "rat" || uidType == "rid" || selValue.substr(4) == "1") {
       document.getElementById("setPrimary").setAttribute("disabled", "true");
-    } else {
+    }
+    else {
       document.getElementById("setPrimary").removeAttribute("disabled");
     }
     if (selValue.substr(4) == "1") {
       document.getElementById("revokeUid").setAttribute("disabled", "true");
-    } else {
+    }
+    else {
       if (uidType == "rid" || uidType == "rat") {
         document.getElementById("revokeUid").setAttribute("disabled", "true");
-      } else {
+      }
+      else {
         document.getElementById("revokeUid").removeAttribute("disabled");
       }
     }
@@ -140,21 +146,22 @@ function setPrimaryUid() {
   if (!enigmailSvc)
     return;
 
-  var errorMsgObj = {};
   var uidList = document.getElementById("uidList");
   if (uidList.selectedItem.value.substr(0, 3) == "uid") {
 
     EnigmailKeyManagement.setPrimaryUid(window,
       "0x" + window.arguments[0].keyId,
-      uidList.selectedItem.value.substr(4),
-      function _cb(exitCode, errorMsg) {
-        if (exitCode === 0) {
-          EnigmailDialog.info(window, EnigmailLocale.getString("changePrimUidOK"));
-          window.arguments[1].refresh = true;
-          reloadUidList();
-        } else
-          EnigmailDialog.alert(window, EnigmailLocale.getString("changePrimUidFailed") + "\n\n" + errorMsg);
-      });
+      uidList.selectedItem.value.substr(4)
+    ).
+    then(retObj => {
+      if (retObj.returnCode === 0) {
+        EnigmailDialog.info(window, EnigmailLocale.getString("changePrimUidOK"));
+        window.arguments[1].refresh = true;
+        reloadUidList();
+      }
+      else
+        EnigmailDialog.alert(window, EnigmailLocale.getString("changePrimUidFailed") + "\n\n" + retObj.errorMsg);
+    });
   }
 }
 
@@ -166,15 +173,17 @@ function revokeUid() {
   if (!EnigmailDialog.confirmDlg(window, EnigmailLocale.getString("revokeUidQuestion", uidList.selectedItem.label))) return;
   if (uidList.selectedItem.value.substr(4) != "1") {
     EnigmailKeyManagement.revokeUid(window,
-      "0x" + window.arguments[0].keyId,
-      uidList.selectedItem.value.substr(4),
-      function _cb(exitCode, errorMsg) {
-        if (exitCode === 0) {
+        "0x" + window.arguments[0].keyId,
+        uidList.selectedItem.value.substr(4)
+      )
+      .then(retObj => {
+        if (retObj.returnCode === 0) {
           EnigmailDialog.info(window, EnigmailLocale.getString("revokeUidOK", uidList.selectedItem.label));
           window.arguments[1].refresh = true;
           reloadUidList();
-        } else
-          EnigmailDialog.alert(window, EnigmailLocale.getString("revokeUidFailed", uidList.selectedItem.label) + "\n\n" + errorMsg);
+        }
+        else
+          EnigmailDialog.alert(window, EnigmailLocale.getString("revokeUidFailed", uidList.selectedItem.label) + "\n\n" + retObj.errorMsg);
       });
   }
 }

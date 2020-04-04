@@ -46,16 +46,17 @@ function onAccept() {
     window.arguments[0].keyId,
     EnigmailData.convertFromUnicode(name.value),
     EnigmailData.convertFromUnicode(email.value),
-    "", // user id comment
-    function _addUidCb(exitCode, errorMsg) {
-      if (exitCode !== 0) {
-        EnigmailDialog.alert(window, EnigmailLocale.getString("addUidFailed") + "\n\n" + errorMsg);
-      } else {
-        window.arguments[1].refresh = true;
-        EnigmailDialog.info(window, EnigmailLocale.getString("addUidOK"));
-      }
-      window.close();
-    });
+    "" // user id comment
+  ).then(retObj => {
+    if (retObj.returnCode !== 0) {
+      EnigmailDialog.alert(window, EnigmailLocale.getString("addUidFailed") + "\n\n" + retObj.errorMsg);
+    }
+    else {
+      window.arguments[1].refresh = true;
+      EnigmailDialog.info(window, EnigmailLocale.getString("addUidOK"));
+    }
+    window.close();
+  });
 
   return false;
 }
