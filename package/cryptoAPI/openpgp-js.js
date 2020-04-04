@@ -432,7 +432,6 @@ class OpenPGPjsCryptoAPI extends CryptoAPI {
   async decrypt(pgpMessage, options) {
     EnigmailLog.DEBUG(`openpgpg-js.js: decrypt()\n`);
 
-    // TODO: implement download missing key
     if (options.verifyOnly) {
       return pgpjs_decrypt.verify(pgpMessage, options);
     }
@@ -455,7 +454,6 @@ class OpenPGPjsCryptoAPI extends CryptoAPI {
    */
 
   async decryptMime(encrypted, options) {
-    // TODO: implement download missing key
     options.noOutput = false;
     options.verifyOnly = false;
     options.uiFlags = EnigmailConstants.UI_PGP_MIME;
@@ -478,7 +476,6 @@ class OpenPGPjsCryptoAPI extends CryptoAPI {
    */
 
   async verifyMime(signedData, signature, options) {
-    // TODO: implement download missing key
     return pgpjs_decrypt.verifyDetached(signedData, signature);
   }
 

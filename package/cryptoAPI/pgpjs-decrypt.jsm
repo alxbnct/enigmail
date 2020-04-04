@@ -24,6 +24,7 @@ const getArmor = EnigmailLazy.loader("enigmail/armor.jsm", "EnigmailArmor");
 const pgpjs_keys = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/pgpjs-keys.jsm").pgpjs_keys;
 const pgpjs_keyStore = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/pgpjs-keystore.jsm").pgpjs_keyStore;
 const EnigmailLocale = ChromeUtils.import("chrome://enigmail/content/modules/locale.jsm").EnigmailLocale;
+const EnigmailPrefs = ChromeUtils.import("chrome://enigmail/content/modules/prefs.jsm").EnigmailPrefs;
 
 Components.utils.importGlobalProperties(["TextDecoder"]);
 
@@ -242,18 +243,9 @@ var pgpjs_decrypt = {
       result.errorMsg = EnigmailLocale.getString("unverifiedSig") + EnigmailLocale.getString("msgTypeUnsupported");
       return result;
     }
-    let msg;
 
-    //if (sigObj.packets[0].signatureType === PgpJS.enums.signature.binary) {
-    msg = PgpJS.message.fromBinary(ensureUint8Array(data));
+    const msg = PgpJS.message.fromBinary(ensureUint8Array(data));
     msg.packets.concat(sigObj.packets);
-    /*}
-    else {
-      //msg = PgpJS.cleartext.fromText(ensureString(data));
-      //msg.signature.packets.concat(sigObj.packets);
-      msg = await PgpJS.message.fromBinary(ensureUint8Array(data), null, null, "text");
-      msg.packets.concat(sigObj.packets);
-    }*/
 
     return this.verifyMessage(msg, returnData);
   },
@@ -297,9 +289,13 @@ var pgpjs_decrypt = {
 
     let pubKeys = await pgpjs_keyStore.getKeysForKeyIds(false, keyIds);
 
+    if (pubKeys.length === 0) {
+      pubKeys = await downloadMissingKeys(keyIds);
+    }
+
     for (let key of pubKeys) {
       if (await key.isRevoked()) {
-        // remove revocation signatures to get a valid key for verification purposes
+        // remove revocation signatures to get a valid key (required for verification)
         key._enigmailRevoked = true;
         key.revocationSignatures = [];
       }
@@ -440,7 +436,7 @@ var pgpjs_decrypt = {
     return result;
   },
 
-  verifyFile: async function (dataFilePath, signatureFilePath) {
+  verifyFile: async function(dataFilePath, signatureFilePath) {
     const PgpJS = getOpenPGPLibrary();
     let dataFile = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
     let sigFile = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
@@ -567,4 +563,32 @@ function extractDataFromClearsignedMsg(dataStr) {
   if (start < 0 || end < 0 || end < start) return "";
 
   return dataStr.substring(start + 4, end - 2);
+}
+
+/**
+ * If configuration is enabled, try to automatically download missing keys
+ *
+ * @param {Array<String>} keyIds: Key IDs to download
+ */
+
+async function downloadMissingKeys(keyIds) {
+  EnigmailLog.DEBUG(`pgpjs-decrypt.jsm: downloadMissingKeys()\n`);
+
+  const EnigmailKeyServer = ChromeUtils.import("chrome://enigmail/content/modules/keyserver.jsm").EnigmailKeyServer;
+  let foundKeys = [];
+
+  try {
+    const keyserver = EnigmailPrefs.getPref("autoKeyRetrieve");
+    if (keyserver && keyserver.length > 0) {
+      const keyList = "0x" + keyIds.join(" 0x");
+      const ret = await EnigmailKeyServer.download(keyList, keyserver);
+
+      if (ret.result === 0 && ret.keyList.length > 0) {
+        foundKeys = await pgpjs_keyStore.getKeysForKeyIds(false, keyIds);
+      }
+    }
+  }
+  catch (x) {}
+
+  return foundKeys;
 }
