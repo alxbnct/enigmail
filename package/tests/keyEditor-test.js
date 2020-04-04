@@ -60,13 +60,12 @@ test(withTestGpgHome(withEnigmail(function shouldSignKey() {
     "anonymous strike <strike.devtest@gmail.com>",
     "781617319CE311C4",
     false,
-    5,
-    function(exitCode, errorMsg) {
-      Assert.equal(exitCode, -1);
-      Assert.equal("The key is already signed, you cannot sign it twice.", errorMsg);
-      do_test_finished();
-    }
-  );
+    5
+  ).then(resultObj => {
+    Assert.equal(resultObj.returnCode, -1);
+    Assert.equal("The key is already signed, you cannot sign it twice.", resultObj.errorMsg);
+    do_test_finished();
+  });
 })));
 
 test(withTestGpgHome(function importKeyForEdit() {

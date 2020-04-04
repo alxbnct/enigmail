@@ -79,14 +79,16 @@ function onLoad() {
           if (sigType === "x") {
             if (gExportableSignatureList[signer] === undefined) {
               gExportableSignatureList[signer] = 1;
-            } else {
+            }
+            else {
               gExportableSignatureList[signer] += 1;
             }
           }
           if (sigType === "l") {
             if (gLocalSignatureList[signer] === undefined) {
               gLocalSignatureList[signer] = 1;
-            } else {
+            }
+            else {
               gLocalSignatureList[signer] += 1;
             }
           }
@@ -119,7 +121,8 @@ function onLoad() {
       }
     }
 
-  } catch (ex) {}
+  }
+  catch (ex) {}
 }
 
 function onAccept() {
@@ -137,16 +140,16 @@ function onAccept() {
     "0x" + signWithKey.selectedItem.value,
     window.arguments[0].keyId,
     localSig.checked,
-    trustLevel.selectedItem.value,
-    function(exitCode, errorMsg) {
-      if (exitCode !== 0) {
-        EnigmailDialog.alert(window, EnigmailLocale.getString("signKeyFailed") + "\n\n" + errorMsg);
-      } else {
-        window.arguments[1].refresh = true;
-      }
-      window.close();
+    trustLevel.selectedItem.value
+  ).then(resultObj => {
+    if (resultObj.returnCode !== 0) {
+      EnigmailDialog.alert(window, EnigmailLocale.getString("signKeyFailed") + "\n\n" + resultObj.errorMsg);
     }
-  );
+    else {
+      window.arguments[1].refresh = true;
+    }
+    window.close();
+  });
 
   return false; // wait with closing until task terminated
 }
@@ -162,7 +165,8 @@ function enigKeySelCb() {
 
   if (doLocalSig.checked) {
     signatureCount = gLocalSignatureList[signWithKeyId];
-  } else {
+  }
+  else {
     signatureCount = gExportableSignatureList[signWithKeyId];
   }
 
@@ -172,23 +176,27 @@ function enigKeySelCb() {
     alreadySigned.setAttribute("value", EnigmailLocale.getString("alreadySignedexportable.label", "0x" + keyToBeSigned));
     alreadySigned.removeAttribute("collapsed");
     acceptButton.disabled = true;
-  } else if (signatureCount === undefined) {
+  }
+  else if (signatureCount === undefined) {
     // No signature yet, Hide hint field and ENable OK button
     alreadySigned.setAttribute("collapsed", "true");
     acceptButton.disabled = false;
-  } else if (signatureCount == gUidCount[keyToBeSigned]) {
+  }
+  else if (signatureCount == gUidCount[keyToBeSigned]) {
     // Signature count == UID count, so key is already fully signed and another signing operation makes no more sense
     // Here, we display a hint and DISable the OK button
     alreadySigned.setAttribute("value", EnigmailLocale.getString("alreadySigned.label", "0x" + keyToBeSigned));
     alreadySigned.removeAttribute("collapsed");
     acceptButton.disabled = true;
-  } else if (signatureCount > 0) {
+  }
+  else if (signatureCount > 0) {
     // Signature count != UID count, so key is partly signed and another sign operation makes sense
     // Here, we display a hint and ENable the OK button
     alreadySigned.setAttribute("value", EnigmailLocale.getString("partlySigned.label", "0x" + keyToBeSigned));
     alreadySigned.removeAttribute("collapsed");
     acceptButton.disabled = false;
-  } else {
+  }
+  else {
     // Default catch for unforeseen cases. Hide hint field and enable OK button
     alreadySigned.setAttribute("collapsed", "true");
     acceptButton.disabled = false;

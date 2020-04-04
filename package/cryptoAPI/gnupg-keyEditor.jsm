@@ -398,20 +398,25 @@ var EnigmailKeyEditor = {
   },
 
 
-  signKey: function(parent, userId, keyId, signLocally, trustLevel, callbackFunc) {
+  signKey: function(parent, userId, keyId, signLocally, trustLevel) {
     EnigmailLog.DEBUG("keyEdit.jsm: Enigmail.signKey: trustLevel=" + trustLevel + ", userId=" + userId + ", keyId=" + keyId + "\n");
-    return editKey(parent, true, userId, keyId, (signLocally ? "lsign" : "sign"), {
-        trustLevel: trustLevel,
-        usePassphrase: true
-      },
-      signKeyCallback,
-      null,
-      function _f(returnCode, errorMsg) {
-        runKeyTrustCheck();
-        EnigmailKeyRing.updateKeys([keyId]);
-        callbackFunc(returnCode, errorMsg);
-      });
 
+    return new Promise((resolve, reject) => {
+      editKey(parent, true, userId, keyId, (signLocally ? "lsign" : "sign"), {
+          trustLevel: trustLevel,
+          usePassphrase: true
+        },
+        signKeyCallback,
+        null,
+        function _f(returnCode, errorMsg) {
+          runKeyTrustCheck();
+          EnigmailKeyRing.updateKeys([keyId]);
+          resolve({
+            returnCode: returnCode,
+            errorMsg: errorMsg
+          });
+        });
+    });
   },
 
   genRevokeCert: function(parent, keyId, outFile, reasonCode, reasonText, callbackFunc) {
