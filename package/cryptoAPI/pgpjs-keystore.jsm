@@ -36,37 +36,42 @@ var pgpjs_keyStore = {
     const PgpJS = getOpenPGPLibrary();
     let keys = [];
 
-    if (keyData.search(/-----BEGIN PGP (PUBLIC|PRIVATE) KEY BLOCK-----/) >= 0) {
-      let blocks = getArmor().splitArmoredBlocks(keyData);
+    if (typeof keyData === "string") {
+      if (keyData.search(/-----BEGIN PGP (PUBLIC|PRIVATE) KEY BLOCK-----/) >= 0) {
+        let blocks = getArmor().splitArmoredBlocks(keyData);
 
-      for (let b of blocks) {
-        let res = await PgpJS.message.readArmored(b);
-        if (res.packets.length > 0) {
-          switch (res.packets[0].tag) {
-            case PgpJS.enums.packet.publicKey:
-            case PgpJS.enums.packet.secretKey:
-              res = await PgpJS.key.readArmored(b);
-              break;
-            case PgpJS.enums.packet.signature:
-              if (res.packets[0].signatureType === PgpJS.enums.signature.key_revocation) {
-                res = await appendRevocationCert(res);
-              }
-              else {
-                res = {};
-              }
-              break;
+        for (let b of blocks) {
+          let res = await PgpJS.message.readArmored(b);
+          if (res.packets.length > 0) {
+            switch (res.packets[0].tag) {
+              case PgpJS.enums.packet.publicKey:
+              case PgpJS.enums.packet.secretKey:
+                res = await PgpJS.key.readArmored(b);
+                break;
+              case PgpJS.enums.packet.signature:
+                if (res.packets[0].signatureType === PgpJS.enums.signature.key_revocation) {
+                  res = await appendRevocationCert(res);
+                }
+                else {
+                  res = {};
+                }
+                break;
+            }
           }
-        }
 
-        if ("keys" in res) keys = keys.concat(res.keys);
+          if ("keys" in res) keys = keys.concat(res.keys);
+        }
+      }
+      else {
+        let data = stringToUint8Array(keyData);
+        let res = await PgpJS.key.read(data);
+        keys = res.keys;
       }
     }
     else {
-      let data = stringToUint8Array(keyData);
-      let res = await PgpJS.key.read(data);
-      keys = res.keys;
+      // we got a Uint8Array
+      keys = (await PgpJS.key.read(keyData)).keys;
     }
-
     let importedFpr = [];
 
     let conn = await keyStoreDatabase.openDatabase();
@@ -420,7 +425,15 @@ const keyStoreDatabase = {
         await key.update(oldKey.keys[0]);
       }
       catch (x) {
-        // if the keys can't be merged, use only the new key
+        // if the keys can't be merged, try to update the old key with the new one
+        try {
+          await oldKey.keys[0].update(key);
+          key = oldKey.keys[0];
+        }
+        catch(x) {
+          // if we have a private key, keep it, otherwise use the new key
+          if (oldKey.keys[0].isPrivate()) key = oldKey.keys[0];
+        }
       }
       metadata = await getKeyMetadata(key);
 
@@ -568,6 +581,7 @@ const keyStoreDatabase = {
     }
 
     await conn.execute(`delete from openpgpkey where fpr in ('-' ${searchStr});`, null);
+    await conn.execute(`delete from keyid_lookup where fpr in ('-' ${searchStr});`, null);
 
     if (!connection) {
       conn.close();

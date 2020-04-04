@@ -66,7 +66,7 @@ class OpenPGPjsCryptoAPI extends CryptoAPI {
    *
    * @param {String} keyData:  the key data to be imported (ASCII armored)
    * @param {Boolean} minimizeKey: import the minimum key without any 3rd-party signatures
-   * @param {String} limitedUid: only import the UID specified
+   * @param {Array of String} limitedUid: only import the UID specified
    *
    * @return {Object} or null in case no data / error:
    *   - {Number}          exitCode:        result code (0: OK)
@@ -77,7 +77,11 @@ class OpenPGPjsCryptoAPI extends CryptoAPI {
 
   async importKeyData(keyData, minimizeKey, limitedUid) {
     if (minimizeKey) {
-      keyData = await pgpjs_keys.getStrippedKey(keyData, limitedUid);
+      let firstUid = null;
+      if (limitedUid && limitedUid.length > 0) {
+        firstUid = limitedUid[0];
+      }
+      keyData = (await pgpjs_keys.getStrippedKey(keyData, firstUid, true)).write();
     }
 
     try {
