@@ -419,30 +419,36 @@ var EnigmailKeyEditor = {
     });
   },
 
-  genRevokeCert: function(parent, keyId, outFile, reasonCode, reasonText, callbackFunc) {
+  genRevokeCert: function(parent, keyId, outFile, reasonCode, reasonText) {
     EnigmailLog.DEBUG("keyEdit.jsm: Enigmail.genRevokeCert: keyId=" + keyId + "\n");
 
     /**
      * GnuPG < 2.1 does not properly report failures;
      * therefore we check if the revokation certificate was really generated
      */
-    function checkGeneratedCert(exitCode, errorMsg) {
-      if (!outFile.exists()) {
-        exitCode = 1;
-        errorMsg = "";
-      }
-      callbackFunc(exitCode, errorMsg);
-    }
 
-    return editKey(parent, true, null, keyId, "revoke", {
-        outFile: outFile,
-        reasonCode: reasonCode,
-        reasonText: EnigmailData.convertFromUnicode(reasonText),
-        usePassphrase: true
-      },
-      revokeCertCallback,
-      null,
-      checkGeneratedCert);
+    return new Promise((resolve, reject) => {
+      function checkGeneratedCert(resultCode, errorMsg) {
+        if (!outFile.exists()) {
+          resultCode = 1;
+          errorMsg = "";
+        }
+        resolve({
+          resultCode: resultCode,
+          errorMsg: errorMsg
+        });
+      }
+
+      editKey(parent, true, null, keyId, "revoke", {
+          outFile: outFile,
+          reasonCode: reasonCode,
+          reasonText: EnigmailData.convertFromUnicode(reasonText),
+          usePassphrase: true
+        },
+        revokeCertCallback,
+        null,
+        checkGeneratedCert);
+    });
   },
 
   addUid: function(parent, keyId, name, email, comment, callbackFunc) {

@@ -191,32 +191,27 @@ function enigmailKeygenTerminate(exitCode) {
  * return: Promise object
  */
 
-function genAndSaveRevCert(keyId, uid) {
+async function genAndSaveRevCert(keyId, uid) {
   EnigmailLog.DEBUG("enigmailKeygen.js: genAndSaveRevCert\n");
 
-  return new Promise(
-    function(resolve, reject) {
+  let keyFile = EnigmailApp.getProfileDirectory();
+  keyFile.append("0x" + keyId + "_rev.asc");
 
-      let keyFile = EnigmailApp.getProfileDirectory();
-      keyFile.append("0x" + keyId + "_rev.asc");
+  // create a revokation cert in the TB profile directoy
+  let retObj = await EnigmailKeyManagement.genRevokeCert(window, "0x" + keyId, keyFile, "1", "");
 
-      // create a revokation cert in the TB profile directoy
-      EnigmailKeyManagement.genRevokeCert(window, "0x" + keyId, keyFile, "1", "",
-        function _revokeCertCb(exitCode, errorMsg) {
-          if (exitCode !== 0) {
-            EnigAlert(EnigGetString("revokeCertFailed") + "\n\n" + errorMsg);
-            reject(1);
-          }
-          saveRevCert(keyFile, keyId, uid, resolve, reject);
-        });
-    }
-  );
+  if (retObj.resultCode !== 0) {
+    EnigAlert(EnigGetString("revokeCertFailed") + "\n\n" + retObj.errorMsg);
+    throw 1;
+  }
+
+  return saveRevCert(keyFile, keyId, uid);
 }
 
 /**
  *  create a copy of the revokation cert at a user defined location
  */
-function saveRevCert(inputKeyFile, keyId, uid, resolve, reject) {
+function saveRevCert(inputKeyFile, keyId, uid) {
 
   let defaultFileName = uid.replace(/[\\/<>]/g, "");
   defaultFileName += " (0x" + keyId + ") rev.asc";
@@ -232,10 +227,10 @@ function saveRevCert(inputKeyFile, keyId, uid, resolve, reject) {
     }
     catch (ex) {
       EnigAlert(EnigGetString("revokeCertFailed"));
-      reject(2);
+      throw 2;
     }
   }
-  resolve();
+  return 0;
 }
 
 function closeAndReset() {
