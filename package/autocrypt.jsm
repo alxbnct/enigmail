@@ -619,24 +619,25 @@ var EnigmailAutocrypt = {
 
           let setupData = importSetupKey(msg.data);
           if (setupData) {
-            keyManagement.setKeyTrust(null, "0x" + setupData.fpr, "5", function(returnCode) {
-              if (returnCode === 0) {
-                let id = EnigmailStdlib.getIdentityForEmail(EnigmailFuncs.stripEmail(fromAddr).toLowerCase());
-                let ac = EnigmailFuncs.getAccountForIdentity(id.identity);
-                ac.incomingServer.setBoolValue("enableAutocrypt", true);
-                ac.incomingServer.setIntValue("acPreferEncrypt", (setupData.preferEncrypt === "mutual" ? 1 : 0));
-                id.identity.setCharAttribute("pgpkeyId", "0x" + setupData.fpr);
-                id.identity.setBoolAttribute("enablePgp", true);
-                id.identity.setBoolAttribute("pgpSignEncrypted", true);
-                id.identity.setBoolAttribute("pgpMimeMode", true);
-                id.identity.setIntAttribute("pgpKeyMode", 1);
-                EnigmailPrefs.setPref("juniorMode", 1);
-                resolve(setupData);
-              }
-              else {
-                reject("keyImportFailed");
-              }
-            });
+            keyManagement.setKeyTrust(null, "0x" + setupData.fpr, "5")
+              .then(resultObj => {
+                if (resultObj.returnCode === 0) {
+                  let id = EnigmailStdlib.getIdentityForEmail(EnigmailFuncs.stripEmail(fromAddr).toLowerCase());
+                  let ac = EnigmailFuncs.getAccountForIdentity(id.identity);
+                  ac.incomingServer.setBoolValue("enableAutocrypt", true);
+                  ac.incomingServer.setIntValue("acPreferEncrypt", (setupData.preferEncrypt === "mutual" ? 1 : 0));
+                  id.identity.setCharAttribute("pgpkeyId", "0x" + setupData.fpr);
+                  id.identity.setBoolAttribute("enablePgp", true);
+                  id.identity.setBoolAttribute("pgpSignEncrypted", true);
+                  id.identity.setBoolAttribute("pgpMimeMode", true);
+                  id.identity.setIntAttribute("pgpKeyMode", 1);
+                  EnigmailPrefs.setPref("juniorMode", 1);
+                  resolve(setupData);
+                }
+                else {
+                  reject("keyImportFailed");
+                }
+              });
           }
           else {
             reject("keyImportFailed");

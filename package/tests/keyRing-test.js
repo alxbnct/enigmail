@@ -10,7 +10,7 @@
 "use strict";
 
 /*global EnigmailFiles: false */
-do_load_module("file://" + do_get_cwd().path + "/testHelper.js"); /*global withEnigmail: false, withTestGpgHome: false, gKeyListObj: true */
+do_load_module("file://" + do_get_cwd().path + "/testHelper.js"); /*global withEnigmail: false, withTestGpgHome: false, gKeyListObj: true, asyncTest: false */
 
 let GnuPGKeyList = {};
 do_load_module("chrome://enigmail/content/modules/cryptoAPI/gnupg-keylist.jsm", GnuPGKeyList); /*global appendKeyItems: false */
@@ -597,11 +597,11 @@ test(function shouldClone() {
   Assert.equal(cp.getEncryptionValidity().keyValid, false);
 });
 
-test(withTestGpgHome(withEnigmail(function testOwnerTrust() {
+test(withTestGpgHome(withEnigmail(asyncTest(async function testOwnerTrust() {
   const secretKey = do_get_file("resources/dev-strike.sec", false);
   EnigmailKeyRing.importKeyFromFile(secretKey, {}, {});
 
-  EnigmailKeyEditor.setKeyTrust(null, "0x65537E212DC19025AD38EDB2781617319CE311C4", 5, function _onComplete() {});
+  await EnigmailKeyEditor.setKeyTrust(null, "0x65537E212DC19025AD38EDB2781617319CE311C4", 5);
 
   let errorMsgObj = {};
   let exitCodeObj = {};
@@ -622,4 +622,4 @@ test(withTestGpgHome(withEnigmail(function testOwnerTrust() {
   exitCodeObj.value = EnigmailKeyRing.importOwnerTrust(otFile, errorMsgObj);
   Assert.equal(exitCodeObj.value, 0);
   Assert.equal(errorMsgObj.value, "");
-})));
+}))));

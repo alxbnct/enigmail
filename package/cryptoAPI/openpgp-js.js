@@ -520,8 +520,12 @@ class OpenPGPjsCryptoAPI extends CryptoAPI {
    */
 
   async encryptFile(from, recipients, hiddenRecipients, encryptionFlags, inputFile, outputFile, parentWindow = null) {
-    // TODO
-    return null;
+    return {
+      exitCode: 1,
+      errorMsg: "Function not available",
+      statusFlags: 0,
+      data: ""
+    };
   }
 
   /**

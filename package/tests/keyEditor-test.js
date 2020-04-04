@@ -44,15 +44,12 @@ test(withTestGpgHome(withEnigmail(function shouldSetTrust() {
   importKeys();
   do_test_pending();
   var window = JSUnit.createStubWindow();
-  EnigmailKeyEditor.setKeyTrust(window,
-    "781617319CE311C4",
-    5,
-    function(exitCode, errorMsg) {
-      Assert.equal(exitCode, 0);
-      Assert.equal("", errorMsg);
+  EnigmailKeyEditor.setKeyTrust(window, "781617319CE311C4", 5).then(
+    resultObj => {
+      Assert.equal(resultObj.returnCode, 0);
+      Assert.equal("", resultObj.errorMsg);
       do_test_finished();
-    }
-  );
+    });
 })));
 
 test(withTestGpgHome(withEnigmail(function shouldSignKey() {
@@ -95,10 +92,8 @@ test(withTestGpgHome(withEnigmail(function shouldGetSecretKeys() {
     keyTrust: "u"
   }];
   do_test_pending();
-  EnigmailKeyEditor.setKeyTrust(window,
-    "781617319CE311C4",
-    5,
-    function() {
+  EnigmailKeyEditor.setKeyTrust(window, "781617319CE311C4", 5).then(
+    resultObj => {
       let result = EnigmailKeyRing.getAllSecretKeys();
       Assert.equal(result.length, 1);
       Assert.equal(result[0].userId, expectedKey[0].userId);
@@ -106,8 +101,7 @@ test(withTestGpgHome(withEnigmail(function shouldGetSecretKeys() {
       Assert.equal(result[0].created, expectedKey[0].created);
       Assert.equal(result[0].keyTrust, expectedKey[0].keyTrust);
       do_test_finished();
-    }
-  );
+    });
 })));
 
 test(function shouldDoErrorHandling() {

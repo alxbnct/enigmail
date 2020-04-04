@@ -16,7 +16,7 @@ var EnigmailLocale = ChromeUtils.import("chrome://enigmail/content/modules/local
 var EnigmailDialog = ChromeUtils.import("chrome://enigmail/content/modules/dialog.jsm").EnigmailDialog;
 var EnigmailKeyRing = ChromeUtils.import("chrome://enigmail/content/modules/keyRing.jsm").EnigmailKeyRing;
 var EnigmailCryptoAPI = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI.jsm").EnigmailCryptoAPI;
-var EnigmailKeyManagement =  EnigmailCryptoAPI().getKeyManagement();
+var EnigmailKeyManagement = EnigmailCryptoAPI().getKeyManagement();
 
 var gKeyList = [];
 
@@ -58,7 +58,8 @@ function onLoad() {
       var t = document.getElementById("trustLevel" + currTrust.toString());
       document.getElementById("trustLevelGroup").selectedItem = t;
     }
-  } catch (ex) {}
+  }
+  catch (ex) {}
 
   var keyIdList = document.getElementById("keyIdList");
 
@@ -75,23 +76,24 @@ function processNextKey(index) {
 
   EnigmailKeyManagement.setKeyTrust(window,
     gKeyList[index].keyId,
-    Number(t.selectedItem.value),
-    function(exitCode, errorMsg) {
-      if (exitCode !== 0) {
-        EnigmailDialog.alert(window, EnigmailLocale.getString("setKeyTrustFailed") + "\n\n" + errorMsg);
-        window.close();
-        return;
-      } else {
-        window.arguments[1].refresh = true;
-      }
+    Number(t.selectedItem.value)
+  ).then(resultObj => {
+    if (resultObj.returnCode !== 0) {
+      EnigmailDialog.alert(window, EnigmailLocale.getString("setKeyTrustFailed") + "\n\n" + resultObj.errorMsg);
+      window.close();
+      return;
+    }
+    else {
+      window.arguments[1].refresh = true;
+    }
 
-      ++index;
-      if (index >= gKeyList.length)
-        window.close();
-      else {
-        processNextKey(index);
-      }
-    });
+    ++index;
+    if (index >= gKeyList.length)
+      window.close();
+    else {
+      processNextKey(index);
+    }
+  });
 }
 
 function onAccept() {

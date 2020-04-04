@@ -1,4 +1,3 @@
-
 /*
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -313,26 +312,33 @@ function runKeyTrustCheck(callbackFunc) {
     });
 }
 
-/*
- * NOTE: the callbackFunc used in every call to the key editor needs to be implemented like this:
- * callbackFunc(returnCode, errorMsg)
- * returnCode = 0 in case of success
- * returnCode != 0 and errorMsg set in case of failure
+/**
+ * NOTE:
+ * All functions have the following return value
+ *
+ * @return {Promise<Object>}
+ *   - {Number} returnCode: 0 in case of success, other values for errors
+ *   - {String} errorMsg:   error description in case of failure
  */
 var EnigmailKeyEditor = {
-  setKeyTrust: function(parent, keyId, trustLevel, callbackFunc) {
+  setKeyTrust: function(parent, keyId, trustLevel) {
     EnigmailLog.DEBUG("keyEdit.jsm: Enigmail.setKeyTrust: trustLevel=" + trustLevel + ", keyId=" + keyId + "\n");
 
-    return editKey(parent, false, null, keyId, "trust", {
-        trustLevel: trustLevel
-      },
-      keyTrustCallback,
-      null,
-      function _f(returnCode, errorMsg) {
-        runKeyTrustCheck();
-        EnigmailKeyRing.updateKeys([keyId]);
-        callbackFunc(returnCode, errorMsg);
-      });
+    return new Promise((resolve, reject) => {
+      editKey(parent, false, null, keyId, "trust", {
+          trustLevel: trustLevel
+        },
+        keyTrustCallback,
+        null,
+        function _f(returnCode, errorMsg) {
+          runKeyTrustCheck();
+          EnigmailKeyRing.updateKeys([keyId]);
+          resolve({
+            returnCode: returnCode,
+            errorMsg: errorMsg
+          });
+        });
+    });
   },
 
 
