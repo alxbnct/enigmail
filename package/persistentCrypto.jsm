@@ -792,8 +792,6 @@ CryptMessageIntoFolder.prototype = {
       let fileSpec = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
       fileSpec.initWithPath(tempFile.path);
 
-      const copySvc = Cc["@mozilla.org/messenger/messagecopyservice;1"].getService(Ci.nsIMsgCopyService);
-
       let copyListener = {
         QueryInterface: function(iid) {
           if (iid.equals(Ci.nsIMsgCopyServiceListener) || iid.equals(Ci.nsISupports)) {

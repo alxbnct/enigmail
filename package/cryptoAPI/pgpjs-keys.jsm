@@ -265,6 +265,8 @@ var pgpjs_keys = {
    *
    * @param {Object} key:    OpenPGP.js key
    * @param {Number} reason: Reason code (EnigmailConstants.KEY_DECRYPT_REASON_xxx)
+   *
+   * @return {Boolean}: true if key successfully decrypted; false otherwise
    */
   decryptSecretKey: async function(key, reason) {
     EnigmailLog.DEBUG(`pgpjs-keys.jsm: decryptSecretKey(${key.getFingerprint()})\n`);

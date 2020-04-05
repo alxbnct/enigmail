@@ -89,6 +89,7 @@ zip -9 --must-match\
     chrome/content/modules/cryptoAPI/pgpjs-encrypt.jsm \
     chrome/content/modules/cryptoAPI/pgpjs-decrypt.jsm \
     chrome/content/modules/cryptoAPI/pgpjs-keys.jsm \
+    chrome/content/modules/cryptoAPI/pgpjs-keymanipulation.jsm \
     chrome/content/modules/cryptoAPI/pgpjs-keystore.jsm \
     chrome/content/modules/cryptoAPI/interface.js \
     chrome/content/modules/data.jsm \

@@ -23,6 +23,7 @@ MODFILES = \
 	pgpjs-decrypt.jsm \
 	pgpjs-keys.jsm \
 	pgpjs-keystore.jsm \
+	pgpjs-keymanipulation.jsm \
 	interface.js
 
 GENFILES = $(addprefix $(GENDIR)/,$(MODFILES))

@@ -15,6 +15,7 @@ const pgpjs_keys = ChromeUtils.import("chrome://enigmail/content/modules/cryptoA
 const pgpjs_keyStore = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/pgpjs-keystore.jsm").pgpjs_keyStore;
 const pgpjs_encrypt = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/pgpjs-encrypt.jsm").pgpjs_encrypt;
 const pgpjs_decrypt = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/pgpjs-decrypt.jsm").pgpjs_decrypt;
+const pgpjs_keymanipulation = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/pgpjs-keymanipulation.jsm").pgpjs_keymanipulation;
 const EnigmailLazy = ChromeUtils.import("chrome://enigmail/content/modules/lazy.jsm").EnigmailLazy;
 const EnigmailLog = ChromeUtils.import("chrome://enigmail/content/modules/log.jsm").EnigmailLog;
 const EnigmailConstants = ChromeUtils.import("chrome://enigmail/content/modules/constants.jsm").EnigmailConstants;
@@ -578,8 +579,7 @@ class OpenPGPjsCryptoAPI extends CryptoAPI {
    * Return the key management functions (sub-API)
    */
   getKeyManagement() {
-    // TODO
-    return null;
+    return pgpjs_keymanipulation;
   }
 }
 
