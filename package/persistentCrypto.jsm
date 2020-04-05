@@ -774,7 +774,7 @@ CryptMessageIntoFolder.prototype = {
       tempFile.createUnique(0, 384); // == 0600, octal is deprecated
 
       // ensure that file gets deleted on exit, if something goes wrong ...
-      let extAppLauncher = Cc["@mozilla.org/mime;1"].getService(Ci.nsPIExternalAppLauncher);
+      let extAppLauncher = Cc["@mozilla.org/uriloader/external-helper-app-service;1"].getService(Ci.nsPIExternalAppLauncher);
 
       let foStream = Cc["@mozilla.org/network/file-output-stream;1"].createInstance(Ci.nsIFileOutputStream);
       foStream.init(tempFile, 2, 0x200, false); // open as "write only"

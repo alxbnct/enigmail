@@ -55,7 +55,7 @@ Installer.prototype = {
 
     if (this.installerFile) {
       try {
-        let extAppLauncher = Cc["@mozilla.org/mime;1"].getService(Ci.nsPIExternalAppLauncher);
+        let extAppLauncher = Cc["@mozilla.org/uriloader/external-helper-app-service;1"].getService(Ci.nsPIExternalAppLauncher);
         extAppLauncher.deleteTemporaryFileOnExit(this.installerFile);
       }
       catch (ex) {}

@@ -559,7 +559,7 @@ function writeTempPhotoData(photoData) {
     fileStream.close();
 
     // delete picFile upon exit
-    let extAppLauncher = Cc["@mozilla.org/mime;1"].getService(Ci.nsPIExternalAppLauncher);
+    let extAppLauncher = Cc["@mozilla.org/uriloader/external-helper-app-service;1"].getService(Ci.nsPIExternalAppLauncher);
     extAppLauncher.deleteTemporaryFileOnExit(tempFile);
     return tempFile;
   }
