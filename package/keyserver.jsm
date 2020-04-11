@@ -1546,6 +1546,9 @@ const accessVksServer = {
       for (let i in searchArr) {
         let r = await this.accessKeyServer(EnigmailConstants.SEARCH_KEY, keyserver, searchArr[i], listener);
 
+        // try next item if nothing found
+        if (!r || !r.length) continue;
+
         const cApi = EnigmailCryptoAPI();
         let keyList = await cApi.getKeyListFromKeyBlock(r);
 
