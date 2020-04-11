@@ -246,8 +246,7 @@ var pgpjs_keyStore = {
    *
    * @param {Array<String>} keyArr: Array of Fingerprints
    *
-   * @return {Promise<Array<Object>>} found keys:
-   *    object that suits as input for keyObj.contructor
+   * @return undefined
    */
   deleteKeys: function(keyArr) {
     return keyStoreDatabase.deleteKeysFromDb(keyArr);

@@ -130,6 +130,7 @@ var EnigmailGpg = {
    supports-show-only   - does gpg support --import-options show-only (true for gpg >= 2.1.14)
    handles-huge-keys    - can gpg deal with huge keys without aborting (true for gpg >= 2.2.17)
    smartcard            - are smartcards supported (true for all supported gpg versions)
+   uid-management       - implementation supports adding, removing etc. of UIDs (true for GnuPG)
 
    @return: depending on featureName - Boolean unless specified differently:
    (true if feature is available / false otherwise)
@@ -186,6 +187,7 @@ var EnigmailGpg = {
       case "handles-huge-keys":
         return EnigmailVersioning.greaterThanOrEqual(gpgVersion, "2.2.17");
       case "smartcard":
+      case "uid-management":
         return true;
     }
 

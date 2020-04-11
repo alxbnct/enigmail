@@ -61,7 +61,7 @@ var pgpjs_keymanipulation = {
     }
 
     const res = await pgpjs_keys.decryptSecretKey(keyList[0], EnigmailConstants.KEY_DECRYPT_REASON_MANIPULATE_KEY);
-    if (! res) {
+    if (!res) {
       return createError(EnigmailLocale.getString("noPassphrase"));
     }
 
@@ -75,20 +75,54 @@ var pgpjs_keymanipulation = {
     EnigmailFiles.writeFileContents(outFile, revCert, STANDARD_FILE_PERMS);
 
     return createSuccess();
+  },
+
+
+  /**
+   * set the expiration date of the chosen key and subkeys
+   *
+   * @param  {nsIWindow} parent
+   * @param  {String}    keyId         e.g. 8D18EB22FDF633A2
+   * @param  {Array}     subKeys       List of Integer values, e.g. [0,1,3]
+   *                                   "0" reflects the primary key and should always be set.
+   * @param  {Integer}   expiryValue   A number between 1 and 100
+   * @param  {Integer}   timeScale     1 or 30 or 365 meaning days, months, years
+   * @param  {Boolean}   noExpiry      True: Expire never. False: Use expiryLength.
+   * @return  {Promise<Object>}
+   */
+  setKeyExpiration: async function(parent, keyId, subKeys, expiryValue, timeScale, noExpiry) {
+    EnigmailLog.DEBUG(`pgpjs-keymanipulation.jsm: setKeyExpiration: keyId=${keyId}\n`);
+    let keyList = await pgpjs_keyStore.getKeysForKeyIds(true, [keyId]);
+
+    if (!keyList || keyList.length === 0) {
+      return createError(EnigmailLocale.getString("keyNotFound", keyId));
+    }
+
+    if (noExpiry) {
+      expiryValue = 0;
+    }
+
+    let newKey = await pgpjs_keys.changeKeyExpiry(keyList[0], subKeys, parseInt(timeScale, 10) * expiryValue * 86400);
+    if (newKey) {
+      await pgpjs_keyStore.deleteKeys([newKey.getFingerprint().toUpperCase()]);
+      await pgpjs_keyStore.writeKey(await newKey.armor());
+    }
+
+    return createSuccess();
   }
 };
 
 
 function createError(errorMsg) {
   return {
-    resultCode: 1,
+    returnCode: 1,
     errorMsg: errorMsg
   };
 }
 
 function createSuccess() {
   return {
-    resultCode: 0,
+    returnCode: 0,
     errorMsg: ""
   };
 }

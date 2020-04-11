@@ -269,60 +269,10 @@ var pgpjs_keys = {
    * @return {Boolean}: true if key successfully decrypted; false otherwise
    */
   decryptSecretKey: async function(key, reason) {
-    EnigmailLog.DEBUG(`pgpjs-keys.jsm: decryptSecretKey(${key.getFingerprint()})\n`);
+    let passwd = await internalSecretKeyDecryption(key, reason);
 
-    if (!key.isPrivate()) return false;
-    if (key.isDecrypted()) return true;
-
-    const pm = Cc["@mozilla.org/login-manager;1"].getService(Ci.nsILoginManager);
-    const queryString = ENIGMAIL_PASSWD_PREFIX + key.getFingerprint().toUpperCase();
-
-    let logins = pm.getAllLogins();
-    let password = null,
-      attempts = 0;
-
-    // Find user from returned array of nsILoginInfo objects
-    for (let login of logins) {
-      if (login.hostname === queryString && login.httpRealm === OPENPGPKEY_REALM) {
-        password = login.password;
-        break;
-      }
-    }
-
-    while (attempts < MAX_PASSWD_ATTEMPT) {
-      if (!password) {
-        ++attempts;
-        password = requestPassword(key, reason, attempts);
-        if (!password) break;
-      }
-
-      if (password) {
-        try {
-          let success = await key.decrypt(password);
-          if (success) {
-            return true;
-          }
-          else {
-            password = null;
-          }
-        }
-        catch (ex) {
-          if (("message" in ex) && ex.message.search(/Incorrect .*passphrase/) >= 0) {
-            password = null;
-          }
-          else {
-            EnigmailLog.DEBUG(`pgpjs-keys.jsm: decryptSecretKey: ERROR: ${ex.toString()}\n`);
-            attempts = MAX_PASSWD_ATTEMPT;
-          }
-
-          if (ex.toString().search(/s2k/i) >= 0) {
-            displayMd5Error();
-          }
-        }
-      }
-    }
-
-    return false;
+    if (passwd === null) return false;
+    return true;
   },
 
   generateKey: async function(name, comment, email, expiryDate, keyLength, keyType, passphrase) {
@@ -403,9 +353,140 @@ var pgpjs_keys = {
     }
 
     return null;
+  },
+
+  /**
+   * Change the expiry time of a key
+   *
+   * @param {Object} key: OpenPGP.js key
+   * @param {Array<Number>} subKeyIdentification:  Subkeys to modify
+   *                                   "0" reflects the primary key and should always be set.
+   * @param {Number} expiryTime: time from now when key should expire in seconds. 0 for no expiry
+   */
+  changeKeyExpiry: async function(key, subKeyIdentification, expiryTime) {
+    const PgpJS = getOpenPGPLibrary();
+    const passwd = await internalSecretKeyDecryption(key, EnigmailConstants.KEY_DECRYPT_REASON_MANIPULATE_KEY);
+    if (passwd === null) {
+      return null;
+    }
+
+    const NOW = Date.now();
+    let uids = [];
+    let subkeys = key.subKeys;
+    key.subKeys = [];
+    let subkeyOptions = [];
+
+    // append subkeys to modify
+    for (let i = 0; i < subkeys.length; i++) {
+      if (subKeyIdentification.indexOf(i + 1) >= 0) {
+        key.subKeys.push(subkeys[i]);
+        if (expiryTime > 0) {
+          subkeyOptions.push({
+            keyExpirationTime: Math.floor((NOW - subkeys[i].getCreationTime().getTime()) / 1000) + expiryTime
+          });
+        }
+        else {
+          subkeyOptions.push({
+            keyExpirationTime: 0
+          });
+        }
+      }
+    }
+
+    // change the expiry date for not revoked user IDs
+    for (let uid of key.users) {
+      if (uid.userId !== null && uid.revocationSignatures.length === 0) uids.push(uid.userId);
+    }
+
+    // expiry is stored in number of seconds after key creation
+    let deltaSeconds = 0;
+    if (expiryTime > 0) {
+      deltaSeconds = Math.floor((NOW - key.getCreationTime().getTime()) / 1000) + expiryTime;
+    }
+
+    let opts = {
+      privateKey: key,
+      keyExpirationTime: deltaSeconds,
+      userIds: uids,
+      subkeys: subkeyOptions
+    };
+
+    let newKey = await PgpJS.key.reformat(opts);
+
+    // add subkeys that were excluded
+    for (let i = 0; i < subkeys.length; i++) {
+      if (subKeyIdentification.indexOf(i + 1) < 0) {
+        newKey.subKeys.push(subkeys[i]);
+      }
+    }
+
+    newKey.revocationSignatures = [];
+    await key.update(newKey);
+
+    if (passwd.length > 0) {
+      await key.encrypt(passwd);
+    }
+    return key;
   }
 };
 
+
+async function internalSecretKeyDecryption(key, reason) {
+  EnigmailLog.DEBUG(`pgpjs-keys.jsm: decryptSecretKey(${key.getFingerprint()})\n`);
+
+  if (!key.isPrivate()) return null;
+  if (key.isDecrypted()) return "";
+
+  const pm = Cc["@mozilla.org/login-manager;1"].getService(Ci.nsILoginManager);
+  const queryString = ENIGMAIL_PASSWD_PREFIX + key.getFingerprint().toUpperCase();
+
+  let logins = pm.getAllLogins();
+  let password = null,
+    attempts = 0;
+
+  // Find user from returned array of nsILoginInfo objects
+  for (let login of logins) {
+    if (login.hostname === queryString && login.httpRealm === OPENPGPKEY_REALM) {
+      password = login.password;
+      break;
+    }
+  }
+
+  while (attempts < MAX_PASSWD_ATTEMPT) {
+    if (!password) {
+      ++attempts;
+      password = requestPassword(key, reason, attempts);
+      if (!password) break;
+    }
+
+    if (password) {
+      try {
+        let success = await key.decrypt(password);
+        if (success) {
+          return password;
+        }
+        else {
+          password = null;
+        }
+      }
+      catch (ex) {
+        if (("message" in ex) && ex.message.search(/Incorrect .*passphrase/) >= 0) {
+          password = null;
+        }
+        else {
+          EnigmailLog.DEBUG(`pgpjs-keys.jsm: decryptSecretKey: ERROR: ${ex.toString()}\n`);
+          attempts = MAX_PASSWD_ATTEMPT;
+        }
+
+        if (ex.toString().search(/(s2k|Key packet is already decrypted)/i) >= 0) {
+          displayMd5Error();
+        }
+      }
+    }
+  }
+
+  return null;
+}
 
 function displayMd5Error() {
   const EnigmailDialog = ChromeUtils.import("chrome://enigmail/content/modules/dialog.jsm").EnigmailDialog;

@@ -51,7 +51,7 @@ test(withTestGpgHome(asyncTest(async function testGenRevokeCert() {
     revFile.createUnique(Ci.nsIFile.NORMAL_FILE_TYPE, 0o600);
 
     r = await pgpjs_keymanipulation.genRevokeCert(null, "0x65537E212DC19025AD38EDB2781617319CE311C4", revFile, "0", "");
-    Assert.equal(r.resultCode, 0);
+    Assert.equal(r.returnCode, 0);
 
     let revCert = EnigmailFiles.readFile(revFile);
     Assert.ok(revCert.search(/^-----BEGIN PGP PUBLIC KEY BLOCK-----$/m) >= 0);
@@ -61,6 +61,43 @@ test(withTestGpgHome(asyncTest(async function testGenRevokeCert() {
 
     keys = await pgpjs_keyStore.readKeys(["0x65537E212DC19025AD38EDB2781617319CE311C4"]);
     Assert.ok(await keys[0].key.isRevoked(), "Key is revoked");
+  }
+  catch (ex) {
+    Assert.ok(false, "exception: " + ex.toString());
+  }
+})));
+
+test(withTestGpgHome(asyncTest(async function testChangeExpiry() {
+  try {
+    await pgpjs_keyStore.init();
+
+    const pubKeyFile = do_get_file("resources/multi-uid.sec", false);
+    let fileData = EnigmailFiles.readBinaryFile(pubKeyFile);
+
+    let r = await pgpjs_keyStore.writeKey(fileData);
+    Assert.equal(r.length, 1);
+
+    let keys = await pgpjs_keyStore.readKeys(["0xADC49530CB6B132412D856107F1568CB8997F7BA"]);
+    let key = keys[0].key;
+    Assert.ok(!(await key.isRevoked()), "Key is not revoked");
+
+    Assert.equal(await key.getExpirationTime(), Infinity);
+
+    const now = Math.floor(Date.now() / 1000);
+    r = await pgpjs_keymanipulation.setKeyExpiration(null, "0xADC49530CB6B132412D856107F1568CB8997F7BA", [0, 1, 3], 1, 365, false);
+    Assert.equal(r.returnCode, 0, "setKeyExpiration Succeeded");
+
+    // Re-read the key to test it
+    keys = await pgpjs_keyStore.readKeys(["0xADC49530CB6B132412D856107F1568CB8997F7BA"]);
+    key = keys[0].key;
+
+    Assert.ok(!(await key.isRevoked()), "Key is not revoked");
+    let expiryTime = Math.floor((await key.getExpirationTime()).getTime() / 1000);
+    Assert.ok(expiryTime >= now + 365 * 86000);
+    Assert.ok(expiryTime < now + 367 * 86000);
+
+    r = await pgpjs_keymanipulation.setKeyExpiration(null, "0xADC49530CB6B132412D856107F1568CB8997F7BA", [0], 1, 1, true);
+    Assert.equal(r.returnCode, 0, "setKeyExpiration Succeeded");
   }
   catch (ex) {
     Assert.ok(false, "exception: " + ex.toString());

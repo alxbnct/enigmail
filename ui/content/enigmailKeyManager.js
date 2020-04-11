@@ -68,6 +68,13 @@ function enigmailKeyManagerLoad() {
     return;
   }
 
+  const cApi = EnigmailCryptoAPI();
+  if (! cApi.supportsFeature("uid-management")) {
+    for (let i of ["manageUid", "ctxManageUid", "addPhoto" ,"ctxAddPhoto"]) {
+      document.getElementById(i).style.visibility = "collapse";
+    }
+  }
+
   gUserList = document.getElementById("pgpKeyList");
   gSearchInput = document.getElementById("filterKey");
   gShowAllKeysElement = document.getElementById("showAllKeys");
