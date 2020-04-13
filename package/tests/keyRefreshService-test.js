@@ -11,7 +11,7 @@
 do_load_module("file://" + do_get_cwd().path + "/testHelper.js"); /*global TestHelper: false, withEnigmail: false, withTestGpgHome: false, withLogFiles: false, assertLogContains: false, assertLogDoesNotContain: false, withPreferences: false */
 
 testing("keyRefreshService.jsm");
-/*global EnigmailKeyRefreshService: false, calculateMaxTimeForRefreshInMilliseconds, HOURS_PER_WEEK_ENIGMAIL_IS_ON_PREF, calculateWaitTimeInMilliseconds, startWith, ONE_HOUR_IN_MILLISEC, refreshWith, refreshKey: false, getRandomKeyId: false, setupNextRefresh: false,
+/*global EnigmailKeyRefreshService: false, calculateMaxTimeForRefreshInMilliseconds, HOURS_PER_WEEK_ENIGMAIL_IS_ON_PREF, calculateWaitTimeInMilliseconds, startWith, ONE_HOUR_IN_MILLISEC, refreshWith, refreshKey: false, getRandomKeyFpr: false, setupNextRefresh: false,
 EnigmailKeyRing: false, EnigmailPrefs: false, EnigmailRNG: false, EnigmailKeyserverURIs: false */
 
 function withKeys(f) {
@@ -84,38 +84,38 @@ function importKeys() {
 
 function importAndReturnOneKey() {
   EnigmailKeyRing.importKeyFromFile(do_get_file("resources/dev-strike.asc", false), {}, {});
-  return EnigmailKeyRing.getAllKeys().keyList[0].keyId;
+  return EnigmailKeyRing.getAllKeys().keyList[0].fpr;
 }
 
 test(withTestGpgHome(withEnigmail(withKeys(function shouldBeAbleToGetAllKeyIdsFromKeyList() {
   importKeys();
 
-  const publicKeyId = "8439E17046977C46";
-  const anotherKeyId = "8A411E28A056E2A3";
-  const strikeKeyId = "781617319CE311C4";
+  const publicKeyId = "8C140834F2D683E9A016D3098439E17046977C46";
+  const anotherKeyId = "FDDD3931022A6AFCDAB007878A411E28A056E2A3";
+  const strikeKeyId = "65537E212DC19025AD38EDB2781617319CE311C4";
 
-  Assert.equal(getRandomKeyId(0), publicKeyId);
-  Assert.equal(getRandomKeyId(1), anotherKeyId);
-  Assert.equal(getRandomKeyId(2), strikeKeyId);
-  Assert.equal(getRandomKeyId(3), publicKeyId);
-  Assert.equal(getRandomKeyId(4), anotherKeyId);
+  Assert.equal(getRandomKeyFpr(0), publicKeyId);
+  Assert.equal(getRandomKeyFpr(1), anotherKeyId);
+  Assert.equal(getRandomKeyFpr(2), strikeKeyId);
+  Assert.equal(getRandomKeyFpr(3), publicKeyId);
+  Assert.equal(getRandomKeyFpr(4), anotherKeyId);
 
 }))));
 
 test(withTestGpgHome(withEnigmail(withKeys(function shouldReturnNullIfNoKeysAvailable() {
-  Assert.equal(getRandomKeyId(100), null);
+  Assert.equal(getRandomKeyFpr(100), null);
 }))));
 
 test(withTestGpgHome(withEnigmail(withKeys(function shouldGetDifferentRandomKeys() {
   importKeys();
 
-  Assert.notEqual(getRandomKeyId(4), getRandomKeyId(5));
+  Assert.notEqual(getRandomKeyFpr(4), getRandomKeyFpr(5));
 }))));
 
 test(withTestGpgHome(withEnigmail(withKeys(function ifOnlyOneKey_shouldGetOnlyKey() {
   const expectedKeyId = importAndReturnOneKey();
 
-  Assert.equal(getRandomKeyId(100), expectedKeyId);
+  Assert.equal(getRandomKeyFpr(100), expectedKeyId);
 }))));
 
 test(withTestGpgHome(withEnigmail(withKeys(function refreshesKeyOnlyIfWaitTimeHasBeenSetup_AndRefreshIsReady() {
