@@ -104,8 +104,76 @@ var pgpjs_keymanipulation = {
 
     let newKey = await pgpjs_keys.changeKeyExpiry(keyList[0], subKeys, parseInt(timeScale, 10) * expiryValue * 86400);
     if (newKey) {
-      await pgpjs_keyStore.deleteKeys([newKey.getFingerprint().toUpperCase()]);
-      await pgpjs_keyStore.writeKey(await newKey.armor());
+      try {
+        await pgpjs_keyStore.replaceKey(newKey);
+      }
+      catch (ex) {
+        return createError(ex.message);
+      }
+    }
+
+    return createSuccess();
+  },
+
+  initiateChangePassphrase: async function(parent, keyId) {
+    EnigmailLog.DEBUG(`pgpjs-keymanipulation.jsm: initiateChangePassphrase: keyId=${keyId}\n`);
+    const EnigmailWindows = ChromeUtils.import("chrome://enigmail/content/modules/windows.jsm").EnigmailWindows;
+
+    if (!parent) {
+      parent = EnigmailWindows.getBestParentWin();
+    }
+
+    let keyList = await pgpjs_keyStore.getKeysForKeyIds(true, [keyId]);
+
+    if (!keyList || keyList.length === 0) {
+      return createError(EnigmailLocale.getString("keyNotFound", keyId));
+    }
+
+    parent.openDialog("chrome://enigmail/content/ui/changePassword.xul", "", "dialog,modal,centerscreen", {
+      keyId: keyList[0].getFingerprint().toUpperCase(),
+      userId: keyList[0].users[0].userId.userid,
+      noCurrentPasswd: keyList[0].isDecrypted()
+    });
+
+    return createSuccess();
+  },
+
+
+  performChangePassphrase: async function(keyId, oldPassword, newPassword) {
+    EnigmailLog.DEBUG(`pgpjs-keymanipulation.jsm: performChangePassphrase: keyId=${keyId}\n`);
+
+    let keyList = await pgpjs_keyStore.getKeysForKeyIds(true, [keyId]);
+
+    if (!keyList || keyList.length === 0) {
+      return createError(EnigmailLocale.getString("keyNotFound", keyId));
+    }
+
+    const key = keyList[0];
+    if (!key.isDecrypted()) {
+      try {
+        let success = await key.decrypt(oldPassword);
+        if (!success) {
+          return createError(EnigmailLocale.getString("changePasswdDlg.wrongOldPasswd"));
+        }
+      }
+      catch (ex) {
+        if (("message" in ex) && ex.message.search(/Incorrect .*passphrase/) >= 0) {
+          return createError(EnigmailLocale.getString("changePasswdDlg.wrongOldPasswd"));
+        }
+        else
+          return createError(ex.toString());
+      }
+    }
+
+    if (newPassword.length > 0) {
+      await key.encrypt(newPassword);
+    }
+
+    try {
+      await pgpjs_keyStore.replaceKey(key);
+    }
+    catch (ex) {
+      return createError(ex.message);
     }
 
     return createSuccess();

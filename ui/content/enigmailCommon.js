@@ -477,7 +477,7 @@ async function EnigChangeKeyPwd(keyId, userId) {
     keyId = "0x" + keyId;
   }
 
-  let ret = await EnigmailKeyManagement.changePassphrase(window, keyId, "", "");
+  let ret = await EnigmailKeyManagement.initiateChangePassphrase(window, keyId);
 
   if (ret.returnCode !== 0) {
     EnigAlert(EnigGetString("changePassFailed") + "\n\n" + ret.errorMsg);

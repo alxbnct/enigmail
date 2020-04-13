@@ -103,3 +103,76 @@ test(withTestGpgHome(asyncTest(async function testChangeExpiry() {
     Assert.ok(false, "exception: " + ex.toString());
   }
 })));
+
+
+test(withTestGpgHome(asyncTest(async function testChangePassword() {
+  try {
+    await pgpjs_keyStore.init();
+
+    const pubKeyFile = do_get_file("resources/dev-strike.sec", false);
+    let fileData = EnigmailFiles.readBinaryFile(pubKeyFile);
+
+    const origPasswd = "STRIKEfreedom@Qu1to";
+    const newPasswd = "SomePasswd";
+
+    let r = await pgpjs_keyStore.writeKey(fileData);
+    Assert.equal(r.length, 1);
+
+    // test changing password on key that is password-protected
+    await new Promise((resolve, reject) => {
+      const pseudoWin = {
+        openDialog: function() {
+          resolve(pgpjs_keymanipulation.performChangePassphrase("0x65537E212DC19025AD38EDB2781617319CE311C4", origPasswd, newPasswd));
+        }
+      };
+
+      pgpjs_keymanipulation.initiateChangePassphrase(pseudoWin, "0x65537E212DC19025AD38EDB2781617319CE311C4");
+    });
+
+    let keys = await pgpjs_keyStore.readKeys(["0x65537E212DC19025AD38EDB2781617319CE311C4"]);
+    let key = keys[0].key;
+    Assert.ok(!key.isDecrypted(), "key is encrypted");
+
+    let success = false;
+    try {
+      success = await key.decrypt(newPasswd);
+    }
+    catch(ex) {}
+
+    Assert.ok(success, "key decryption successful");
+    Assert.ok(key.isDecrypted(), "key is decrypted");
+
+    // test removing the password from key
+    await new Promise((resolve, reject) => {
+      const pseudoWin = {
+        openDialog: function() {
+          resolve(pgpjs_keymanipulation.performChangePassphrase("0x65537E212DC19025AD38EDB2781617319CE311C4", newPasswd, ""));
+        }
+      };
+
+      pgpjs_keymanipulation.initiateChangePassphrase(pseudoWin, "0x65537E212DC19025AD38EDB2781617319CE311C4");
+    });
+
+    keys = await pgpjs_keyStore.readKeys(["0x65537E212DC19025AD38EDB2781617319CE311C4"]);
+    key = keys[0].key;
+    Assert.ok(key.isDecrypted(), "key is decrypted");
+
+    // test setting a password for an unencrypted key
+    await new Promise((resolve, reject) => {
+      const pseudoWin = {
+        openDialog: function() {
+          resolve(pgpjs_keymanipulation.performChangePassphrase("0x65537E212DC19025AD38EDB2781617319CE311C4", "", origPasswd));
+        }
+      };
+
+      pgpjs_keymanipulation.initiateChangePassphrase(pseudoWin, "0x65537E212DC19025AD38EDB2781617319CE311C4");
+    });
+
+    keys = await pgpjs_keyStore.readKeys(["0x65537E212DC19025AD38EDB2781617319CE311C4"]);
+    key = keys[0].key;
+    Assert.ok(!key.isDecrypted(), "key is encrypted");
+  }
+  catch (ex) {
+    Assert.ok(false, "exception: " + ex.toString());
+  }
+})));

@@ -253,6 +253,22 @@ var pgpjs_keyStore = {
   },
 
   /**
+   * Replace (or add) a key without merging it with the current stored version
+   *
+   * @param {Object} keyObj: OpenPGP.js key object
+   */
+  replaceKey: async function(keyObj) {
+    EnigmailLog.DEBUG(`pgpjs-keystore.jsm: replaceKey(${keyObj.getFingerprint()})\n`);
+
+    // TODO: implement transaction
+    let conn = await keyStoreDatabase.openDatabase();
+    await keyStoreDatabase.deleteKeysFromDb([keyObj.getFingerprint().toUpperCase()], conn);
+    await keyStoreDatabase.writeKeyToDb(keyObj, conn);
+    conn.close();
+  },
+
+
+  /**
    * Retrieve the OpenPGP.js key objects for a given set of keyIds.
    *
    * @param {Boolean} secretKeys: if true, only return secret keys

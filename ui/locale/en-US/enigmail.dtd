@@ -789,3 +789,10 @@
 <!ENTITY enigmail.importSetup.importingKeys          "Importing keys in GnuPG. This may take a while ...">
 <!ENTITY enigmail.importSetup.restoringGnupgSettings "Restoring GnuPG settings ...">
 <!ENTITY enigmail.importSetup.restoringEnigmail      "Restoring Enigmail settings ...">
+
+<!ENTITY enigmail.changePasswd.title                 "Change the passphrase of your OpenPGP Key">
+<!ENTITY enigmail.changePasswd.currPasswd.label      "Current Passphrase">
+<!ENTITY enigmail.changePasswd.newPasswd.label       "New Passphrase">
+<!ENTITY enigmail.changePasswd.repeatPasswd.label    "Repeat Passphrase">
+<!ENTITY enigmail.changePasswd.qualityMeter.label    "Password Quality">
+<!ENTITY enigmail.changePasswd.passwdDontMatch.label "The passphrases don't match">

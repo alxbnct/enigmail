@@ -560,7 +560,7 @@ class OpenPGPjsCryptoAPI extends CryptoAPI {
    *    supports-show-only   - does gpg support --import-options show-only (true for gpg >= 2.1.14)
    *    handles-huge-keys    - can gpg deal with huge keys without aborting (true for gpg >= 2.2.17)
    *    smartcard            - does the library support smartcards
-   *    uid-management       - implementation supports adding, removing etc. of UIDs
+   *    uid-management       - implementation supports adding, removing etc. of UIDs (true for GnuPG)
 
    * @return: depending on featureName - Boolean unless specified differently:
    *    (true if feature is available / false otherwise)

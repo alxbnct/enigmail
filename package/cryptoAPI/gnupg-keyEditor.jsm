@@ -85,17 +85,17 @@ GpgEditorInterface.prototype = {
   },
 
   onComplete: function(parentCallback, exitCode) {
-    EnigmailLog.DEBUG("keyEdit.jsm: GpgEditorInterface.onComplete: exitCode=" + exitCode + "\n");
+    EnigmailLog.DEBUG("gnupg-keyEditor.jsm: GpgEditorInterface.onComplete: exitCode=" + exitCode + "\n");
 
     if (exitCode === 0) exitCode = this._exitCode;
 
-    EnigmailLog.DEBUG("keyEdit.jsm: GpgEditorInterface.onComplete: returning exitCode " + exitCode + "\n");
+    EnigmailLog.DEBUG("gnupg-keyEditor.jsm: GpgEditorInterface.onComplete: returning exitCode " + exitCode + "\n");
 
     parentCallback(exitCode, this.errorMsg);
   },
 
   writeLine: function(inputData) {
-    EnigmailLog.DEBUG("keyEdit.jsm: GpgEditorInterface.writeLine: '" + inputData + "'\n");
+    EnigmailLog.DEBUG("gnupg-keyEditor.jsm: GpgEditorInterface.writeLine: '" + inputData + "'\n");
     this._stdin.write(inputData + "\n");
   },
 
@@ -130,7 +130,7 @@ GpgEditorInterface.prototype = {
   },
 
   processLine: function(txt) {
-    EnigmailLog.DEBUG("keyEdit.jsm: GpgEditorInterface.processLine: '" + txt + "'\n");
+    EnigmailLog.DEBUG("gnupg-keyEditor.jsm: GpgEditorInterface.processLine: '" + txt + "'\n");
     var r = {
       quitNow: false,
       exitCode: -1
@@ -139,13 +139,13 @@ GpgEditorInterface.prototype = {
     try {
       if (txt.indexOf("[GNUPG:] BAD_PASSPHRASE") >= 0 ||
         txt.indexOf("[GNUPG:] SC_OP_FAILURE 2") >= 0) {
-        EnigmailLog.DEBUG("keyEdit.jsm: GpgEditorInterface.processLine: detected bad passphrase\n");
+        EnigmailLog.DEBUG("gnupg-keyEditor.jsm: GpgEditorInterface.processLine: detected bad passphrase\n");
         r.exitCode = -2;
         r.quitNow = true;
         this.errorMsg = EnigmailLocale.getString("badPhrase");
       }
       else if (txt.indexOf("[GNUPG:] ERROR ") >= 0 || txt.indexOf("[GNUPG:] FAILURE ") >= 0) {
-        EnigmailLog.DEBUG("keyEdit.jsm: GpgEditorInterface.processLine: detected GnuPG ERROR message\n");
+        EnigmailLog.DEBUG("gnupg-keyEditor.jsm: GpgEditorInterface.processLine: detected GnuPG ERROR message\n");
         let statusObj = this.handleGpgError(txt);
         if (statusObj.statusFlags & EnigmailConstants.DISPLAY_MESSAGE) {
           this.errorMsg = statusObj.statusMsg;
@@ -154,25 +154,25 @@ GpgEditorInterface.prototype = {
         }
       }
       else if (txt.indexOf("[GNUPG:] NO_CARD_AVAILABLE") >= 0) {
-        EnigmailLog.DEBUG("keyEdit.jsm: GpgEditorInterface.processLine: detected missing card\n");
+        EnigmailLog.DEBUG("gnupg-keyEditor.jsm: GpgEditorInterface.processLine: detected missing card\n");
         this.errorMsg = EnigmailLocale.getString("sc.noCardAvailable");
         r.exitCode = -3;
         r.quitNow = true;
       }
       else if (txt.indexOf("[GNUPG:] ENIGMAIL_FAILURE") === 0) {
-        EnigmailLog.DEBUG("keyEdit.jsm: GpgEditorInterface.processLine: detected general failure\n");
+        EnigmailLog.DEBUG("gnupg-keyEditor.jsm: GpgEditorInterface.processLine: detected general failure\n");
         r.exitCode = -3;
         r.quitNow = true;
         this.errorMsg = txt.substr(26);
       }
       else if (txt.indexOf("[GNUPG:] ALREADY_SIGNED") >= 0) {
-        EnigmailLog.DEBUG("keyEdit.jsm: GpgEditorInterface.processLine: detected key already signed\n");
+        EnigmailLog.DEBUG("gnupg-keyEditor.jsm: GpgEditorInterface.processLine: detected key already signed\n");
         this.errorMsg = EnigmailLocale.getString("keyAlreadySigned");
         r.exitCode = -1;
         r.quitNow = true;
       }
       else if (txt.indexOf("[GNUPG:] MISSING_PASSPHRASE") >= 0) {
-        EnigmailLog.DEBUG("keyEdit.jsm: GpgEditorInterface.processLine: detected missing passphrase\n");
+        EnigmailLog.DEBUG("gnupg-keyEditor.jsm: GpgEditorInterface.processLine: detected missing passphrase\n");
         this.errorMsg = EnigmailLocale.getString("noPassphrase");
         r.exitCode = -2;
         this._exitCode = -2;
@@ -232,10 +232,10 @@ GpgEditorInterface.prototype = {
 };
 
 function editKey(parent, needPassphrase, userId, keyId, editCmd, inputData, callbackFunc, requestObserver, parentCallback) {
-  EnigmailLog.DEBUG("keyEdit.jsm: editKey: parent=" + parent + ", editCmd=" + editCmd + "\n");
+  EnigmailLog.DEBUG("gnupg-keyEditor.jsm: editKey: parent=" + parent + ", editCmd=" + editCmd + "\n");
 
   if (!EnigmailCore.getService(parent)) {
-    EnigmailLog.ERROR("keyEdit.jsm: Enigmail.editKey: not yet initialized\n");
+    EnigmailLog.ERROR("gnupg-keyEditor.jsm: editKey: not yet initialized\n");
     parentCallback(-1, EnigmailLocale.getString("notInit"));
     return -1;
   }
@@ -296,7 +296,7 @@ function editKey(parent, needPassphrase, userId, keyId, editCmd, inputData, call
 }
 
 function runKeyTrustCheck(callbackFunc) {
-  EnigmailLog.DEBUG("keyEdit.jsm: runKeyTrustCheck()\n");
+  EnigmailLog.DEBUG("gnupg-keyEditor.jsm: runKeyTrustCheck()\n");
 
   let args = EnigmailGpg.getStandardArgs(true);
   args = args.concat(["--yes", "--check-trustdb"]);
@@ -308,7 +308,7 @@ function runKeyTrustCheck(callbackFunc) {
       EnigmailLog.DEBUG(data);
     },
     function(result) {
-      EnigmailLog.DEBUG("keyEdit.jsm: runKeyTrustCheck: done\n");
+      EnigmailLog.DEBUG("gnupg-keyEditor.jsm: runKeyTrustCheck: done\n");
     });
 }
 
@@ -322,7 +322,7 @@ function runKeyTrustCheck(callbackFunc) {
  */
 var EnigmailKeyEditor = {
   setKeyTrust: function(parent, keyId, trustLevel) {
-    EnigmailLog.DEBUG("keyEdit.jsm: Enigmail.setKeyTrust: trustLevel=" + trustLevel + ", keyId=" + keyId + "\n");
+    EnigmailLog.DEBUG("gnupg-keyEditor.jsm: setKeyTrust: trustLevel=" + trustLevel + ", keyId=" + keyId + "\n");
 
     return new Promise((resolve, reject) => {
       editKey(parent, false, null, keyId, "trust", {
@@ -355,7 +355,7 @@ var EnigmailKeyEditor = {
    * @return  {Promise<Object>}
    */
   setKeyExpiration: function(parent, keyId, subKeys, expiryLength, timeScale, noExpiry) {
-    EnigmailLog.DEBUG("keyEdit.jsm: Enigmail.setKeyExpiry: keyId=" + keyId + "\n");
+    EnigmailLog.DEBUG("gnupg-keyEditor.jsm: setKeyExpiry: keyId=" + keyId + "\n");
 
     return new Promise((resolve, reject) => {
       expiryLength = String(expiryLength);
@@ -399,7 +399,7 @@ var EnigmailKeyEditor = {
 
 
   signKey: function(parent, userId, keyId, signLocally, trustLevel) {
-    EnigmailLog.DEBUG("keyEdit.jsm: Enigmail.signKey: trustLevel=" + trustLevel + ", userId=" + userId + ", keyId=" + keyId + "\n");
+    EnigmailLog.DEBUG("gnupg-keyEditor.jsm: signKey: trustLevel=" + trustLevel + ", userId=" + userId + ", keyId=" + keyId + "\n");
 
     return new Promise((resolve, reject) => {
       editKey(parent, true, userId, keyId, (signLocally ? "lsign" : "sign"), {
@@ -420,7 +420,7 @@ var EnigmailKeyEditor = {
   },
 
   genRevokeCert: function(parent, keyId, outFile, reasonCode, reasonText) {
-    EnigmailLog.DEBUG("keyEdit.jsm: Enigmail.genRevokeCert: keyId=" + keyId + "\n");
+    EnigmailLog.DEBUG("gnupg-keyEditor.jsm: genRevokeCert: keyId=" + keyId + "\n");
 
     /**
      * GnuPG < 2.1 does not properly report failures;
@@ -452,7 +452,7 @@ var EnigmailKeyEditor = {
   },
 
   addUid: function(parent, keyId, name, email, comment) {
-    EnigmailLog.DEBUG("keyEdit.jsm: Enigmail.addUid: keyId=" + keyId + ", name=" + name + ", email=" + email + "\n");
+    EnigmailLog.DEBUG("gnupg-keyEditor.jsm: addUid: keyId=" + keyId + ", name=" + name + ", email=" + email + "\n");
     return new Promise((resolve, reject) => {
       editKey(parent, true, null, keyId, "adduid", {
           email: email,
@@ -474,7 +474,7 @@ var EnigmailKeyEditor = {
   },
 
   deleteKey: function(parent, keyId, deleteSecretKey) {
-    EnigmailLog.DEBUG("keyEdit.jsm: Enigmail.addUid: keyId=" + keyId + ", deleteSecretKey=" + deleteSecretKey + "\n");
+    EnigmailLog.DEBUG("gnupg-keyEditor.jsm: addUid: keyId=" + keyId + ", deleteSecretKey=" + deleteSecretKey + "\n");
 
     const cmd = ["--yes", (deleteSecretKey ? "--delete-secret-and-public-key" : "--delete-key")];
     return new Promise((resolve, reject) => {
@@ -492,14 +492,14 @@ var EnigmailKeyEditor = {
     });
   },
 
-  changePassphrase: function(parent, keyId, oldPw, newPw) {
-    EnigmailLog.DEBUG("keyEdit.jsm: Enigmail.changePassphrase: keyId=" + keyId + "\n");
+  initiateChangePassphrase: function(parent, keyId) {
+    EnigmailLog.DEBUG("gnupg-keyEditor.jsm: initiateChangePassphrase: keyId=" + keyId + "\n");
 
     let pwdObserver = new ChangePasswdObserver();
     return new Promise((resolve, reject) => {
       editKey(parent, false, null, keyId, "passwd", {
-          oldPw: oldPw,
-          newPw: newPw,
+          oldPw: "",
+          newPw: "",
           step: 0,
           observer: pwdObserver,
           usePassphrase: true
@@ -515,9 +515,16 @@ var EnigmailKeyEditor = {
     });
   },
 
+  performChangePassphrase: async function(keyId, oldPw, newPw) {
+    return {
+      returnCode: 1,
+      errorMsg: "No implemented"
+    };
+  },
+
 
   enableDisableKey: function(parent, keyId, disableKey) {
-    EnigmailLog.DEBUG("keyEdit.jsm: Enigmail.enableDisableKey: keyId=" + keyId + ", disableKey=" + disableKey + "\n");
+    EnigmailLog.DEBUG("gnupg-keyEditor.jsm: enableDisableKey: keyId=" + keyId + ", disableKey=" + disableKey + "\n");
 
     const cmd = (disableKey ? "disable" : "enable");
     return new Promise((resolve, reject) => {
@@ -536,7 +543,7 @@ var EnigmailKeyEditor = {
   },
 
   setPrimaryUid: function(parent, keyId, idNumber) {
-    EnigmailLog.DEBUG("keyEdit.jsm: Enigmail.setPrimaryUid: keyId=" + keyId + ", idNumber=" + idNumber + "\n");
+    EnigmailLog.DEBUG("gnupg-keyEditor.jsm: setPrimaryUid: keyId=" + keyId + ", idNumber=" + idNumber + "\n");
 
     return new Promise((resolve, reject) => {
       editKey(parent, true, null, keyId, "", {
@@ -557,7 +564,7 @@ var EnigmailKeyEditor = {
 
 
   revokeUid: function(parent, keyId, idNumber, callbackFunc) {
-    EnigmailLog.DEBUG("keyEdit.jsm: Enigmail.revokeUid: keyId=" + keyId + ", idNumber=" + idNumber + "\n");
+    EnigmailLog.DEBUG("gnupg-keyEditor.jsm: revokeUid: keyId=" + keyId + ", idNumber=" + idNumber + "\n");
 
     return new Promise((resolve, reject) => {
       editKey(parent, true, null, keyId, "", {
@@ -577,7 +584,7 @@ var EnigmailKeyEditor = {
   },
 
   addPhoto: function(parent, keyId, photoFile) {
-    EnigmailLog.DEBUG("keyEdit.jsm: Enigmail.addPhoto: keyId=" + keyId + "\n");
+    EnigmailLog.DEBUG("gnupg-keyEditor.jsm: addPhoto: keyId=" + keyId + "\n");
 
     const photoFileName = EnigmailFiles.getEscapedFilename(EnigmailFiles.getFilePath(photoFile.QueryInterface(Ci.nsIFile)));
 
@@ -602,7 +609,7 @@ var EnigmailKeyEditor = {
 
 
   genCardKey: function(parent, name, email, comment, expiry, backupPasswd, requestObserver, callbackFunc) {
-    EnigmailLog.DEBUG("keyEdit.jsm: Enigmail.genCardKey: \n");
+    EnigmailLog.DEBUG("gnupg-keyEditor.jsm: genCardKey: \n");
     var generateObserver = new EnigCardAdminObserver(requestObserver, EnigmailOS.isDosLike);
     return editKey(parent, false, null, "", ["--with-colons", "--card-edit"], {
         step: 0,
@@ -621,7 +628,7 @@ var EnigmailKeyEditor = {
   },
 
   cardAdminData: function(parent, name, firstname, lang, sex, url, login, forcepin, callbackFunc) {
-    EnigmailLog.DEBUG("keyEdit.jsm: Enigmail.cardAdminData: parent=" + parent + ", name=" + name + ", firstname=" + firstname + ", lang=" + lang + ", sex=" + sex + ", url=" + url +
+    EnigmailLog.DEBUG("gnupg-keyEditor.jsm: cardAdminData: parent=" + parent + ", name=" + name + ", firstname=" + firstname + ", lang=" + lang + ", sex=" + sex + ", url=" + url +
       ", login=" + login + ", forcepin=" + forcepin + "\n");
     var adminObserver = new EnigCardAdminObserver(null, EnigmailOS.isDosLike);
     return editKey(parent, false, null, "", ["--with-colons", "--card-edit"], {
@@ -641,7 +648,7 @@ var EnigmailKeyEditor = {
   },
 
   cardChangePin: function(parent, action, oldPin, newPin, adminPin, pinObserver, callbackFunc) {
-    EnigmailLog.DEBUG("keyEdit.jsm: Enigmail.cardChangePin: parent=" + parent + ", action=" + action + "\n");
+    EnigmailLog.DEBUG("gnupg-keyEditor.jsm: cardChangePin: parent=" + parent + ", action=" + action + "\n");
     var adminObserver = new EnigCardAdminObserver(pinObserver, EnigmailOS.isDosLike);
 
     return editKey(parent, true, null, "", ["--with-colons", "--card-edit"], {
@@ -762,7 +769,7 @@ function keyTrustCallback(inputData, keyEdit, ret) {
  * @param  Object  ret
  */
 function keyExpiryCallback(inputData, keyEdit, ret) {
-  EnigmailLog.DEBUG("keyEdit.jsm: keyExpiryCallback()\n");
+  EnigmailLog.DEBUG("gnupg-keyEditor.jsm: keyExpiryCallback()\n");
 
   ret.writeTxt = "";
   ret.errorMsg = "";
@@ -1114,7 +1121,7 @@ function deleteKeyCallback(inputData, keyEdit, ret) {
 }
 
 function getPin(domWindow, promptMsg, ret) {
-  EnigmailLog.DEBUG("keyEdit.jsm: getPin: \n");
+  EnigmailLog.DEBUG("gnupg-keyEditor.jsm: getPin: \n");
 
   var passwdObj = {
     value: ""
@@ -1137,7 +1144,7 @@ function getPin(domWindow, promptMsg, ret) {
     return false;
   }
 
-  EnigmailLog.DEBUG("keyEdit.jsm: getPin: got pin\n");
+  EnigmailLog.DEBUG("gnupg-keyEditor.jsm: getPin: got pin\n");
   ret.writeTxt = passwdObj.value;
 
   return true;
@@ -1400,7 +1407,7 @@ EnigCardAdminObserver.prototype = {
 
   onDataAvailable: function(data) {
     var ret = "";
-    EnigmailLog.DEBUG("keyEdit.jsm: enigCardAdminObserver.onDataAvailable: data=" + data + "\n");
+    EnigmailLog.DEBUG("gnupg-keyEditor.jsm: enigCardAdminObserver.onDataAvailable: data=" + data + "\n");
     if (this._isDosLike && data.indexOf("[GNUPG:] BACKUP_KEY_CREATED") === 0) {
       data = data.replace(/\//g, "\\");
     }
@@ -1431,7 +1438,7 @@ ChangePasswdObserver.prototype = {
 
   onDataAvailable: function(data) {
     var ret = "";
-    EnigmailLog.DEBUG("keyEdit.jsm: ChangePasswdObserver.onDataAvailable: data=" + data + "\n");
+    EnigmailLog.DEBUG("gnupg-keyEditor.jsm: ChangePasswdObserver.onDataAvailable: data=" + data + "\n");
     if (this._failureCode) {
       ret = "[GNUPG:] ENIGMAIL_FAILURE " + data;
     }

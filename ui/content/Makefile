@@ -15,6 +15,8 @@ UIFILES = \
 	autocryptInitiateBackup.js \
 	autocryptSetupPasswd.xul \
 	autocryptSetupPasswd.js \
+	changePassword.xul \
+	changePassword.js \
 	columnOverlay.xul \
 	columnOverlay.js \
 	commonWorkflows.js \
