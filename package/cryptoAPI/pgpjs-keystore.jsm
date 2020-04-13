@@ -77,7 +77,9 @@ var pgpjs_keyStore = {
     let conn = await keyStoreDatabase.openDatabase();
     for (let k of keys) {
       try {
-        await keyStoreDatabase.writeKeyToDb(k, conn);
+        await conn.executeTransaction(async function _trx() {
+          await keyStoreDatabase.writeKeyToDb(k, conn);
+        });
         importedFpr.push(k.getFingerprint().toUpperCase());
       }
       catch (x) {
@@ -248,23 +250,46 @@ var pgpjs_keyStore = {
    *
    * @return undefined
    */
-  deleteKeys: function(keyArr) {
-    return keyStoreDatabase.deleteKeysFromDb(keyArr);
+  deleteKeys: async function(keyArr) {
+    let conn = await keyStoreDatabase.openDatabase();
+    let error = null;
+
+    try {
+    await conn.executeTransaction(async function _trx() {
+      return keyStoreDatabase.deleteKeysFromDb(keyArr, conn);
+    });
+  }
+    catch(ex) {
+      error = ex;
+    }
+    conn.close();
+
+    if (error) throw error;
   },
 
   /**
-   * Replace (or add) a key without merging it with the current stored version
+   * Write a key to the database. Unlike writeKey(), this function does not merge
+   * an existing key with the new key, but replaces an existing key entirely.
    *
    * @param {Object} keyObj: OpenPGP.js key object
    */
   replaceKey: async function(keyObj) {
     EnigmailLog.DEBUG(`pgpjs-keystore.jsm: replaceKey(${keyObj.getFingerprint()})\n`);
 
-    // TODO: implement transaction
+    let error = null;
     let conn = await keyStoreDatabase.openDatabase();
-    await keyStoreDatabase.deleteKeysFromDb([keyObj.getFingerprint().toUpperCase()], conn);
-    await keyStoreDatabase.writeKeyToDb(keyObj, conn);
+    try {
+      await conn.executeTransaction(async function _trx() {
+        await keyStoreDatabase.deleteKeysFromDb([keyObj.getFingerprint().toUpperCase()], conn);
+        await keyStoreDatabase.writeKeyToDb(keyObj, conn);
+      });
+    }
+    catch (ex) {
+      error = ex;
+    }
     conn.close();
+
+    if (error) throw error;
   },
 
 
@@ -445,7 +470,7 @@ const keyStoreDatabase = {
           await oldKey.keys[0].update(key);
           key = oldKey.keys[0];
         }
-        catch(x) {
+        catch (x) {
           // if we have a private key, keep it, otherwise use the new key
           if (oldKey.keys[0].isPrivate()) key = oldKey.keys[0];
         }
