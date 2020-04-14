@@ -427,6 +427,50 @@ var pgpjs_keys = {
       await key.encrypt(passwd);
     }
     return key;
+  },
+
+
+  /**
+   * Determine if an exception is thrown because the password was wrong
+   *
+   * @param {Object} exception: the exception thrown by OpenPGP.js
+   *
+   * @return {Boolean} true if yes, false if no
+   */
+  isWrongPassword: function(exception) {
+    if ("message" in exception) {
+      return (exception.message.search(/Incorrect key passphrase/) >= 0);
+    }
+
+    return false;
+  },
+
+  /**
+   * Determine if a partially encrypted key has been fully decrypted
+   *
+   * @param {Object} exception: the exception thrown by OpenPGP.js
+   * @param {Object} key: OpenPGP.js key
+   *
+   * @return {Boolean} true if key is fully decrypted, false if not
+   */
+  isKeyFullyDecrypted: async function(exception, key) {
+    if ("message" in exception && exception.message.search(/Key packet is already decrypted/) >= 0) {
+      let isDecrypted = true;
+
+      if (!(await key.isDecrypted())) {
+        isDecrypted = false;
+      }
+
+      for (let sk of key.subKeys) {
+        if (!(await sk.isDecrypted())) {
+          isDecrypted = false;
+        }
+      }
+
+      return isDecrypted;
+    }
+
+    return false;
   }
 };
 
@@ -470,16 +514,21 @@ async function internalSecretKeyDecryption(key, reason) {
         }
       }
       catch (ex) {
-        if (("message" in ex) && ex.message.search(/Incorrect .*passphrase/) >= 0) {
-          password = null;
+        if ("message" in ex) {
+          if (pgpjs_keys.isWrongPassword(ex)) {
+            password = null;
+          }
+          else if (pgpjs_keys.isKeyFullyDecrypted(ex, key)) {
+            return password;
+          }
+          else if (ex.message.search(/s2k/i) >= 0) {
+            displayMd5Error();
+            attempts = MAX_PASSWD_ATTEMPT;
+          }
         }
         else {
           EnigmailLog.DEBUG(`pgpjs-keys.jsm: decryptSecretKey: ERROR: ${ex.toString()}\n`);
           attempts = MAX_PASSWD_ATTEMPT;
-        }
-
-        if (ex.toString().search(/(s2k|Key packet is already decrypted)/i) >= 0) {
-          displayMd5Error();
         }
       }
     }

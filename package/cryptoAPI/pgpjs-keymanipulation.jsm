@@ -157,11 +157,12 @@ var pgpjs_keymanipulation = {
         }
       }
       catch (ex) {
-        if (("message" in ex) && ex.message.search(/Incorrect .*passphrase/) >= 0) {
+        if (pgpjs_keys.isWrongPassword(ex)) {
           return createError(EnigmailLocale.getString("changePasswdDlg.wrongOldPasswd"));
         }
-        else
+        else if (!pgpjs_keys.isKeyFullyDecrypted(ex, key)) {
           return createError(ex.toString());
+        }
       }
     }
 

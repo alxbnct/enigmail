@@ -13,7 +13,7 @@ do_load_module("file://" + do_get_cwd().path + "/testHelper.js");
 
 testing("cryptoAPI/pgpjs-keymanipulation.jsm");
 /*global pgpjs_keymanipulation: false, getOpenPGPLibrary: false, pgpjs_keyStore: false, EnigmailConstants: false,
-    EnigmailFiles: false
+    pgpjs_keys: false, EnigmailFiles: false
  */
 
 test(withTestGpgHome(asyncTest(async function testGenRevokeCert() {
@@ -137,7 +137,7 @@ test(withTestGpgHome(asyncTest(async function testChangePassword() {
     try {
       success = await key.decrypt(newPasswd);
     }
-    catch(ex) {}
+    catch (ex) {}
 
     Assert.ok(success, "key decryption successful");
     Assert.ok(key.isDecrypted(), "key is decrypted");
@@ -171,6 +171,66 @@ test(withTestGpgHome(asyncTest(async function testChangePassword() {
     keys = await pgpjs_keyStore.readKeys(["0x65537E212DC19025AD38EDB2781617319CE311C4"]);
     key = keys[0].key;
     Assert.ok(!key.isDecrypted(), "key is encrypted");
+  }
+  catch (ex) {
+    Assert.ok(false, "exception: " + ex.toString());
+  }
+})));
+
+
+test(withTestGpgHome(asyncTest(async function testWrongPassword() {
+  try {
+    await pgpjs_keyStore.init();
+
+    const pubKeyFile = do_get_file("resources/dev-strike.sec", false);
+    let fileData = EnigmailFiles.readBinaryFile(pubKeyFile);
+
+    const origPasswd = "STRIKEfreedom@Qu1to";
+    const newPasswd = "SomePasswd";
+
+    let r = await pgpjs_keyStore.writeKey(fileData);
+    Assert.equal(r.length, 1);
+
+    let keys = await pgpjs_keyStore.readKeys(["0x65537E212DC19025AD38EDB2781617319CE311C4"]);
+    let key = keys[0].key;
+
+    Assert.ok(!key.isDecrypted(), "key is encrypted");
+    try {
+      r = await key.decrypt("wrong password");
+      Assert.ok(false, "key decryption must not succeed");
+    }
+    catch(ex) {
+      Assert.ok(pgpjs_keys.isWrongPassword(ex), "wrong password detected");
+    }
+  }
+  catch (ex) {
+    Assert.ok(false, "exception: " + ex.toString());
+  }
+})));
+
+
+test(withTestGpgHome(asyncTest(async function testPartialKeyDecryption() {
+  try {
+    await pgpjs_keyStore.init();
+
+    const passwd = "STRIKEfreedom@Qu1to";
+
+    const pubKeyFile = do_get_file("resources/mixed-encrypted-key.sec", false);
+    let fileData = EnigmailFiles.readBinaryFile(pubKeyFile);
+
+    let r = await pgpjs_keyStore.writeKey(fileData);
+    Assert.equal(r.length, 1);
+
+    let keys = await pgpjs_keyStore.readKeys(["0x8A11371431B0941F815967C373665408D8D8AC8E"]);
+    let key = keys[0].key;
+    Assert.ok(!key.isDecrypted(), "key is encrypted");
+    try {
+      r = await key.decrypt(passwd);
+      Assert.ok(false, "key decryption must not succeed");
+    }
+    catch(ex) {
+      Assert.ok(pgpjs_keys.isKeyFullyDecrypted(ex, key), "key is fully decrypted");
+    }
   }
   catch (ex) {
     Assert.ok(false, "exception: " + ex.toString());
