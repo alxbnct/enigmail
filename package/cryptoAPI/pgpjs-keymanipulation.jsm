@@ -178,6 +178,10 @@ var pgpjs_keymanipulation = {
     }
 
     return createSuccess();
+  },
+
+  signKey: async function(parent, userId, keyId, signLocally, trustLevel) {
+    EnigmailLog.DEBUG(`pgpjs-keymanipulation.jsm: signKey (trustLevel=${trustLevel}, userId= ${userId}, keyId=${keyId})\n`);
   }
 };
 

@@ -398,11 +398,11 @@ var EnigmailKeyEditor = {
   },
 
 
-  signKey: function(parent, userId, keyId, signLocally, trustLevel) {
-    EnigmailLog.DEBUG("gnupg-keyEditor.jsm: signKey: trustLevel=" + trustLevel + ", userId=" + userId + ", keyId=" + keyId + "\n");
+  signKey: function(parent, signingKey, keyToBeSigned, signLocally, trustLevel) {
+    EnigmailLog.DEBUG("gnupg-keyEditor.jsm: signKey: trustLevel=" + trustLevel + ", signingKey=" + signingKey + ", keyToBeSigned=" + keyToBeSigned + "\n");
 
     return new Promise((resolve, reject) => {
-      editKey(parent, true, userId, keyId, (signLocally ? "lsign" : "sign"), {
+      editKey(parent, true, signingKey, keyToBeSigned, (signLocally ? "lsign" : "sign"), {
           trustLevel: trustLevel,
           usePassphrase: true
         },
@@ -410,7 +410,7 @@ var EnigmailKeyEditor = {
         null,
         function _f(returnCode, errorMsg) {
           runKeyTrustCheck();
-          EnigmailKeyRing.updateKeys([keyId]);
+          EnigmailKeyRing.updateKeys([keyToBeSigned]);
           resolve({
             returnCode: returnCode,
             errorMsg: errorMsg
