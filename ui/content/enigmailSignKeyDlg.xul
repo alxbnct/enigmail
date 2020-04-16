@@ -61,29 +61,5 @@
         </row>
       </rows>
     </grid>
-
-    <vbox class="enigmailCaptionbox">
-      <html:h1><html:span>&enigmail.sKeyDlg.checked.label;</html:span></html:h1>
-      <vbox>
-        <radiogroup id="trustLevel">
-          <radio value="0"
-                 selected="true"
-                 label="&enigmail.sKeyDlg.noAnswer.label;"/>
-         <radio value="1"
-                 label="&enigmail.sKeyDlg.notChecked.label;"/>
-          <radio value="2"
-                 label="&enigmail.sKeyDlg.casualCheck.label;"/>
-          <radio value="3"
-                 label="&enigmail.sKeyDlg.carefulCheck.label;"/>
-        </radiogroup>
-      </vbox>
-    </vbox>
-
-    <vbox>
-      <checkbox checked="false"
-            id="localSig"
-            label="&enigmail.sKeyDlg.createLocal.label;"
-            oncommand="enigKeySelCb()"/>
-    </vbox>
   </vbox>
 </dialog>

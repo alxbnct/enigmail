@@ -20,7 +20,6 @@ var EnigmailCryptoAPI = ChromeUtils.import("chrome://enigmail/content/modules/cr
 var EnigmailKeyManagement = EnigmailCryptoAPI().getKeyManagement();
 
 var gExportableSignatureList = null;
-var gLocalSignatureList = null;
 var gUidCount = null;
 
 function onLoad() {
@@ -52,10 +51,7 @@ function onLoad() {
 
   // determine keys that have already signed the key
   try {
-    var exitCodeObj = {};
-    var errorMsgObj = {};
     gExportableSignatureList = [];
-    gLocalSignatureList = [];
     var sigType = null;
     gUidCount = [];
     var keyId = null;
@@ -82,14 +78,6 @@ function onLoad() {
             }
             else {
               gExportableSignatureList[signer] += 1;
-            }
-          }
-          if (sigType === "l") {
-            if (gLocalSignatureList[signer] === undefined) {
-              gLocalSignatureList[signer] = 1;
-            }
-            else {
-              gLocalSignatureList[signer] += 1;
             }
           }
         }
@@ -126,8 +114,6 @@ function onLoad() {
 }
 
 function onAccept() {
-  var trustLevel = document.getElementById("trustLevel");
-  var localSig = document.getElementById("localSig");
   var signWithKey = document.getElementById("signWithKey");
 
   var enigmailSvc = EnigmailCore.getService(window);
@@ -139,8 +125,8 @@ function onAccept() {
   EnigmailKeyManagement.signKey(window,
     "0x" + signWithKey.selectedItem.value,
     window.arguments[0].keyId,
-    localSig.checked,
-    trustLevel.selectedItem.value
+    false,
+    "0"
   ).then(resultObj => {
     if (resultObj.returnCode !== 0) {
       EnigmailDialog.alert(window, EnigmailLocale.getString("signKeyFailed") + "\n\n" + resultObj.errorMsg);
@@ -160,17 +146,11 @@ function enigKeySelCb() {
   var signWithKeyId = signWithKey.selectedItem.value;
   var alreadySigned = document.getElementById("alreadySigned");
   var acceptButton = document.getElementById("enigmailSignKeyDlg").getButton("accept");
-  var doLocalSig = document.getElementById("localSig");
   var signatureCount = 0;
 
-  if (doLocalSig.checked) {
-    signatureCount = gLocalSignatureList[signWithKeyId];
-  }
-  else {
-    signatureCount = gExportableSignatureList[signWithKeyId];
-  }
+  signatureCount = gExportableSignatureList[signWithKeyId];
 
-  if ((doLocalSig.checked) && (gExportableSignatureList[signWithKeyId] > 0)) {
+  if (gExportableSignatureList[signWithKeyId] > 0) {
     // User tries to locally sign a key he has already signed (at least partially) with an exportable signature
     // Here we display a hint and DISable the OK button
     alreadySigned.setAttribute("value", EnigmailLocale.getString("alreadySignedexportable.label", "0x" + keyToBeSigned));
