@@ -62,7 +62,7 @@ var gTreeFuncs = null;
 function enigmailKeyManagerLoad() {
   EnigmailLog.DEBUG("enigmailKeyManager.js: enigmailKeyManagerLoad\n");
 
-  // Close the key manager if GnuPG is not available
+  // Close the key manager if Service is not available
   if (!EnigmailCore.getService(window)) {
     window.close();
     return;
@@ -70,7 +70,7 @@ function enigmailKeyManagerLoad() {
 
   const cApi = EnigmailCryptoAPI();
   if (! cApi.supportsFeature("uid-management")) {
-    for (let i of ["manageUid", "ctxManageUid", "addPhoto" ,"ctxAddPhoto"]) {
+    for (let i of ["manageUid", "ctxManageUid", "addPhoto" ,"ctxAddPhoto", "enableKey", "ctxEnableKey"]) {
       document.getElementById(i).style.visibility = "collapse";
     }
   }
