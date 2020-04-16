@@ -40,9 +40,7 @@ function reloadData() {
     window.close();
     return;
   }
-  var exitCodeObj = {};
-  var errorMsgObj = {};
-  var gKeyId = window.arguments[0].keyId[0];
+  var keyId = window.arguments[0].keyId[0];
   var treeChildren = document.getElementById("keyListChildren");
 
   // clean lists
@@ -51,7 +49,7 @@ function reloadData() {
   }
 
 
-  let keyObj = EnigmailKeyRing.getKeyById(gKeyId);
+  let keyObj = EnigmailKeyRing.getKeyById(keyId);
   if (keyObj) {
     addSubkeyWithSelectboxes(treeChildren, keyObj);
     for (let i = 0; i < keyObj.subKeys.length; i++) {
@@ -241,7 +239,7 @@ async function processKey(subKeys) {
     }, 10);
   }
   else {
-    window.arguments[1].refresh = true;
+    EnigmailKeyRing.updateKeys([window.arguments[0].keyId[0]]);
     window.close();
   }
 }
