@@ -236,3 +236,72 @@ test(withTestGpgHome(asyncTest(async function testPartialKeyDecryption() {
     Assert.ok(false, "exception: " + ex.toString());
   }
 })));
+
+
+test(withTestGpgHome(asyncTest(async function testWrongPassword() {
+  try {
+    await pgpjs_keyStore.init();
+
+    const pubKeyFile = do_get_file("resources/dev-strike.sec", false);
+    let fileData = EnigmailFiles.readBinaryFile(pubKeyFile);
+
+    const origPasswd = "STRIKEfreedom@Qu1to";
+    const newPasswd = "SomePasswd";
+
+    let r = await pgpjs_keyStore.writeKey(fileData);
+    Assert.equal(r.length, 1);
+
+    let keys = await pgpjs_keyStore.readKeys(["0x65537E212DC19025AD38EDB2781617319CE311C4"]);
+    let key = keys[0].key;
+
+    Assert.ok(!key.isDecrypted(), "key is encrypted");
+    try {
+      r = await key.decrypt("wrong password");
+      Assert.ok(false, "key decryption must not succeed");
+    }
+    catch(ex) {
+      Assert.ok(pgpjs_keys.isWrongPassword(ex), "wrong password detected");
+    }
+  }
+  catch (ex) {
+    Assert.ok(false, "exception: " + ex.toString());
+  }
+})));
+
+
+test(withTestGpgHome(asyncTest(async function testSignKey() {
+  try {
+    await pgpjs_keyStore.init();
+
+    const passwd = "STRIKEfreedom@Qu1to";
+
+    const pubKeyFile = do_get_file("resources/multi-uid.asc", false);
+    let fileData = EnigmailFiles.readBinaryFile(pubKeyFile);
+    let r = await pgpjs_keyStore.writeKey(fileData);
+    Assert.equal(r.length, 1);
+
+    const secKeyFile = do_get_file("resources/dev-strike.sec", false);
+    fileData = EnigmailFiles.readBinaryFile(secKeyFile);
+    r = await pgpjs_keyStore.writeKey(fileData);
+    Assert.equal(r.length, 1);
+
+    // signing Key ID 0x65537E212DC19025AD38EDB2781617319CE311C4
+    // key to sign: 0xADC49530CB6B132412D856107F1568CB8997F7BA
+    r = await pgpjs_keymanipulation.signKey(null, "0x65537E212DC19025AD38EDB2781617319CE311C4", "0xADC49530CB6B132412D856107F1568CB8997F7BA", false, "1");
+    Assert.equal(r.returnCode, 0, "signing suceeded");
+    let keys = await pgpjs_keyStore.readKeys(["0xADC49530CB6B132412D856107F1568CB8997F7BA"]);
+    let signedKey = keys[0].key;
+
+    for (let uid of signedKey.users) {
+      if (uid.revocationSignatures.length > 0) {
+        Assert.equal(uid.otherCertifications.length, 0);
+      }
+      else {
+        Assert.equal(uid.otherCertifications.length, 2);
+      }
+    }
+  }
+  catch (ex) {
+    Assert.ok(false, "exception: " + ex.toString());
+  }
+})));

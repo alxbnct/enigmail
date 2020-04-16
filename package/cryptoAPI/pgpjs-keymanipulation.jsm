@@ -180,8 +180,38 @@ var pgpjs_keymanipulation = {
     return createSuccess();
   },
 
-  signKey: async function(parent, userId, keyId, signLocally, trustLevel) {
-    EnigmailLog.DEBUG(`pgpjs-keymanipulation.jsm: signKey (trustLevel=${trustLevel}, userId= ${userId}, keyId=${keyId})\n`);
+  signKey: async function(parent, signingKeyId, keyIdToSign, signLocally, trustLevel) {
+    EnigmailLog.DEBUG(`pgpjs-keymanipulation.jsm: signKey (trustLevel=${trustLevel}, userId= ${signingKeyId}, keyId=${keyIdToSign})\n`);
+
+    let keyList = await pgpjs_keyStore.getKeysForKeyIds(true, [signingKeyId]);
+    if (!keyList || keyList.length === 0) {
+      return createError(EnigmailLocale.getString("keyNotFound", signingKeyId));
+    }
+    const signingKey = keyList[0];
+
+    keyList = await pgpjs_keyStore.getKeysForKeyIds(false, [keyIdToSign]);
+    if (!keyList || keyList.length === 0) {
+      return createError(EnigmailLocale.getString("keyNotFound", keyIdToSign));
+    }
+    const keyToSign = keyList[0];
+    try {
+      let result = await pgpjs_keys.signKey(signingKey, keyToSign);
+      if (result.signedKey !== null) {
+        let r = await pgpjs_keyStore.writeKey(await result.signedKey.armor());
+        if (r.length > 0) {
+          return createSuccess();
+        }
+        else {
+          return createError(EnigmailLocale.getString("saveKeysFailed"));
+        }
+      }
+      else {
+        return createError(result.errorMsg);
+      }
+    }
+    catch(ex) {
+      return createError(ex.message);
+    }
   }
 };
 

@@ -364,6 +364,7 @@ var pgpjs_keys = {
    * @param {Number} expiryTime: time from now when key should expire in seconds. 0 for no expiry
    */
   changeKeyExpiry: async function(key, subKeyIdentification, expiryTime) {
+    EnigmailLog.DEBUG(`pgpjs-keys.jsm: changeKeyExpiry: (${key.getFingerprint()}, ${expiryTime})\n`);
     const PgpJS = getOpenPGPLibrary();
     const passwd = await internalSecretKeyDecryption(key, EnigmailConstants.KEY_DECRYPT_REASON_MANIPULATE_KEY);
     if (passwd === null) {
@@ -427,6 +428,64 @@ var pgpjs_keys = {
       await key.encrypt(passwd);
     }
     return key;
+  },
+
+  /**
+   * Sign a key.
+   *
+   * @param {Object} signingKey: OpenPGP.js key that is used for signing the key
+   * @param {Object} keyToSign: OpenPGP.js key to sign (all valid UIDs)
+   *
+   * @return {Object}
+   *  - {Object} signedKey: the signed key / null in case of error
+   *  - {String} errorMsg: In case of error: Error message
+   */
+  signKey: async function(signingKey, keyToSign) {
+    EnigmailLog.DEBUG(`pgpjs-keys.jsm: changeKeyExpiry: (${keyToSign.getFingerprint()})\n`);
+
+    if (!await pgpjs_keys.decryptSecretKey(signingKey, EnigmailConstants.KEY_DECRYPT_REASON_MANIPULATE_KEY)) {
+      return {
+        signedKey: null,
+        errorMsg: EnigmailLocale.getString("decryptKey.wrongPassword")
+      };
+    }
+
+    let signedSomething = false;
+
+    for (let i = 0; i < keyToSign.users.length; i++) {
+      const uid = keyToSign.users[i];
+      try {
+        await uid.verify(keyToSign.keyPacket);
+      }
+      catch (ex) {
+        continue;
+      }
+
+      try {
+        keyToSign.users[i] = await uid.sign(keyToSign.keyPacket, [signingKey]);
+        signedSomething = true;
+      }
+      catch (ex) {
+        EnigmailLog.DEBUG(`pgpjs-keys.jsm: changeKeyExpiry: ERROR: ${ex.toString()}\n`);
+        return {
+          signedKey: null,
+          errorMsg: ex.toString()
+        };
+      }
+    }
+
+    if (signedSomething) {
+      return {
+        signedKey: keyToSign,
+        errorMsg: ""
+      };
+    }
+    else {
+      return {
+        signedKey: null,
+        errorMsg: "No valid user ID to sign"
+      };
+    }
   },
 
 
