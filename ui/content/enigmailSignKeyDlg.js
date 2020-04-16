@@ -146,7 +146,7 @@ function onAccept() {
       EnigmailDialog.alert(window, EnigmailLocale.getString("signKeyFailed") + "\n\n" + resultObj.errorMsg);
     }
     else {
-      window.arguments[1].refresh = true;
+      EnigmailKeyRing.updateKeys([window.arguments[0].keyId]);
     }
     window.close();
   });
