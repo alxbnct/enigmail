@@ -55,7 +55,8 @@ function onLoad() {
     EnigmailTimer.setTimeout(function _f() {
       startDownload(searchList);
     }, 10);
-  } else {
+  }
+  else {
     executeSearch(searchList);
   }
 
@@ -151,11 +152,13 @@ function executeSearch(searchKeys) {
       if (res.pubKeys.length === 0) {
         if (res.result !== 0) {
           statusError(res);
-        } else {
+        }
+        else {
           EnigmailDialog.info(window, getKeyNotFoundMsg());
           closeDialog();
         }
-      } else {
+      }
+      else {
         populateList(res.pubKeys);
       }
     }).catch(
@@ -193,7 +196,8 @@ function populateList(keyList) {
   let sortUsers = function(a, b) {
     if (a.uid[0] < b.uid[0]) {
       return -1;
-    } else {
+    }
+    else {
       return 1;
     }
   };
@@ -201,7 +205,8 @@ function populateList(keyList) {
   let sortKeyIds = function(c, d) {
     if (c.keyId < d.keyId) {
       return -1;
-    } else {
+    }
+    else {
       return 1;
     }
   };
@@ -213,7 +218,8 @@ function populateList(keyList) {
   while (z < keyList.length - 1) {
     if (keyList[z].keyId === keyList[z + 1].keyId) {
       keyList.splice(z, 1);
-    } else {
+    }
+    else {
       z = z + 1;
     }
   }
@@ -225,7 +231,8 @@ function populateList(keyList) {
   let treeItem;
 
   for (let i = 0; i < keyList.length; i++) {
-    treeItem = createListRow(keyList[i].keyId, false, keyList[i].uid[0], keyList[i].created, keyList[i].status);
+    let uid = (keyList[i].uid.length === 0) ? EnigmailLocale.getString("searchResult.noUserIdAvailable") : keyList[i].uid[0];
+    treeItem = createListRow(keyList[i].keyId, false, uid, keyList[i].created, keyList[i].status);
     if (keyList[i].uid.length > 1) {
       treeItem.setAttribute("container", "true");
       let subChildren = document.createXULElement("treechildren");
@@ -253,7 +260,8 @@ function createListRow(keyId, subKey, userId, dateField, trustStatus) {
   userCol.setAttribute("id", "name");
   if (trustStatus.indexOf(ENIG_KEY_EXPIRED) >= 0) {
     expCol.setAttribute("label", EnigmailLocale.getString("selKeyExpired", dateField));
-  } else {
+  }
+  else {
     expCol.setAttribute("label", dateField);
   }
 
@@ -264,7 +272,8 @@ function createListRow(keyId, subKey, userId, dateField, trustStatus) {
   if (subKey) {
     EnigSetActive(selectCol, -1);
     keyCol.setAttribute("label", "");
-  } else {
+  }
+  else {
     EnigSetActive(selectCol, 0);
     keyCol.setAttribute("label", keyId);
   }
@@ -284,7 +293,8 @@ function createListRow(keyId, subKey, userId, dateField, trustStatus) {
       var attr = node.getAttribute("properties");
       if (typeof(attr) == "string") {
         node.setAttribute("properties", attr + " enigKeyInactive");
-      } else {
+      }
+      else {
         node.setAttribute("properties", "enigKeyInactive");
       }
     }
@@ -315,7 +325,8 @@ function keySelectCallback(event) {
     let elem = aRows[0];
     if (elem.getAttribute("active") == "1") {
       EnigSetActive(elem, 0);
-    } else if (elem.getAttribute("active") == "0") {
+    }
+    else if (elem.getAttribute("active") == "0") {
       EnigSetActive(elem, 1);
     }
   }
