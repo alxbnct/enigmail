@@ -302,6 +302,11 @@ var GnuPGDecryption = {
           retStatusObj.statusFlags |= EnigmailConstants.PHOTO_AVAILABLE;
         }
         sigUserId = EnigmailKeyRing.getValidUids(sigKeyId).join("\n");
+
+        // set TRUSTED_IDENTITY if "simple" trust model is active
+        if (EnigmailPrefs.getPref("acceptedKeys") !== 0 && keyObj.keyTrust.search(/^[oqmf\-]$/) === 0) {
+          retStatusObj.statusFlags |= EnigmailConstants.TRUSTED_IDENTITY;
+        }
       }
     }
     else if (sigUserId) {
