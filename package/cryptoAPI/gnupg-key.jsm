@@ -11,7 +11,7 @@
 "use strict";
 
 var EXPORTED_SYMBOLS = ["GnuPG_importKeyFromFile", "GnuPG_importKeyData", "GnuPG_extractSecretKey", "GnuPG_extractPublicKey",
-  "GnuPG_generateKey"
+  "GnuPG_generateKey", "GnuPG_getTrustLabel"
 ];
 
 const EnigmailExecution = ChromeUtils.import("chrome://enigmail/content/modules/execution.jsm").EnigmailExecution;
@@ -20,6 +20,7 @@ const EnigmailGpg = ChromeUtils.import("chrome://enigmail/content/modules/crypto
 const EnigmailFiles = ChromeUtils.import("chrome://enigmail/content/modules/files.jsm").EnigmailFiles;
 const EnigmailLocale = ChromeUtils.import("chrome://enigmail/content/modules/locale.jsm").EnigmailLocale;
 const subprocess = ChromeUtils.import("chrome://enigmail/content/modules/subprocess.jsm").subprocess;
+const EnigmailPrefs = ChromeUtils.import("chrome://enigmail/content/modules/prefs.jsm").EnigmailPrefs;
 
 
 async function GnuPG_importKeyFromFile(inputFile) {
@@ -352,4 +353,87 @@ function GnuPG_generateKey(name, comment, email, expiryDate, keyLength, keyType,
   });
 
   return returnHandle;
+}
+
+
+function GnuPG_getTrustLabel(trustCode) {
+  let keyTrust;
+  if (EnigmailPrefs.getPref("acceptedKeys") === 0) {
+    // only accept valid/authenticated keys
+    switch (trustCode) {
+      case 'q':
+        keyTrust = EnigmailLocale.getString("keyValid.unknown");
+        break;
+      case 'i':
+        keyTrust = EnigmailLocale.getString("keyValid.invalid");
+        break;
+      case 'd':
+      case 'D':
+        keyTrust = EnigmailLocale.getString("keyValid.disabled");
+        break;
+      case 'r':
+        keyTrust = EnigmailLocale.getString("keyValid.revoked");
+        break;
+      case 'e':
+        keyTrust = EnigmailLocale.getString("keyValid.expired");
+        break;
+      case 'n':
+        keyTrust = EnigmailLocale.getString("keyTrust.untrusted");
+        break;
+      case 'm':
+        keyTrust = EnigmailLocale.getString("keyTrust.marginal");
+        break;
+      case 'f':
+        keyTrust = EnigmailLocale.getString("keyTrust.full");
+        break;
+      case 'u':
+        keyTrust = EnigmailLocale.getString("keyTrust.ultimate");
+        break;
+      case 'g':
+        keyTrust = EnigmailLocale.getString("keyTrust.group");
+        break;
+      case '-':
+        keyTrust = "-";
+        break;
+      default:
+        keyTrust = "";
+    }
+  }
+  else {
+    // simplified validity model if all keys are accepted
+    switch (trustCode) {
+      case 'n':
+        keyTrust = EnigmailLocale.getString("keyTrust.untrusted");
+        break;
+      case 'd':
+      case 'D':
+        keyTrust = EnigmailLocale.getString("keyValid.disabled");
+        break;
+      case 'i':
+        keyTrust = EnigmailLocale.getString("keyValid.invalid");
+        break;
+      case 'r':
+        keyTrust = EnigmailLocale.getString("keyValid.revoked");
+        break;
+      case 'e':
+        keyTrust = EnigmailLocale.getString("keyValid.expired");
+        break;
+      case '-':
+      case 'o':
+      case 'q':
+      case 'm':
+      case 'f':
+        keyTrust = EnigmailLocale.getString("keyValid.valid");
+        break;
+      case 'u':
+        keyTrust = EnigmailLocale.getString("keyValid.ownKey");
+        break;
+      case 'g':
+        keyTrust = EnigmailLocale.getString("keyTrust.group");
+        break;
+      default:
+        keyTrust = "";
+    }
+  }
+  return keyTrust;
 }

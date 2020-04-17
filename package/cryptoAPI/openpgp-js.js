@@ -582,6 +582,10 @@ class OpenPGPjsCryptoAPI extends CryptoAPI {
   getKeyManagement() {
     return pgpjs_keymanipulation;
   }
+
+  getTrustLabel(trustCode) {
+    return pgpjs_keys.getTrustLabel(trustCode);
+  }
 }
 
 function getOpenPGPjsAPI() {

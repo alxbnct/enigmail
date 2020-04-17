@@ -433,14 +433,14 @@
                    hidden="true"
                    persist="width ordinal hidden"/>
           <splitter class="tree-splitter"/>
-          <treecol id="trustCol" style="width:70px"
+          <!-- treecol id="trustCol" style="width:70px"
                    label="&enigmail.keyMan.ownerTrust.label;"
                    flex="1"
                    class="sortDirectionIndicator"
                    onclick="sortTree(this)"
                    hidden="true"
                    persist="width ordinal hidden"/>
-          <splitter class="tree-splitter"/>
+          <splitter class="tree-splitter"/ -->
           <treecol id="expCol" style="width:70px"
                    label="&enigmail.keyExpiry.label;"
                    flex="1"

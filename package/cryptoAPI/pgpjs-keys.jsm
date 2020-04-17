@@ -530,6 +530,33 @@ var pgpjs_keys = {
     }
 
     return false;
+  },
+
+  getTrustLabel: function(trustCode) {
+    let keyTrust;
+    switch (trustCode) {
+      case 'q':
+        keyTrust = EnigmailLocale.getString("keyValid.unknown");
+        break;
+      case 'i':
+        keyTrust = EnigmailLocale.getString("keyValid.invalid");
+        break;
+      case 'r':
+        keyTrust = EnigmailLocale.getString("keyValid.revoked");
+        break;
+      case 'e':
+        keyTrust = EnigmailLocale.getString("keyValid.expired");
+        break;
+      case 'f':
+        keyTrust = EnigmailLocale.getString("keyValid.valid");
+        break;
+      case 'u':
+        keyTrust = EnigmailLocale.getString("keyValid.ownKey");
+        break;
+      default:
+        keyTrust = "";
+    }
+    return keyTrust;
   }
 };
 

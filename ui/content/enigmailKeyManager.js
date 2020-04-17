@@ -1413,8 +1413,8 @@ function getSortColumn() {
       return "keytype";
     case "validityCol":
       return "validity";
-    case "trustCol":
-      return "trust"; // ownerTrust
+    // case "trustCol":
+    //   return "trust"; // ownerTrust
     case "expCol":
       return "expiry";
     case "fprCol":
@@ -1541,8 +1541,8 @@ var gKeyListView = {
               return EnigmailLocale.getString("keyValid.disabled");
             }
             return EnigGetTrustLabel(keyObj.keyTrust);
-          case "trustCol":
-            return EnigGetTrustLabel(keyObj.ownerTrust);
+          // case "trustCol":
+          //   return EnigGetTrustLabel(keyObj.ownerTrust);
           case "expCol":
             return keyObj.expiry;
           case "fprCol":
@@ -1558,8 +1558,8 @@ var gKeyListView = {
               return EnigmailLocale.getString("keyValid.disabled");
             }
             return EnigGetTrustLabel(keyObj.userIds[r.uidNum].keyTrust);
-          case "trustCol":
-            return EnigGetTrustLabel(keyObj.ownerTrust);
+          // case "trustCol":
+          //   return EnigGetTrustLabel(keyObj.ownerTrust);
         }
         break;
       case "uidHdr":

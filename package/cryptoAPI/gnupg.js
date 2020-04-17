@@ -40,7 +40,8 @@ const {
   GnuPG_extractSecretKey,
   GnuPG_extractPublicKey,
   GnuPG_importKeyData,
-  GnuPG_generateKey
+  GnuPG_generateKey,
+  GnuPG_getTrustLabel
 } = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/gnupg-key.jsm");
 
 const GnuPG_Encryption = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/gnupg-encryption.jsm").GnuPG_Encryption;
@@ -761,6 +762,10 @@ class GnuPGCryptoAPI extends CryptoAPI {
 
   getGroups() {
     return EnigmailGpg.getGpgGroups();
+  }
+
+  getTrustLabel(trustCode) {
+    return GnuPG_getTrustLabel(trustCode);
   }
 }
 

@@ -531,4 +531,8 @@ class CryptoAPI {
   getKeyManagement() {
     return null;
   }
+
+  getTrustLabel(trustCode) {
+    return trustCode;
+  }
 }
