@@ -11,7 +11,7 @@
 /* global GetEnigmailSvc: false, EnigAlert: false, EnigConvertGpgToUnicode: false */
 /* global EnigCleanGuiList: false, EnigGetTrustLabel: false, EnigShowPhoto: false, EnigSignKey: false */
 /* global EnigEditKeyExpiry: false, EnigEditKeyTrust: false, EnigChangeKeyPwd: false, EnigRevokeKey: false */
-/* global EnigCreateRevokeCert: false, EnigmailTimer: false */
+/* global EnigCreateRevokeCert: false, EnigmailTimer: false, EnigmailCryptoAPI: false */
 
 // from enigmailKeyManager.js:
 /* global keyMgrAddPhoto: false, EnigmailCompat: false */
@@ -59,15 +59,9 @@ function reloadData() {
     window.close();
     return;
   }
-  var exitCodeObj = {};
-  var statusFlagsObj = {};
-  var errorMsgObj = {};
-
+  const cApi = EnigmailCryptoAPI();
   gUserId = null;
 
-  var fingerprint = "";
-  var subKeyLen = "";
-  var subAlgo = "";
   var treeChildren = document.getElementById("keyListChildren");
   var uidList = document.getElementById("additionalUid");
   var photoImg = document.getElementById("photoIdImg");
@@ -101,10 +95,15 @@ function reloadData() {
       photoImg.setAttribute("hidden", "true");
     }
 
-    if (keyObj.isOwnerTrustUseful()) {
+    if (cApi.supportsFeature("ownertrust") && keyObj.isOwnerTrustUseful()) {
       document.getElementById("setOwnerTrust").removeAttribute("collapsed");
     } else {
       document.getElementById("setOwnerTrust").setAttribute("collapsed", "true");
+    }
+
+    if (!cApi.supportsFeature("uid-management")) {
+      document.getElementById("manageUids").setAttribute("collapsed", "true");
+      document.getElementById("addPhoto").setAttribute("collapsed", "true");
     }
 
     if (keyObj.hasSubUserIds()) {
@@ -199,7 +198,6 @@ function changeExpirationDate() {
 
 
 function setOwnerTrust() {
-
   if (EnigEditKeyTrust([gUserId], [gKeyId])) {
     enableRefresh();
     reloadData();

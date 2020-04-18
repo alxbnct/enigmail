@@ -877,6 +877,8 @@ Enigmail.hdrView = {
 
   setSenderStatus: function(elemSign, elemTrust, elemPhoto, elemKeyProps, elemImportKey) {
 
+    const cApi = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI.jsm").EnigmailCryptoAPI();
+
     function setElemStatus(elemName, disabledValue) {
       document.getElementById("enigmail_" + elemName).setAttribute("disabled", !disabledValue);
 
@@ -904,8 +906,15 @@ Enigmail.hdrView = {
             (EnigmailConstants.REVOKED_KEY | EnigmailConstants.EXPIRED_KEY_SIGNATURE | EnigmailConstants.UNVERIFIED_SIGNATURE))) {
           sign = true;
         }
-        if (keyObj && keyObj.isOwnerTrustUseful()) {
-          trust = true;
+        if (cApi.supportsFeature("ownertrust")) {
+          if (keyObj && keyObj.isOwnerTrustUseful()) {
+            trust = true;
+          }
+        }
+        else {
+          document.getElementById("enigmail_" + elemTrust).setAttribute("collapsed", "true");
+          let secondElem = document.getElementById("enigmail_" + elemTrust + "2");
+          if (secondElem) secondElem.setAttribute("collapsed", "true");
         }
 
         if (Enigmail.msg.securityInfo.statusFlags & EnigmailConstants.UNVERIFIED_SIGNATURE) {

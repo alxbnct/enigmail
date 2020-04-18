@@ -188,6 +188,7 @@ var EnigmailGpg = {
         return EnigmailVersioning.greaterThanOrEqual(gpgVersion, "2.2.17");
       case "smartcard":
       case "uid-management":
+      case "ownertrust":
         return true;
     }
 

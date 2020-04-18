@@ -58,6 +58,7 @@ var gShowOthersKeys = null;
 var gPepKeyBlacklist = [];
 var gTimeoutId = {};
 var gTreeFuncs = null;
+var gOwnerTrustSupport = false;
 
 function enigmailKeyManagerLoad() {
   EnigmailLog.DEBUG("enigmailKeyManager.js: enigmailKeyManagerLoad\n");
@@ -74,6 +75,7 @@ function enigmailKeyManagerLoad() {
       document.getElementById(i).style.visibility = "collapse";
     }
   }
+  gOwnerTrustSupport = cApi.supportsFeature("ownertrust");
 
   gUserList = document.getElementById("pgpKeyList");
   gSearchInput = document.getElementById("filterKey");
@@ -256,7 +258,7 @@ function enigmailKeyMenu() {
     }
   }
 
-  if (keyList.length == 1 && gKeyList[keyList[0]].isOwnerTrustUseful()) {
+  if (keyList.length == 1 && gKeyList[keyList[0]].isOwnerTrustUseful() && gOwnerTrustSupport) {
     document.getElementById("bcSetTrust").removeAttribute("collapsed");
   }
   else {
