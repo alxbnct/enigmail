@@ -856,7 +856,7 @@ async function getKeyMetadata(key) {
     let trustLevel = "f";
     if (keyIsValid) {
       try {
-        trustLevel = await getUserStatusCode(key.users[i]);
+        trustLevel = await getUserStatusCode(key.users[i], key.keyPacket);
       }
       catch (x) {}
     }
@@ -1035,7 +1035,7 @@ async function getKeyStatusCode(key) {
   return "f";
 }
 
-async function getUserStatusCode(user) {
+async function getUserStatusCode(user, keyPacket) {
   try {
     if (!user.selfCertifications.length) {
       return "i";
@@ -1044,17 +1044,17 @@ async function getUserStatusCode(user) {
     const dataToVerify = {
       userId: user.userId,
       userAttribute: user.userAttribute,
-      key: null
+      key: keyPacket
     };
 
     const results = ["i"].concat(
       await Promise.all(user.selfCertifications.map(async function(selfCertification) {
 
-        if (selfCertification.revoked || await user.isRevoked(null, selfCertification)) {
+        if (selfCertification.revoked || await user.isRevoked(keyPacket, selfCertification)) {
           return "r";
         }
 
-        if (!(selfCertification.verified || await selfCertification.verify(null, dataToVerify))) {
+        if (!(selfCertification.verified || await selfCertification.verify(keyPacket, dataToVerify))) {
           return "i";
         }
 
@@ -1083,12 +1083,12 @@ async function getSubKeyStatusCode(key) {
   const bindingSignature = getLatestSignature(key.bindingSignatures, now);
 
   // check binding signature is verified
-  if (!(bindingSignature.verified || await bindingSignature.verify(null, dataToVerify))) {
+  if (!(bindingSignature.verified || await bindingSignature.verify(key.keyPacket, dataToVerify))) {
     return "i";
   }
 
   // check binding signature is not revoked
-  if (bindingSignature.revoked || await key.isRevoked(null, bindingSignature, null, now)) {
+  if (bindingSignature.revoked || await key.isRevoked(key.keyPacket, bindingSignature, null, now)) {
     return "r";
   }
 
