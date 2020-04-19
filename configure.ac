@@ -2,7 +2,7 @@
 AC_PREREQ(2.61)
 min_automake_version="1.10"
 
-AC_INIT([enigmail],[2.2a1], [https://www.enigmail.net])
+AC_INIT([enigmail],[3.0a1], [https://www.enigmail.net])
 
 
 AC_PATH_PROG(PYTHON, "python3")
