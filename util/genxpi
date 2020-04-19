@@ -32,6 +32,9 @@ cd "$cwd"
 cat  ${srcDir}/package/chrome.manifest \
 > ${targetDir}/chrome.manifest
 
+cat  ${srcDir}/package/schema.json \
+> ${targetDir}/schema.json
+
 # Prepare languages other than en-US
 
 if [ "$enableLang" = "yes" ]; then
@@ -207,5 +210,7 @@ zip -9 \
     chrome/locale/*/help/*.* \
     chrome/content/jsunit/*.* \
     bootstrap.js \
+    webextension.js \
     chrome.manifest \
+    schema.json \
     ${pkgFile}

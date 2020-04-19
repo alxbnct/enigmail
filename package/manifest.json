@@ -5,18 +5,22 @@
   "version": "${EnigmailVersion}",
   "author": "Enigmail Team",
   "homepage_url": "https://enigmail.net/",
-  "legacy": {
-    "type": "bootstrap",
-    "options": {
-      "page": "chrome://enigmail/content/ui/pref-enigmail.xul",
-      "open_in_tab": false
+  "experiment_apis": {
+    "enigmailApi": {
+      "schema": "schema.json",
+      "parent": {
+        "scopes": ["addon_parent"],
+        "paths": [["enigmailApi"]],
+        "events": ["startup"],
+        "script": "webextension.js"
+      }
     }
   },
   "applications": {
     "gecko": {
       "id": "{847b3a00-7ab1-11d4-8f02-006008948af5}", // Enigmail GUID
-      "strict_min_version": "68.0a1",
-      "strict_max_version": "71.*"
+      "strict_min_version": "68.0",
+      "strict_max_version": "78.*"
     }
   }
 }
