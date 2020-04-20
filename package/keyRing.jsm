@@ -69,10 +69,8 @@ var EnigmailKeyRing = {
   getAllKeys: function(win, sortColumn, sortDirection) {
     if (gKeyListObj.keySortList.length === 0) {
       loadKeyList(win, sortColumn, sortDirection);
-      getWindows().keyManReloadKeys();
       if (!gKeyCheckDone) {
         gKeyCheckDone = true;
-        runKeyUsabilityCheck();
       }
     }
     else {
@@ -879,8 +877,6 @@ var EnigmailKeyRing = {
     else {
       loadKeyList(null, null, 1);
     }
-
-    getWindows().keyManReloadKeys();
   }
 }; //  EnigmailKeyRing
 
@@ -1072,27 +1068,6 @@ function createAndSortKeyList(keyList, sortColumn, sortDirection, resetKeyCache)
   gKeyListObj.keySortList.sort(getSortFunction(sortColumn.toLowerCase(), gKeyListObj, sortDirection));
 }
 
-
-function runKeyUsabilityCheck() {
-  EnigmailLog.DEBUG("keyRing.jsm: runKeyUsabilityCheck()\n");
-
-  EnigmailTimer.setTimeout(function _f() {
-    try {
-      let msg = getKeyUsability().keyExpiryCheck();
-
-      if (msg && msg.length > 0) {
-        getDialog().info(null, msg);
-      }
-      else {
-        getKeyUsability().checkOwnertrust();
-      }
-    }
-    catch (ex) {
-      EnigmailLog.DEBUG("keyRing.jsm: runKeyUsabilityCheck: exception " + ex.message + "\n" + ex.stack + "\n");
-    }
-
-  }, 60 * 1000); // 1 minute
-}
 
 function waitForKeyList() {
   let mainThread = Services.tm.mainThread;

@@ -13,11 +13,7 @@ DIRS = cryptoAPI
 
 PREFFILES = prefs/defaultPrefs.js
 
-ifeq ($(ENABLE_POSTBOX),yes)
 PEPJSM = pEp-nonfunc.jsm
-else
-PEPJSM = pEp.jsm
-endif
 
 MODFILES = \
            addrbook.jsm \

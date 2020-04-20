@@ -30,116 +30,33 @@
   buttonlabelaccept="&enigmail.doneButton.label;"
   onclick="handleClick(event)"
   minwidth="460px"
+  maxwidth="600px"
   minheight="400px">
 
   <script type="application/x-javascript" src="chrome://enigmail/content/ui/setupWizard2.js" />
-  <script type="application/x-javascript" src="chrome://enigmail/content/ui/commonWorkflows.js"/>
 
-  <html:div id="searchingGnuPG" style="width: 440px">
+  <html:div style="width: 440px">
     <html:p>&enigmail.setupWiz.pgIntro.desc;</html:p>
-    <html:div>
-      <html:p>&enigmail.setupWiz.searchingGnuPG;
-        <html:span aria-label="&enigmail.general.okLabel;" id="foundGnuPG" style="visibility: hidden" class="enigmailOkSign"/>
-      </html:p>
-    </html:div>
   </html:div>
 
-  <html:div id="requireGnuPG" style="width: 440px: margin:auto; visibility: collapse">
+  <html:div id="manyKeys" style="width: 440px: margin:auto; visibility: collapse">
     <html:p>
-      &enigmail.setupWiz.pgInstall.desc;
-    </html:p>
-
-    <html:div id="installBox" style="visibility: collapse">
-      <html:p>
-        &enigmail.setupWiz.pgInstall.installDesc1;
-      </html:p>
-      <html:p>
-        &enigmail.setupWiz.pgInstall.installDesc2;
-      </html:p>
-      <html:p>
-        <html:button type="button" id="btnInstallGnupg" onclick="installGnuPG()">&enigmail.setupWiz.pgInstall.installButton;</html:button>
-        <html:button type="button" id="btnLocateGnuPG" onclick="locateGpg()">&enigmail.setupWiz.pgInstall.locateButton;</html:button>
-      </html:p>
-    </html:div>
-
-    <html:div id="findGpgBox" style="width: 440px; visibility: collapse">
-      <html:p>
-        &enigmail.setupWiz.pgInstall.locateDesc;
-      </html:p>
-      <html:p>
-        <html:button onclick="locateGpg()">&enigmail.setupWiz.pgInstall.locateButton;</html:button>
-      </html:p>
-    </html:div>
-
-    <html:div id="progressBox" style="width: 440px; visibility: collapse">
-      <html:p>
-        &enigmail.setupWiz.pgInstall.downloadLabel;
-      </html:p>
-      <html:progress id="downloadProgress" style="width: 100%;" max="100" value="0"/>
-      <html:p/>
-      <html:div id="installProgressBox" style="visibility: collapse">
-        <html:p id="installLabel">
-          &enigmail.setupWiz.pgInstall.installLabel;
-        </html:p>
-        <html:progress id="installProgress" style="width: 100%; :indeterminate;" max="100"/>
-      </html:div>
-    </html:div>
-
-  </html:div>
-
-  <html:div id="determineInstall" style="width: 440px; margin:auto; visibility: collapse">
-    <html:p style="text-align: center;">&enigmail.setupWiz.checkingSetup;
-      <image class="enigmailWheel enigmailSpinning"/>
-    </html:p>
-  </html:div>
-
-
-  <html:div id="previousInstall_acSetup" style="width: 440px; visibility: collapse;">
-    <html:p id="foundAcSetupMessage"></html:p>
-    <html:button type="button" id="btnInitiateAcSetup" onclick="importAcSetup()">&enigmail.setupWiz.startSetupButton;</html:button>
-  </html:div>
-
-  <html:div id="previousInstall_ac" style="visibility: collapse;">
-    <html:p id="foundAcNoSetupMsg"></html:p>
-  </html:div>
-
-  <html:div id="previousInstall_pEp" style="visibility: collapse;">
-    <html:p>
-      &enigmail.setupWiz.usingPepMode;
-      <html:ul>
-        <html:li><html:p>
-          &enigmail.setupWiz.synchronizeWithPep;
-        </html:p></html:li>
-        <html:li><html:p>
-          &enigmail.setupWiz.useImportKeys;
-        </html:p></html:li>
-      </html:ul>
-    </html:p>
-  </html:div>
-
-  <html:div id="previousInstall_encrypted" style="width: 440px; visibility: collapse;">
-    <html:p>&enigmail.setupWiz.existingEncryptedMsg;</html:p>
-  </html:div>
-
-  <html:div id="previousInstall_keysAvailable" style="width: 440px; visibility: collapse;">
-    <html:p>&enigmail.setupWiz.existingKeysFound;
+      &enigmail.setupWiz.manyKeys.desc;
     </html:p>
     <html:p>
-      <html:button type="button" id="btnApplyExistingKeys" onclick="applyExistingKeys()">&enigmail.setupWiz.applyExistingKeysBtn;</html:button>
-      <html:span id="applyExistingKeysOK" style="visibility: hidden">... <html:span aria-label="&enigmail.general.okLabel;" class="enigmailOkSign"/></html:span>
+      <html:button type="button" id="btnSelectPrivateKeys" onclick="selectPrivateKeys()">&enigmail.setupWiz.manyKeys.selectButton;</html:button>
     </html:p>
   </html:div>
 
-  <html:div id="previousInstall_none" style="width: 440px; visibility: collapse; vertical-align: middle">
+  <html:div id="startMigration" style="width: 440px: margin:auto">
     <html:p>
-      <html:span class="enigmailOkSign" style="float: left"/>
-      <html:span id="setupComplete"></html:span>
+      &enigmail.setupWiz.startMigration.desc1;
+    </html:p>
+    <html:p>
+      &enigmail.setupWiz.startMigration.desc2;
+    </html:p>
+    <html:p>
+      <html:button type="button" id="btnStartMigration" onclick="startMigration()">&enigmail.setupWiz.startMigration.button;</html:button>
     </html:p>
   </html:div>
-
-  <html:p>
-    <html:button type="button" id="btnRescanInbox" style="visibility: collapse;" onclick="rescanInbox()">&enigmail.setupWiz.rescanInboxBtn;</html:button>
-    <html:button type="button" id="btnImportKeys" style="visibility: collapse;" onclick="importKeysFromFile()">&enigmail.setupWiz.importKeysBtn;</html:button>
-    <html:button type="button" id="btnImportSettings" style="visibility: collapse;" onclick="importSettings()">&enigmail.restorePrefsButton.label;</html:button>
-  </html:p>
 </dialog>

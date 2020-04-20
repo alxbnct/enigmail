@@ -8,11 +8,5 @@ include $(DEPTH)/config/autoconf.mk
 
 UNITTEST = 
 
-ifneq ($(TB_PATH),"")
-
-UNITTEST = $(JSUNIT)
-
-endif
-
 all:
 	$(UNITTEST)

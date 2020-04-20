@@ -63,16 +63,12 @@ function performStartup(data, reason) {
   try {
     const EnigmailApp = ChromeUtils.import("chrome://enigmail/content/modules/app.jsm").EnigmailApp;
     const EnigmailCore = ChromeUtils.import("chrome://enigmail/content/modules/core.jsm").EnigmailCore;
-    const EnigmailAmPrefsService = ChromeUtils.import("chrome://enigmail/content/modules/amPrefsService.jsm").EnigmailAmPrefsService;
-    const EnigmailPgpmimeHander = ChromeUtils.import("chrome://enigmail/content/modules/pgpmimeHandler.jsm").EnigmailPgpmimeHander;
     const Services = ChromeUtils.import("resource://gre/modules/Services.jsm").Services;
 
     loadListOfModules();
 
     EnigmailApp.initAddon(data);
-    EnigmailAmPrefsService.startup(reason);
     EnigmailCore.startup(reason);
-    EnigmailPgpmimeHander.startup(reason);
 
     Services.console.logStringMessage("Enigmail bootstrap completed");
   }
