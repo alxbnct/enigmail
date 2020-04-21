@@ -18,8 +18,6 @@
 %utilDTD;
 ]>
 
-<!-- TODO: Need to localize dialog -->
-
 <dialog id="setupWizardDlg"
   title="&enigmail.setupWiz.title;"
   xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
@@ -30,7 +28,7 @@
   buttonlabelaccept="&enigmail.doneButton.label;"
   onclick="handleClick(event)"
   minwidth="460px"
-  maxwidth="600px"
+  maxwidth="800px"
   minheight="400px">
 
   <script type="application/x-javascript" src="chrome://enigmail/content/ui/setupWizard2.js" />

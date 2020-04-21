@@ -14,6 +14,8 @@ UIFILES = \
 	aboutEnigmail.js \
 	enigmailMessengerOverlay.xul \
 	enigmailMessengerOverlay.js \
+	enigmailKeySelection.xul \
+	enigmailKeySelection.js \
 	enigmailMsgBox.js \
 	enigmailMsgBox.xul \
 	setupWizard2.js \

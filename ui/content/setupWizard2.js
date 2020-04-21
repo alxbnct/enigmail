@@ -10,45 +10,109 @@ var Cu = Components.utils;
 var Cc = Components.classes;
 var Ci = Components.interfaces;
 
-var EnigmailAutoSetup = ChromeUtils.import("chrome://enigmail/content/modules/autoSetup.jsm").EnigmailAutoSetup;
-var EnigmailConstants = ChromeUtils.import("chrome://enigmail/content/modules/constants.jsm").EnigmailConstants;
-var EnigmailApp = ChromeUtils.import("chrome://enigmail/content/modules/app.jsm").EnigmailApp;
-var EnigmailPrefs = ChromeUtils.import("chrome://enigmail/content/modules/prefs.jsm").EnigmailPrefs;
-var EnigmailLog = ChromeUtils.import("chrome://enigmail/content/modules/log.jsm").EnigmailLog;
-var EnigmailLocale = ChromeUtils.import("chrome://enigmail/content/modules/locale.jsm").EnigmailLocale;
-var EnigmailTimer = ChromeUtils.import("chrome://enigmail/content/modules/timer.jsm").EnigmailTimer;
-var EnigmailLazy = ChromeUtils.import("chrome://enigmail/content/modules/lazy.jsm").EnigmailLazy;
-var EnigmailOS = ChromeUtils.import("chrome://enigmail/content/modules/os.jsm").EnigmailOS;
-var EnigmailDialog = ChromeUtils.import("chrome://enigmail/content/modules/dialog.jsm").EnigmailDialog;
-var EnigmailFiles = ChromeUtils.import("chrome://enigmail/content/modules/files.jsm").EnigmailFiles;
-var InstallGnuPG = ChromeUtils.import("chrome://enigmail/content/modules/installGnuPG.jsm").InstallGnuPG;
-var EnigmailConfigBackup = ChromeUtils.import("chrome://enigmail/content/modules/configBackup.jsm").EnigmailConfigBackup;
-var EnigmailGpgAgent = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/gnupg-agent.jsm").EnigmailGpgAgent;
-var EnigmailKeyRing = ChromeUtils.import("chrome://enigmail/content/modules/keyRing.jsm").EnigmailKeyRing;
-var EnigmailWindows = ChromeUtils.import("chrome://enigmail/content/modules/windows.jsm").EnigmailWindows;
+var E2TBPrefs = ChromeUtils.import("chrome://enigmail/content/modules/prefs.jsm").EnigmailPrefs;
+var E2TBLog = ChromeUtils.import("chrome://enigmail/content/modules/log.jsm").EnigmailLog;
+var E2TBLocale = ChromeUtils.import("chrome://enigmail/content/modules/locale.jsm").EnigmailLocale;
+var E2TBDialog = ChromeUtils.import("chrome://enigmail/content/modules/dialog.jsm").EnigmailDialog;
+var E2TBFiles = ChromeUtils.import("chrome://enigmail/content/modules/files.jsm").EnigmailFiles;
+var E2TBKeyRing = ChromeUtils.import("chrome://enigmail/content/modules/keyRing.jsm").EnigmailKeyRing;
 
-
+var gSelectedPrivateKeys = null,
+  gAcceptButton = null,
+  gDialogCancelled = false,
+  gProcessing = false;
 
 function onLoad() {
-  EnigmailLog.DEBUG(`setupWizard2.js: onLoad()\n`);
+  E2TBLog.DEBUG(`setupWizard2.js: onLoad()\n`);
   let dlg = document.getElementById("setupWizardDlg");
-  dlg.getButton("accept").setAttribute("disabled", "true");
+  gAcceptButton = dlg.getButton("accept");
+  gAcceptButton.setAttribute("disabled", "true");
+
+  let secKeys = E2TBKeyRing.getAllSecretKeys(false);
+  if (secKeys.length > 5) {
+    document.getElementById("manyKeys").style.visibility = "visible";
+  }
+
+  gSelectedPrivateKeys = secKeys.map(keyObj => {
+    return "0x" + keyObj.fpr;
+  });
 }
 
 function onAccept() {
   return true;
 }
 
+function closeAfterCancel() {
+  E2TBLog.DEBUG("importExportWizard: closing after Cancel clicked\n");
+  window.close();
+  return false;
+}
+
 function onCancel() {
+  gDialogCancelled = true;
+  if (gProcessing) {
+    return false;
+  }
   return true;
 }
 
 function selectPrivateKeys() {
-  EnigmailDialog.alert(window, "not implemented yet");
+  let resultObj = {};
+  window.openDialog("chrome://enigmail/content/ui/enigmailKeySelection.xul", "", "dialog,centerscreen,modal", {
+    options: `private,allowexpired,trustallkeys,multisel,nosending,sendlabel=${E2TBLocale.getString("setupWizard.selectKeysButton")},`
+  }, resultObj);
+
+  if (resultObj.cancelled) return;
+  gSelectedPrivateKeys = resultObj.userList;
+  E2TBLog.DEBUG(`setupWizard2.selectPrivateKeys: selKey: ${gSelectedPrivateKeys.join(", ")}\n`);
 }
 
 function startMigration() {
-  EnigmailDialog.alert(window, "not implemented yet");
+  for (let btn of ["btnSelectPrivateKeys", "btnStartMigration"]) {
+    document.getElementById(btn).setAttribute("disabled", "true");
+  }
+  gProcessing = true;
+  let tmpDir = E2TBFiles.createTempSubDir("enig-exp", true);
+  exportKeys(tmpDir);
+  gAcceptButton.removeAttribute("disabled");
+}
+
+function exportKeys(tmpDir) {
+  E2TBLog.DEBUG(`setupWizard2.exportKeys(${tmpDir.path})\n`);
+
+  let exitCodeObj = {},
+    errorMsgObj = {};
+
+  for (let fpr of gSelectedPrivateKeys) {
+    if (gDialogCancelled) return closeAfterCancel();
+
+    let secKeyFile = tmpDir.clone();
+    secKeyFile.append(fpr + ".sec");
+
+    E2TBLog.DEBUG("setupWizard2.exportKeys: secFile: " + secKeyFile.path + "\n");
+    E2TBKeyRing.extractKey(true, fpr, secKeyFile, exitCodeObj, errorMsgObj);
+
+    if (exitCodeObj.value !== 0) {
+      E2TBLog.DEBUG(`importExportWizard: error while exporting secret key ${fpr}\n`);
+      E2TBDialog.alert(window, E2TBLocale.getString("dataExportError"));
+      return false;
+    }
+  }
+
+  if (gDialogCancelled) return closeAfterCancel();
+
+  let pubKeysFile = tmpDir.clone();
+  pubKeysFile.append("pubkeys.asc");
+
+  E2TBKeyRing.extractKey(false, "", pubKeysFile, exitCodeObj, errorMsgObj);
+
+  if (exitCodeObj.value !== 0) {
+    E2TBLog.DEBUG("importExportWizard: error while exporting public keys\n");
+    E2TBDialog.alert(window, E2TBLocale.getString("dataExportError"));
+    return false;
+  }
+
+  return true;
 }
 
 
