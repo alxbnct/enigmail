@@ -19,5 +19,5 @@ function onload() {
 }
 
 function performMigration() {
-  window.openDialog("chrome://enigmail/content/ui/setupWizard2.xul", "", "dialog,centerscreen");
+  window.openDialog("chrome://enigmail/content/ui/setupWizard2.xhtml", "", "chrome,dialog,centerscreen");
 }

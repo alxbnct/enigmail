@@ -53,7 +53,10 @@ var gCoreStartup = false;
 const overlays = {
   // main mail reading window
   "chrome://messenger/content/messenger.xul": [
-    "enigmailMessengerOverlay.xul"
+    "enigmailMessengerOverlay.xhtml"
+  ],
+  "chrome://messenger/content/messenger.xhtml": [
+    "enigmailMessengerOverlay.xhtml"
   ]
 };
 

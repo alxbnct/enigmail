@@ -18,7 +18,7 @@ var EnigmailLocale = ChromeUtils.import("chrome://enigmail/content/modules/local
 var EnigmailKeyRing = ChromeUtils.import("chrome://enigmail/content/modules/keyRing.jsm").EnigmailKeyRing;
 var EnigmailWindows = ChromeUtils.import("chrome://enigmail/content/modules/windows.jsm").EnigmailWindows;
 var EnigmailTimer = ChromeUtils.import("chrome://enigmail/content/modules/timer.jsm").EnigmailTimer;
-var Services = ChromeUtils.import("resource://gre/modules/Services.jsm").Services;
+//var Services = ChromeUtils.import("resource://gre/modules/Services.jsm").Services;
 
 var Enigmail = {};
 

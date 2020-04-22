@@ -9,7 +9,6 @@
 var EXPORTED_SYMBOLS = ["EnigmailWindows"];
 
 const EnigmailLog = ChromeUtils.import("chrome://enigmail/content/modules/log.jsm").EnigmailLog;
-const EnigmailStdlib = ChromeUtils.import("chrome://enigmail/content/modules/stdlib.jsm").EnigmailStdlib;
 
 const APPSHELL_MEDIATOR_CONTRACTID = "@mozilla.org/appshell/window-mediator;1";
 const APPSHSVC_CONTRACTID = "@mozilla.org/appshell/appShellService;1";
@@ -74,10 +73,10 @@ var EnigmailWindows = {
 
     while (winEnum.hasMoreElements()) {
       var thisWin = winEnum.getNext();
-      if (thisWin.location.href.search(/\/messenger.xul$/) > 0) {
+      if (thisWin.location.href.search(/\/messenger.xhtml$/) > 0) {
         bestFit = thisWin;
       }
-      if (!bestFit && thisWin.location.href.search(/\/messengercompose.xul$/) > 0) {
+      if (!bestFit && thisWin.location.href.search(/\/messengercompose.xhtml$/) > 0) {
         bestFit = thisWin;
       }
     }
@@ -124,7 +123,7 @@ var EnigmailWindows = {
    * @param winName: String - name of the window; used to identify if it is already open
    */
   openMailTab: function(aURL, windowName) {
-    let tabs = EnigmailStdlib.getMail3Pane().document.getElementById("tabmail");
+    let tabs = getMail3Pane().document.getElementById("tabmail");
 
     for (let i = 0; i < tabs.tabInfo.length; i++) {
       if ("openedUrl" in tabs.tabInfo[i] && tabs.tabInfo[i].openedUrl.startsWith(aURL)) {
@@ -142,7 +141,7 @@ var EnigmailWindows = {
   shutdown: function(reason) {
     EnigmailLog.DEBUG("windows.jsm: shutdown()\n");
 
-    let tabs = EnigmailStdlib.getMail3Pane().document.getElementById("tabmail");
+    let tabs = getMail3Pane().document.getElementById("tabmail");
 
     for (let i = tabs.tabInfo.length - 1; i >= 0; i--) {
       if ("openedUrl" in tabs.tabInfo[i] && tabs.tabInfo[i].openedUrl.startsWith("chrome://enigmail/")) {
@@ -151,3 +150,10 @@ var EnigmailWindows = {
     }
   }
 };
+
+
+function getMail3Pane() {
+  return Cc["@mozilla.org/appshell/window-mediator;1"]
+    .getService(Ci.nsIWindowMediator)
+    .getMostRecentWindow("mail:3pane");
+}

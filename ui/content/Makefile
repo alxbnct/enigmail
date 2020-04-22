@@ -12,14 +12,14 @@ UIFILES = \
 	enigmailCommon.js \
 	aboutEnigmail.html \
 	aboutEnigmail.js \
-	enigmailMessengerOverlay.xul \
+	enigmailMessengerOverlay.xhtml \
 	enigmailMessengerOverlay.js \
-	enigmailKeySelection.xul \
+	enigmailKeySelection.xhtml \
 	enigmailKeySelection.js \
 	enigmailMsgBox.js \
-	enigmailMsgBox.xul \
+	enigmailMsgBox.xhtml \
 	setupWizard2.js \
-	setupWizard2.xul \
+	setupWizard2.xhtml \
 	upgradeInfo.html \
 	upgradeInfo.js
 
@@ -29,6 +29,9 @@ $(GENDIR)/%.js: %.js
 	$(DEPTH)/util/prepPostbox -c $(TARGET_TOOL) $< $@
 
 $(GENDIR)/%.xul: %.xul
+	$(PERL) $(DEPTH)/util/plpp.pl -i $(INCLUDE) -o $@ $<
+
+$(GENDIR)/%.xhtml: %.xhtml
 	$(PERL) $(DEPTH)/util/plpp.pl -i $(INCLUDE) -o $@ $<
 
 $(GENDIR)/%.htm: %.htm

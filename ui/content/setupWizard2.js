@@ -58,7 +58,7 @@ function onCancel() {
 
 function selectPrivateKeys() {
   let resultObj = {};
-  window.openDialog("chrome://enigmail/content/ui/enigmailKeySelection.xul", "", "dialog,centerscreen,modal", {
+  window.openDialog("chrome://enigmail/content/ui/enigmailKeySelection.xhtml", "", "chrome,dialog,centerscreen,modal", {
     options: `private,allowexpired,trustallkeys,multisel,nosending,sendlabel=${E2TBLocale.getString("setupWizard.selectKeysButton")},`
   }, resultObj);
 
