@@ -7,7 +7,7 @@
 
 
 <?xml-stylesheet href="chrome://messenger/skin/" type="text/css"?>
-<?xml-stylesheet href="chrome://enigmail/skin/enigmail.css" type="text/css"?>
+<?xml-stylesheet href="chrome://enigmail/content/skin/enigmail.css" type="text/css"?>
 
 <!DOCTYPE window [
   <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd" >
@@ -55,6 +55,18 @@
     </html:p>
     <html:p>
       <html:button type="button" id="btnStartMigration" onclick="startMigration()">&enigmail.setupWiz.startMigration.button;</html:button>
+    </html:p>
+  </html:div>
+
+  <html:div id="exportingKeys" style="width: 440px; margin:auto; visibility: collapse">
+    <html:p style="text-align: center;">&enigmail.setupWiz.exportingKeys;
+      <image class="enigmailWheel enigmailSpinning"/>
+    </html:p>
+  </html:div>
+
+  <html:div id="keysExported" style="width: 440px; margin:auto; visibility: collapse">
+    <html:p style="text-align: center;">&enigmail.setupWiz.exportingKeys;
+      <html:span aria-label="&enigmail.general.okLabel;" id="foundGnuPG" class="enigmailOkSign"/>
     </html:p>
   </html:div>
 </dialog>

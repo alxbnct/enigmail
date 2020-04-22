@@ -8,20 +8,19 @@
  * Enigmail styles for Windows (Aero Theme)
  */
 
-@import url("chrome://enigmail/skin/enigmail-common.css"); /* common styles for all platforms */
-@import url("chrome://enigmail/skin/enigmail-pEp.css");    /* styles related to pEp for all platforms */
+@import url("chrome://enigmail/content/skin/enigmail-common.css"); /* common styles for all platforms */
 
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul");
 
 
 #button-enigmail-decrypt
   {
-    list-style-image : url("chrome://enigmail/skin/decrypt-active-18.svg");
+    list-style-image : url("chrome://enigmail/content/skin/decrypt-active-18.svg");
   }
 
 #button-enigmail-decrypt[disabled]
   {
-    list-style-image : url("chrome://enigmail/skin/decrypt-inactive-18.svg");
+    list-style-image : url("chrome://enigmail/content/skin/decrypt-inactive-18.svg");
   }
 
 
@@ -32,7 +31,7 @@
 
 #button-enigmail-encrypt
 {
-  list-style-image : url("chrome://enigmail/skin/encrypt-inactive-18.svg");
+  list-style-image : url("chrome://enigmail/content/skin/encrypt-inactive-18.svg");
 }
 
 /* hide label unless text-only mode is enabled */
@@ -41,22 +40,22 @@ toolbar:not([mode="text"]) #button-enigmail-encrypt .toolbarbutton-text {
 }
 
 #button-enigmail-encrypt[disabled] {
-  list-style-image : url("chrome://enigmail/skin/encrypt-disabled-18.svg");
+  list-style-image : url("chrome://enigmail/content/skin/encrypt-disabled-18.svg");
 }
 
 #button-enigmail-encrypt[encrypted="activeNone"]
 {
-  list-style-image : url("chrome://enigmail/skin/encrypt-active-18.svg");
+  list-style-image : url("chrome://enigmail/content/skin/encrypt-active-18.svg");
 }
 
 #button-enigmail-encrypt[encrypted="forceYes"]
 {
-  list-style-image : url("chrome://enigmail/skin/encrypt-active-18.svg");
+  list-style-image : url("chrome://enigmail/content/skin/encrypt-active-18.svg");
 }
 
 #button-enigmail-encrypt[encrypted="forceNo"]
 {
-  list-style-image : url("chrome://enigmail/skin/encrypt-inactive-18.svg");
+  list-style-image : url("chrome://enigmail/content/skin/encrypt-inactive-18.svg");
 }
 
 
@@ -67,7 +66,7 @@ toolbar:not([mode="text"]) #button-enigmail-encrypt .toolbarbutton-text {
 
 #button-enigmail-sign
 {
-  list-style-image : url("chrome://enigmail/skin/sign-inactive-18.svg");
+  list-style-image : url("chrome://enigmail/content/skin/sign-inactive-18.svg");
 }
 
 /* hide label unless text-only mode is enabled */
@@ -76,22 +75,22 @@ toolbar:not([mode="text"]) #button-enigmail-sign .toolbarbutton-text {
 }
 
 #button-enigmail-sign[disabled] {
-  list-style-image : url("chrome://enigmail/skin/sign-disabled-18.svg");
+  list-style-image : url("chrome://enigmail/content/skin/sign-disabled-18.svg");
 }
 
 #button-enigmail-sign[signed="activeNone"]
 {
-  list-style-image : url("chrome://enigmail/skin/sign-active-18.svg");
+  list-style-image : url("chrome://enigmail/content/skin/sign-active-18.svg");
 }
 
 #button-enigmail-sign[signed="forceYes"]
 {
-  list-style-image : url("chrome://enigmail/skin/sign-active-18.svg");
+  list-style-image : url("chrome://enigmail/content/skin/sign-active-18.svg");
 }
 
 #button-enigmail-sign[signed="forceNo"]
 {
-  list-style-image : url("chrome://enigmail/skin/sign-inactive-18.svg");
+  list-style-image : url("chrome://enigmail/content/skin/sign-inactive-18.svg");
 }
 
 /***************************************************
@@ -100,16 +99,16 @@ toolbar:not([mode="text"]) #button-enigmail-sign .toolbarbutton-text {
 
 #button-enigmail-attach
 {
-  list-style-image : url("chrome://enigmail/skin/attach-inactive-18.svg");
+  list-style-image : url("chrome://enigmail/content/skin/attach-inactive-18.svg");
 }
 
 #button-enigmail-attach[disabled] {
-  list-style-image : url("chrome://enigmail/skin/attach-disabled-18.svg");
+  list-style-image : url("chrome://enigmail/content/skin/attach-disabled-18.svg");
 }
 
 #button-enigmail-attach[addPubkey="true"]
 {
-  list-style-image : url("chrome://enigmail/skin/attach-active-18.svg");
+  list-style-image : url("chrome://enigmail/content/skin/attach-active-18.svg");
 }
 
 
@@ -123,22 +122,22 @@ toolbar:not([mode="text"]) #button-enigmail-sign .toolbarbutton-text {
 }
 
 #enigmail-status-bar[signed="ok"] #enigmail-signed-status {
-  list-style-image: url("chrome://enigmail/skin/enigSignOk.png");
+  list-style-image: url("chrome://enigmail/content/skin/enigSignOk.png");
   visibility: visible;
 }
 
 #enigmail-status-bar[signed="notok"] #enigmail-signed-status {
-  list-style-image: url("chrome://enigmail/skin/enigSignNotOk.png");
+  list-style-image: url("chrome://enigmail/content/skin/enigSignNotOk.png");
   visibility: visible;
 }
 
 #enigmail-status-bar[signed="unknown"] #enigmail-signed-status {
-  list-style-image: url("chrome://enigmail/skin/enigSignUnkown.png");
+  list-style-image: url("chrome://enigmail/content/skin/enigSignUnkown.png");
   visibility: visible;
 }
 
 #enigmail-status-bar[signed="inactive"] #enigmail-signed-status {
-  list-style-image: url("chrome://enigmail/skin/enigSignInactive.png");
+  list-style-image: url("chrome://enigmail/content/skin/enigSignInactive.png");
   visibility: visible;
 }
 
@@ -148,17 +147,17 @@ toolbar:not([mode="text"]) #button-enigmail-sign .toolbarbutton-text {
 }
 
 #enigmail-status-bar[encrypted="ok"] #enigmail-encrypted-status {
-  list-style-image: url("chrome://enigmail/skin/enigEncOk.png");
+  list-style-image: url("chrome://enigmail/content/skin/enigEncOk.png");
   visibility: visible;
 }
 
 #enigmail-status-bar[encrypted="notok"] #enigmail-encrypted-status {
-  list-style-image: url("chrome://enigmail/skin/enigEncNotOk.png");
+  list-style-image: url("chrome://enigmail/content/skin/enigEncNotOk.png");
   visibility: visible;
 }
 
 #enigmail-status-bar[encrypted="inactive"] #enigmail-encrypted-status {
-  list-style-image: url("chrome://enigmail/skin/enigEncInactive.png");
+  list-style-image: url("chrome://enigmail/content/skin/enigEncInactive.png");
   visibility: visible;
 }
 
@@ -169,16 +168,16 @@ toolbar:not([mode="text"]) #button-enigmail-sign .toolbarbutton-text {
 
 #enigmail-toolbar-encryptHdr-button
 {
-  list-style-image : url("chrome://enigmail/skin/headerUnprotected-18.svg");
+  list-style-image : url("chrome://enigmail/content/skin/headerUnprotected-18.svg");
 }
 
 #enigmail-toolbar-encryptHdr-button[disabled] {
-  list-style-image : url("chrome://enigmail/skin/headerUnprotected-18.svg");
+  list-style-image : url("chrome://enigmail/content/skin/headerUnprotected-18.svg");
 }
 
 #enigmail-toolbar-encryptHdr-button[checked="true"]
 {
-  list-style-image : url("chrome://enigmail/skin/headerProtected-18.svg");
+  list-style-image : url("chrome://enigmail/content/skin/headerProtected-18.svg");
 }
 
 /***************************************************
@@ -186,52 +185,52 @@ toolbar:not([mode="text"]) #button-enigmail-sign .toolbarbutton-text {
  ***************************************************/
 
 #enigmail-status-bar[signed="forceYes"] #enigmail-signed-status {
-  list-style-image: url("chrome://enigmail/skin/enigSignForceYes.png");
+  list-style-image: url("chrome://enigmail/content/skin/enigSignForceYes.png");
   visibility: visible;
 }
 
 #enigmail-status-bar[signed="forceNo"] #enigmail-signed-status {
-  list-style-image: url("chrome://enigmail/skin/enigSignForceNo.png");
+  list-style-image: url("chrome://enigmail/content/skin/enigSignForceNo.png");
   visibility: visible;
 }
 
 #enigmail-status-bar[signed="inactiveNone"] #enigmail-signed-status {
-  list-style-image: url("chrome://enigmail/skin/enigSignInactiveNone.png");
+  list-style-image: url("chrome://enigmail/content/skin/enigSignInactiveNone.png");
   visibility: visible;
 }
 
 #enigmail-status-bar[signed="inactivePlus"] #enigmail-signed-status {
-  list-style-image: url("chrome://enigmail/skin/enigSignInactivePlus.png");
+  list-style-image: url("chrome://enigmail/content/skin/enigSignInactivePlus.png");
   visibility: visible;
 }
 
 #enigmail-status-bar[signed="inactiveMinus"] #enigmail-signed-status {
-  list-style-image: url("chrome://enigmail/skin/enigSignInactiveMinus.png");
+  list-style-image: url("chrome://enigmail/content/skin/enigSignInactiveMinus.png");
   visibility: visible;
 }
 
 #enigmail-status-bar[signed="inactiveConflict"] #enigmail-signed-status {
-  list-style-image: url("chrome://enigmail/skin/enigSignInactiveConflict.png");
+  list-style-image: url("chrome://enigmail/content/skin/enigSignInactiveConflict.png");
   visibility: visible;
 }
 
 #enigmail-status-bar[signed="activeNone"] #enigmail-signed-status {
-  list-style-image: url("chrome://enigmail/skin/enigSignActiveNone.png");
+  list-style-image: url("chrome://enigmail/content/skin/enigSignActiveNone.png");
   visibility: visible;
 }
 
 #enigmail-status-bar[signed="activePlus"] #enigmail-signed-status {
-  list-style-image: url("chrome://enigmail/skin/enigSignActivePlus.png");
+  list-style-image: url("chrome://enigmail/content/skin/enigSignActivePlus.png");
   visibility: visible;
 }
 
 #enigmail-status-bar[signed="activeMinus"] #enigmail-signed-status {
-  list-style-image: url("chrome://enigmail/skin/enigSignActiveMinus.png");
+  list-style-image: url("chrome://enigmail/content/skin/enigSignActiveMinus.png");
   visibility: visible;
 }
 
 #enigmail-status-bar[signed="activeConflict"] #enigmail-signed-status {
-  list-style-image: url("chrome://enigmail/skin/enigSignActiveConflict.png");
+  list-style-image: url("chrome://enigmail/content/skin/enigSignActiveConflict.png");
   visibility: visible;
 }
 
@@ -240,51 +239,51 @@ toolbar:not([mode="text"]) #button-enigmail-sign .toolbarbutton-text {
  ***************************************************/
 
 #enigmail-status-bar[encrypted="forceYes"] #enigmail-encrypted-status {
-  list-style-image: url("chrome://enigmail/skin/enigEncForceYes.png");
+  list-style-image: url("chrome://enigmail/content/skin/enigEncForceYes.png");
   visibility: visible;
 }
 
 #enigmail-status-bar[encrypted="forceNo"] #enigmail-encrypted-status {
-  list-style-image: url("chrome://enigmail/skin/enigEncForceNo.png");
+  list-style-image: url("chrome://enigmail/content/skin/enigEncForceNo.png");
   visibility: visible;
 }
 
 #enigmail-status-bar[encrypted="activeNone"] #enigmail-encrypted-status {
-  list-style-image: url("chrome://enigmail/skin/enigEncActiveNone.png");
+  list-style-image: url("chrome://enigmail/content/skin/enigEncActiveNone.png");
   visibility: visible;
 }
 
 #enigmail-status-bar[encrypted="activePlus"] #enigmail-encrypted-status {
-  list-style-image: url("chrome://enigmail/skin/enigEncActivePlus.png");
+  list-style-image: url("chrome://enigmail/content/skin/enigEncActivePlus.png");
   visibility: visible;
 }
 
 #enigmail-status-bar[encrypted="activeMinus"] #enigmail-encrypted-status {
-  list-style-image: url("chrome://enigmail/skin/enigEncActiveMinus.png");
+  list-style-image: url("chrome://enigmail/content/skin/enigEncActiveMinus.png");
   visibility: visible;
 }
 
 #enigmail-status-bar[encrypted="activeConflict"] #enigmail-encrypted-status {
-  list-style-image: url("chrome://enigmail/skin/enigEncActiveConflict.png");
+  list-style-image: url("chrome://enigmail/content/skin/enigEncActiveConflict.png");
   visibility: visible;
 }
 
 #enigmail-status-bar[encrypted="inactiveNone"] #enigmail-encrypted-status {
-  list-style-image: url("chrome://enigmail/skin/enigEncInactiveNone.png");
+  list-style-image: url("chrome://enigmail/content/skin/enigEncInactiveNone.png");
   visibility: visible;
 }
 
 #enigmail-status-bar[encrypted="inactivePlus"] #enigmail-encrypted-status {
-  list-style-image: url("chrome://enigmail/skin/enigEncInactivePlus.png");
+  list-style-image: url("chrome://enigmail/content/skin/enigEncInactivePlus.png");
   visibility: visible;
 }
 
 #enigmail-status-bar[encrypted="inactiveMinus"] #enigmail-encrypted-status {
-  list-style-image: url("chrome://enigmail/skin/enigEncInactiveMinus.png");
+  list-style-image: url("chrome://enigmail/content/skin/enigEncInactiveMinus.png");
   visibility: visible;
 }
 
 #enigmail-status-bar[encrypted="inactiveConflict"] #enigmail-encrypted-status {
-  list-style-image: url("chrome://enigmail/skin/enigEncInactiveConflict.png");
+  list-style-image: url("chrome://enigmail/content/skin/enigEncInactiveConflict.png");
   visibility: visible;
 }

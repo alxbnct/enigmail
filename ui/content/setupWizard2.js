@@ -80,6 +80,8 @@ function startMigration() {
 function exportKeys(tmpDir) {
   E2TBLog.DEBUG(`setupWizard2.exportKeys(${tmpDir.path})\n`);
 
+  document.getElementById("exportingKeys").style.visibility = "visible";
+
   let exitCodeObj = {},
     errorMsgObj = {};
 
@@ -106,11 +108,15 @@ function exportKeys(tmpDir) {
 
   E2TBKeyRing.extractKey(false, "", pubKeysFile, exitCodeObj, errorMsgObj);
 
+  document.getElementById("exportingKeys").style.visibility = "collapse";
+
   if (exitCodeObj.value !== 0) {
     E2TBLog.DEBUG("importExportWizard: error while exporting public keys\n");
     E2TBDialog.alert(window, E2TBLocale.getString("dataExportError"));
     return false;
   }
+
+  document.getElementById("keysExported").style.visibility = "visible";
 
   return true;
 }
