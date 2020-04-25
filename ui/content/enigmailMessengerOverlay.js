@@ -12,51 +12,49 @@
 /* global currentHeaderData: false, gViewAllHeaders: false, gExpandedHeaderList: false, goDoCommand: false, HandleSelectedAttachments: false */
 /* global statusFeedback: false, displayAttachmentsForExpandedView: false, gMessageListeners: false, gExpandedHeaderView: false, gSignedUINode: false */
 
-var EnigmailLog = ChromeUtils.import("chrome://enigmail/content/modules/log.jsm").EnigmailLog;
-var EnigmailPrefs = ChromeUtils.import("chrome://enigmail/content/modules/prefs.jsm").EnigmailPrefs;
-var EnigmailLocale = ChromeUtils.import("chrome://enigmail/content/modules/locale.jsm").EnigmailLocale;
-var EnigmailKeyRing = ChromeUtils.import("chrome://enigmail/content/modules/keyRing.jsm").EnigmailKeyRing;
-var EnigmailWindows = ChromeUtils.import("chrome://enigmail/content/modules/windows.jsm").EnigmailWindows;
-var EnigmailTimer = ChromeUtils.import("chrome://enigmail/content/modules/timer.jsm").EnigmailTimer;
+var E2TBLog = ChromeUtils.import("chrome://enigmail/content/modules/log.jsm").EnigmailLog;
+var E2TBPrefs = ChromeUtils.import("chrome://enigmail/content/modules/prefs.jsm").EnigmailPrefs;
+var E2TBLocale = ChromeUtils.import("chrome://enigmail/content/modules/locale.jsm").EnigmailLocale;
+var E2TBKeyRing = ChromeUtils.import("chrome://enigmail/content/modules/keyRing.jsm").EnigmailKeyRing;
+var E2TBWindows = ChromeUtils.import("chrome://enigmail/content/modules/windows.jsm").EnigmailWindows;
+var E2TBTimer = ChromeUtils.import("chrome://enigmail/content/modules/timer.jsm").EnigmailTimer;
 //var Services = ChromeUtils.import("resource://gre/modules/Services.jsm").Services;
 
-var Enigmail = {};
-
-Enigmail.msg = {
+var E2TB = {
   messengerStartup: function() {
-    EnigmailLog.DEBUG("enigmailMessengerOverlay.js: messengerStartup()\n");
+    E2TBLog.DEBUG("enigmailMessengerOverlay.js: messengerStartup()\n");
 
-    const lastVersion = EnigmailPrefs.getPref("configuredVersion");
+    const lastVersion = E2TBPrefs.getPref("configuredVersion");
     const vc = Cc["@mozilla.org/xpcom/version-comparator;1"].getService(Ci.nsIVersionComparator);
 
     if (vc.compare(lastVersion, "2.2b1") >= 0) {
       return;
     }
 
-    EnigmailTimer.setTimeout(() => {
-      let keyList = EnigmailKeyRing.getAllSecretKeys(false);
+    E2TBTimer.setTimeout(() => {
+      let keyList = E2TBKeyRing.getAllSecretKeys(false);
 
-      if (keyList.length > 0) EnigmailWindows.openUpdateInfo();
+      if (keyList.length > 0) E2TBWindows.openUpdateInfo();
     }, 3000);
   },
 
 
   messengerClose: function() {
-    EnigmailLog.DEBUG("enigmailMessengerOverlay.js: messengerClose()\n");
+    E2TBLog.DEBUG("enigmailMessengerOverlay.js: messengerClose()\n");
 
   },
 
   onUnloadEnigmail: function() {
-    EnigmailLog.DEBUG("enigmailMessengerOverlay.js: onUnloadEnigmail()\n");
+    E2TBLog.DEBUG("enigmailMessengerOverlay.js: onUnloadEnigmail()\n");
 
-    window.removeEventListener("unload", Enigmail.msg.messengerClose, false);
-    window.removeEventListener("unload-enigmail", Enigmail.msg.onUnloadEnigmail, false);
-    window.removeEventListener("load-enigmail", Enigmail.msg.messengerStartup, false);
+    window.removeEventListener("unload", E2TB.messengerClose, false);
+    window.removeEventListener("unload-enigmail", E2TB.onUnloadEnigmail, false);
+    window.removeEventListener("load-enigmail", E2TB.messengerStartup, false);
 
-    Enigmail = undefined;
+    E2TB = undefined;
   }
 };
 
-window.addEventListener("load-enigmail", Enigmail.msg.messengerStartup.bind(Enigmail.msg), false);
-window.addEventListener("unload", Enigmail.msg.messengerClose.bind(Enigmail.msg), false);
-window.addEventListener("unload-enigmail", Enigmail.msg.onUnloadEnigmail.bind(Enigmail.msg), false);
+window.addEventListener("load-enigmail", E2TB.messengerStartup.bind(E2TB), false);
+window.addEventListener("unload", E2TB.messengerClose.bind(E2TB), false);
+window.addEventListener("unload-enigmail", E2TB.onUnloadEnigmail.bind(E2TB), false);

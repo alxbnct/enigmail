@@ -16,6 +16,12 @@ var E2TBLocale = ChromeUtils.import("chrome://enigmail/content/modules/locale.js
 var E2TBDialog = ChromeUtils.import("chrome://enigmail/content/modules/dialog.jsm").EnigmailDialog;
 var E2TBFiles = ChromeUtils.import("chrome://enigmail/content/modules/files.jsm").EnigmailFiles;
 var E2TBKeyRing = ChromeUtils.import("chrome://enigmail/content/modules/keyRing.jsm").EnigmailKeyRing;
+var Services = ChromeUtils.import("resource://gre/modules/Services.jsm").Services;
+
+// OpenPGP implementation in TB
+var EnigmailDialog = ChromeUtils.import("chrome://openpgp/content/modules/dialog.jsm").EnigmailDialog;
+var EnigmailKeyRing = ChromeUtils.import("chrome://openpgp/content/modules/keyRing.jsm").EnigmailKeyRing;
+
 
 var gSelectedPrivateKeys = null,
   gAcceptButton = null,
@@ -74,6 +80,7 @@ function startMigration() {
   gProcessing = true;
   let tmpDir = E2TBFiles.createTempSubDir("enig-exp", true);
   exportKeys(tmpDir);
+  importKeys(tmpDir);
   gAcceptButton.removeAttribute("disabled");
 }
 
@@ -122,6 +129,32 @@ function exportKeys(tmpDir) {
 }
 
 
+function importKeys(tmpDir) {
+  E2TBLog.DEBUG(`setupWizard2.exportKeys(${tmpDir.path})\n`);
+
+  document.getElementById("importingKeys").style.visibility = "visible";
+
+  for (let fpr of gSelectedPrivateKeys) {
+    if (gDialogCancelled) return closeAfterCancel();
+
+    let secKeyFile = tmpDir.clone();
+    secKeyFile.append(fpr + ".sec");
+
+    E2TBLog.DEBUG("setupWizard2.exportKeys: secFile: " + secKeyFile.path + "\n");
+    importKeyFile(secKeyFile, true);
+  }
+
+  let pubKeysFile = tmpDir.clone();
+  pubKeysFile.append("pubkeys.asc");
+
+  importKeyFile(pubKeysFile, false);
+
+  document.getElementById("importingKeys").style.visibility = "collapse";
+  document.getElementById("keysImported").style.visibility = "visible";
+
+  return true;
+}
+
 function handleClick(event) {
   /*
   if (event.target.hasAttribute("href")) {
@@ -141,3 +174,65 @@ document.addEventListener("dialogcancel", function(event) {
   if (!onCancel())
     event.preventDefault(); // Prevent the dialog closing.
 });
+
+function importKeyFile(inFile, secret) {
+  let resultKeys = {},
+    errorMsgObj = {};
+
+  try {
+    let exitCode = EnigmailKeyRing.importKeyFromFile(
+      window,
+      passphrasePromptCallback,
+      inFile,
+      errorMsgObj,
+      resultKeys,
+      !secret,
+      secret
+    );
+
+    if (exitCode !== 0) {
+      EnigmailDialog.alert(
+        window,
+        E2TBLocale.getString("importKeysFailed") +
+        "\n\n" +
+        errorMsgObj.value
+      );
+    }
+  }
+  catch (ex) {
+    Services.console.logMessage(ex);
+    EnigmailDialog.alert(
+      window,
+      E2TBLocale.getString("importKeysFailed") +
+      "\n\n" +
+      ex.toString()
+    );
+  }
+}
+
+/**
+ * opens a prompt, asking the user to enter passphrase for given key id
+ * returns: the passphrase if entered (empty string is allowed)
+ * resultFlags.canceled is set to true if the user clicked cancel
+ */
+function passphrasePromptCallback(win, keyId, resultFlags) {
+  let p = {};
+  p.value = "";
+  let dummy = {};
+  if (
+    !Services.prompt.promptPassword(
+      win,
+      "",
+      E2TBLocale.getString("passphrasePrompt", [keyId]),
+      p,
+      null,
+      dummy
+    )
+  ) {
+    resultFlags.canceled = true;
+    return "";
+  }
+
+  resultFlags.canceled = false;
+  return p.value;
+}

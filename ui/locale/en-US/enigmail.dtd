@@ -674,6 +674,7 @@
 <!ENTITY enigmail.setupWiz.pgInstall.installLabel    "Starting the installer. Please follow the steps of the GnuPG installer wizard.">
 
 <!ENTITY enigmail.setupWiz.exportingKeys             "Exporting keys from GnuPG ...">
+<!ENTITY enigmail.setupWiz.importingKeys             "Importing keys into Thunderbird ...">
 <!ENTITY enigmail.setupWiz.checkingSetup             "Checking your existing setup ...">
 <!ENTITY enigmail.setupWiz.startSetupButton          "Start Setup">
 <!ENTITY enigmail.setupWiz.usingPepMode              "We determined that you are using Pretty Easy Privacy (p≡p).">
