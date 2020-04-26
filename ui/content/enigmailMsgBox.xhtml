@@ -6,7 +6,7 @@
 -->
 
 <?xml-stylesheet href="chrome://messenger/skin/messenger.css" type="text/css"?>
-<?xml-stylesheet href="chrome://enigmail/skin/enigmail.css" type="text/css"?>
+<?xml-stylesheet href="chrome://enigmail/content/skin/enigmail.css" type="text/css"?>
 
 <!DOCTYPE window [
 <!ENTITY % enigMailDTD SYSTEM "chrome://enigmail/locale/enigmail.dtd" >
@@ -33,29 +33,29 @@
     <spacer style="width: 29em;"/>
   </hbox>
 
-  <grid>
-    <columns>
-      <column/>
-      <column flex="1"/>
-    </columns>
-
-    <rows>
-      <row>
+  <html:table>
+    <html:tr>
+      <html:td>
         <hbox id="iconContainer" align="start">
           <image id="infoImage" class="spaced" collapsed="true"/>
         </hbox>
+      </html:td>
+      <html:td>
         <vbox id="infoContainer" pack="center">
           <label id="macosDialogTitle" collapsed="true" class="enigmailDialogTitle"/>
           <vbox id="msgContainer" style="max-width: 45em;">
             <description id="msgtext" context="ctxmenu" noinitialfocus="true" class="enigmailDialogBody"/>
           </vbox>
         </vbox>
-      </row>
-      <row id="checkboxContainer" hidden="true">
-        <spacer/>
+      </html:td>
+    </html:tr>
+    <html:tr id="checkboxContainer" hidden="true">
+      <html:td>
+      </html:td>
+      <html:td>
         <checkbox id="theCheckBox" checked="false" oncommand="checkboxCb()"/>
-      </row>
-    </rows>
-  </grid>
+      </html:td>
+    </html:tr>
+  </html:table>
   </dialog>
 </window>
