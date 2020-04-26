@@ -251,6 +251,7 @@ function importKeyFile(fpr, inFile, isSecretKey) {
     return (exitCode === 0);
   }
   catch (ex) {
+    E2TBLog.DEBUG(`setupWizard2.js: import key failed for key ${fpr}\n`);
     Services.console.logMessage(ex);
     if (isSecretKey) {
       E2TBDialog.alert(

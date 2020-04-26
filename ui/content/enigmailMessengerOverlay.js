@@ -18,6 +18,7 @@ var E2TBLocale = ChromeUtils.import("chrome://enigmail/content/modules/locale.js
 var E2TBKeyRing = ChromeUtils.import("chrome://enigmail/content/modules/keyRing.jsm").EnigmailKeyRing;
 var E2TBWindows = ChromeUtils.import("chrome://enigmail/content/modules/windows.jsm").EnigmailWindows;
 var E2TBTimer = ChromeUtils.import("chrome://enigmail/content/modules/timer.jsm").EnigmailTimer;
+var E2TBSingletons = ChromeUtils.import("chrome://enigmail/content/modules/singletons.jsm").EnigmailSingletons;
 //var Services = ChromeUtils.import("resource://gre/modules/Services.jsm").Services;
 
 var E2TB = {
@@ -34,6 +35,7 @@ var E2TB = {
     E2TBTimer.setTimeout(() => {
       let keyList = E2TBKeyRing.getAllSecretKeys(false);
 
+      if (E2TBSingletons.upgradeInfoDisplayed) return;
       if (keyList.length > 0) E2TBWindows.openUpdateInfo();
     }, 3000);
   },

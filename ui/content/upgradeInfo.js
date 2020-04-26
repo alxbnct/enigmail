@@ -11,8 +11,10 @@ var Ci = Components.interfaces;
 const EnigmailLocalizeHtml = ChromeUtils.import("chrome://enigmail/content/modules/localizeHtml.jsm").EnigmailLocalizeHtml;
 const EnigmailWindows = ChromeUtils.import("chrome://enigmail/content/modules/windows.jsm").EnigmailWindows;
 const EnigmailTimer = ChromeUtils.import("chrome://enigmail/content/modules/timer.jsm").EnigmailTimer;
+const EnigmailSingletons = ChromeUtils.import("chrome://enigmail/content/modules/singletons.jsm").EnigmailSingletons;
 
 function onload() {
+  EnigmailSingletons.upgradeInfoDisplayed = true;
   EnigmailTimer.setTimeout(() => {
     EnigmailLocalizeHtml.onPageLoad(document);
   }, 50);
