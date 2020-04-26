@@ -16,6 +16,7 @@ var E2TBLocale = ChromeUtils.import("chrome://enigmail/content/modules/locale.js
 var E2TBDialog = ChromeUtils.import("chrome://enigmail/content/modules/dialog.jsm").EnigmailDialog;
 var E2TBFiles = ChromeUtils.import("chrome://enigmail/content/modules/files.jsm").EnigmailFiles;
 var E2TBKeyRing = ChromeUtils.import("chrome://enigmail/content/modules/keyRing.jsm").EnigmailKeyRing;
+var E2TBCryptoAPI = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI.jsm").EnigmailCryptoAPI;
 var Services = ChromeUtils.import("resource://gre/modules/Services.jsm").Services;
 
 // OpenPGP implementation in TB
@@ -71,10 +72,10 @@ function selectPrivateKeys() {
 
   if (resultObj.cancelled) return;
   gSelectedPrivateKeys = resultObj.userList;
-  E2TBLog.DEBUG(`setupWizard2.selectPrivateKeys: selKey: ${gSelectedPrivateKeys.join(", ")}\n`);
+  E2TBLog.DEBUG(`setupWizard2.js: selectPrivateKeys: selKey: ${gSelectedPrivateKeys.join(", ")}\n`);
 }
 
-function startMigration() {
+async function startMigration() {
   for (let btn of ["btnSelectPrivateKeys", "btnStartMigration"]) {
     document.getElementById(btn).setAttribute("disabled", "true");
   }
@@ -82,13 +83,14 @@ function startMigration() {
   let tmpDir = E2TBFiles.createTempSubDir("enig-exp", true);
   exportKeys(tmpDir);
   importKeys(tmpDir);
+  await applyKeySignatures();
   gAcceptButton.removeAttribute("disabled");
 }
 
 
 
 function exportKeys(tmpDir) {
-  E2TBLog.DEBUG(`setupWizard2.exportKeys(${tmpDir.path})\n`);
+  E2TBLog.DEBUG(`setupWizard2.js: exportKeys(${tmpDir.path})\n`);
 
   document.getElementById("exportingKeys").style.visibility = "visible";
 
@@ -113,7 +115,7 @@ function exportKeys(tmpDir) {
     let secKeyFile = tmpDir.clone();
     secKeyFile.append(fpr + ".sec");
 
-    E2TBLog.DEBUG("setupWizard2.exportKeys: secFile: " + secKeyFile.path + "\n");
+    E2TBLog.DEBUG("setupWizard2.js: exportKeys: secFile: " + secKeyFile.path + "\n");
     E2TBKeyRing.extractKey(true, fpr, secKeyFile, exitCodeObj, errorMsgObj);
 
     ++numKeysProcessed;
@@ -151,7 +153,7 @@ function exportKeys(tmpDir) {
 
 
 function importKeys(tmpDir) {
-  E2TBLog.DEBUG(`setupWizard2.importKeys(${tmpDir.path})\n`);
+  E2TBLog.DEBUG(`setupWizard2.js: importKeys(${tmpDir.path})\n`);
 
   let pubKeysFailed = [];
   let importProgess = document.getElementById("importProgress");
@@ -171,7 +173,7 @@ function importKeys(tmpDir) {
     let secKeyFile = tmpDir.clone();
     secKeyFile.append(fpr + ".sec");
 
-    E2TBLog.DEBUG("setupWizard2.importKeys: secFile: " + secKeyFile.path + "\n");
+    E2TBLog.DEBUG("setupWizard2.js: importKeys: secFile: " + secKeyFile.path + "\n");
     importKeyFile(fpr, secKeyFile, true);
     ++numKeysProcessed;
     setImportProgress(numKeysProcessed / totalNumKeys * 100);
@@ -186,7 +188,7 @@ function importKeys(tmpDir) {
     ++numKeysProcessed;
     setImportProgress(numKeysProcessed / totalNumKeys * 100);
 
-    E2TBLog.DEBUG("setupWizard2.importKeys: pubFile: " + pubKeyFile.path + "\n");
+    E2TBLog.DEBUG("setupWizard2.js: importKeys: pubFile: " + pubKeyFile.path + "\n");
     if (!importKeyFile(fpr, pubKeyFile, false)) {
       pubKeysFailed.push(fpr);
     }
@@ -202,6 +204,20 @@ function importKeys(tmpDir) {
     );
   }
   return true;
+}
+
+async function applyKeySignatures() {
+  E2TBLog.DEBUG(`setupWizard2.js: applyKeySignatures\n`);
+
+  const cApi = E2TBCryptoAPI();
+
+  let keyList = await cApi.getKeySignatures("", true);
+
+  for (let fpr in keyList) {
+    for (let sig of keyList[fpr].sigList) {
+      // TODO: go through sig and find out if one of the imported keys signed it
+    }
+  }
 }
 
 function handleClick(event) {

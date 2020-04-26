@@ -133,7 +133,11 @@ class GnuPGCryptoAPI extends CryptoAPI {
   async getKeySignatures(keyId, ignoreUnknownUid = false) {
     EnigmailLog.DEBUG(`gnupg.js: getKeySignatures: ${keyId}\n`);
 
-    const args = EnigmailGpg.getStandardArgs(true).concat(["--with-fingerprint", "--fixed-list-mode", "--with-colons", "--list-sig"]).concat(keyId.split(" "));
+    let args = EnigmailGpg.getStandardArgs(true).concat(["--with-fingerprint", "--fixed-list-mode", "--with-colons", "--list-sig"]);
+
+    if (keyId.length > 0) {
+      args = args.concat(keyId.split(" "));
+    }
 
     let res = await EnigmailExecution.execAsync(EnigmailGpg.agentPath, args, "");
 
