@@ -659,7 +659,7 @@
 
 <!-- wizard: welcome step -->
 <!ENTITY enigmail.setupWiz.title                     "Transfer your Enigmail Settings to Thunderbird">
-<!ENTITY enigmail.setupWiz.pgIntro.desc              "This wizard will export your keys and settings from Enigmail and GnuPG and
+<!ENTITY enigmail.setupWiz.pgIntro.desc              "This wizard will export your keys and settings from Enigmail and GnuPG, and
                                                       import them into the Thunderbird key store.">
 <!ENTITY enigmail.setupWiz.manyKeys.desc             "You have several private keys in GnuPG. If you don't want to import all of them
                                                       to Thunderbird, click the 'Select Private Keys' button to select those keys that you require.">
@@ -795,3 +795,5 @@
 <!ENTITY enigmail.changePasswd.repeatPasswd.label    "Repeat Passphrase">
 <!ENTITY enigmail.changePasswd.qualityMeter.label    "Password Quality">
 <!ENTITY enigmail.changePasswd.passwdDontMatch.label "The passphrases don't match">
+
+<!ENTITY enigmail.copyCmd.label                      "Copy">

@@ -24,6 +24,7 @@ var EnigmailKeyRing = ChromeUtils.import("chrome://openpgp/content/modules/keyRi
 
 
 var gSelectedPrivateKeys = null,
+  gPublicKeys = [],
   gAcceptButton = null,
   gDialogCancelled = false,
   gProcessing = false;
@@ -84,13 +85,27 @@ function startMigration() {
   gAcceptButton.removeAttribute("disabled");
 }
 
+
+
 function exportKeys(tmpDir) {
   E2TBLog.DEBUG(`setupWizard2.exportKeys(${tmpDir.path})\n`);
 
   document.getElementById("exportingKeys").style.visibility = "visible";
 
+  let exportProgess = document.getElementById("exportProgress");
+
+  function setExportProgress(percentComplete) {
+    exportProgess.setAttribute("value", percentComplete);
+  }
+
+  let allPubKeys = E2TBKeyRing.getAllKeys(window).keyList.map(keyObj => {
+    return "0x" + keyObj.fpr;
+  });
+
   let exitCodeObj = {},
-    errorMsgObj = {};
+    errorMsgObj = {},
+    totalNumKeys = gSelectedPrivateKeys.length + allPubKeys.length,
+    numKeysProcessed = 0;
 
   for (let fpr of gSelectedPrivateKeys) {
     if (gDialogCancelled) return closeAfterCancel();
@@ -101,6 +116,9 @@ function exportKeys(tmpDir) {
     E2TBLog.DEBUG("setupWizard2.exportKeys: secFile: " + secKeyFile.path + "\n");
     E2TBKeyRing.extractKey(true, fpr, secKeyFile, exitCodeObj, errorMsgObj);
 
+    ++numKeysProcessed;
+    setExportProgress(numKeysProcessed / totalNumKeys * 100);
+
     if (exitCodeObj.value !== 0) {
       E2TBLog.DEBUG(`importExportWizard: error while exporting secret key ${fpr}\n`);
       E2TBDialog.alert(window, E2TBLocale.getString("dataExportError"));
@@ -108,21 +126,24 @@ function exportKeys(tmpDir) {
     }
   }
 
-  if (gDialogCancelled) return closeAfterCancel();
+  for (let fpr of allPubKeys) {
+    if (gDialogCancelled) return closeAfterCancel();
 
-  let pubKeysFile = tmpDir.clone();
-  pubKeysFile.append("pubkeys.asc");
+    if (!(fpr in gSelectedPrivateKeys)) {
+      let pubKeyFile = tmpDir.clone();
+      pubKeyFile.append(fpr + ".asc");
 
-  E2TBKeyRing.extractKey(false, "", pubKeysFile, exitCodeObj, errorMsgObj);
+      E2TBKeyRing.extractKey(false, fpr, pubKeyFile, exitCodeObj, errorMsgObj);
+      if (exitCodeObj.value === 0) {
+        gPublicKeys.push(fpr);
+      }
 
-  document.getElementById("exportingKeys").style.visibility = "collapse";
-
-  if (exitCodeObj.value !== 0) {
-    E2TBLog.DEBUG("importExportWizard: error while exporting public keys\n");
-    E2TBDialog.alert(window, E2TBLocale.getString("dataExportError"));
-    return false;
+      ++numKeysProcessed;
+      setExportProgress(numKeysProcessed / totalNumKeys * 100);
+    }
   }
 
+  document.getElementById("exportingKeys").style.visibility = "collapse";
   document.getElementById("keysExported").style.visibility = "visible";
 
   return true;
@@ -130,9 +151,19 @@ function exportKeys(tmpDir) {
 
 
 function importKeys(tmpDir) {
-  E2TBLog.DEBUG(`setupWizard2.exportKeys(${tmpDir.path})\n`);
+  E2TBLog.DEBUG(`setupWizard2.importKeys(${tmpDir.path})\n`);
+
+  let pubKeysFailed = [];
+  let importProgess = document.getElementById("importProgress");
+
+  function setImportProgress(percentComplete) {
+    importProgess.setAttribute("value", percentComplete);
+  }
 
   document.getElementById("importingKeys").style.visibility = "visible";
+
+  let numKeysProcessed = 0;
+  const totalNumKeys = gSelectedPrivateKeys.length + gPublicKeys.length;
 
   for (let fpr of gSelectedPrivateKeys) {
     if (gDialogCancelled) return closeAfterCancel();
@@ -140,18 +171,36 @@ function importKeys(tmpDir) {
     let secKeyFile = tmpDir.clone();
     secKeyFile.append(fpr + ".sec");
 
-    E2TBLog.DEBUG("setupWizard2.exportKeys: secFile: " + secKeyFile.path + "\n");
-    importKeyFile(secKeyFile, true);
+    E2TBLog.DEBUG("setupWizard2.importKeys: secFile: " + secKeyFile.path + "\n");
+    importKeyFile(fpr, secKeyFile, true);
+    ++numKeysProcessed;
+    setImportProgress(numKeysProcessed / totalNumKeys * 100);
   }
 
-  let pubKeysFile = tmpDir.clone();
-  pubKeysFile.append("pubkeys.asc");
+  for (let fpr of gPublicKeys) {
+    if (gDialogCancelled) return closeAfterCancel();
 
-  importKeyFile(pubKeysFile, false);
+    let pubKeyFile = tmpDir.clone();
+    pubKeyFile.append(fpr + ".asc");
+
+    ++numKeysProcessed;
+    setImportProgress(numKeysProcessed / totalNumKeys * 100);
+
+    E2TBLog.DEBUG("setupWizard2.importKeys: pubFile: " + pubKeyFile.path + "\n");
+    if (!importKeyFile(fpr, pubKeyFile, false)) {
+      pubKeysFailed.push(fpr);
+    }
+  }
 
   document.getElementById("importingKeys").style.visibility = "collapse";
   document.getElementById("keysImported").style.visibility = "visible";
 
+  if (pubKeysFailed.length > 0) {
+    E2TBDialog.alert(
+      window,
+      E2TBLocale.getString("importPubKeysFailed", pubKeysFailed.join("\n"))
+    );
+  }
   return true;
 }
 
@@ -175,7 +224,7 @@ document.addEventListener("dialogcancel", function(event) {
     event.preventDefault(); // Prevent the dialog closing.
 });
 
-function importKeyFile(inFile, secret) {
+function importKeyFile(fpr, inFile, isSecretKey) {
   let resultKeys = {},
     errorMsgObj = {};
 
@@ -186,27 +235,33 @@ function importKeyFile(inFile, secret) {
       inFile,
       errorMsgObj,
       resultKeys,
-      !secret,
-      secret
+      !isSecretKey,
+      isSecretKey
     );
 
     if (exitCode !== 0) {
-      EnigmailDialog.alert(
+      E2TBDialog.alert(
         window,
-        E2TBLocale.getString("importKeysFailed") +
+        E2TBLocale.getString("importKeyFailed", fpr) +
         "\n\n" +
         errorMsgObj.value
       );
     }
+
+    return (exitCode === 0);
   }
   catch (ex) {
     Services.console.logMessage(ex);
-    EnigmailDialog.alert(
-      window,
-      E2TBLocale.getString("importKeysFailed") +
-      "\n\n" +
-      ex.toString()
-    );
+    if (isSecretKey) {
+      E2TBDialog.alert(
+        window,
+        E2TBLocale.getString("importKeyFailed", fpr) +
+        "\n\n" +
+        ex.toString()
+      );
+    }
+
+    return false;
   }
 }
 
