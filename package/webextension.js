@@ -75,26 +75,6 @@ function performStartup(data, reason) {
   catch (ex) {
     logException(ex);
   }
-
-  // Try to start Unit-Test framework
-  let JSUnitService;
-  try {
-    JSUnitService = ChromeUtils.import("chrome://enigmail/content/jsunit/jsunit-service.js").JSUnitService;
-  }
-  catch (x) {
-    return;
-  }
-
-  try {
-    if (JSUnitService) {
-      JSUnitService.startup(reason).catch(ex => {
-        logException(ex);
-      });
-    }
-  }
-  catch (ex) {
-    logException(ex);
-  }
 }
 
 function performShutdown(data, reason) {
@@ -103,17 +83,11 @@ function performShutdown(data, reason) {
     subprocess.onShutdown();
 
     const EnigmailCore = ChromeUtils.import("chrome://enigmail/content/modules/core.jsm").EnigmailCore;
-    const EnigmailAmPrefsService = ChromeUtils.import("chrome://enigmail/content/modules/amPrefsService.jsm").EnigmailAmPrefsService;
-    const EnigmailPgpmimeHander = ChromeUtils.import("chrome://enigmail/content/modules/pgpmimeHandler.jsm").EnigmailPgpmimeHander;
-    const EnigmailOverlays = ChromeUtils.import("chrome://enigmail/content/modules/enigmailOverlays.jsm").EnigmailOverlays;
     const EnigmailWindows = ChromeUtils.import("chrome://enigmail/content/modules/windows.jsm").EnigmailWindows;
     const Services = ChromeUtils.import("resource://gre/modules/Services.jsm").Services;
 
     shutdownModule(EnigmailWindows, reason);
-    shutdownModule(EnigmailOverlays, reason);
-    shutdownModule(EnigmailAmPrefsService, reason);
     shutdownModule(EnigmailCore, reason);
-    shutdownModule(EnigmailPgpmimeHander, reason);
     unloadModules();
 
     // HACK WARNING: The Addon Manager does not properly clear all addon related caches on update;

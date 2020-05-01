@@ -130,7 +130,6 @@ deploy: $(PREFFILES)
 	echo '"use strict";' > $(DIST)/chrome/content/modules/buildDate.jsm
 	echo 'var EXPORTED_SYMBOLS = ["EnigmailBuildDate"];' >> $(DIST)/chrome/content/modules/buildDate.jsm
 	echo 'var EnigmailBuildDate = { built: "$(ENIG_BUILD_DATE)" };' >> $(DIST)/chrome/content/modules/buildDate.jsm
-	$(DEPTH)/util/prepPostbox $(TARGET_TOOL) bootstrap.js $(DIST)/bootstrap.js
 	$(DEPTH)/util/prepPostbox $(TARGET_TOOL) webextension.js $(DIST)/webextension.js
 	$(DEPTH)/util/prepPackage $(XPI_MODULE_VERS) $(DIST)
 
