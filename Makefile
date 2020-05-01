@@ -8,7 +8,7 @@ DEPTH		= .
 
 include $(DEPTH)/config/autoconf.mk
 
-DIRS = ipc ui package lang stdlib 
+DIRS = ipc ui package lang
 
 ALL = xpi
 

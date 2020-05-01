@@ -45,7 +45,7 @@ const {
 } = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/gnupg-key.jsm");
 
 const GnuPG_Encryption = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/gnupg-encryption.jsm").GnuPG_Encryption;
-const pgpjs_keys = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/pgpjs-keys.jsm").pgpjs_keys;
+
 
 const DEFAULT_FILE_PERMS = 0o600;
 
@@ -232,19 +232,6 @@ class GnuPGCryptoAPI extends CryptoAPI {
       // GnuPG 2.2.9+
       retObj.keyData = btoa(keyBlock);
       return retObj;
-    }
-
-    // GnuPG < 2.2.9
-    if (exportOK) {
-      let minKey = await pgpjs_keys.getStrippedKey(keyBlock, email);
-      if (minKey) {
-        minimalKeyBlock = btoa(String.fromCharCode.apply(null, minKey));
-      }
-
-      if (!minimalKeyBlock) {
-        retObj.exitCode = 1;
-        retObj.errorMsg = EnigmailLocale.getString("failKeyNoSubkey");
-      }
     }
 
     retObj.keyData = minimalKeyBlock;
@@ -578,16 +565,7 @@ class GnuPGCryptoAPI extends CryptoAPI {
 
   async getKeyListFromKeyBlock(keyBlockStr) {
 
-    let res;
-    try {
-      res = await getGpgKeyData(keyBlockStr);
-    }
-    catch (ex) {
-      if (ex === "unsupported") {
-        res = await pgpjs_keys.getKeyListFromKeyBlock(keyBlockStr);
-      }
-      else throw ex;
-    }
+    let res = await getGpgKeyData(keyBlockStr);
     return res;
   }
 

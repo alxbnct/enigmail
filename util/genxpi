@@ -80,17 +80,10 @@ zip -9 --must-match\
     chrome/content/modules/cryptoAPI/gnupg-key.jsm \
     chrome/content/modules/cryptoAPI/gnupg-keyEditor.jsm \
     chrome/content/modules/cryptoAPI/gnupg-keylist.jsm \
-    chrome/content/modules/cryptoAPI/openpgp-js.js \
-    chrome/content/modules/cryptoAPI/pgpjs-encrypt.jsm \
-    chrome/content/modules/cryptoAPI/pgpjs-decrypt.jsm \
-    chrome/content/modules/cryptoAPI/pgpjs-keys.jsm \
-    chrome/content/modules/cryptoAPI/pgpjs-keymanipulation.jsm \
-    chrome/content/modules/cryptoAPI/pgpjs-keystore.jsm \
     chrome/content/modules/cryptoAPI/interface.js \
     chrome/content/modules/data.jsm \
     chrome/content/modules/dns.jsm \
     chrome/content/modules/decryption.jsm \
-    chrome/content/modules/persistentCrypto.jsm \
     chrome/content/modules/dialog.jsm \
     chrome/content/modules/core.jsm \
     chrome/content/modules/configBackup.jsm \
@@ -102,9 +95,6 @@ zip -9 --must-match\
     chrome/content/modules/events.jsm \
     chrome/content/modules/execution.jsm \
     chrome/content/modules/files.jsm \
-    chrome/content/modules/filters.jsm \
-    chrome/content/modules/filtersWrapper.jsm \
-    chrome/content/modules/fixExchangeMsg.jsm \
     chrome/content/modules/glodaUtils.jsm \
     chrome/content/modules/hash.jsm \
     chrome/content/modules/httpProxy.jsm \
@@ -122,22 +112,12 @@ zip -9 --must-match\
     chrome/content/modules/localizeHtml.jsm \
     chrome/content/modules/log.jsm \
     chrome/content/modules/mime.jsm \
-    chrome/content/modules/mimeDecrypt.jsm \
-    chrome/content/modules/mimeEncrypt.jsm \
-    chrome/content/modules/mimeVerify.jsm \
     chrome/content/modules/msgRead.jsm \
     chrome/content/modules/os.jsm \
     chrome/content/modules/openpgp.jsm \
     chrome/content/modules/overlays.jsm \
     chrome/content/modules/passwordCheck.jsm \
     chrome/content/modules/passwords.jsm \
-    chrome/content/modules/pEp.jsm \
-    chrome/content/modules/pEpAdapter.jsm \
-    chrome/content/modules/pEpDecrypt.jsm \
-    chrome/content/modules/pEpFilter.jsm \
-    chrome/content/modules/pEpListener.jsm \
-    chrome/content/modules/pEpKeySync.jsm \
-    chrome/content/modules/pgpmimeHandler.jsm \
     chrome/content/modules/pipeConsole.jsm \
     chrome/content/modules/prefs.jsm \
     chrome/content/modules/rng.jsm \
@@ -146,14 +126,6 @@ zip -9 --must-match\
     chrome/content/modules/send.jsm \
     chrome/content/modules/singletons.jsm \
     chrome/content/modules/socks5Proxy.jsm \
-    chrome/content/modules/stdlib/compose.jsm \
-    chrome/content/modules/stdlib/misc.jsm \
-    chrome/content/modules/stdlib/msgHdrUtils.jsm \
-    chrome/content/modules/stdlib/openpgp-loader.jsm \
-    chrome/content/modules/stdlib/openpgp-lib.js \
-    chrome/content/modules/stdlib/openpgp.worker.js \
-    chrome/content/modules/stdlib/web-streams.jsm \
-    chrome/content/modules/stdlib.jsm \
     chrome/content/modules/streams.jsm \
     chrome/content/modules/subprocess.jsm \
     chrome/content/modules/enigmailprocess_shared_unix.js \
@@ -179,7 +151,6 @@ zip -9 --must-match\
     chrome/content/modules/webKey.jsm \
     chrome/content/modules/wkdLookup.jsm \
     chrome/content/modules/windows.jsm \
-    chrome/content/modules/wksMimeHandler.jsm \
     chrome/content/modules/xhrUtils.jsm \
     chrome/content/modules/zbase32.jsm \
     chrome/content/modules/all-modules.txt

@@ -13,8 +13,6 @@ DIRS = cryptoAPI
 
 PREFFILES = prefs/defaultPrefs.js
 
-PEPJSM = pEp-nonfunc.jsm
-
 MODFILES = \
            addrbook.jsm \
            amPrefsService.jsm \
@@ -33,7 +31,6 @@ MODFILES = \
            cryptoAPI.jsm \
            data.jsm \
            decryption.jsm \
-           persistentCrypto.jsm \
            dialog.jsm \
            enigmailOverlays.jsm \
            errorHandling.jsm \
@@ -42,9 +39,6 @@ MODFILES = \
            dns.jsm \
            funcs.jsm \
            files.jsm \
-           filters.jsm \
-           filtersWrapper.jsm \
-           fixExchangeMsg.jsm \
            gnupgUpdate.jsm \
            glodaUtils.jsm \
            hash.jsm \
@@ -63,22 +57,12 @@ MODFILES = \
            localizeHtml.jsm \
            log.jsm \
            mime.jsm \
-           mimeDecrypt.jsm \
-           mimeEncrypt.jsm \
-           mimeVerify.jsm \
            msgRead.jsm \
            os.jsm \
            openpgp.jsm \
            overlays.jsm \
            passwordCheck.jsm \
            passwords.jsm \
-           $(PEPJSM) \
-           pEpAdapter.jsm \
-           pEpDecrypt.jsm \
-           pEpFilter.jsm \
-           pEpListener.jsm \
-           pEpKeySync.jsm \
-           pgpmimeHandler.jsm \
            pipeConsole.jsm \
            prefs.jsm \
            protocolHandler.jsm \
@@ -103,7 +87,6 @@ MODFILES = \
            webKey.jsm \
            wkdLookup.jsm \
            windows.jsm \
-           wksMimeHandler.jsm \
            xhrUtils.jsm \
            zbase32.jsm
 

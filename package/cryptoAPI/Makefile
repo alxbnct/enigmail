@@ -18,12 +18,6 @@ MODFILES = \
 	gnupg-keylist.jsm \
 	gnupg-key.jsm \
 	gnupg-keyEditor.jsm \
-	openpgp-js.js \
-	pgpjs-encrypt.jsm \
-	pgpjs-decrypt.jsm \
-	pgpjs-keys.jsm \
-	pgpjs-keystore.jsm \
-	pgpjs-keymanipulation.jsm \
 	interface.js
 
 GENFILES = $(addprefix $(GENDIR)/,$(MODFILES))
