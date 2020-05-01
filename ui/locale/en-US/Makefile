@@ -8,20 +8,9 @@ include $(DEPTH)/config/autoconf.mk
 
 LOCALEFILES = \
 	enigmail.dtd \
-	am-enigprefs.properties	\
 	enigmail.properties
 
-HELPFILES = \
-	help/compose.html \
-	help/help.html\
-	help/messenger.html \
-	help/sendingPrefs.html \
-	help/editRcptRule.html \
-	help/initError.html \
-	help/rulesEditor.html
-	
 all: deploy
 
-deploy: $(LOCALEFILES) $(HELPFILES)
+deploy: $(LOCALEFILES)
 	$(DEPTH)/util/install -m 644 $(DIST)/chrome/locale/en-US $(LOCALEFILES)
-	$(DEPTH)/util/install -m 644 $(DIST)/chrome/locale/en-US/help $(HELPFILES)

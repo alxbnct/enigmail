@@ -38,15 +38,6 @@ my @genFiles = (
   "enigmail.dtd"
 );
 
-my @files = (
-  "am-enigprefs.properties",
-  "help/compose.html",
-  "help/editRcptRule.html",
-  "help/messenger.html",
-  "help/rulesEditor.html",
-  "help/sendingPrefs.html",
-);
-
 
 while ($_ = <INFILE>) {
   #print STDERR $_;
@@ -59,10 +50,6 @@ while ($_ = <INFILE>) {
     else {
       printf OUTFILE "\tlocale/%s/%s\t(%s/%s)\n", $lang, $file, $lang, $file;
     }
-  }
-
-  foreach $file (@files) {
-    printf OUTFILE "\tlocale/%s/%s\t(%s/%s)\n", $lang, $file, $lang, $file;
   }
 }
 
