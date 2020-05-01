@@ -348,22 +348,24 @@ async function getPhotoFileFromGnuPG(keyId, photoNumber) {
  *                                    Only the first public key is processed!
  * @param {Boolean} ignoreUnknownUid  true if unknown signer's UIDs should be filtered out
  *
- * @return {Array of Object}:
- *     - uid
- *     - uidLabel
- *     - creationDate
- *     - sigList: [uid, creationDate, signerKeyId, sigType ]
+ * @return {Array<Object>}:
+ *    - keyId
+ *    - fpr
+ *    - uid: Array<Object>
+ *       - userId
+ *       - rawUserId
+ *       - created: creationDate of UID
+ *       - sigList: [uid, creationDate, signerKeyId, sigType ]
  */
 
 function extractSignatures(gpgKeyList, ignoreUnknownUid) {
   EnigmailLog.DEBUG("gnupg.js: extractSignatures\n");
 
-  var listObj = {};
+  let keyList = [],
+    keyObj = null;
 
-  let havePub = false;
   let currUid = "",
-    keyId = "",
-    fpr = "";
+    keyId = "";
 
   const lineArr = gpgKeyList.split(/\n/);
   for (let i = 0; i < lineArr.length; i++) {
@@ -378,24 +380,26 @@ function extractSignatures(gpgKeyList, ignoreUnknownUid) {
     const lineTokens = lineArr[i].split(/:/);
     switch (lineTokens[ENTRY_ID]) {
       case "pub":
-        if (havePub) {
-          return listObj;
+        if (keyObj) {
+          keyList.push(keyObj);
         }
-        havePub = true;
         keyId = lineTokens[KEY_ID];
+        keyObj = {
+          keyId: keyId,
+          fpr: "",
+          uid: {}
+        };
         break;
       case "fpr":
-        if (fpr === "")
-          fpr = lineTokens[USERID_ID];
+        if (keyObj.fpr === "")
+        keyObj.fpr = lineTokens[USERID_ID];
         break;
       case "uid":
       case "uat":
         currUid = lineTokens[UID_ID];
-        listObj[currUid] = {
+        keyObj.uid[currUid] = {
           userId: lineTokens[ENTRY_ID] == "uat" ? EnigmailLocale.getString("keyring.photo") : EnigmailData.convertGpgToUnicode(lineTokens[USERID_ID]),
           rawUserId: lineTokens[USERID_ID],
-          keyId: keyId,
-          fpr: fpr,
           created: EnigmailTime.getDateTime(lineTokens[CREATED_ID], true, false),
           sigList: []
         };
@@ -413,14 +417,15 @@ function extractSignatures(gpgKeyList, ignoreUnknownUid) {
           };
 
           if (!ignoreUnknownUid || sig.userId != UNKNOWN_SIGNATURE) {
-            listObj[currUid].sigList.push(sig);
+            keyObj.uid[currUid].sigList.push(sig);
           }
         }
         break;
     }
   }
 
-  return listObj;
+  if (keyObj) keyList.push(keyObj);
+  return keyList;
 }
 
 

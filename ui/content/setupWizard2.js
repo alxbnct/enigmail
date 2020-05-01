@@ -22,7 +22,8 @@ var Services = ChromeUtils.import("resource://gre/modules/Services.jsm").Service
 // OpenPGP implementation in TB
 var EnigmailDialog = ChromeUtils.import("chrome://openpgp/content/modules/dialog.jsm").EnigmailDialog;
 var EnigmailKeyRing = ChromeUtils.import("chrome://openpgp/content/modules/keyRing.jsm").EnigmailKeyRing;
-
+var uidHelper = ChromeUtils.import("chrome://openpgp/content/modules/uidHelper.jsm").uidHelper;
+var PgpSqliteDb2 = ChromeUtils.import("chrome://openpgp/content/modules/sqliteDb.jsm").PgpSqliteDb2;
 
 var gSelectedPrivateKeys = null,
   gPublicKeys = [],
@@ -212,10 +213,41 @@ async function applyKeySignatures() {
   const cApi = E2TBCryptoAPI();
 
   let keyList = await cApi.getKeySignatures("", true);
+  const secKeyIds = [];
 
-  for (let fpr in keyList) {
-    for (let sig of keyList[fpr].sigList) {
-      // TODO: go through sig and find out if one of the imported keys signed it
+  for (let fpr of gSelectedPrivateKeys) {
+    let keyObj = E2TBKeyRing.getKeyById(fpr);
+    secKeyIds[keyObj.keyId] = 1;
+  }
+
+  for (let keyObj of keyList) {
+    let signedEmails = [];
+    for (let u in keyObj.uid) {
+      let uid = keyObj.uid[u],
+        splitUid = {};
+
+      try {
+        uidHelper.getPartsFromUidStr(uid.userId, splitUid);
+        if (splitUid.email) {
+          for (let sig of uid.sigList) {
+            if (sig.signerKeyId in secKeyIds) {
+              signedEmails.push(splitUid.email);
+              break;
+            }
+          }
+        }
+      }
+      catch (x) {}
+    }
+
+    if (signedEmails.length > 0) {
+      E2TBLog.DEBUG(`setupWizard2.js: applyKeySignatures: setting 'verified' for 0x${keyObj.fpr}\n`);
+
+      await PgpSqliteDb2.updateAcceptance(
+        keyObj.fpr,
+        [...new Set(signedEmails)],
+        "verified"
+      );
     }
   }
 }
