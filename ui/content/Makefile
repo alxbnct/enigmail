@@ -9,7 +9,6 @@ include $(DEPTH)/config/autoconf.mk
 GENDIR = $(DIST)/chrome/content/ui
 
 UIFILES = \
-	enigmailCommon.js \
 	aboutEnigmail.html \
 	aboutEnigmail.js \
 	enigmailMessengerOverlay.xhtml \
