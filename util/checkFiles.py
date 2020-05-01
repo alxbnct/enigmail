@@ -164,7 +164,7 @@ def checkXUL (filename):
       label = match.group(1)
       #print "  " + label
       checkLabel(label,filename)
-    match = re.search('[csn]\.getString *\("([^;"]*)"', line)
+    match = re.search('Locale\.getString *\("([^;"]*)"', line)
     if match:
       label = match.group(1)
       #print "  " + label

@@ -28,7 +28,7 @@ var E2TB = {
     const lastVersion = E2TBPrefs.getPref("configuredVersion");
     const vc = Cc["@mozilla.org/xpcom/version-comparator;1"].getService(Ci.nsIVersionComparator);
 
-    if (vc.compare(lastVersion, "2.2b1") >= 0) {
+    if (vc.compare(lastVersion, "2.2a1") >= 0) {
       return;
     }
 

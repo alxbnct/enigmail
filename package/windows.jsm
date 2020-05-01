@@ -114,15 +114,17 @@ var EnigmailWindows = {
   },
 
 
+  closeUpdateInfo: function() {
+    EnigmailWindows.closeMailTab("chrome://enigmail/content/ui/upgradeInfo.html");
+  },
 
   /**
    * Open a URL in a tab on the main window. The URL can either be a web page
    * (e.g. https://enigmail.net/ or a chrome document (e.g. chrome://enigmail/content/ui/x.xul))
    *
    * @param aURL:    String - the URL to open
-   * @param winName: String - name of the window; used to identify if it is already open
    */
-  openMailTab: function(aURL, windowName) {
+  openMailTab: function(aURL) {
     let tabs = getMail3Pane().document.getElementById("tabmail");
 
     for (let i = 0; i < tabs.tabInfo.length; i++) {
@@ -136,6 +138,16 @@ var EnigmailWindows = {
       chromePage: aURL
     });
     gotTab.openedUrl = aURL;
+  },
+
+  closeMailTab: function(aURL) {
+    let tabs = getMail3Pane().document.getElementById("tabmail");
+    for (let i = 0; i < tabs.tabInfo.length; i++) {
+      if ("openedUrl" in tabs.tabInfo[i] && tabs.tabInfo[i].openedUrl.startsWith(aURL)) {
+        tabs.closeTab(i);
+        return;
+      }
+    }
   },
 
   shutdown: function(reason) {

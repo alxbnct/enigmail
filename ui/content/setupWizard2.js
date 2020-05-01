@@ -14,7 +14,9 @@ var E2TBPrefs = ChromeUtils.import("chrome://enigmail/content/modules/prefs.jsm"
 var E2TBLog = ChromeUtils.import("chrome://enigmail/content/modules/log.jsm").EnigmailLog;
 var E2TBLocale = ChromeUtils.import("chrome://enigmail/content/modules/locale.jsm").EnigmailLocale;
 var E2TBDialog = ChromeUtils.import("chrome://enigmail/content/modules/dialog.jsm").EnigmailDialog;
+var E2TBWindows = ChromeUtils.import("chrome://enigmail/content/modules/windows.jsm").EnigmailWindows;
 var E2TBFiles = ChromeUtils.import("chrome://enigmail/content/modules/files.jsm").EnigmailFiles;
+var E2TBApp = ChromeUtils.import("chrome://enigmail/content/modules/app.jsm").EnigmailApp;
 var E2TBKeyRing = ChromeUtils.import("chrome://enigmail/content/modules/keyRing.jsm").EnigmailKeyRing;
 var E2TBCryptoAPI = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI.jsm").EnigmailCryptoAPI;
 var Services = ChromeUtils.import("resource://gre/modules/Services.jsm").Services;
@@ -28,6 +30,7 @@ var PgpSqliteDb2 = ChromeUtils.import("chrome://openpgp/content/modules/sqliteDb
 var gSelectedPrivateKeys = null,
   gPublicKeys = [],
   gAcceptButton = null,
+  gCancelButton = null,
   gDialogCancelled = false,
   gProcessing = false;
 
@@ -36,6 +39,7 @@ function onLoad() {
   let dlg = document.getElementById("setupWizardDlg");
   gAcceptButton = dlg.getButton("accept");
   gAcceptButton.setAttribute("disabled", "true");
+  gCancelButton =  dlg.getButton("cancel");
 
   let secKeys = E2TBKeyRing.getAllSecretKeys(false);
   if (secKeys.length > 5) {
@@ -84,8 +88,25 @@ async function startMigration() {
   let tmpDir = E2TBFiles.createTempSubDir("enig-exp", true);
   exportKeys(tmpDir);
   importKeys(tmpDir);
+
+  document.getElementById("applyingSettings").style.visibility = "visible";
+  try {
+    tmpDir.remove(true);
+  }
+  catch(ex) {}
+  gProcessing = false;
   await applyKeySignatures();
+  applyAccountSettings();
+
+  if (!gDialogCancelled) {
+    E2TBPrefs.setPref("configuredVersion", E2TBApp.getVersion());
+  }
+
+  document.getElementById("migrationComplete").style.visibility = "visible";
   gAcceptButton.removeAttribute("disabled");
+  gCancelButton.setAttribute("disabled", "true");
+
+  E2TBWindows.closeUpdateInfo();
 }
 
 
@@ -156,7 +177,8 @@ function exportKeys(tmpDir) {
 function importKeys(tmpDir) {
   E2TBLog.DEBUG(`setupWizard2.js: importKeys(${tmpDir.path})\n`);
 
-  let pubKeysFailed = [];
+  let pubKeysFailed = [],
+    secKeysFailed = [];
   let importProgess = document.getElementById("importProgress");
 
   function setImportProgress(percentComplete) {
@@ -175,9 +197,18 @@ function importKeys(tmpDir) {
     secKeyFile.append(fpr + ".sec");
 
     E2TBLog.DEBUG("setupWizard2.js: importKeys: secFile: " + secKeyFile.path + "\n");
-    importKeyFile(fpr, secKeyFile, true);
+    if (!importKeyFile(fpr, secKeyFile, true)) {
+      secKeysFailed.push(fpr);
+    }
     ++numKeysProcessed;
     setImportProgress(numKeysProcessed / totalNumKeys * 100);
+  }
+
+  if (secKeysFailed.length > 0) {
+    E2TBDialog.alert(
+      window,
+      E2TBLocale.getString("importSecKeysFailed", secKeysFailed.join("\n"))
+    );
   }
 
   for (let fpr of gPublicKeys) {
@@ -252,6 +283,47 @@ async function applyKeySignatures() {
   }
 }
 
+
+function applyAccountSettings() {
+  const msgAccountManager = Cc["@mozilla.org/messenger/account-manager;1"].getService(Ci.nsIMsgAccountManager);
+  let accounts = msgAccountManager.accounts;
+
+  for (let i = 0; i < accounts.length; i++) {
+    let ac = accounts[i];
+    if (ac.incomingServer.type !== "none") {
+      for (let id = 0; id < ac.identities.length; id++) {
+        let ident = ac.identities[id];
+
+        if (ident.getBoolAttribute("enablePgp")) {
+          applyIdentitySettings(ident);
+        }
+      }
+    }
+  }
+
+  document.getElementById("applyingSettings").style.visibility = "collapse";
+  document.getElementById("settingsApplied").style.visibility = "visible";
+}
+
+function applyIdentitySettings(identity) {
+  const keyPolicy = identity.getIntAttribute("pgpKeyMode");
+  let keyObj = null;
+  if (keyPolicy === 1) {
+    // use key id
+    keyObj = EnigmailKeyRing.getKeyById(identity.getCharAttribute("pgpkeyId"));
+  }
+  else {
+    // use "from" address
+    keyObj = EnigmailKeyRing.getSecretKeyByEmail(identity.email);
+  }
+
+  if (keyObj) {
+    identity.setCharAttribute("openpgp_key_id", keyObj.keyId);
+    identity.setIntAttribute("encryptionpolicy", identity.getIntAttribute("defaultEncryptionPolicy") > 0 ? 2 : 0);
+    identity.setBoolAttribute("sign_mail", (identity.getIntAttribute("defaultSigningPolicy") > 0));
+  }
+}
+
 function handleClick(event) {
   /*
   if (event.target.hasAttribute("href")) {
@@ -301,14 +373,6 @@ function importKeyFile(fpr, inFile, isSecretKey) {
   catch (ex) {
     E2TBLog.DEBUG(`setupWizard2.js: import key failed for key ${fpr}\n`);
     Services.console.logMessage(ex);
-    if (isSecretKey) {
-      E2TBDialog.alert(
-        window,
-        E2TBLocale.getString("importKeyFailed", fpr) +
-        "\n\n" +
-        ex.toString()
-      );
-    }
 
     return false;
   }

@@ -675,7 +675,8 @@
 
 <!ENTITY enigmail.setupWiz.exportingKeys             "Exporting keys from GnuPG ...">
 <!ENTITY enigmail.setupWiz.importingKeys             "Importing keys into Thunderbird ...">
-<!ENTITY enigmail.setupWiz.checkingSetup             "Checking your existing setup ...">
+<!ENTITY enigmail.setupWiz.applyingSettings          "Applying your account settings ...">
+<!ENTITY enigmail.setupWiz.migrationComplete         "All done!">
 <!ENTITY enigmail.setupWiz.startSetupButton          "Start Setup">
 <!ENTITY enigmail.setupWiz.usingPepMode              "We determined that you are using Pretty Easy Privacy (p≡p).">
 <!ENTITY enigmail.setupWiz.synchronizeWithPep        "If you have another device running with p≡p, we recommend that you let the other device synchronize
