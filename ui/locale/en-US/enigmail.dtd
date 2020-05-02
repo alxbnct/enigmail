@@ -21,6 +21,7 @@
 <!ENTITY enigmail.send.label                        "Send">
 <!ENTITY enigmail.perRecipientsOption.label         "Create per-recipient rule(s)">
 <!ENTITY enigmail.keyMan.filter.label               "Search for keys">
+<!ENTITY enigmail.messenger.menulabel               "Migrate Enigmail Settings">
 
 <!ENTITY enigmail.setupWiz.title                     "Transfer your Enigmail Settings to Thunderbird">
 <!ENTITY enigmail.setupWiz.pgIntro.desc              "This wizard will export your keys and settings from Enigmail and GnuPG, and

@@ -28,12 +28,18 @@ var E2TB = {
     const lastVersion = E2TBPrefs.getPref("configuredVersion");
     const vc = Cc["@mozilla.org/xpcom/version-comparator;1"].getService(Ci.nsIVersionComparator);
 
-    if (vc.compare(lastVersion, "2.2a1") >= 0) {
-      return;
-    }
-
     E2TBTimer.setTimeout(() => {
       let keyList = E2TBKeyRing.getAllSecretKeys(false);
+
+      if (keyList.length > 0) {
+        E2TBLog.DEBUG("enigmailMessengerOverlay.js: messengerStartup: displaying menu\n");
+        let mnu = document.getElementById("enigmailUpgradeMenu");
+        if (mnu) mnu.removeAttribute("collapsed");
+      }
+
+      if (vc.compare(lastVersion, "2.2a1") >= 0) {
+        return;
+      }
 
       if (E2TBSingletons.upgradeInfoDisplayed) return;
       if (keyList.length > 0) E2TBWindows.openUpdateInfo();
