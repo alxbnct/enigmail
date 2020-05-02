@@ -136,7 +136,7 @@ var EnigmailConstants = {
   CARD_PIN_UNBLOCK: 2,
   CARD_ADMIN_PIN_CHANGE: 3,
 
-  /* Keyserver error codes (in keyserver.jsm) */
+  /* Keyserver error codes */
   KEYSERVER_ERR_ABORTED: 1,
   KEYSERVER_ERR_SERVER_ERROR: 2,
   KEYSERVER_ERR_SECURITY_ERROR: 3,

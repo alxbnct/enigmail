@@ -13,11 +13,8 @@ MODFILES = \
 	gnupg.js \
 	gnupg-agent.jsm \
 	gnupg-core.jsm \
-	gnupg-decryption.jsm \
-	gnupg-encryption.jsm \
 	gnupg-keylist.jsm \
 	gnupg-key.jsm \
-	gnupg-keyEditor.jsm \
 	interface.js
 
 GENFILES = $(addprefix $(GENDIR)/,$(MODFILES))

@@ -42,7 +42,7 @@ function onLoad() {
   gCancelButton =  dlg.getButton("cancel");
 
   let secKeys = E2TBKeyRing.getAllSecretKeys(false);
-  if (secKeys.length > 5) {
+  if (secKeys.length > 0) { // FIXME
     document.getElementById("manyKeys").style.visibility = "visible";
   }
 

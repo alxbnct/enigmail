@@ -19,7 +19,6 @@ const EnigmailCryptoAPI = ChromeUtils.import("chrome://enigmail/content/modules/
 
 const getEnigmailKeyRing = EnigmailLazy.loader("enigmail/keyRing.jsm", "EnigmailKeyRing");
 const getEnigmailFiles = EnigmailLazy.loader("enigmail/files.jsm", "EnigmailFiles");
-const getEnigmailRNG = EnigmailLazy.loader("enigmail/rng.jsm", "EnigmailRNG");
 
 
 const gStatusFlags = {
@@ -621,7 +620,7 @@ var EnigmailErrorHandling = {
   getTempLogFile: function() {
     let logFile = getEnigmailFiles().getTempDirObj().clone();
     logFile.normalize();
-    logFile.append("gpgOutput." + getEnigmailRNG().generateRandomString(6));
+    logFile.append("gpgOutput.tmp");
     return logFile;
   },
 

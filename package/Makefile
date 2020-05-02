@@ -14,81 +14,44 @@ DIRS = cryptoAPI
 PREFFILES = prefs/defaultPrefs.js
 
 MODFILES = \
-           addrbook.jsm \
-           amPrefsService.jsm \
            app.jsm \
            armor.jsm \
-           attachment.jsm \
-           autocrypt.jsm \
-           autoSetup.jsm \
-           card.jsm \
            clipboard.jsm \
-           commandLine.jsm \
-           configBackup.jsm \
-           configure.jsm \
            constants.jsm \
            core.jsm \
            cryptoAPI.jsm \
            data.jsm \
-           decryption.jsm \
            dialog.jsm \
            enigmailOverlays.jsm \
            errorHandling.jsm \
-           events.jsm \
            execution.jsm \
-           dns.jsm \
            funcs.jsm \
            files.jsm \
-           gnupgUpdate.jsm \
-           glodaUtils.jsm \
-           hash.jsm \
-           httpProxy.jsm \
-           installGnuPG.jsm \
-           installPep.jsm \
            key.jsm \
            keyRing.jsm \
            keyObj.jsm \
            keyUsability.jsm \
-           keyRefreshService.jsm \
-           keyserver.jsm \
-           keyserverUris.jsm \
            lazy.jsm \
            locale.jsm \
            localizeHtml.jsm \
            log.jsm \
-           mime.jsm \
-           msgRead.jsm \
            os.jsm \
-           openpgp.jsm \
            overlays.jsm \
-           passwordCheck.jsm \
            passwords.jsm \
            pipeConsole.jsm \
            prefs.jsm \
-           protocolHandler.jsm \
-           rng.jsm \
-           rules.jsm \
            searchCallback.jsm \
-           send.jsm \
            singletons.jsm \
-           socks5Proxy.jsm \
-           sqliteDb.jsm \
            stdlib.jsm \
            streams.jsm \
            system.jsm \
            compat.jsm \
            time.jsm \
            timer.jsm \
-           tor.jsm \
            trust.jsm \
-           uris.jsm \
            verify.jsm \
            versioning.jsm \
-           webKey.jsm \
-           wkdLookup.jsm \
-           windows.jsm \
-           xhrUtils.jsm \
-           zbase32.jsm
+           windows.jsm
 
 DATE_FMT = +%Y%m%d-%H%M
 SOURCE_DATE_EPOCH ?= $(shell date +%s)
