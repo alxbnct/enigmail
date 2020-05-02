@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
   AppStream metadata file for Linux distributions.
-  See spec at: http://www.freedesktop.org/software/appstream/docs/sect-Quickstart-Addons.html 
+  See spec at: http://www.freedesktop.org/software/appstream/docs/sect-Quickstart-Addons.html
 -->
 <component type="addon">
   <id>thunderbird-enigmail</id>
   <extends>mozilla-thunderbird.desktop</extends>
   <name>Enigmail</name>
   <summary>
-      OpenPGP message encryption and authentication for Thunderbird and SeaMonkey.
+      Migrate keys and settings from GnuPG and Enigmail to Thunderbird.
   </summary>
   <url type="homepage">https://www.enigmail.net</url>
   <metadata_license>CC0-1.0</metadata_license>

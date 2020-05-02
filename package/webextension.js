@@ -64,6 +64,9 @@ var enigmailApi = class extends ExtensionCommon.ExtensionAPI {
   onShutdown(isAppShutdown) {
     if (isAppShutdown) return;
 
+    // invalidate the startup cache, such that after updating the addon the old
+    // version is no longer cached
+    Services.obs.notifyObservers(null, "startupcache-invalidate");
     performShutdown(null, startupReason.ADDON_DISABLE);
     this.chromeHandle.destruct();
     this.chromeHandle = null;
