@@ -42,14 +42,12 @@ MODFILES = \
            prefs.jsm \
            searchCallback.jsm \
            singletons.jsm \
-           stdlib.jsm \
            streams.jsm \
            system.jsm \
            compat.jsm \
            time.jsm \
            timer.jsm \
            trust.jsm \
-           verify.jsm \
            versioning.jsm \
            windows.jsm
 

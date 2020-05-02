@@ -90,7 +90,6 @@ zip -9 --must-match\
     chrome/content/modules/passwords.jsm \
     chrome/content/modules/pipeConsole.jsm \
     chrome/content/modules/prefs.jsm \
-    chrome/content/modules/rng.jsm \
     chrome/content/modules/searchCallback.jsm \
     chrome/content/modules/singletons.jsm \
     chrome/content/modules/streams.jsm \
@@ -110,7 +109,6 @@ zip -9 --must-match\
     chrome/content/modules/time.jsm \
     chrome/content/modules/timer.jsm \
     chrome/content/modules/trust.jsm \
-    chrome/content/modules/verify.jsm \
     chrome/content/modules/versioning.jsm \
     chrome/content/modules/windows.jsm \
     chrome/content/modules/all-modules.txt

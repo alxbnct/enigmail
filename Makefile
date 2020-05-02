@@ -37,7 +37,6 @@ eslint:
 	static_analysis/eslint package
 	static_analysis/eslint ipc
 	static_analysis/eslint ui
-	static_analysis/eslint jsunit
 
 unit:
 	make -C package/tests
