@@ -112,16 +112,12 @@ function getKeyList(secretOnly, refresh) {
   let userList,
     keyList;
   try {
-    var exitCodeObj = {};
-    var statusFlagsObj = {};
-    var errorMsgObj = {};
-
     if (refresh) {
       EnigmailKeyRing.clearCache();
     }
 
     if (secretOnly) {
-      userList = EnigmailKeyRing.getAllSecretKeys(window);
+      userList = EnigmailKeyRing.getAllSecretKeys();
       if (!userList) return null;
       keyList = EnigmailFuncs.cloneObj(userList);
     }
