@@ -12,11 +12,16 @@ const EnigmailLocalizeHtml = ChromeUtils.import("chrome://enigmail/content/modul
 const EnigmailWindows = ChromeUtils.import("chrome://enigmail/content/modules/windows.jsm").EnigmailWindows;
 const EnigmailTimer = ChromeUtils.import("chrome://enigmail/content/modules/timer.jsm").EnigmailTimer;
 const EnigmailSingletons = ChromeUtils.import("chrome://enigmail/content/modules/singletons.jsm").EnigmailSingletons;
+const EnigmailPrefs = ChromeUtils.import("chrome://enigmail/content/modules/prefs.jsm").EnigmailPrefs;
+const EnigmailApp = ChromeUtils.import("chrome://enigmail/content/modules/app.jsm").EnigmailApp;
+
 
 function onload() {
   EnigmailSingletons.upgradeInfoDisplayed = true;
   EnigmailTimer.setTimeout(() => {
     EnigmailLocalizeHtml.onPageLoad(document);
+
+    EnigmailPrefs.setPref("configuredVersion", EnigmailApp.getVersion());
   }, 50);
 }
 

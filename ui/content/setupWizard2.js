@@ -10,13 +10,11 @@ var Cu = Components.utils;
 var Cc = Components.classes;
 var Ci = Components.interfaces;
 
-var E2TBPrefs = ChromeUtils.import("chrome://enigmail/content/modules/prefs.jsm").EnigmailPrefs;
 var E2TBLog = ChromeUtils.import("chrome://enigmail/content/modules/log.jsm").EnigmailLog;
 var E2TBLocale = ChromeUtils.import("chrome://enigmail/content/modules/locale.jsm").EnigmailLocale;
 var E2TBDialog = ChromeUtils.import("chrome://enigmail/content/modules/dialog.jsm").EnigmailDialog;
 var E2TBWindows = ChromeUtils.import("chrome://enigmail/content/modules/windows.jsm").EnigmailWindows;
 var E2TBFiles = ChromeUtils.import("chrome://enigmail/content/modules/files.jsm").EnigmailFiles;
-var E2TBApp = ChromeUtils.import("chrome://enigmail/content/modules/app.jsm").EnigmailApp;
 var E2TBKeyRing = ChromeUtils.import("chrome://enigmail/content/modules/keyRing.jsm").EnigmailKeyRing;
 var E2TBCryptoAPI = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI.jsm").EnigmailCryptoAPI;
 var Services = ChromeUtils.import("resource://gre/modules/Services.jsm").Services;
@@ -97,10 +95,6 @@ async function startMigration() {
   gProcessing = false;
   await applyKeySignatures();
   applyAccountSettings();
-
-  if (!gDialogCancelled) {
-    E2TBPrefs.setPref("configuredVersion", E2TBApp.getVersion());
-  }
 
   document.getElementById("migrationComplete").style.visibility = "visible";
   gAcceptButton.removeAttribute("disabled");
