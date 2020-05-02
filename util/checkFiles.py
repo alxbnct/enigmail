@@ -289,8 +289,8 @@ def checkAllXULFiles():
   path = os.path.join(root)
   for path, dirs, files in os.walk(path):
     for name in files:
-      #if name.endswith(".xul"):
-      if name.endswith(".xul"):
+      #if name.endswith(".xhtml"):
+      if name.endswith(".xhtml"):
         filename = os.path.join(path,name)
         checkXUL(filename)
 
