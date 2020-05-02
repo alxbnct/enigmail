@@ -16,7 +16,41 @@ var enigmailApi = class extends ExtensionCommon.ExtensionAPI {
     const manifestURI = Services.io.newURI("manifest.json", null, this.extension.rootURI);
     this.chromeHandle = aomStartup.registerChrome(manifestURI, [
       ["content", "enigmail", "chrome/content/"],
-      ["locale", "enigmail", "en-US", "chrome/locale/en-US/"]
+      ["locale", "enigmail", "en-US", "chrome/locale/en-US/"],
+      ["locale", "enigmail", "ar", "chrome/locale/ar/"],
+      ["locale", "enigmail", "bg", "chrome/locale/bg/"],
+      ["locale", "enigmail", "ca", "chrome/locale/ca/"],
+      ["locale", "enigmail", "cs", "chrome/locale/cs/"],
+      ["locale", "enigmail", "da", "chrome/locale/da/"],
+      ["locale", "enigmail", "de", "chrome/locale/de/"],
+      ["locale", "enigmail", "el", "chrome/locale/el/"],
+      ["locale", "enigmail", "es-ES", "chrome/locale/es-ES/"],
+      ["locale", "enigmail", "fa", "chrome/locale/fa/"],
+      ["locale", "enigmail", "fi", "chrome/locale/fi/"],
+      ["locale", "enigmail", "fr", "chrome/locale/fr/"],
+      ["locale", "enigmail", "gd", "chrome/locale/gd/"],
+      ["locale", "enigmail", "gl", "chrome/locale/gl/"],
+      ["locale", "enigmail", "hr", "chrome/locale/hr/"],
+      ["locale", "enigmail", "hu", "chrome/locale/hu/"],
+      ["locale", "enigmail", "it", "chrome/locale/it/"],
+      ["locale", "enigmail", "ja", "chrome/locale/ja/"],
+      ["locale", "enigmail", "ko", "chrome/locale/ko/"],
+      ["locale", "enigmail", "lt", "chrome/locale/lt/"],
+      ["locale", "enigmail", "nb", "chrome/locale/nb/"],
+      ["locale", "enigmail", "nl", "chrome/locale/nl/"],
+      ["locale", "enigmail", "pl", "chrome/locale/pl/"],
+      ["locale", "enigmail", "pt-BR", "chrome/locale/pt-BR/"],
+      ["locale", "enigmail", "pt-PT", "chrome/locale/pt-PT/"],
+      ["locale", "enigmail", "ro", "chrome/locale/ro/"],
+      ["locale", "enigmail", "ru", "chrome/locale/ru/"],
+      ["locale", "enigmail", "sk", "chrome/locale/sk/"],
+      ["locale", "enigmail", "sl", "chrome/locale/sl/"],
+      ["locale", "enigmail", "sq", "chrome/locale/sq/"],
+      ["locale", "enigmail", "sv", "chrome/locale/sv/"],
+      ["locale", "enigmail", "tr", "chrome/locale/tr/"],
+      ["locale", "enigmail", "vi", "chrome/locale/vi/"],
+      ["locale", "enigmail", "zh-CN", "chrome/locale/zh-CN/"],
+      ["locale", "enigmail", "zh-TW", "chrome/locale/zh-TW/"]
     ]);
 
     performStartup({
