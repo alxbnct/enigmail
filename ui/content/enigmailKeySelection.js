@@ -115,7 +115,7 @@ function getKeyList(secretOnly, refresh) {
     }
 
     if (secretOnly) {
-      userList = EnigmailKeyRing.getAllSecretKeys(window);
+      userList = EnigmailKeyRing.getAllSecretKeys();
       if (!userList) return null;
       keyList = EnigmailFuncs.cloneObj(userList);
     } else {
