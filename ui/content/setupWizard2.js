@@ -86,7 +86,10 @@ async function startMigration() {
   gProcessing = true;
   let tmpDir = E2TBFiles.createTempSubDir("enig-exp", true);
   exportKeys(tmpDir);
+  if (gDialogCancelled) return;
+
   await importKeys(tmpDir);
+  if (gDialogCancelled) return;
 
   document.getElementById("applyingSettings").style.visibility = "visible";
   try {
@@ -97,6 +100,7 @@ async function startMigration() {
   EnigmailKeyRing.clearCache();
   await applyKeySignatures();
   applyAccountSettings();
+  if (gDialogCancelled) return;
 
   document.getElementById("migrationComplete").style.visibility = "visible";
   gAcceptButton.removeAttribute("disabled");
