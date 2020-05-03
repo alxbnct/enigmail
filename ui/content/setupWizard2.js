@@ -24,6 +24,7 @@ var EnigmailDialog = ChromeUtils.import("chrome://openpgp/content/modules/dialog
 var EnigmailKeyRing = ChromeUtils.import("chrome://openpgp/content/modules/keyRing.jsm").EnigmailKeyRing;
 var uidHelper = ChromeUtils.import("chrome://openpgp/content/modules/uidHelper.jsm").uidHelper;
 var PgpSqliteDb2 = ChromeUtils.import("chrome://openpgp/content/modules/sqliteDb.jsm").PgpSqliteDb2;
+var EnigmailCryptoAPI = ChromeUtils.import("chrome://openpgp/content/modules/cryptoAPI.jsm").EnigmailCryptoAPI;
 
 var gSelectedPrivateKeys = null,
   gPublicKeys = [],
@@ -85,7 +86,7 @@ async function startMigration() {
   gProcessing = true;
   let tmpDir = E2TBFiles.createTempSubDir("enig-exp", true);
   exportKeys(tmpDir);
-  importKeys(tmpDir);
+  await importKeys(tmpDir);
 
   document.getElementById("applyingSettings").style.visibility = "visible";
   try {
@@ -93,6 +94,7 @@ async function startMigration() {
   }
   catch(ex) {}
   gProcessing = false;
+  EnigmailKeyRing.clearCache();
   await applyKeySignatures();
   applyAccountSettings();
 
@@ -168,7 +170,7 @@ function exportKeys(tmpDir) {
 }
 
 
-function importKeys(tmpDir) {
+async function importKeys(tmpDir) {
   E2TBLog.DEBUG(`setupWizard2.js: importKeys(${tmpDir.path})\n`);
 
   let pubKeysFailed = [],
@@ -191,7 +193,7 @@ function importKeys(tmpDir) {
     secKeyFile.append(fpr + ".sec");
 
     E2TBLog.DEBUG("setupWizard2.js: importKeys: secFile: " + secKeyFile.path + "\n");
-    if (!importKeyFile(fpr, secKeyFile, true)) {
+    if (!(await importKeyFile(fpr, secKeyFile, true))) {
       secKeysFailed.push(fpr);
     }
     ++numKeysProcessed;
@@ -215,7 +217,7 @@ function importKeys(tmpDir) {
     setImportProgress(numKeysProcessed / totalNumKeys * 100);
 
     E2TBLog.DEBUG("setupWizard2.js: importKeys: pubFile: " + pubKeyFile.path + "\n");
-    if (!importKeyFile(fpr, pubKeyFile, false)) {
+    if (!(await importKeyFile(fpr, pubKeyFile, false))) {
       pubKeysFailed.push(fpr);
     }
   }
@@ -338,31 +340,12 @@ document.addEventListener("dialogcancel", function(event) {
     event.preventDefault(); // Prevent the dialog closing.
 });
 
-function importKeyFile(fpr, inFile, isSecretKey) {
-  let resultKeys = {},
-    errorMsgObj = {};
+async function importKeyFile(fpr, inFile, isSecretKey) {
+  const cApi = EnigmailCryptoAPI();
 
   try {
-    let exitCode = EnigmailKeyRing.importKeyFromFile(
-      window,
-      passphrasePromptCallback,
-      inFile,
-      errorMsgObj,
-      resultKeys,
-      !isSecretKey,
-      isSecretKey
-    );
-
-    if (exitCode !== 0) {
-      E2TBDialog.alert(
-        window,
-        E2TBLocale.getString("importKeyFailed", fpr) +
-        "\n\n" +
-        errorMsgObj.value
-      );
-    }
-
-    return (exitCode === 0);
+    let res = await cApi.importKeyFromFile(window, passphrasePromptCallback, inFile, !isSecretKey, isSecretKey);
+    return (res && res.importedKeys && res.importedKeys.length > 0);
   }
   catch (ex) {
     E2TBLog.DEBUG(`setupWizard2.js: import key failed for key ${fpr}\n`);
