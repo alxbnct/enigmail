@@ -106,7 +106,7 @@
 <!ENTITY enigmail.decryptbutton.label     "Dekriptiraj">
 <!ENTITY enigmail.decryptbutton.tip       "Dekriptiraj ili potvrdi poruku s Enigmail-om">
 
-<!ENTITY enigmail.doneButton.label        "">
+<!ENTITY enigmail.doneButton.label        "Gotovo">
 <!ENTITY enigmail.doneButton.accesskey    "D">
 
 <!ENTITY enigmail.messengermenu.accesskey "a">
@@ -747,7 +747,7 @@ Thunderbird i pokrenete Čarobnjak za postavljanje iz Enigmail izbornika.">
 <!ENTITY enigmail.pepPref.window.title               "">
 <!ENTITY enigmail.pepPref.accountTab.label           "">
 <!ENTITY enigmail.pepPref.compatTab.label            "">
-<!ENTITY enigmail.pepPref.aboutTab.label             "">
+<!ENTITY enigmail.pepPref.aboutTab.label             "Informacije">
 <!ENTITY enigmail.pepPref.accountSecurity.desc       "">
 <!ENTITY enigmail.pepPref.storeSecurely.title        "">
 <!ENTITY enigmail.pepPref.storeSecurely.label        "">
