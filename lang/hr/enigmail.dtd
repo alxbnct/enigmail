@@ -106,7 +106,7 @@
 <!ENTITY enigmail.decryptbutton.label     "Dekriptiraj">
 <!ENTITY enigmail.decryptbutton.tip       "Dekriptiraj ili potvrdi poruku s Enigmail-om">
 
-<!ENTITY enigmail.doneButton.label        "">
+<!ENTITY enigmail.doneButton.label        "Gotovo">
 <!ENTITY enigmail.doneButton.accesskey    "D">
 
 <!ENTITY enigmail.messengermenu.accesskey "a">
