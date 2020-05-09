@@ -36,4 +36,4 @@
 <!ENTITY enigmail.setupWiz.applyingSettings          "">
 <!ENTITY enigmail.setupWiz.migrationComplete         "">
 
-<!ENTITY enigmail.copyCmd.label                      "">
+<!ENTITY enigmail.copyCmd.label                      "Kopijuoti">
