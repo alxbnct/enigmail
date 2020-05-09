@@ -1,5 +1,5 @@
 module.exports = {
   "rules": {
-    "strict": 0,
+    "strict": 0
   }
 }
