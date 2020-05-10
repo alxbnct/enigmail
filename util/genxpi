@@ -58,6 +58,7 @@ echo "Creating ${xpiFile} file"
 zip -9 --must-match\
     ../${xpiFile} \
     chrome/content/preferences/defaultPrefs.js \
+    chrome/content/modules/app.jsm \
     chrome/content/modules/armor.jsm \
     chrome/content/modules/buildDate.jsm \
     chrome/content/modules/clipboard.jsm \

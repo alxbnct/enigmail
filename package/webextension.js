@@ -57,7 +57,7 @@ var enigmailApi = class extends ExtensionCommon.ExtensionAPI {
       version: this.extension.version,
       id: this.extension.id,
       installPath: this.extension.rootURI.file
-    }, startupReason.APP_STARTUP);
+    }, startupReason.ADDON_ENABLE);
     Services.console.logStringMessage("Enigmail startup completed");
   }
 
@@ -93,6 +93,7 @@ var enigmailApi = class extends ExtensionCommon.ExtensionAPI {
 const startupReason = {
   APP_STARTUP: 1, // The application is starting up.
   APP_SHUTDOWN: 2, // The application is shutting down.
+  ADDON_ENABLE: 3, // Addon was enabled
   ADDON_DISABLE: 4 //	The add-on is being disabled. (Also sent during uninstallation)
 };
 
