@@ -1,8 +1,8 @@
 /*
- * This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at https://mozilla.org/MPL/2.0/.
- */
+  * This Source Code Form is subject to the terms of the Mozilla Public
+  * License, v. 2.0. If a copy of the MPL was not distributed with this
+  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+  */
 
 
 "use strict";
@@ -34,14 +34,14 @@ const STATUS_NOT_REQUIRED = 2;
 const IOSERVICE_CONTRACTID = "@mozilla.org/network/io-service;1";
 
 /*
- *  Decrypt a message and copy it to a folder
- *
- * @param nsIMsgDBHdr hdr   Header of the message
- * @param String destFolder   Folder URI
- * @param Boolean move      If true the original message will be deleted
- *
- * @return a Promise that we do that
- */
+  *  Decrypt a message and copy it to a folder
+  *
+  * @param nsIMsgDBHdr hdr   Header of the message
+  * @param String destFolder   Folder URI
+  * @param Boolean move      If true the original message will be deleted
+  *
+  * @return a Promise that we do that
+  */
 var EnigmailPersistentCrypto = {
 
   /***
@@ -120,6 +120,9 @@ var EnigmailPersistentCrypto = {
       function(resolve, reject) {
         let msgUriSpec = hdr.folder.getUriForMsg(hdr);
         let msgUrl = EnigmailCompat.getUrlFromUriSpec(msgUriSpec);
+        if (!destFolder) {
+          destFolder = hdr.folder.URI;
+        }
 
         const crypt = new CryptMessageIntoFolder(destFolder, move, resolve, targetKey);
 
@@ -192,6 +195,21 @@ CryptMessageIntoFolder.prototype = {
     let inputMsg = this.mimeToString(mimeTree, false);
     const cApi = EnigmailCryptoAPI();
 
+    if (mimeTree.fullContentType.search(/^multipart\/encrypted/i) < 0) {
+      // add header for MIME part, unless it's originally a PGP/MIME encrypted message
+      let msgHeader = formatMimeHeader("content-type", mimeTree.headers._rawHeaders.get("content-type")) + "\n";
+
+      if (mimeTree.headers._rawHeaders.has("content-transfer-encoding")) {
+        msgHeader += formatMimeHeader("content-transfer-encoding", mimeTree.headers._rawHeaders.get("content-transfer-encoding")) + "\n";
+      }
+
+      if (mimeTree.headers._rawHeaders.has("content-disposition")) {
+        msgHeader += formatMimeHeader("content-disposition", mimeTree.headers._rawHeaders.get("content-disposition")) + "\n";
+      }
+
+      inputMsg = msgHeader + "\n" + inputMsg;
+    }
+
     let ret = null;
     try {
       ret = await cApi.encryptMessage(
@@ -212,16 +230,16 @@ CryptMessageIntoFolder.prototype = {
     // Build the pgp-encrypted mime structure
     let msg = "";
 
-    let rfc822Headers = []; // FIXME
-
     // First the original headers
-    for (let header in rfc822Headers) {
-      if (header != "content-type" &&
-        header != "content-transfer-encoding" &&
-        header != "content-disposition") {
-        msg += prettyPrintHeader(header, rfc822Headers[header]) + "\n";
+    for (let hdr of mimeTree.headers._rawHeaders.keys()) {
+      if (hdr != "content-type" &&
+        hdr != "content-transfer-encoding" &&
+        hdr != "content-disposition") {
+
+        msg += formatMimeHeader(hdr, mimeTree.headers._rawHeaders.get(hdr)) + " \n";
       }
     }
+
     // Then multipart/encrypted ct
     let boundary = EnigmailMime.createBoundary();
     msg += "Content-Transfer-Encoding: 7Bit\n";
