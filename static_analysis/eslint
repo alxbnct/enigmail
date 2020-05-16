@@ -24,8 +24,8 @@ else
 
     STATIC_ANALYSIS_DIR=`dirname "$CURRENT_FILE"`
 
-    find "$1" -name "*.js" -exec eslint --quiet --cache {} + && \
-    find "$1" -name "*.jsm" -exec eslint --quiet --cache {} +
+    find "$1" -name "*.js" -exec eslint --ignore-pattern ".eslintrc.js" --quiet --cache {} + && \
+    find "$1" -name "*.jsm" -exec eslint --ignore-pattern ".eslintrc.js" --quiet --cache {} +
     if [ $? -ne 0 ]; then
       exit 1
     fi
