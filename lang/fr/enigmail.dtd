@@ -24,7 +24,7 @@
 <!ENTITY enigmail.messenger.menulabel               "Migrer les paramètres d’Enigmail">
 
 <!ENTITY enigmail.setupWiz.title                     "Transférer vos paramètres d’Enigmail vers Thunderbird">
-<!ENTITY enigmail.setupWiz.pgIntro.desc              "Cet assistant exportera vos clés et paramètres d’Enigmail et GnuPG et les importera dans le magasin de clés de Thunderbird.">
+<!ENTITY enigmail.setupWiz.pgIntro.desc              "Cet assistant exportera vos clés et paramètres d’Enigmail et de GnuPG et les importera dans le magasin de clés de Thunderbird.">
 <!ENTITY enigmail.setupWiz.manyKeys.desc             "Vous avez plusieurs clés privées dans GnuPG. Si vous ne souhaitez pas les importer toutes dans Thunderbird, cliquez sur le bouton « Sélectionner des clés privées » afin de sélectionner les clés dont vous avez besoin.">
 <!ENTITY enigmail.setupWiz.manyKeys.selectButton     "Sélectionner des clés privées…">
 <!ENTITY enigmail.setupWiz.startMigration.desc1      "Veuillez cliquer sur le bouton « Lancer la migration » pour commencer la migration.">
