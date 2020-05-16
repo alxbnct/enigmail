@@ -38,12 +38,7 @@ eslint:
 	static_analysis/eslint ipc
 	static_analysis/eslint ui
 
-unit:
-	make -C package/tests
-	make -C ui/tests
-	make -C ipc/tests
-
-test: eslint check unit
+test: eslint check
 
 clean:
 	rm -f build/$(XPIFILE) .eslintcache
