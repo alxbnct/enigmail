@@ -25,6 +25,7 @@ var EnigmailKeyRing = ChromeUtils.import("chrome://openpgp/content/modules/keyRi
 var uidHelper = ChromeUtils.import("chrome://openpgp/content/modules/uidHelper.jsm").uidHelper;
 var PgpSqliteDb2 = ChromeUtils.import("chrome://openpgp/content/modules/sqliteDb.jsm").PgpSqliteDb2;
 var EnigmailCryptoAPI = ChromeUtils.import("chrome://openpgp/content/modules/cryptoAPI.jsm").EnigmailCryptoAPI;
+var RNP = ChromeUtils.import("chrome://openpgp/content/modules/RNP.jsm").RNP;
 
 var gSelectedPrivateKeys = null,
   gPublicKeys = [],
@@ -38,7 +39,7 @@ function onLoad() {
   let dlg = document.getElementById("setupWizardDlg");
   gAcceptButton = dlg.getButton("accept");
   gAcceptButton.setAttribute("disabled", "true");
-  gCancelButton =  dlg.getButton("cancel");
+  gCancelButton = dlg.getButton("cancel");
 
   let secKeys = E2TBKeyRing.getAllSecretKeys(false);
   if (secKeys.length > 5) {
@@ -88,14 +89,27 @@ async function startMigration() {
   exportKeys(tmpDir);
   if (gDialogCancelled) return;
 
-  await importKeys(tmpDir);
+  // temprarily disable saving keys
+  let origSaveKeyRing = RNP.saveKeyRings;
+  RNP.saveKeyRings = function() {};
+
+  try {
+    await importKeys(tmpDir);
+  }
+  catch (x) {}
+  finally {
+    // restore saving function
+    RNP.saveKeyRings = origSaveKeyRing;
+    RNP.saveKeyRings();
+  }
+
   if (gDialogCancelled) return;
 
   document.getElementById("applyingSettings").style.visibility = "visible";
   try {
     tmpDir.remove(true);
   }
-  catch(ex) {}
+  catch (ex) {}
   gProcessing = false;
   EnigmailKeyRing.clearCache();
   await applyKeySignatures();
