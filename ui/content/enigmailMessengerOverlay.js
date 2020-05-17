@@ -42,8 +42,6 @@ var EnigmailPassword = ChromeUtils.import("chrome://enigmail/content/modules/pas
 var EnigmailKeyUsability = ChromeUtils.import("chrome://enigmail/content/modules/keyUsability.jsm").EnigmailKeyUsability;
 var EnigmailURIs = ChromeUtils.import("chrome://enigmail/content/modules/uris.jsm").EnigmailURIs;
 var EnigmailProtocolHandler = ChromeUtils.import("chrome://enigmail/content/modules/protocolHandler.jsm").EnigmailProtocolHandler;
-var EnigmailPEPAdapter = ChromeUtils.import("chrome://enigmail/content/modules/pEpAdapter.jsm").EnigmailPEPAdapter;
-var EnigmailPEPDecrypt = ChromeUtils.import("chrome://enigmail/content/modules/pEpDecrypt.jsm").EnigmailPEPDecrypt;
 var EnigmailAutocrypt = ChromeUtils.import("chrome://enigmail/content/modules/autocrypt.jsm").EnigmailAutocrypt;
 var EnigmailMime = ChromeUtils.import("chrome://enigmail/content/modules/mime.jsm").EnigmailMime;
 var EnigmailArmor = ChromeUtils.import("chrome://enigmail/content/modules/armor.jsm").EnigmailArmor;
@@ -111,12 +109,6 @@ Enigmail.msg = {
       }
     }
 
-    let t = document.getElementById("tabmail");
-    if (t) {
-      // TB >= 63
-      t.addEventListener("pageshow", Enigmail.msg.pageShowListener, false);
-    }
-
     let customizeToolbar = document.getElementById("customizeToolbarSheetIFrame");
     customizeToolbar.addEventListener("pageshow", function(event) {
       let Overlays = ChromeUtils.import("chrome://enigmail/content/modules/overlays.jsm", {}).Overlays;
@@ -143,18 +135,10 @@ Enigmail.msg = {
 
     //Enigmail.msg.overrideLayoutChange();
     Enigmail.msg.prepareAppMenu();
-    Enigmail.msg.setMainMenuLabel();
-
-    Enigmail.msg.juniorModeObserver = EnigmailPEPAdapter.registerJuniorModeObserver(Enigmail.msg.setMainMenuLabel);
 
     let statusCol = document.getElementById("enigmailStatusCol");
     if (statusCol) {
-      if (EnigmailPEPAdapter.usingPep()) {
-        statusCol.setAttribute("label", EnigmailLocale.getString("enigmailPep.msgViewColumn.label"));
-      }
-      else {
-        statusCol.setAttribute("label", EnigmailLocale.getString("enigmail.msgViewColumn.label"));
-      }
+      statusCol.setAttribute("label", EnigmailLocale.getString("enigmail.msgViewColumn.label"));
     }
 
     Enigmail.msg.savedHeaders = null;
@@ -167,11 +151,6 @@ Enigmail.msg = {
       EnigmailKeyRing.getAllKeys();
 
     }, 3600 * 1000); // 1 hour
-
-    EnigmailTimer.setTimeout(function _f() {
-      // check if there is an update to pEp after 10 minutes of uptime
-      EnigmailPEPAdapter.checkForPepUpdate();
-    }, 600 * 1000);
 
     // Need to add event listener to Enigmail.msg.messagePane to make it work
     // Adding to msgFrame doesn't seem to work
@@ -218,14 +197,6 @@ Enigmail.msg = {
 
     gMessageListeners.push(Enigmail.msg.messageListener);
     Enigmail.msg.messageListener.onEndHeaders();
-  },
-
-  pageShowListener: function(e) {
-    if (e.type === "pageshow" && e.target.URL === "about:preferences") {
-      EnigmailLog.DEBUG("enigmailMessengerOverlay.js: loading enigmailPrivacyOverlay.xul\n");
-      let Overlays = ChromeUtils.import("chrome://enigmail/content/modules/overlays.jsm", {}).Overlays;
-      Overlays.loadOverlays("Enigmail", e.target.defaultView, ["chrome://enigmail/content/ui/enigmailPrivacyOverlay.xul"]);
-    }
   },
 
   messageListener: {
@@ -327,12 +298,6 @@ Enigmail.msg = {
 
   messengerClose: function() {
     EnigmailLog.DEBUG("enigmailMessengerOverlay.js: messengerClose()\n");
-
-    if (this.juniorModeObserver) {
-      EnigmailPEPAdapter.unregisterJuniorModeObserver(this.juniorModeObserver);
-      this.juniorModeObserver = null;
-    }
-
   },
 
   reloadCompleteMsg: function() {
@@ -474,27 +439,6 @@ Enigmail.msg = {
     }
   },
 
-  setMainMenuLabel: function() {
-    if (EnigmailCompat.isPostbox()) return;
-    let usePep = EnigmailPEPAdapter.usingPep();
-    let o = ["menu_Enigmail", "appmenu-Enigmail"];
-
-    let m0 = document.getElementById(o[0]);
-    let m1 = document.getElementById(o[1]);
-
-    m1.setAttribute("enigmaillabel", m0.getAttribute("enigmaillabel"));
-    m1.setAttribute("peplabel", m0.getAttribute("peplabel"));
-
-    for (let menuId of o) {
-      let menu = document.getElementById(menuId);
-
-      if (menu) {
-        let lbl = menu.getAttribute(usePep ? "peplabel" : "enigmaillabel");
-        menu.setAttribute("label", lbl);
-      }
-    }
-  },
-
   prepareAppMenu: function() {
     let menu = document.querySelector("#appMenu-mainView > vbox");
     if (!menu) return;
@@ -521,25 +465,17 @@ Enigmail.msg = {
 
   displayMainMenu: function(menuPopup) {
 
-    let usePep = EnigmailPEPAdapter.usingPep();
     let obj = menuPopup.firstChild;
 
     while (obj) {
       if (obj.getAttribute("enigmailtype") == "enigmail" || obj.getAttribute("advanced") == "true") {
-        if (usePep) {
-          obj.setAttribute("hidden", "true");
-        }
-        else {
-          obj.removeAttribute("hidden");
-        }
+        obj.removeAttribute("hidden");
       }
 
       obj = obj.nextSibling;
     }
 
-    if (!usePep) {
-      EnigmailFuncs.collapseAdvanced(menuPopup, 'hidden', Enigmail.msg.updateOptionsDisplay());
-    }
+    EnigmailFuncs.collapseAdvanced(menuPopup, 'hidden', Enigmail.msg.updateOptionsDisplay());
 
   },
 
@@ -562,10 +498,6 @@ Enigmail.msg = {
    * Determine if Autocrypt is enabled for the currently selected message
    */
   isAutocryptEnabled: function() {
-    if (EnigmailPEPAdapter.usingPep()) {
-      return false;
-    }
-
     try {
       let email = EnigmailFuncs.stripEmail(gFolderDisplay.selectedMessage.recipients);
       let maybeIdent = EnigmailStdlib.getIdentityForEmail(email);
@@ -641,28 +573,14 @@ Enigmail.msg = {
 
     // don't parse message if we know it's a PGP/MIME message
     if (contentType.search(/^multipart\/encrypted(;|$)/i) === 0 && contentType.search(/application\/pgp-encrypted/i) > 0) {
-      if (EnigmailPEPAdapter.usingPep()) {
-        EnigmailPEPAdapter.processPGPMIME(currentHeaderData);
-      }
-
       this.movePEPsubject();
       this.messageDecryptCb(event, isAuto, null);
       return;
     }
     else if (contentType.search(/^multipart\/signed(;|$)/i) === 0 && contentType.search(/application\/pgp-signature/i) > 0) {
-      if (EnigmailPEPAdapter.usingPep()) {
-        // treat PGP/MIME message like inline-PGP for the context of pEp
-        this.hidePgpKeys();
-        EnigmailPEPAdapter.processInlinePGP(this.getCurrentMsgUrl(), currentHeaderData);
-      }
-
       this.movePEPsubject();
       this.messageDecryptCb(event, isAuto, null);
       return;
-    }
-    else if (EnigmailPEPAdapter.usingPep()) {
-      this.hidePgpKeys();
-      EnigmailPEPAdapter.processInlinePGP(this.getCurrentMsgUrl(), currentHeaderData);
     }
 
     try {
@@ -1239,7 +1157,6 @@ Enigmail.msg = {
     var userIdObj = {};
     var sigDetailsObj = {};
     var encToDetailsObj = {};
-    var pEpResult = null;
 
     var blockSeparationObj = {
       value: ""
@@ -1267,49 +1184,23 @@ Enigmail.msg = {
         EnigmailConstants.UI_ALLOW_KEY_IMPORT |
         EnigmailConstants.UI_UNVERIFIED_ENC_OK) : 0;
 
-      if (EnigmailPEPAdapter.usingPep()) {
-        let addresses = {
-          from: null,
-          to: EnigmailFuncs.parseEmails(gFolderDisplay.selectedMessage.recipients),
-          cc: EnigmailFuncs.parseEmails(gFolderDisplay.selectedMessage.ccList)
-        };
-        let fromAddr = EnigmailFuncs.parseEmails(gFolderDisplay.selectedMessage.author);
-        if (fromAddr.length > 0) {
-          addresses.from = fromAddr[0];
-        }
+      plainText = EnigmailDecryption.decryptMessage(window, uiFlags, msgText,
+        signatureObj, exitCodeObj, statusFlagsObj,
+        keyIdObj, userIdObj, sigDetailsObj,
+        errorMsgObj, blockSeparationObj, encToDetailsObj);
 
-        pEpResult = EnigmailPEPDecrypt.decryptMessageData(false, msgText, addresses);
-        if (pEpResult) {
-          plainText = pEpResult.longmsg;
-          if (pEpResult.shortmsg.length > 0) {
-            Enigmail.hdrView.setSubject(pEpResult.shortmsg);
-          }
-          exitCode = 0;
-        }
-        else {
-          plainText = "";
-          exitCode = 1;
-        }
+      //EnigmailLog.DEBUG("enigmailMessengerOverlay.js: messageParseCallback: plainText='"+plainText+"'\n");
+
+      exitCode = exitCodeObj.value;
+      newSignature = signatureObj.value;
+
+      if (plainText === "" && exitCode === 0) {
+        plainText = " ";
       }
-      else {
-        plainText = EnigmailDecryption.decryptMessage(window, uiFlags, msgText,
-          signatureObj, exitCodeObj, statusFlagsObj,
-          keyIdObj, userIdObj, sigDetailsObj,
-          errorMsgObj, blockSeparationObj, encToDetailsObj);
 
-        //EnigmailLog.DEBUG("enigmailMessengerOverlay.js: messageParseCallback: plainText='"+plainText+"'\n");
+      statusFlags = statusFlagsObj.value;
 
-        exitCode = exitCodeObj.value;
-        newSignature = signatureObj.value;
-
-        if (plainText === "" && exitCode === 0) {
-          plainText = " ";
-        }
-
-        statusFlags = statusFlagsObj.value;
-
-        EnigmailLog.DEBUG("enigmailMessengerOverlay.js: messageParseCallback: newSignature='" + newSignature + "'\n");
-      }
+      EnigmailLog.DEBUG("enigmailMessengerOverlay.js: messageParseCallback: newSignature='" + newSignature + "'\n");
     }
 
     var errorMsg = errorMsgObj.value;
@@ -1323,20 +1214,15 @@ Enigmail.msg = {
 
     var displayedUriSpec = Enigmail.msg.getCurrentMsgUriSpec();
     if (!msgUriSpec || (displayedUriSpec == msgUriSpec)) {
-      if (EnigmailPEPAdapter.usingPep() && pEpResult) {
-        Enigmail.hdrView.displayPepStatus(pEpResult.rating, pEpResult.fpr, null, pEpResult.persons);
+      if (tail.length > 0) {
+        statusFlags |= EnigmailConstants.PARTIALLY_PGP;
       }
-      else {
-        if (tail.length > 0) {
-          statusFlags |= EnigmailConstants.PARTIALLY_PGP;
-        }
-        Enigmail.hdrView.updateHdrIcons(exitCode, statusFlags, keyIdObj.value, userIdObj.value,
-          sigDetailsObj.value,
-          errorMsg,
-          null, // blockSeparation
-          encToDetailsObj.value,
-          null); // xtraStatus
-      }
+      Enigmail.hdrView.updateHdrIcons(exitCode, statusFlags, keyIdObj.value, userIdObj.value,
+        sigDetailsObj.value,
+        errorMsg,
+        null, // blockSeparation
+        encToDetailsObj.value,
+        null); // xtraStatus
     }
 
     var noSecondTry = EnigmailConstants.GOOD_SIGNATURE |
@@ -2778,10 +2664,6 @@ Enigmail.msg = {
     window.removeEventListener("unload", Enigmail.msg.messengerClose, false);
     window.removeEventListener("unload-enigmail", Enigmail.msg.onUnloadEnigmail, false);
     window.removeEventListener("load-enigmail", Enigmail.msg.messengerStartup, false);
-    let t = document.getElementById("tabmail");
-    if (t) {
-      t.removeEventListener("pageshow", Enigmail.msg.pageShowListener, false);
-    }
 
     this.messageCleanup();
 

@@ -13,7 +13,6 @@ var Cc = Components.classes;
 var Ci = Components.interfaces;
 
 var EnigmailLog = ChromeUtils.import("chrome://enigmail/content/modules/log.jsm").EnigmailLog;
-var EnigmailPEPAdapter = ChromeUtils.import("chrome://enigmail/content/modules/pEpAdapter.jsm").EnigmailPEPAdapter;
 
 var EnigmailListEditor = {
   onLoad: function() {
@@ -34,26 +33,9 @@ var EnigmailListEditor = {
     fl.removeEventListener("click", EnigmailListEditor.onClick, true);
   },
 
-  onSelect: function() {
-    EnigmailLog.DEBUG("EnigmailFilterOverlay.js: onSelect()\n");
+  onSelect: function() {},
 
-    if (!EnigmailPEPAdapter.usingPep()) return;
-
-    var l = document.getElementById("filterList");
-    if (l.selectedItems.length !== 1) return;
-
-    if (currentFilter().filterName === EnigmailPEPAdapter.filter.DECRYPT_FILTER_NAME) {
-      // disable modification or deletion of the pEp-specific message decryption rule
-      document.getElementById("editButton").setAttribute("disabled", "true");
-      document.getElementById("deleteButton").setAttribute("disabled", "true");
-    }
-  },
-
-  onClick: function(event) {
-    if ("label" in event.target && event.target.label === EnigmailPEPAdapter.filter.DECRYPT_FILTER_NAME) {
-      event.stopPropagation();
-    }
-  }
+  onClick: function(event) {}
 };
 
 window.addEventListener("load-enigmail", EnigmailListEditor.onLoad.bind(EnigmailListEditor), false);

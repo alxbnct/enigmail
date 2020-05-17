@@ -10,26 +10,11 @@ var Cu = Components.utils;
 var Cc = Components.classes;
 var Ci = Components.interfaces;
 
-var EnigmailPEPAdapter = ChromeUtils.import("chrome://enigmail/content/modules/pEpAdapter.jsm").EnigmailPEPAdapter;
-
 
 var Enigmail = {
-  usingPep: null,
-  onLoad: function(event) {
-    this.usingPep = EnigmailPEPAdapter.usingPep();
-  },
+  onLoad: function(event) {},
 
-  onClose: function(event) {
-    let usingPep = EnigmailPEPAdapter.usingPep();
-
-    if (usingPep !== this.usingPep) {
-      EnigmailPEPAdapter.handleJuniorModeChange();
-    }
-
-    if (usingPep) {
-      EnigmailPEPAdapter.setOwnIdentities(0);
-    }
-  },
+  onClose: function(event) {},
 
   onUnloadEnigmail: function() {
     window.removeEventListener("load-enigmail", Enigmail.onLoad, true);

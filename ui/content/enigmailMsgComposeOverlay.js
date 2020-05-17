@@ -37,8 +37,6 @@ var EnigmailDecryption = ChromeUtils.import("chrome://enigmail/content/modules/d
 var EnigmailCryptoAPI = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI.jsm").EnigmailCryptoAPI;
 var EnigmailRules = ChromeUtils.import("chrome://enigmail/content/modules/rules.jsm").EnigmailRules;
 var EnigmailClipboard = ChromeUtils.import("chrome://enigmail/content/modules/clipboard.jsm").EnigmailClipboard;
-var EnigmailPEPAdapter = ChromeUtils.import("chrome://enigmail/content/modules/pEpAdapter.jsm").EnigmailPEPAdapter;
-var EnigmailPEPDecrypt = ChromeUtils.import("chrome://enigmail/content/modules/pEpDecrypt.jsm").EnigmailPEPDecrypt;
 var EnigmailWkdLookup = ChromeUtils.import("chrome://enigmail/content/modules/wkdLookup.jsm").EnigmailWkdLookup;
 var EnigmailAutocrypt = ChromeUtils.import("chrome://enigmail/content/modules/autocrypt.jsm").EnigmailAutocrypt;
 var EnigmailMime = ChromeUtils.import("chrome://enigmail/content/modules/mime.jsm").EnigmailMime;
@@ -98,8 +96,6 @@ Enigmail.msg = {
   statusSMimeStr: "???",
   statusInlinePGPStr: "???",
   statusAttachOwnKey: "???",
-  juniorMode: false,
-  origPepRating: null,
 
   sendProcess: false,
   composeBodyReady: false,
@@ -378,8 +374,6 @@ Enigmail.msg = {
    * Determine if any of Enigmail (OpenPGP) or S/MIME encryption is enabled for the account
    */
   getEncryptionEnabled: function() {
-    if (this.juniorMode) return false;
-
     let id = getCurrentIdentity();
 
     return ((id.getUnicharAttribute("encryption_cert_name") !== "") ||
@@ -397,8 +391,6 @@ Enigmail.msg = {
    * Determine if any of Enigmail (OpenPGP) or S/MIME signing is enabled for the account
    */
   getSigningEnabled: function() {
-    if (this.juniorMode) return false;
-
     let id = getCurrentIdentity();
 
     return ((id.getUnicharAttribute("signing_cert_name") !== "") ||
@@ -406,8 +398,6 @@ Enigmail.msg = {
   },
 
   getSmimeSigningEnabled: function() {
-    if (this.juniorMode) return false;
-
     let id = getCurrentIdentity();
 
     if (!id.getUnicharAttribute("signing_cert_name")) return false;
@@ -427,11 +417,6 @@ Enigmail.msg = {
       this.statusInlinePGPStr = EnigmailLocale.getString("inlinePGPNormal");
       this.statusSMimeStr = EnigmailLocale.getString("smimeNormal");
       this.statusAttachOwnKey = EnigmailLocale.getString("attachOwnKeyNo");
-    }
-
-    if (this.juniorMode) {
-      let pepBc = document.getElementById("enigmail-bc-pepEncrypt");
-      pepBc.setAttribute("encrypt", this.pepEnabled() ? "true" : "false");
     }
 
     // reset default send settings, unless we have changed them already
@@ -663,41 +648,14 @@ Enigmail.msg = {
     let signBroadcaster = document.getElementById("enigmail-bc-sign");
     let attachBroadcaster = document.getElementById("enigmail-bc-attach");
     let enigmailMenu = document.getElementById("menu_Enigmail");
-    let pepBroadcaster = document.getElementById("enigmail-bc-pepEncrypt");
-    let pepMenu = document.getElementById("menu_EnigmailPep");
-    let pepStatusbar = document.getElementById("enigmail-pep-statusbar");
 
-    if (this.juniorMode) {
-
-      encBroadcaster.setAttribute("hidden", "true");
-      signBroadcaster.setAttribute("hidden", "true");
-      attachBroadcaster.setAttribute("hidden", "true");
-      if (toolbarTxt) {
-        toolbarTxt.setAttribute("hidden", "true");
-      }
-      enigmailMenu.setAttribute("hidden", "true");
-      pepBroadcaster.removeAttribute("hidden");
-      pepMenu.removeAttribute("hidden");
-      pepStatusbar.removeAttribute("hidden");
-
-
-      this.setFinalSendMode("final-encryptNo");
-      this.setFinalSendMode("final-signNo");
-      this.setFinalSendMode("final-pgpmimeNo");
-      this.updateStatusBar();
+    encBroadcaster.removeAttribute("hidden");
+    signBroadcaster.removeAttribute("hidden");
+    attachBroadcaster.removeAttribute("hidden");
+    if (toolbarTxt) {
+      toolbarTxt.removeAttribute("hidden");
     }
-    else {
-      encBroadcaster.removeAttribute("hidden");
-      signBroadcaster.removeAttribute("hidden");
-      attachBroadcaster.removeAttribute("hidden");
-      if (toolbarTxt) {
-        toolbarTxt.removeAttribute("hidden");
-      }
-      enigmailMenu.removeAttribute("hidden");
-      pepBroadcaster.setAttribute("hidden", "true");
-      pepMenu.setAttribute("hidden", "true");
-      pepStatusbar.setAttribute("hidden", "true");
-    }
+    enigmailMenu.removeAttribute("hidden");
   },
 
   composeOpen: function() {
@@ -710,8 +668,6 @@ Enigmail.msg = {
     var msgUri = null;
     var msgIsDraft = false;
 
-    this.juniorMode = EnigmailPEPAdapter.usingPep();
-
     this.setupMenuAndToolbar();
 
     this.determineSendFlagId = null;
@@ -721,9 +677,6 @@ Enigmail.msg = {
     this.enableUndoEncryption(false);
 
     this.displayProtectHeadersStatus();
-    if (this.juniorMode) {
-      this.getOriginalPepMsgRating();
-    }
 
     var toobarElem = document.getElementById("composeToolbar2");
     if (toobarElem && (EnigmailOS.getOS() == "Darwin")) {
@@ -840,15 +793,6 @@ Enigmail.msg = {
     if (selectedElement) selectedElement.focus();
   },
 
-  getOriginalPepMsgRating: function() {
-    let msgUri = this.getOriginalMsgUri();
-
-    let msgHdr = this.getMsgHdr(msgUri);
-    if (msgHdr) {
-      let r = msgHdr.getUint32Property("enigmailPep");
-      this.origPepRating = (r - (r & 0xFF)) >> 8;
-    }
-  },
 
   // check if an signature is related to another attachment
   findRelatedAttachment: function(bucketList, node) {
@@ -949,7 +893,6 @@ Enigmail.msg = {
     this.sendProcess = false;
     this.trustAllKeys = false;
     this.mimePreferOpenPGP = 0;
-    this.origPepRating = null;
     this.keyLookupDone = [];
 
     if (!closing) {
@@ -1349,7 +1292,6 @@ Enigmail.msg = {
    */
 
   isEnigmailEnabled: function() {
-    if (this.juniorMode) return false;
     return this.identity.getBoolAttribute("enablePgp");
   },
 
@@ -1553,11 +1495,6 @@ Enigmail.msg = {
         break;
 
       case 'toggle-final-encrypt':
-        if (this.juniorMode) {
-          this.onPepEncryptButton(sendMode);
-          return;
-        }
-
         switch (this.statusEncrypted) {
           case EnigmailConstants.ENIG_FINAL_NO:
           case EnigmailConstants.ENIG_FINAL_FORCENO:
@@ -1616,8 +1553,6 @@ Enigmail.msg = {
   */
   processFinalState: function(sendFlags) {
     EnigmailLog.DEBUG("enigmailMsgComposeOverlay.js: Enigmail.msg.processFinalState()\n");
-
-    if (this.juniorMode) return;
 
     const SIGN = EnigmailConstants.SEND_SIGNED;
     const ENCRYPT = EnigmailConstants.SEND_ENCRYPTED;
@@ -2239,11 +2174,6 @@ Enigmail.msg = {
 
     let detailsObj = {};
 
-    if (this.juniorMode) {
-      this.getPepMessageRating();
-      return detailsObj;
-    }
-
     this.statusEncryptedInStatusBar = null; // to double check broken promise for encryption
 
     if (!this.identity) {
@@ -2453,92 +2383,6 @@ Enigmail.msg = {
     }
   },
 
-  pepMenuPopup: function() {
-    let encMenu = document.getElementById("enigmail_compose_pep_encrypt");
-    let hsMenu = document.getElementById("enigmail_composeMenu_pep_handshake");
-
-    let pepBc = document.getElementById("enigmail-bc-pepEncrypt");
-
-    if (this.pepEnabled()) {
-      encMenu.setAttribute("checked", pepBc.getAttribute("encrypt"));
-      encMenu.removeAttribute("disabled");
-      hsMenu.removeAttribute("disabled");
-    }
-    else {
-      encMenu.setAttribute("checked", "false");
-      encMenu.setAttribute("disabled", "true");
-      hsMenu.setAttribute("disabled", "true");
-    }
-  },
-
-  /**
-   * Determine if pEp was disabled by the user
-   */
-  pepEnabled: function() {
-    let id = getCurrentIdentity();
-    return id.getBoolAttribute("enablePEP");
-  },
-
-  pepDisabledError: function() {
-    EnigmailDialog.alert(window, EnigmailLocale.getString("pep.alert.disabledForIdentity"));
-  },
-
-  onPepEncryptMenu: function() {
-    if (!this.pepEnabled()) {
-      this.pepDisabledError();
-      return;
-    }
-
-    let pepBc = document.getElementById("enigmail-bc-pepEncrypt");
-
-    pepBc.setAttribute("encrypt", pepBc.getAttribute("encrypt") === "true" ? "false" : "true");
-    this.getPepMessageRating();
-  },
-
-  onPepEncryptButton: function() {
-    this.onPepEncryptMenu();
-  },
-
-  onPepHandshakeButton: function(event) {
-    if (!this.pepEnabled()) {
-      this.pepDisabledError();
-      return;
-    }
-
-    event.stopPropagation();
-    EnigmailLog.DEBUG("enigmailMsgComposeOverlay.js: Enigmail.msg.onPepHandshakeButton()\n");
-
-    let bc = document.getElementById("enigmail-bc-pepEncrypt");
-    if (bc.getAttribute("encrypt") === "false") {
-      EnigmailDialog.info(window, EnigmailLocale.getString("handshakeDlg.error.noProtection"));
-      return;
-    }
-
-    let o = this.compileFromAndTo();
-    let toAddr = [];
-    try {
-      toAddr = EnigmailFuncs.stripEmail(o.toAddrList.join(",")).split(/,/);
-    }
-    catch (ex) {}
-
-    if (o.toAddrList.length === 0) {
-      EnigmailDialog.info(window, EnigmailLocale.getString("handshakeDlg.error.noPeers"));
-      return;
-    }
-
-    let myId = getCurrentIdentity();
-    let inputObj = {
-      myself: myId.email,
-      addresses: toAddr,
-      direction: 1,
-      parentWindow: window,
-      onComplete: Enigmail.msg.getPepMessageRating.bind(Enigmail.msg)
-    };
-
-    window.openDialog("chrome://enigmail/content/ui/pepPrepHandshake.xul",
-      "", "dialog,modal,centerscreen", inputObj);
-  },
-
   displaySecuritySettings: function() {
     EnigmailLog.DEBUG("enigmailMsgComposeOverlay.js: Enigmail.msg.displaySecuritySettings\n");
 
@@ -2581,7 +2425,7 @@ Enigmail.msg = {
 
 
   signingNoLongerDependsOnEnc: function() {
-    if (this.finalSignDependsOnEncrypt && (!this.juniorMode)) {
+    if (this.finalSignDependsOnEncrypt) {
       EnigmailLog.DEBUG("enigmailMsgComposeOverlay.js: Enigmail.msg.signingNoLongerDependsOnEnc(): unbundle final signing\n");
       this.finalSignDependsOnEncrypt = false;
 
@@ -3116,7 +2960,7 @@ Enigmail.msg = {
       // from, recipients, hiddenRecipients, encryptionFlags, plainText
       ret = cApi.sync(cApi.encryptMessage(fromAddr, toAddrStr, bccAddrStr, testSendFlags, testPlain));
     }
-    catch(x) {}
+    catch (x) {}
 
     let testCipher = ret.data;
     if (ret.statusFlags & (EnigmailConstants.INVALID_RECIPIENT | EnigmailConstants.NO_SECKEY)) {
@@ -3414,7 +3258,7 @@ Enigmail.msg = {
         ++this.saveDraftError;
         if (this.saveDraftError === 1) {
           this.notifyUser(3, EnigmailLocale.getString("msgCompose.cannotSaveDraft"), "saveDraftFailed",
-          testResult.errorMsg);
+            testResult.errorMsg);
         }
         return false;
       }
@@ -3513,56 +3357,6 @@ Enigmail.msg = {
     return confirm;
   },
 
-  setPepPrivacyLabel: function(rating) {
-    EnigmailLog.DEBUG("enigmailMsgComposeOverlay.js: Enigmail.msg.setPepPrivacyLabel: " + rating + "\n");
-
-    let l = document.getElementById("enigmail-pep-privacy-status");
-    let bc = document.getElementById("enigmail-bc-pepEncrypt");
-    let color = EnigmailPEPAdapter.calculateColorFromRating(rating);
-
-    if (bc.getAttribute("encrypt") === "false") {
-      color = "grey";
-    }
-    else if (rating === 0) {
-      color = "?";
-    }
-
-    switch (color) {
-      case "?":
-        l.setAttribute("value", EnigmailLocale.getString("msgCompose.pepSendUnknown"));
-        l.setAttribute("class", "enigmail-statusbar-pep-unsecure");
-        break;
-      case "green":
-        l.setAttribute("value", EnigmailLocale.getString("msgCompose.pepSendTrusted"));
-        l.setAttribute("class", "enigmail-statusbar-pep-trusted");
-        break;
-      case "yellow":
-        l.setAttribute("value", EnigmailLocale.getString("msgCompose.pepSendSecure"));
-        l.setAttribute("class", "enigmail-statusbar-pep-secure");
-        break;
-      default:
-        l.setAttribute("value", EnigmailLocale.getString("msgCompose.pepSendUnsecure"));
-        l.setAttribute("class", "enigmail-statusbar-pep-unsecure");
-    }
-  },
-
-  getPepMessageRating: function() {
-    EnigmailLog.DEBUG("enigmailMsgComposeOverlay.js: Enigmail.msg.getPepMessageRating\n");
-
-    if (this.pepEnabled()) {
-      let rating = 0;
-      let o = this.compileFromAndTo();
-      if (o) {
-        rating = EnigmailPEPAdapter.getOutgoingMessageRating(o.from, o.toAddrList);
-      }
-
-      this.setPepPrivacyLabel(rating);
-      this.determineSendFlagId = null;
-    }
-    else {
-      this.setPepPrivacyLabel(0);
-    }
-  },
 
   compileFromAndTo: function() {
     EnigmailLog.DEBUG("enigmailMsgComposeOverlay.js: Enigmail.msg.compileFromAndTo\n");
@@ -3591,7 +3385,7 @@ Enigmail.msg = {
     }
 
     for (let addr of toAddrList) {
-      // determine incomplete addresses --> do not attempt pEp encryption
+      // determine incomplete addresses --> do not attempt encryption
       if (addr.email.search(/.@./) < 0) return null;
     }
 
@@ -3604,114 +3398,6 @@ Enigmail.msg = {
       from: from,
       toAddrList: toAddrList
     };
-  },
-
-  attachPepKey: function() {
-    EnigmailLog.DEBUG("enigmailMsgComposeOverlay.js: Enigmail.msg.attachPepKey()\n");
-
-    if (this.identity.getBoolAttribute("attachPepKey")) {
-      let id = EnigmailPEPAdapter.getOwnIdentityForEmail(this.identity.email);
-      if (id) {
-
-        let userIdValue = "0x" + id.fpr;
-
-        if (this.attachOwnKeyObj.attachedKey && (this.attachOwnKeyObj.attachedKey != userIdValue)) {
-          // remove attached key if user ID changed
-          this.removeAttachedKey();
-        }
-
-        if (!this.attachOwnKeyObj.attachedKey) {
-          let attachedObj = this.extractAndAttachKey([userIdValue], false);
-          if (attachedObj) {
-            attachedObj.name = "pEpkey.asc";
-            this.attachOwnKeyObj.attachedObj = attachedObj;
-            this.attachOwnKeyObj.attachedKey = userIdValue;
-            gMsgCompose.compFields.addAttachment(attachedObj);
-          }
-        }
-      }
-    }
-  },
-
-  encryptPepMessage: function(msgSendType) {
-    EnigmailLog.DEBUG("enigmailMsgComposeOverlay.js: Enigmail.msg.encryptPepMessage()\n");
-
-    const CiMsgCompDeliverMode = Components.interfaces.nsIMsgCompDeliverMode;
-
-    let isDraft = false;
-    let compFields = gMsgCompose.compFields;
-
-    switch (msgSendType) {
-      case CiMsgCompDeliverMode.SaveAsDraft:
-      case CiMsgCompDeliverMode.SaveAsTemplate:
-      case CiMsgCompDeliverMode.AutoSaveAsDraft:
-        EnigmailLog.DEBUG("enigmailMsgComposeOverlay.js: Enigmail.msg.encryptPepMessage: detected save draft\n");
-        return true;
-    }
-
-    try {
-      // autoEncryptDrafts equals "trusted server" in pEp mode
-      if (this.identity.getBoolAttribute("autoEncryptDrafts")) {
-        EnigmailPEPAdapter.filter.deleteDecryptedCopyFilter(this.identity);
-      }
-      else {
-        EnigmailPEPAdapter.filter.ensureDecryptedCopyFilter(this.identity);
-      }
-    }
-    catch (ex) {}
-
-    let rating = 0;
-    if (this.pepEnabled()) {
-      let o = this.compileFromAndTo();
-      if (o) {
-        rating = EnigmailPEPAdapter.getOutgoingMessageRating(o.from, o.toAddrList);
-
-        let isDraft = (typeof(gMsgCompose.compFields.draftId) === "string" && gMsgCompose.compFields.draftId.length > 0);
-        this.setAdditionalHeader("X-pEp-Version", "2.0");
-
-        if (this.origPepRating !== null && !isDraft) {
-          if (this.origPepRating >= 6 && rating < 6 && this.identity.getBoolAttribute("warnWeakReply")) {
-            let msgInput = {
-              msgtext: EnigmailLocale.getString("pep.alert.weakReply"),
-              button1: EnigmailLocale.getString("dlg.button.continue"),
-              cancelButton: EnigmailLocale.getString("dlg.button.cancel"),
-              iconType: EnigmailConstants.ICONTYPE_ALERT,
-              dialogTitle: EnigmailLocale.getString("warning")
-            };
-
-            if (EnigmailDialog.msgBox(window, msgInput) !== 0) return false;
-
-          }
-        }
-      }
-    }
-
-    EnigmailLog.DEBUG("enigmailMsgComposeOverlay.js: Enigmail.msg.encryptPepMessage: rating=" + rating + "\n");
-
-    let si = Enigmail.msg.getSecurityParams(compFields);
-    if (!EnigmailMimeEncrypt.isEnigmailCompField(si)) {
-      this.createEnigmailSecurityFields(si);
-    }
-
-    si = Enigmail.msg.getSecurityParams(compFields).wrappedJSObject;
-    si.sendFlags = 0;
-    si.originalSubject = null;
-
-    if (rating >= 6) {
-      if (this.identity.getBoolAttribute("protectSubject")) {
-        si.originalSubject = compFields.subject;
-        compFields.subject = "";
-      }
-
-      let encrypt = document.getElementById("enigmail-bc-pepEncrypt").getAttribute("encrypt");
-      si.sendFlags = (encrypt === "true" ? EnigmailConstants.SEND_ENCRYPTED : 0);
-    }
-    else {
-      // attach own key
-      this.attachPepKey();
-    }
-
-    return true;
   },
 
   sendSmimeEncrypted: function(msgSendType, sendFlags, isOffline) {
@@ -4145,8 +3831,6 @@ Enigmail.msg = {
     EnigmailLog.DEBUG("enigmailMsgComposeOverlay.js: Enigmail.msg.encryptMsg: msgSendType=" + msgSendType + ", Enigmail.msg.sendMode=" + this.sendMode + ", Enigmail.msg.statusEncrypted=" +
       this.statusEncrypted +
       "\n");
-
-    if (this.juniorMode) return this.encryptPepMessage(msgSendType);
 
     const SIGN = EnigmailConstants.SEND_SIGNED;
     const ENCRYPT = EnigmailConstants.SEND_ENCRYPTED;
@@ -5080,34 +4764,11 @@ Enigmail.msg = {
 
     var uiFlags = EnigmailConstants.UI_UNVERIFIED_ENC_OK;
 
-    var plainText = "";
+    var plainText = EnigmailDecryption.decryptMessage(window, uiFlags, cipherText,
+      signatureObj, exitCodeObj, statusFlagsObj,
+      keyIdObj, userIdObj, sigDetailsObj,
+      errorMsgObj, blockSeparationObj, encToDetailsObj);
 
-    if (EnigmailPEPAdapter.usingPep()) {
-
-      let msgHdr = this.getMsgHdr();
-
-      let addresses = {
-        from: null,
-        to: EnigmailFuncs.parseEmails(msgHdr.recipients),
-        cc: EnigmailFuncs.parseEmails(msgHdr.ccList)
-      };
-      let fromAddr = EnigmailFuncs.parseEmails(msgHdr.author);
-      if (fromAddr.length > 0)
-        addresses.from = fromAddr[0];
-
-      let pEpResult = EnigmailPEPDecrypt.decryptMessageData(false, cipherText, addresses);
-      if (pEpResult && pEpResult.longmsg.length > 0) {
-        plainText = pEpResult.longmsg;
-        exitCodeObj.value = 0;
-        errorMsgObj.value = "";
-      }
-    }
-    else {
-      plainText = EnigmailDecryption.decryptMessage(window, uiFlags, cipherText,
-        signatureObj, exitCodeObj, statusFlagsObj,
-        keyIdObj, userIdObj, sigDetailsObj,
-        errorMsgObj, blockSeparationObj, encToDetailsObj);
-    }
     // Decode plaintext from charset to unicode
     plainText = EnigmailData.convertToUnicode(plainText, charset).replace(/\r\n/g, "\n");
     if (EnigmailPrefs.getPref("keepSettingsForReply")) {
@@ -5500,8 +5161,6 @@ Enigmail.msg = {
   findMissingKeys: async function() {
 
     try {
-      if (this.juniorMode) return;
-
       EnigmailLog.DEBUG("enigmailMsgComposeOverlay.js: findMissingKeys()\n");
 
       let missingKeys = this.determineSendFlags();

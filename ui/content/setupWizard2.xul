@@ -103,20 +103,6 @@
     <html:p id="foundAcNoSetupMsg"></html:p>
   </html:div>
 
-  <html:div id="previousInstall_pEp" style="visibility: collapse;">
-    <html:p>
-      &enigmail.setupWiz.usingPepMode;
-      <html:ul>
-        <html:li><html:p>
-          &enigmail.setupWiz.synchronizeWithPep;
-        </html:p></html:li>
-        <html:li><html:p>
-          &enigmail.setupWiz.useImportKeys;
-        </html:p></html:li>
-      </html:ul>
-    </html:p>
-  </html:div>
-
   <html:div id="previousInstall_encrypted" style="width: 440px; visibility: collapse;">
     <html:p>&enigmail.setupWiz.existingEncryptedMsg;</html:p>
   </html:div>

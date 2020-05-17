@@ -107,12 +107,6 @@ const overlays = {
   "chrome://messenger/content/addressbook/addressbook.xul": ["enigmailAbCardViewOverlay.xul"],
   "chrome://enigmail/content/ui/editSingleAccount.xul": ["enigmailEditIdentity.xul"],
 
-  // Overlay for privacy preferences in Thunderbird
-  "chrome://messenger/content/preferences/preferences.xul": [{
-    url: "enigmailPrivacyOverlay.xul",
-    application: "!postbox@postbox-inc.com"
-  }],
-
   // Overlay for Customize Toolbar (Windows, Linux)
   "chrome://messenger/content/customizeToolbar.xul": ["enigmailCustToolOverlay.xul"], // TB 60+
   "chrome://global/content/customizeToolbar.xul": ["enigmailCustToolOverlay.xul"], // TB <= 52.x

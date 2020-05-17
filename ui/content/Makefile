@@ -83,8 +83,6 @@ UIFILES = \
 	accountManagerOverlay.xul \
 	pref-enigmail.xul \
 	pref-enigmail.js \
-	pref-pep.xul \
-	pref-pep.js \
 	am-enigprefs.xul \
 	am-enigprefs.js \
 	editSingleAccount.xul \
@@ -109,8 +107,6 @@ UIFILES = \
 	enigmailFilterEditorOverlay.js \
 	enigmailFilterListOverlay.xul \
 	enigmailFilterListOverlay.js \
-	enigmailPrivacyOverlay.js \
-	enigmailPrivacyOverlay.xul \
 	enigmailWrapSelection.xul \
 	enigmailWrapSelection.js \
 	enigmailViewFile.js \
@@ -122,12 +118,6 @@ UIFILES = \
 	importSettings.js \
 	importSettings.xul \
 	upgradeInfo.html \
-	pepHandshake.xul \
-	pepHandshake.js \
-	pepPrepHandshake.xul \
-	pepPrepHandshake.js \
-	pepTrustWords.xul \
-	pepTrustWords.js \
 	updateGnuPG.html \
 	updateGnuPG.js \
 	setupWizard2.js \
