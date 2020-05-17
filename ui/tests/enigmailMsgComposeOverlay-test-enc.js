@@ -100,7 +100,6 @@ test(withTestGpgHome(withEnigmail(withOverwriteFuncs(
       composeHTML: false
     };
 
-    Enigmail.msg.juniorMode = false;
     Enigmail.msg.sendPgpMime = true;
     Enigmail.msg.protectHeaders = true;
     Enigmail.msg.editor = gMsgCompose.editor;

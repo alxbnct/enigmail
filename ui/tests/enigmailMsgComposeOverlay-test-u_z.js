@@ -19,7 +19,6 @@ var EnigmailDialog = {
 };
 var AddAttachment;
 var AddAttachments;
-var EnigmailPEPAdapter = {};
 var Recipients2CompFields = {};
 var GetResourceFromUri = {};
 var EnigmailCore = {};

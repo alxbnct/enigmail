@@ -19,7 +19,6 @@ var EnigmailDialog = {
 var AddAttachment;
 var AddAttachments;
 var EnigmailMimeEncrypt = {};
-var EnigmailPEPAdapter = {};
 var Recipients2CompFields = {};
 var GetResourceFromUri = {};
 var EnigmailCore = {};
@@ -216,55 +215,6 @@ function attachOwnKey_test() {
   Assert.equal(Enigmail.msg.attachOwnKeyObj.attachedObj, null);
   Assert.equal(Enigmail.msg.attachOwnKeyObj.attachedKey, null);
 
-}
-
-function attachPepKey_test() {
-
-  gMsgCompose.compFields = {};
-
-  Enigmail.msg.identity = {
-    getBoolAttribute: function() {
-      Assert.ok(true);
-      return true;
-    }
-  };
-
-  EnigmailPEPAdapter.getOwnIdentityForEmail = function() {
-    Assert.ok(true);
-    return null;
-  };
-
-  Enigmail.msg.attachPepKey();
-
-  EnigmailPEPAdapter.getOwnIdentityForEmail = function() {
-    Assert.ok(true);
-    return {
-      fpr: "001"
-    };
-  };
-
-  Enigmail.msg.attachOwnKeyObj.attachedKey = "0x002";
-
-  Enigmail.msg.removeAttachedKey = function() {
-    Assert.ok(true);
-    Enigmail.msg.attachOwnKeyObj.attachedKey = null;
-  };
-
-  Enigmail.msg.extractAndAttachKey = function() {
-    Assert.ok(true);
-    return {
-      name: ''
-    };
-  };
-
-  gMsgCompose.compFields.addAttachment = function(attachedObj) {
-    Assert.ok(true);
-    Assert.equal(attachedObj.name, "pEpkey.asc");
-  };
-
-  Enigmail.msg.attachPepKey();
-  Assert.equal(Enigmail.msg.attachOwnKeyObj.attachedObj.name, "pEpkey.asc");
-  Assert.equal(Enigmail.msg.attachOwnKeyObj.attachedKey, "0x001");
 }
 
 function checkProtectHeaders_test() {
@@ -647,7 +597,6 @@ function run_test() {
   allowAttachOwnKey_test();
   attachKey_test();
   attachOwnKey_test();
-  attachPepKey_test();
   checkProtectHeaders_test();
   compileFromAndTo_test();
   createEnigmailSecurityFields_test();

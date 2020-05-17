@@ -19,7 +19,6 @@ var EnigmailDialog = {
 };
 var AddAttachment;
 var AddAttachments;
-var EnigmailPEPAdapter = {};
 var Recipients2CompFields = {};
 var GetResourceFromUri = {};
 var EnigmailCore = {};
@@ -248,8 +247,6 @@ function setFinalSendMode_test() {
   Enigmail.msg.setFinalSendMode('toggle-final-sign');
   Assert.equal(Enigmail.msg.signForced, EnigmailConstants.ENIG_NEVER);
 
-  Enigmail.msg.juniorMode = false;
-
   Enigmail.msg.statusEncrypted = EnigmailConstants.ENIG_FINAL_FORCENO;
   Enigmail.msg.setFinalSendMode('toggle-final-encrypt');
   Assert.equal(Enigmail.msg.encryptForced, EnigmailConstants.ENIG_ALWAYS);
@@ -311,7 +308,6 @@ function setIdentityDefaults_test() {
     return true;
   };
 
-  Enigmail.msg.juniorMode = false;
   Enigmail.msg.sendModeDirty = true;
 
   getCurrentIdentity = function() {
@@ -338,40 +334,6 @@ function setIdentityDefaults_test() {
   Assert.equal(Enigmail.msg.statusInlinePGPStr, EnigmailLocale.getString("inlinePGPNormal"));
   Assert.equal(Enigmail.msg.statusSMimeStr, EnigmailLocale.getString("smimeNormal"));
   Assert.equal(Enigmail.msg.statusAttachOwnKey, EnigmailLocale.getString("attachOwnKeyNo"));
-
-  Enigmail.msg.juniorMode = true;
-
-  Enigmail.msg.pepEnabled = function() {
-    //Function Overriding
-    return false;
-  };
-
-  document = {
-    getElementById: function() {
-      return {
-        setAttribute: function(str1, bool) {
-          Assert.equal(bool, "false");
-        }
-      };
-    }
-  };
-
-  Enigmail.msg.setIdentityDefaults();
-
-  Enigmail.msg.pepEnabled = function() {
-    //Function Overriding
-    return true;
-  };
-
-  document = {
-    getElementById: function() {
-      return {
-        setAttribute: function(str1, bool) {
-          Assert.equal(bool, "true");
-        }
-      };
-    }
-  };
 
   Enigmail.msg.setIdentityDefaults();
 
@@ -422,84 +384,6 @@ function setOwnKeyStatus_test() {
   Assert.equal(Enigmail.msg.statusAttachOwnKey, EnigmailLocale.getString("attachOwnKeyNo"));
 }
 
-function setPepPrivacyLabel_test() {
-  document.getElementById = function() {
-    return {
-      getAttribute: function() {
-        return "false";
-      },
-      setAttribute: function(prop, val) {
-        if (prop === "value") {
-          Assert.equal(val, EnigmailLocale.getString("msgCompose.pepSendUnsecure"));
-        } else if (prop === "class") {
-          Assert.equal(val, "enigmail-statusbar-pep-unsecure");
-        }
-      }
-    };
-  };
-
-  EnigmailPEPAdapter.calculateColorFromRating = function() {
-    return "green";
-  };
-
-  Enigmail.msg.setPepPrivacyLabel(1);
-
-  document.getElementById = function() {
-    return {
-      getAttribute: function() {
-        return "true";
-      },
-      setAttribute: function(prop, val) {
-        if (prop === "value") {
-          Assert.equal(val, EnigmailLocale.getString("msgCompose.pepSendUnknown"));
-        } else if (prop === "class") {
-          Assert.equal(val, "enigmail-statusbar-pep-unsecure");
-        }
-      }
-    };
-  };
-
-  Enigmail.msg.setPepPrivacyLabel(0);
-
-  document.getElementById = function() {
-    return {
-      getAttribute: function() {
-        return "true";
-      },
-      setAttribute: function(prop, val) {
-        if (prop === "value") {
-          Assert.equal(val, EnigmailLocale.getString("msgCompose.pepSendTrusted"));
-        } else if (prop === "class") {
-          Assert.equal(val, "enigmail-statusbar-pep-trusted");
-        }
-      }
-    };
-  };
-
-  Enigmail.msg.setPepPrivacyLabel(1);
-
-  EnigmailPEPAdapter.calculateColorFromRating = function() {
-    return "yellow";
-  };
-
-  document.getElementById = function() {
-    return {
-      getAttribute: function() {
-        return "true";
-      },
-      setAttribute: function(prop, val) {
-        if (prop === "value") {
-          Assert.equal(val, EnigmailLocale.getString("msgCompose.pepSendSecure"));
-        } else if (prop === "class") {
-          Assert.equal(val, "enigmail-statusbar-pep-secure");
-        }
-      }
-    };
-  };
-
-  Enigmail.msg.setPepPrivacyLabel(1);
-}
-
 function setSendMode_test() {
 
   Enigmail.msg.processFinalState = () => {
@@ -532,14 +416,6 @@ function setSendMode_test() {
 
 function signingNoLongerDependsOnEnc_test() {
   Enigmail.msg.finalSignDependsOnEncrypt = true;
-  Enigmail.msg.juniorMode = true;
-  Enigmail.msg.signingNoLongerDependsOnEnc();
-  EnigmailDialog.alertPref = function() {
-    Assert.ok(true);
-  };
-  Assert.equal(Enigmail.msg.finalSignDependsOnEncrypt, true);
-
-  Enigmail.msg.juniorMode = false;
   EnigmailDialog.alertPref = function() {};
   Enigmail.msg.signingNoLongerDependsOnEnc();
   EnigmailDialog.alertPref = function() {
@@ -587,7 +463,7 @@ function toggleAttachOwnKey_test() {
 
 function toggleAttribute_test() {
 
-  let attr_name = 'random';
+  let attr_name = 'columnVisible';
   EnigmailPrefs.getPref = function() {
     //Function Overriding
     return true;
@@ -869,7 +745,6 @@ function run_test() {
   setFinalSendMode_test();
   setIdentityCallback_test();
   setOwnKeyStatus_test();
-  setPepPrivacyLabel_test();
   setSendMode_test();
   signingNoLongerDependsOnEnc_test();
   toggleAccountAttr_test();
