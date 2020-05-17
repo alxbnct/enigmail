@@ -513,27 +513,6 @@ test(withTestGpgHome(withEnigmail(function determinePreviousInstallTypeTest() {
   let acc2 = setupTestAccount("Unit Test Account 2", "dummy2", "testing@domain.invalid");
   let inbox = acc2.incomingServer.rootFolder.getFolderWithFlags(Components.interfaces.nsMsgFolderFlags.Inbox);
 
-  copyMailToFolder("resources/email-acc2-pEp-message.eml", inbox).then(() => {
-    inspector.exitNestedEventLoop(0);
-  }).catch(err => {
-    Assert.ok(false, "Error in copyMailToFolder: " + err);
-    inspector.exitNestedEventLoop(0);
-  });
-  inspector.enterNestedEventLoop(0);
-
-  /* global do_print: false */
-  do_print("determine previous intall type...");
-
-  EnigmailAutoSetup.determinePreviousInstallType().then((returnMsgValue) => {
-    Assert.equal(returnMsgValue.value, EnigmailConstants.AUTOSETUP_PEP_HEADER);
-    inspector.exitNestedEventLoop(0);
-  }).catch(err => {
-    Assert.ok(err.indexOf("NS_ERROR_FAILURE") >= 0);
-    inspector.exitNestedEventLoop(0);
-  });
-
-  inspector.enterNestedEventLoop(0);
-
   MailHelper.cleanMailFolder(MailHelper.getRootFolder());
 
   copyMailToFolder("resources/autocrypt-setup-message.eml", inbox).then(() => {

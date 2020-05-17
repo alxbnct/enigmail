@@ -10,12 +10,6 @@
  */
 
 
-// use pEp or Enigmail engine for encryption/decryption
-// 0: force using Enigmail
-// 1: automatic mode (use pEp if Enigmail and S/MIME are not configured for any identity)
-// 2: force using pEp
-pref("extensions.enigmail.juniorMode", 1);
-
 // the last configured Enigmail version
 pref("extensions.enigmail.configuredVersion", "");
 

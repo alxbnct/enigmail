@@ -207,10 +207,6 @@ var EnigmailAutoSetup = {
               returnMsgValue.value = EnigmailConstants.AUTOSETUP_AC_HEADER;
               returnMsgValue.msgHeaders = msgHeaders;
             }
-            else if (latestMsg.msgType === "pEp") {
-              returnMsgValue.value = EnigmailConstants.AUTOSETUP_PEP_HEADER;
-              returnMsgValue.msgHeaders = msgHeaders;
-            }
             else {
               returnMsgValue.value = EnigmailConstants.AUTOSETUP_ENCRYPTED_MSG;
               returnMsgValue.msgHeaders = msgHeaders;
@@ -569,12 +565,8 @@ function checkHeaders(headerObj, msgHeader, msgAuthor, accountEmail, msgFolder, 
       }
 
     }
-    else if (msgAuthor == accountEmail &&
-      (("autocrypt" in headerObj) ||
-        ("x-pep-version" in headerObj))) {
-
-      let msgType = ("x-pep-version" in headerObj) ? "pEp" : "Autocrypt";
-
+    else if (msgAuthor == accountEmail && ("autocrypt" in headerObj)) {
+      let msgType = "Autocrypt";
       let fromHeaderExist = null;
       for (let j = 0; j < msgHeaders.length; j++) {
         if (msgHeaders[j].fromAddr == msgAuthor) {

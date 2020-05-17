@@ -13,12 +13,6 @@ DIRS = cryptoAPI
 
 PREFFILES = prefs/defaultPrefs.js
 
-ifeq ($(ENABLE_POSTBOX),yes)
-PEPJSM = pEp-nonfunc.jsm
-else
-PEPJSM = pEp.jsm
-endif
-
 MODFILES = \
            addrbook.jsm \
            amPrefsService.jsm \
@@ -54,7 +48,6 @@ MODFILES = \
            hash.jsm \
            httpProxy.jsm \
            installGnuPG.jsm \
-           installPep.jsm \
            key.jsm \
            keyRing.jsm \
            keyObj.jsm \
@@ -76,12 +69,6 @@ MODFILES = \
            overlays.jsm \
            passwordCheck.jsm \
            passwords.jsm \
-           $(PEPJSM) \
-           pEpAdapter.jsm \
-           pEpDecrypt.jsm \
-           pEpFilter.jsm \
-           pEpListener.jsm \
-           pEpKeySync.jsm \
            pgpmimeHandler.jsm \
            pipeConsole.jsm \
            prefs.jsm \

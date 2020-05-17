@@ -19,7 +19,6 @@ var EnigmailSingletons = {
     lm.lastMessageData = "";
     lm.lastMessageURI = null;
     lm.lastStatus = {};
-    lm.lastPepStatus = {};
   }
 };
 
