@@ -28,6 +28,7 @@ var EnigmailConfigBackup = ChromeUtils.import("chrome://enigmail/content/modules
 var EnigmailWindows = ChromeUtils.import("chrome://enigmail/content/modules/windows.jsm").EnigmailWindows;
 var EnigmailGpgAgent = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/gnupg-agent.jsm").EnigmailGpgAgent;
 var EnigmailLazy = ChromeUtils.import("chrome://enigmail/content/modules/lazy.jsm").EnigmailLazy;
+var EnigmailCryptoAPI = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI.jsm").EnigmailCryptoAPI;
 
 const getCore = EnigmailLazy.loader("enigmail/core.jsm", "EnigmailCore");
 
@@ -63,7 +64,8 @@ function displayPrefs(showDefault, showPrefs, setPrefs) {
       var prefValue;
       if (showDefault) {
         prefValue = EnigGetDefaultPref(prefName);
-      } else {
+      }
+      else {
         prefValue = EnigGetPref(prefName);
       }
 
@@ -77,7 +79,8 @@ function displayPrefs(showDefault, showPrefs, setPrefs) {
             }
             if (prefValue) {
               prefElement.setAttribute("checked", "true");
-            } else {
+            }
+            else {
               prefElement.removeAttribute("checked");
             }
           }
@@ -85,13 +88,16 @@ function displayPrefs(showDefault, showPrefs, setPrefs) {
             if (prefElement.getAttribute("invert") == "true") {
               if (prefElement.checked) {
                 EnigSetPref(prefName, false);
-              } else {
+              }
+              else {
                 EnigSetPref(prefName, true);
               }
-            } else {
+            }
+            else {
               if (prefElement.checked) {
                 EnigSetPref(prefName, true);
-              } else {
+              }
+              else {
                 EnigSetPref(prefName, false);
               }
             }
@@ -105,7 +111,8 @@ function displayPrefs(showDefault, showPrefs, setPrefs) {
           if (setPrefs) {
             try {
               EnigSetPref(prefName, 0 + prefElement.value);
-            } catch (ex) {}
+            }
+            catch (ex) {}
           }
           break;
 
@@ -136,13 +143,19 @@ function prefOnLoad() {
   document.getElementById("enigmail_agentPath").value = EnigConvertToUnicode(EnigGetPref("agentPath"), "utf-8");
 
   var maxIdle = -1;
-  if (!gEnigmailSvc) {
-    maxIdle = EnigmailPrefs.getPref("maxIdleMinutes");
-  } else {
-    maxIdle = EnigmailGpgAgent.getMaxIdlePref(window);
+  if (isGnuPGBackend()) {
+    if (!gEnigmailSvc) {
+      maxIdle = EnigmailPrefs.getPref("maxIdleMinutes");
+    }
+    else {
+      maxIdle = EnigmailGpgAgent.getMaxIdlePref(window);
+    }
+    document.getElementById("maxIdleMinutes").value = maxIdle;
+
+    document.getElementById("GnuPGBox").removeAttribute("collapsed");
+    document.getElementById("idleBox").removeAttribute("collapsed");
   }
 
-  document.getElementById("maxIdleMinutes").value = maxIdle;
   gOrigMaxIdle = String(maxIdle);
   gAdvancedMode = EnigGetPref("advancedUser");
 
@@ -152,7 +165,8 @@ function prefOnLoad() {
       document.getElementById("basic").setAttribute("collapsed", true);
       document.getElementById("basicTab").setAttribute("collapsed", true);
       selectPrefTabPanel("sendingTab");
-    } else {
+    }
+    else {
       EnigCollapseAdvanced(document.getElementById("prefTabBox"), "collapsed", null);
       //EnigCollapseAdvanced(document.getElementById("enigPrefTabPanel"), "hidden", null);
       enigShowUserModeButtons(gAdvancedMode);
@@ -162,7 +176,8 @@ function prefOnLoad() {
       selectPrefTabPanel(window.arguments[0].selectTab);
     }
 
-  } else {
+  }
+  else {
     enigShowUserModeButtons(gAdvancedMode);
   }
 
@@ -181,7 +196,8 @@ function prefOnLoad() {
   gEncryptionModel = EnigGetPref("encryptionModel");
   if (gEncryptionModel === 0) { // convenient encryption
     resetSendingPrefsConvenient();
-  } else {
+  }
+  else {
     resetSendingPrefsManually();
   }
 
@@ -189,20 +205,23 @@ function prefOnLoad() {
 
   try {
     gMimePartsValue = EnigmailPrefs.getPrefRoot().getBoolPref("mail.server.default.mime_parts_on_demand");
-  } catch (ex) {
+  }
+  catch (ex) {
     gMimePartsValue = true;
   }
 
   if (gMimePartsValue) {
     gMimePartsElement.setAttribute("checked", "true");
-  } else {
+  }
+  else {
     gMimePartsElement.removeAttribute("checked");
   }
 
   var overrideGpg = document.getElementById("enigOverrideGpg");
   if (EnigGetPref("agentPath")) {
     overrideGpg.checked = true;
-  } else {
+  }
+  else {
     overrideGpg.checked = false;
   }
   enigActivateDependent(overrideGpg, "enigmail_agentPath enigmail_browsePath");
@@ -210,7 +229,7 @@ function prefOnLoad() {
   var testEmailElement = document.getElementById("enigmail_test_email");
   var userIdValue = EnigGetPref("userIdValue");
 
-  enigDetermineGpgPath();
+  if (isGnuPGBackend()) enigDetermineGpgPath();
 
   if (testEmailElement && userIdValue) {
     testEmailElement.value = userIdValue;
@@ -225,7 +244,8 @@ function enigDetermineGpgPath() {
         // attempt to initialize Enigmail
         gEnigmailSvc.initialize(window, EnigGetVersion());
       }
-    } catch (ex) {}
+    }
+    catch (ex) {}
   }
 
   if (gEnigmailSvc.initialized && typeof(EnigmailGpgAgent.agentPath) == "object") {
@@ -233,7 +253,8 @@ function enigDetermineGpgPath() {
       var agentPath = "";
       if (EnigGetOS() == "WINNT") {
         agentPath = EnigGetFilePath(EnigmailGpgAgent.agentPath).replace(/\\\\/g, "\\");
-      } else {
+      }
+      else {
         agentPath = EnigmailGpgAgent.agentPath.path;
         // EnigGetFilePath(EnigmailGpgAgent.agentPath); // .replace(/\\\\/g, "\\");
       }
@@ -241,10 +262,12 @@ function enigDetermineGpgPath() {
         agentPath = agentPath.substring(0, 50) + "...";
       }
       document.getElementById("enigmailGpgPath").setAttribute("value", EnigGetString("prefs.gpgFound", agentPath));
-    } catch (ex) {
+    }
+    catch (ex) {
       document.getElementById("enigmailGpgPath").setAttribute("value", "error 2");
     }
-  } else {
+  }
+  else {
     document.getElementById("enigmailGpgPath").setAttribute("value", EnigGetString("prefs.gpgNotFound"));
   }
 }
@@ -271,7 +294,8 @@ function resetPrefs() {
   gEncryptionModel = EnigGetPref("encryptionModel");
   if (gEncryptionModel === 0) { // convenient encryption
     resetSendingPrefsConvenient();
-  } else {
+  }
+  else {
     resetSendingPrefsManually();
   }
 }
@@ -306,7 +330,8 @@ function disableManually(disable) {
     elem = document.getElementById(elems[i]);
     if (disable) {
       elem.setAttribute("disabled", "true");
-    } else {
+    }
+    else {
       elem.removeAttribute("disabled");
     }
   }
@@ -429,7 +454,7 @@ function prefOnAccept() {
   if (gOrigMaxIdle != maxIdle) {
     // only change setting in gpg-agent if value has actually changed
     // because gpg-agent deletes cache upon changing timeout settings
-    EnigmailGpgAgent.setMaxIdlePref(maxIdle);
+    if (isGnuPGBackend()) EnigmailGpgAgent.setMaxIdlePref(maxIdle);
   }
 
   let protectionUndecided = (EnigGetPref("protectedHeaders") === 1);
@@ -437,7 +462,8 @@ function prefOnAccept() {
 
   if (protectionUndecided && chk) {
     EnigSetPref("protectedHeaders", 2);
-  } else if (!protectionUndecided) {
+  }
+  else if (!protectionUndecided) {
     EnigSetPref("protectedHeaders", chk ? 2 : 0);
   }
 
@@ -447,25 +473,30 @@ function prefOnAccept() {
     if (!gEnigmailSvc) {
       try {
         gEnigmailSvc = getCore().createInstance();
-      } catch (ex) {}
+      }
+      catch (ex) {}
     }
 
     if (gEnigmailSvc.initialized) {
       try {
         gEnigmailSvc.reinitialize();
-      } catch (ex) {
+      }
+      catch (ex) {
         EnigError(EnigGetString("invalidGpgPath"));
       }
-    } else {
+    }
+    else {
       gEnigmailSvc = null;
       GetEnigmailSvc();
     }
   }
 
   // detect use of gpg-agent and warn if needed
-  if (!EnigmailGpgAgent.isAgentTypeGpgAgent()) {
-    if (document.getElementById("maxIdleMinutes").value > 0) {
-      EnigAlertPref(EnigGetString("prefs.warnIdleTimeForUnknownAgent"), "warnGpgAgentAndIdleTime");
+  if (isGnuPGBackend()) {
+    if (!EnigmailGpgAgent.isAgentTypeGpgAgent()) {
+      if (document.getElementById("maxIdleMinutes").value > 0) {
+        EnigAlertPref(EnigGetString("prefs.warnIdleTimeForUnknownAgent"), "warnGpgAgentAndIdleTime");
+      }
     }
   }
 
@@ -483,7 +514,8 @@ function enigActivateDependent(obj, dependentIds) {
   for (depId in idList) {
     if (obj.checked) {
       document.getElementById(idList[depId]).removeAttribute("disabled");
-    } else {
+    }
+    else {
       document.getElementById(idList[depId]).setAttribute("disabled", "true");
     }
   }
@@ -496,7 +528,8 @@ function enigShowUserModeButtons(expertUser) {
   if (!expertUser) {
     basicUserButton.setAttribute("hidden", true);
     advUserButton.removeAttribute("hidden");
-  } else {
+  }
+  else {
     advUserButton.setAttribute("hidden", true);
     basicUserButton.removeAttribute("hidden");
   }
@@ -510,20 +543,18 @@ function enigSwitchAdvancedMode(expertUser) {
 
   if (expertUser) {
     EnigSetPref("advancedUser", true);
-  } else {
+  }
+  else {
     EnigSetPref("advancedUser", false);
   }
 
   var prefTabBox = document.getElementById("prefTabBox");
-  if (prefTabBox) {
-    // Thunderbird
-    //    EnigCollapseAdvanced(document.getElementById("enigPrefTabPanel"), "hidden", null);
-    EnigCollapseAdvanced(prefTabBox, "collapsed", null);
-  } else {
-    // Seamonkey
-    EnigCollapseAdvanced(document.getElementById("enigmailPrefsBox"), "hidden", null);
-  }
+  EnigCollapseAdvanced(prefTabBox, "collapsed", null);
   EnigSetPref("advancedUser", origPref);
+}
+
+function displayRequireRestart() {
+  document.getElementById("requireRestart").removeAttribute("hidden");
 }
 
 function enigAlertAskNever() {
@@ -547,6 +578,11 @@ function handleClick(event) {
   }
 }
 
+function isGnuPGBackend() {
+  const cApi = EnigmailCryptoAPI();
+
+  return (cApi.apiName === "GnuPG");
+}
 
 function enigLocateGpg() {
   var fileName = "gpg";

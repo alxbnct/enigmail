@@ -146,8 +146,31 @@
       <!-- "Basic" Tab -->
       <vbox id="basic" flex="1">
           <description class="enigmailPrefsTitle">&enigmail.basicPrefs.label;</description>
-          <hbox>
+          <vbox>
             <vbox class="enigmailCaptionbox" orient="vertical" flex="1">
+              <html:h1><html:span>&enigmail.pref.cryptoProvider.label;</html:span></html:h1>
+              <vbox>
+                <radiogroup id="enigmail_cryptoAPI"
+                            flex="1"
+                            pref="true"
+                            preftype="int"
+                            prefstring="extensions.enigmail.cryptoAPI">
+                  <radio id="cryptoAPIOpenPGPJS"
+                        value="2"
+                        label="&enigmail.pref.openpgpjs.label;"
+                        oncommand="displayRequireRestart()"/>
+                  <radio id="cryptoAPIGnuPG"
+                        value="1"
+                        label="&enigmail.pref.gnupg.label;"
+                        oncommand="displayRequireRestart()"/>
+                </radiogroup>
+                <hbox id="requireRestart" style="min-height: 1em !important;" hidden="true">
+                  <image class="enigmailWarningIcon"/>
+                  <label value="&enigmail.pref.restartRequired.label;"/>
+                </hbox>
+              </vbox>
+            </vbox>
+            <vbox class="enigmailCaptionbox" orient="vertical" flex="1" id="GnuPGBox" collapsed="true">
               <html:h1><html:span>&enigmail.prefs.pathsTitle.label;</html:span></html:h1>
               <vbox>
                 <hbox align="center">
@@ -165,9 +188,9 @@
                 </hbox>
               </vbox>
             </vbox>
-          </hbox>
+          </vbox>
           <hbox>
-            <vbox class="enigmailCaptionbox" orient="vertical" flex="1">
+            <vbox class="enigmailCaptionbox" orient="vertical" flex="1" id="idleBox" collapsed="true">
               <html:h1><html:span>&enigmail.passwordSettings.label;</html:span></html:h1>
               <hbox autostretch="never" align="center">
                 <label control="maxIdleMinutes"
