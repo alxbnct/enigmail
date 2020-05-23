@@ -11,8 +11,8 @@ var EXPORTED_SYMBOLS = ["EnigmailLocalizeHtml"];
 const EnigmailLocale = ChromeUtils.import("chrome://enigmail/content/modules/locale.jsm").EnigmailLocale;
 const EnigmailBuildDate = ChromeUtils.import("chrome://enigmail/content/modules/buildDate.jsm").EnigmailBuildDate;
 const EnigmailApp = ChromeUtils.import("chrome://enigmail/content/modules/app.jsm").EnigmailApp;
+const EnigmailCryptoAPI = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI.jsm").EnigmailCryptoAPI;
 const EnigmailCore = ChromeUtils.import("chrome://enigmail/content/modules/core.jsm").EnigmailCore;
-const EnigmailGpgAgent = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/gnupg-agent.jsm").EnigmailGpgAgent;
 const Services = ChromeUtils.import("resource://gre/modules/Services.jsm").Services;
 
 function getEnigmailVersion() {
@@ -20,19 +20,30 @@ function getEnigmailVersion() {
   return EnigmailLocale.getString("usingVersion", versionStr);
 }
 
-function getGpgWorking() {
+function getBackendWorking() {
   var enigmailSvc = EnigmailCore.getService();
 
-  var agentStr;
-  if (enigmailSvc) {
-    agentStr = EnigmailLocale.getString("usingAgent", [EnigmailGpgAgent.agentType, EnigmailGpgAgent.agentPath.path]);
-  } else {
-    agentStr = EnigmailLocale.getString("agentError");
+  const cApi = EnigmailCryptoAPI();
+  let agentStr = "";
 
-    if (enigmailSvc && enigmailSvc.initializationError)
-      agentStr += "\n" + enigmailSvc.initializationError;
+  if (cApi.apiName === "GnuPG") {
+    const EnigmailGpgAgent = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/gnupg-agent.jsm").EnigmailGpgAgent;
+    if (enigmailSvc) {
+      agentStr = EnigmailLocale.getString("usingAgent", [EnigmailGpgAgent.agentType, EnigmailGpgAgent.agentPath.path]);
+    }
+    else {
+      agentStr = EnigmailLocale.getString("agentError");
+
+      if (enigmailSvc && enigmailSvc.initializationError)
+        agentStr += "\n" + enigmailSvc.initializationError;
+    }
   }
+  else {
+    const getOpenPGPLibrary = ChromeUtils.import("chrome://enigmail/content/modules/stdlib/openpgp-loader.jsm").getOpenPGPLibrary;
 
+    let pgpjs = getOpenPGPLibrary();
+    agentStr = EnigmailLocale.getString("usingOpenPGPVersion", pgpjs.config.versionstring);
+  }
   return agentStr;
 }
 
@@ -62,7 +73,7 @@ var EnigmailLocalizeHtml = {
           node.innerHTML = getEnigmailVersion();
           break;
         case "FNC_isGpgWorking":
-          node.innerHTML = getGpgWorking();
+          node.innerHTML = getBackendWorking();
           break;
         default:
           node.innerHTML = EnigmailLocale.getString(txtId, param);
