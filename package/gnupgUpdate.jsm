@@ -21,11 +21,13 @@ const EnigmailDialog = ChromeUtils.import("chrome://enigmail/content/modules/dia
 const EnigmailFiles = ChromeUtils.import("chrome://enigmail/content/modules/files.jsm").EnigmailFiles;
 const EnigmailKeyRing = ChromeUtils.import("chrome://enigmail/content/modules/keyRing.jsm").EnigmailKeyRing;
 const EnigmailLocale = ChromeUtils.import("chrome://enigmail/content/modules/locale.jsm").EnigmailLocale;
+const EnigmailCryptoAPI = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI.jsm").EnigmailCryptoAPI;
 
 var EnigmailGnuPGUpdate = {
   isUpdateAvailable: async function() {
     EnigmailLog.DEBUG(`gnupgUpdate.jsm: isUpdateAvailable()\n`);
 
+    if (!isGnuPGBackend()) return false;
     if (!this.isGnuPGUpdatable()) return false;
 
     let now = Math.floor(Date.now() / 1000);
@@ -45,6 +47,8 @@ var EnigmailGnuPGUpdate = {
   },
 
   isUpdateCheckNeeded: function() {
+    if (!isGnuPGBackend()) return false;
+
     // check once a week
     let now = Math.floor(Date.now() / 1000);
     return (now > Number(EnigmailPrefs.getPref("gpgLastUpdate")) + 604800);
@@ -68,6 +72,8 @@ var EnigmailGnuPGUpdate = {
 
 
   isGnuPGUpdatable: function() {
+    if (!isGnuPGBackend()) return false;
+
     try {
       switch (EnigmailOS.getOS()) {
         case "Darwin":
@@ -83,6 +89,9 @@ var EnigmailGnuPGUpdate = {
 
   runUpdateCheck: function() {
     EnigmailLog.DEBUG(`gnupgUpdate.jsm: runUpdateCheck()\n`);
+
+    if (!isGnuPGBackend()) return;
+
     if (!this.isGnuPGUpdatable()) {
       EnigmailLog.DEBUG(`gnupgUpdate.jsm: runUpdateCheck: cannot update GnuPG\n`);
       return;
@@ -112,6 +121,8 @@ var EnigmailGnuPGUpdate = {
    * @return {Boolean}: true if upgrade required
    */
   requireKeyRingUpgrade: function() {
+    if (!isGnuPGBackend()) return false;
+
     return EnigmailVersioning.greaterThan("2.1", EnigmailGpg.agentVersion);
   },
 
@@ -155,6 +166,18 @@ function isGpg4WinInstalled() {
 function isGpgOsxInstalled() {
   // check the installation path of GnuPG
   return (EnigmailGpg.agentPath.path.search(/^\/usr\/local\/gnupg-2.[12]\//) === 0);
+}
+
+
+/**
+ * Is the current cryptoAPI based on GnuPG?
+ *
+ * @return {Boolean}: true -> yes / false -> no
+ */
+function isGnuPGBackend() {
+  const cApi = EnigmailCryptoAPI();
+
+  return (cApi.apiName === "GnuPG");
 }
 
 /**
