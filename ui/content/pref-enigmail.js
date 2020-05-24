@@ -161,17 +161,17 @@ function prefOnLoad() {
   gAdvancedMode = EnigGetPref("advancedUser");
 
   if (window.arguments) {
-    if (!window.arguments[0].showBasic) {
-      // hide basic tab
-      document.getElementById("basic").setAttribute("collapsed", true);
-      document.getElementById("basicTab").setAttribute("collapsed", true);
-      selectPrefTabPanel("sendingTab");
-    }
-    else {
-      EnigCollapseAdvanced(document.getElementById("prefTabBox"), "collapsed", null);
-      //EnigCollapseAdvanced(document.getElementById("enigPrefTabPanel"), "hidden", null);
-      enigShowUserModeButtons(gAdvancedMode);
-    }
+    // if (!window.arguments[0].showBasic) {
+    //   // hide basic tab
+    //   document.getElementById("basic").setAttribute("collapsed", true);
+    //   document.getElementById("basicTab").setAttribute("collapsed", true);
+    //   selectPrefTabPanel("sendingTab");
+    // }
+    // else {
+    EnigCollapseAdvanced(document.getElementById("prefTabBox"), "collapsed", null);
+    //EnigCollapseAdvanced(document.getElementById("enigPrefTabPanel"), "hidden", null);
+    enigShowUserModeButtons(gAdvancedMode);
+    // }
 
     if ((typeof window.arguments[0].selectTab) == "string") {
       selectPrefTabPanel(window.arguments[0].selectTab);

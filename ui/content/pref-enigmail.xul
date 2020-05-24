@@ -134,113 +134,15 @@
 
   <tabbox flex="1" style="margin:5px" id="prefTabs">
     <tabs id="prefTabBox">
-      <tab id="basicTab"      label="&enigmail.basic.label;"/>
       <tab id="sendingTab"    label="&enigmail.sending.label;"/>
       <tab id="keySelTab"     label="&enigmail.keySel.label;" advanced="true"/>
       <tab id="advancedTab"   label="&enigmail.advanced.label;" advanced="true"/>
       <tab id="keyserverTab"  label="&enigmail.keyserver.label;" advanced="true"/>
+      <tab id="openPgpCoreTab" label="&enigmail.basicPrefs.label;"/>
       <tab id="backupRestore" label="&enigmail.transferSettings.label;"/>
     </tabs>
 
     <tabpanels flex="1" id="enigPrefTabPanel">
-      <!-- "Basic" Tab -->
-      <vbox id="basic" flex="1">
-          <description class="enigmailPrefsTitle">&enigmail.basicPrefs.label;</description>
-          <vbox>
-            <vbox class="enigmailCaptionbox" orient="vertical" flex="1">
-              <html:h1><html:span>&enigmail.pref.cryptoProvider.label;</html:span></html:h1>
-              <vbox>
-                <radiogroup id="enigmail_cryptoAPI"
-                            flex="1"
-                            pref="true"
-                            preftype="int"
-                            prefstring="extensions.enigmail.cryptoAPI">
-                  <radio id="cryptoAPIOpenPGPJS"
-                        value="2"
-                        label="&enigmail.pref.openpgpjs.label;"
-                        oncommand="displayRequireRestart()"/>
-                  <radio id="cryptoAPIGnuPG"
-                        value="1"
-                        label="&enigmail.pref.gnupg.label;"
-                        oncommand="displayRequireRestart()"/>
-                </radiogroup>
-                <hbox id="requireRestart" style="min-height: 1em !important;" hidden="true">
-                  <image class="enigmailWarningIcon"/>
-                  <label value="&enigmail.pref.restartRequired.label;"/>
-                </hbox>
-              </vbox>
-            </vbox>
-            <vbox class="enigmailCaptionbox" orient="vertical" flex="1" id="GnuPGBox" collapsed="true">
-              <html:h1><html:span>&enigmail.prefs.pathsTitle.label;</html:span></html:h1>
-              <vbox>
-                <hbox align="center">
-                  <label id="enigmailGpgPath" value="(error)"/>
-                </hbox>
-                <hbox align="center">
-                  <checkbox label="&enigmail.prefs.overrideGpg.label;"
-                            tooltip="prefs.overrideGpg.tooltip"
-                            id="enigOverrideGpg"
-                            oncommand="enigActivateDependent(this, 'enigmail_agentPath enigmail_browsePath');"/>
-                  <textbox id="enigmail_agentPath" size="30" aria-labelledby="enigOverrideGpg"/>
-                  <button id="enigmail_browsePath"
-                          label="&enigmail.browse.label;"
-                    oncommand="enigLocateGpg();"/>
-                </hbox>
-              </vbox>
-            </vbox>
-          </vbox>
-          <hbox>
-            <vbox class="enigmailCaptionbox" orient="vertical" flex="1" id="idleBox" collapsed="true">
-              <html:h1><html:span>&enigmail.passwordSettings.label;</html:span></html:h1>
-              <hbox autostretch="never" align="center">
-                <label control="maxIdleMinutes"
-                       tooltip="maxIdleMinutes.tooltip"
-                       value="&enigmail.maxIdleMinutesHead.label;" id="maxIdleMinutesHeadLabel"/>
-
-                <textbox id="maxIdleMinutes"
-                        aria-labelledby="maxIdleMinutesHeadLabel maxIdleMinutes maxIdleMinutesTailLabel"
-                        type="number"
-                        min="0" max="1440"
-                        size="4"
-                        maxlength="4"
-                        pref="true"
-                        preftype="int"
-                        tooltip="maxIdleMinutes.tooltip"
-                        prefstring="extensions.enigmail.maxIdleMinutes"/>
-
-                <description tooltip="maxIdleMinutes.tooltip" id="maxIdleMinutesTailLabel">&enigmail.maxIdleMinutesTail.label;</description>
-              </hbox>
-            </vbox>
-          </hbox>
-
-          <separator/>
-
-          <hbox autostretch="never" align="center">
-            <button id="enigmail_advancedUser"
-                  label="&enigmail.expertUserMenus.label;"
-                  oncommand="enigSwitchAdvancedMode(true)"
-                  tooltip="expertUser.tooltip"/>
-
-            <button id="enigmail_basicUser"
-                  label="&enigmail.basicUserMenus.label;"
-                  oncommand="enigSwitchAdvancedMode(false)"
-                  tooltip="basicUser.tooltip"
-                  hidden="true"/>
-          </hbox>
-
-          <separator/>
-
-          <vbox autostretch="never" align="end">
-            <hbox>
-             <button id="resetPrefs"
-                      label="&enigmail.resetPrefsButton.label;"
-                      tooltip="resetPrefs.tooltip"
-                      oncommand="resetPrefs();"/>
-            </hbox>
-          </vbox>
-
-      </vbox>
-
       <!-- "Sending" Tab -->
       <vbox id="sending" flex="1">
         <description class="enigmailPrefsTitle">&enigmail.SendingPrefs.label;</description>
@@ -465,6 +367,104 @@
             <label value="&enigmail.autoKeyRetrieve.label;" id="autoKeyRetrieveLabel1"/>
             <label value="&enigmail.autoKeyRetrieve2.label;" id="autoKeyRetrieveLabel2"/>
             <textbox id="enigmail_autoKeyRetrieve" size="35" aria-labelledby="autoKeyRetrieveLabel1 autoKeyRetrieveLabel2"/>
+          </vbox>
+
+      </vbox>
+
+      <!-- "OpenPGP Provider" Tab -->
+      <vbox id="openPgpCore" flex="1">
+          <description class="enigmailPrefsTitle">&enigmail.basicPrefs.label;</description>
+          <vbox>
+            <vbox class="enigmailCaptionbox" orient="vertical" flex="1">
+              <html:h1><html:span>&enigmail.pref.cryptoProvider.label;</html:span></html:h1>
+              <vbox>
+                <radiogroup id="enigmail_cryptoAPI"
+                            flex="1"
+                            pref="true"
+                            preftype="int"
+                            prefstring="extensions.enigmail.cryptoAPI">
+                  <radio id="cryptoAPIOpenPGPJS"
+                        value="2"
+                        label="&enigmail.pref.openpgpjs.label;"
+                        oncommand="displayRequireRestart()"/>
+                  <radio id="cryptoAPIGnuPG"
+                        value="1"
+                        label="&enigmail.pref.gnupg.label;"
+                        oncommand="displayRequireRestart()"/>
+                </radiogroup>
+                <hbox id="requireRestart" style="min-height: 1em !important;" hidden="true">
+                  <image class="enigmailWarningIcon"/>
+                  <label value="&enigmail.pref.restartRequired.label;"/>
+                </hbox>
+              </vbox>
+            </vbox>
+            <vbox class="enigmailCaptionbox" orient="vertical" flex="1" id="GnuPGBox" collapsed="true">
+              <html:h1><html:span>&enigmail.prefs.pathsTitle.label;</html:span></html:h1>
+              <vbox>
+                <hbox align="center">
+                  <label id="enigmailGpgPath" value="(error)"/>
+                </hbox>
+                <hbox align="center">
+                  <checkbox label="&enigmail.prefs.overrideGpg.label;"
+                            tooltip="prefs.overrideGpg.tooltip"
+                            id="enigOverrideGpg"
+                            oncommand="enigActivateDependent(this, 'enigmail_agentPath enigmail_browsePath');"/>
+                  <textbox id="enigmail_agentPath" size="30" aria-labelledby="enigOverrideGpg"/>
+                  <button id="enigmail_browsePath"
+                          label="&enigmail.browse.label;"
+                    oncommand="enigLocateGpg();"/>
+                </hbox>
+              </vbox>
+            </vbox>
+          </vbox>
+          <hbox>
+            <vbox class="enigmailCaptionbox" orient="vertical" flex="1" id="idleBox" collapsed="true">
+              <html:h1><html:span>&enigmail.passwordSettings.label;</html:span></html:h1>
+              <hbox autostretch="never" align="center">
+                <label control="maxIdleMinutes"
+                       tooltip="maxIdleMinutes.tooltip"
+                       value="&enigmail.maxIdleMinutesHead.label;" id="maxIdleMinutesHeadLabel"/>
+
+                <textbox id="maxIdleMinutes"
+                        aria-labelledby="maxIdleMinutesHeadLabel maxIdleMinutes maxIdleMinutesTailLabel"
+                        type="number"
+                        min="0" max="1440"
+                        size="4"
+                        maxlength="4"
+                        pref="true"
+                        preftype="int"
+                        tooltip="maxIdleMinutes.tooltip"
+                        prefstring="extensions.enigmail.maxIdleMinutes"/>
+
+                <description tooltip="maxIdleMinutes.tooltip" id="maxIdleMinutesTailLabel">&enigmail.maxIdleMinutesTail.label;</description>
+              </hbox>
+            </vbox>
+          </hbox>
+
+          <separator/>
+
+          <hbox autostretch="never" align="center">
+            <button id="enigmail_advancedUser"
+                  label="&enigmail.expertUserMenus.label;"
+                  oncommand="enigSwitchAdvancedMode(true)"
+                  tooltip="expertUser.tooltip"/>
+
+            <button id="enigmail_basicUser"
+                  label="&enigmail.basicUserMenus.label;"
+                  oncommand="enigSwitchAdvancedMode(false)"
+                  tooltip="basicUser.tooltip"
+                  hidden="true"/>
+          </hbox>
+
+          <separator/>
+
+          <vbox autostretch="never" align="end">
+            <hbox>
+             <button id="resetPrefs"
+                      label="&enigmail.resetPrefsButton.label;"
+                      tooltip="resetPrefs.tooltip"
+                      oncommand="resetPrefs();"/>
+            </hbox>
           </vbox>
 
       </vbox>
