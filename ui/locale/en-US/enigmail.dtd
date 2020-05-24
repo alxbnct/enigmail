@@ -66,7 +66,7 @@
 <!ENTITY enigmail.pref.acSetupMessage.button "Initiate Autocrypt Setup">
 
 <!ENTITY enigmail.pref.cryptoProvider.label  "Cryptography provider">
-<!ENTITY enigmail.pref.openpgpjs.label       "OpenPGP.js (builitin)">
+<!ENTITY enigmail.pref.openpgpjs.label       "OpenPGP.js (part of Enigmail, no additional software needed)">
 <!ENTITY enigmail.pref.gnupg.label           "GnuPG (requires manual installation and configuration)">
 <!ENTITY enigmail.pref.restartRequired.label "This will only take effect after you restarted the application">
 

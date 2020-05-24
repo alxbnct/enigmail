@@ -139,6 +139,7 @@ function prefOnLoad() {
 
   GetEnigmailSvc();
   displayPrefs(false, true, false);
+  displayRequireRestart();
 
   document.getElementById("enigmail_agentPath").value = EnigConvertToUnicode(EnigGetPref("agentPath"), "utf-8");
 
@@ -554,7 +555,14 @@ function enigSwitchAdvancedMode(expertUser) {
 }
 
 function displayRequireRestart() {
-  document.getElementById("requireRestart").removeAttribute("hidden");
+  let currValue = isGnuPGBackend() ? "1" : "2";
+
+  if (document.getElementById("enigmail_cryptoAPI").value !== currValue) {
+    document.getElementById("requireRestart").removeAttribute("hidden");
+  }
+  else {
+    document.getElementById("requireRestart").setAttribute("hidden", "true");
+  }
 }
 
 function enigAlertAskNever() {
