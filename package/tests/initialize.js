@@ -17,6 +17,7 @@ try {
   MailHelper.deleteAllAccounts();
   let EnigmailPrefs = component("enigmail/prefs.jsm").EnigmailPrefs;
   EnigmailPrefs.setPref("warnOnMissingOwnerTrust", false);
+  EnigmailPrefs.setPref("cryptoAPI", 1);
 }
 catch (x) {
   /* global do_print: false */
