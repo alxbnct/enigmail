@@ -192,7 +192,7 @@ Enigmail.msg = {
     top.controllers.appendController(this.treeController);
 
     if (EnigmailPrefs.getPref("configuredVersion") === "") {
-      EnigmailConfigure.configureEnigmail(window, false);
+      EnigmailCore.getService(window, false);
     }
 
     gMessageListeners.push(Enigmail.msg.messageListener);

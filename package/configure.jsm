@@ -168,6 +168,12 @@ function setDefaultKeyServer() {
   EnigmailPrefs.setPref("keyserver", ks);
 }
 
+function setGnuPGDefault() {
+  EnigmailLog.DEBUG("configure.jsm: setGnuPGDefault()\n");
+  // set the cryptoAPI for all existing users to "GnuPG"
+
+  EnigmailPrefs.setPref("cryptoAPI", 1);
+}
 
 
 function displayUpgradeInfo() {
@@ -188,10 +194,11 @@ var EnigmailConfigure = {
    * @param {nsIWindow} win:                 The parent window. Null if no parent window available
    * @param {Boolean}   startingPreferences: if true, called while switching to new preferences
    *                        (to avoid re-check for preferences)
+   * @param {Object}    esvc:                Enigmail service object
    *
    * @return {Promise<null>}
    */
-  configureEnigmail: async function(win, startingPreferences) {
+  configureEnigmail: async function(win, startingPreferences, esvc) {
     EnigmailLog.DEBUG("configure.jsm: configureEnigmail()\n");
 
     if (!EnigmailStdlib.hasConfiguredAccounts()) {
@@ -212,6 +219,7 @@ var EnigmailConfigure = {
 
     if (oldVer === "") {
       try {
+        await this.detectGnuPG(esvc);
         let setupResult = await EnigmailAutoSetup.determinePreviousInstallType();
 
         switch (EnigmailAutoSetup.value) {
@@ -279,6 +287,9 @@ var EnigmailConfigure = {
       if (vc.compare(oldVer, "2.1b2") < 0) {
         this.upgradeTo21();
       }
+      if (vc.compare(oldVer, "3.0a1") < 0) {
+        this.upgradeTo30();
+      }
 
     }
 
@@ -297,5 +308,36 @@ var EnigmailConfigure = {
 
   upgradeTo21: function() {
     setDefaultKeyServer();
+  },
+
+  upgradeTo30: function() {
+    setGnuPGDefault();
+  },
+
+  /**
+   * Determine if GnuPG is available, and at least one key is present and set the cryptoAPI
+   * correspondingly
+   */
+  detectGnuPG: async function(esvc) {
+    EnigmailLog.DEBUG(`configure.jsm: detectGnuPG()\n`);
+    const gpgAPI = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/gnupg.js").getGnuPGAPI();
+
+    try {
+      gpgAPI.initialize(null, esvc, null);
+
+      let ot = await gpgAPI.getOwnerTrust(null);
+
+      if (ot.ownerTrustData.search(/^[A-F0-9]/m) >= 0) {
+        EnigmailLog.DEBUG(`configure.jsm: detectGnuPG: found usable GnuPG installation\n`);
+        EnigmailPrefs.setPref("cryptoAPI", 1);
+      }
+      else {
+        throw new Error("GnuPG found, but no key available");
+      }
+    }
+    catch(ex) {
+      EnigmailLog.DEBUG(`configure.jsm: detectGnuPG: error ${ex.toString()}\n`);
+      EnigmailPrefs.setPref("cryptoAPI", 2);
+    }
   }
 };
