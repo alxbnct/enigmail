@@ -220,9 +220,9 @@ Enigmail.msg = {
     if (oldVersion === "") {
       EnigmailConfigure.configureEnigmail(window, false);
     }
-    else if (vc.compare(oldVersion, "2.1.7") <0) {
+    else if (vc.compare(oldVersion, "2.1.7") < 0) {
       EnigmailPrefs.setPref("configuredVersion", EnigmailApp.getVersion());
-      EnigmailConfigure.upgradeTo217();
+      if (!EnigmailPEPAdapter.usingPep()) EnigmailConfigure.upgradeTo217();
     }
   },
 
