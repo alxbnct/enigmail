@@ -428,11 +428,11 @@ Enigmail.prototype = {
   },
 
   getService: function(win, startingPreferences) {
+    getEnigmailLog().DEBUG("core.jsm: getService()\n");
+
     if (!win) {
       win = getEnigmailWindows().getBestParentWin();
     }
-
-    getEnigmailLog().DEBUG("core.jsm: svc = " + this + "\n");
 
     if (!this.initialized) {
       const firstInitialization = !this.initializationAttempted;
@@ -449,6 +449,7 @@ Enigmail.prototype = {
         catch (ex) {}
       }
       catch (ex) {
+        getEnigmailConsole().write(`Exception: ${ex.toString()}`);
         if (firstInitialization) {
           // Display initialization error alert
           const errMsg = (this.initializationError ? this.initializationError : getEnigmailLocale().getString("accessError")) +
@@ -483,6 +484,8 @@ Enigmail.prototype = {
       const configuredVersion = getEnigmailPrefs().getPref("configuredVersion");
 
       getEnigmailLog().DEBUG("core.jsm: getService: last used version: " + configuredVersion + "\n");
+      getEnigmailConsole().write("last used version: " + configuredVersion + "\n");
+
 
       if (firstInitialization && this.initialized &&
         getEnigmailGpgAgent().agentType === "pgp") {

@@ -21,6 +21,7 @@ const EnigmailStdlib = ChromeUtils.import("chrome://enigmail/content/modules/std
 const EnigmailLazy = ChromeUtils.import("chrome://enigmail/content/modules/lazy.jsm").EnigmailLazy;
 const EnigmailAutoSetup = ChromeUtils.import("chrome://enigmail/content/modules/autoSetup.jsm").EnigmailAutoSetup;
 const EnigmailSqliteDb = ChromeUtils.import("chrome://enigmail/content/modules/sqliteDb.jsm").EnigmailSqliteDb;
+const EnigmailCompat = ChromeUtils.import("chrome://enigmail/content/modules/compat.jsm").EnigmailCompat;
 
 // Interfaces
 const nsIFolderLookupService = Ci.nsIFolderLookupService;
@@ -170,10 +171,13 @@ function setDefaultKeyServer() {
 
 
 
-function displayUpgradeInfo() {
+function displayUpgradeInfo(win) {
   EnigmailLog.DEBUG("configure.jsm: displayUpgradeInfo()\n");
   try {
-    EnigmailWindows.openMailTab("chrome://enigmail/content/ui/upgradeInfo.html");
+    EnigmailTimer.setTimeout(function f() {
+      EnigmailDialog.info(win, EnigmailLocale.getString("upgrade217.warning"));
+    }, 5000);
+
   }
   catch (ex) {}
 }
@@ -279,7 +283,9 @@ var EnigmailConfigure = {
       if (vc.compare(oldVer, "2.1b2") < 0) {
         this.upgradeTo21();
       }
-
+      if (vc.compare(oldVer, "2.1.7") < 0) {
+        this.upgradeTo217(win);
+      }
     }
 
     EnigmailPrefs.setPref("configuredVersion", EnigmailApp.getVersion());
@@ -289,7 +295,6 @@ var EnigmailConfigure = {
   upgradeTo20: function() {
     EnigmailPrefs.setPref("juniorMode", 0); // disable pEp if upgrading from older version
     replaceKeyIdWithFpr();
-    displayUpgradeInfo();
   },
 
   upgradeTo201: function() {
@@ -298,5 +303,9 @@ var EnigmailConfigure = {
 
   upgradeTo21: function() {
     setDefaultKeyServer();
+  },
+
+  upgradeTo217: function(win) {
+    if (!EnigmailCompat.isPostbox()) displayUpgradeInfo(win);
   }
 };

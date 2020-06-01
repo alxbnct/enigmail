@@ -211,13 +211,19 @@ Enigmail.msg = {
     };
 
     top.controllers.appendController(this.treeController);
-
-    if (EnigmailPrefs.getPref("configuredVersion") === "") {
-      EnigmailConfigure.configureEnigmail(window, false);
-    }
-
     gMessageListeners.push(Enigmail.msg.messageListener);
     Enigmail.msg.messageListener.onEndHeaders();
+
+    const vc = Cc["@mozilla.org/xpcom/version-comparator;1"].getService(Ci.nsIVersionComparator);
+    const oldVersion = EnigmailPrefs.getPref("configuredVersion");
+
+    if (oldVersion === "") {
+      EnigmailConfigure.configureEnigmail(window, false);
+    }
+    else if (vc.compare(oldVersion, "2.1.7") <0) {
+      EnigmailPrefs.setPref("configuredVersion", EnigmailApp.getVersion());
+      EnigmailConfigure.upgradeTo217();
+    }
   },
 
   pageShowListener: function(e) {
