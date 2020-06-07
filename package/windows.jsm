@@ -9,6 +9,8 @@
 var EXPORTED_SYMBOLS = ["EnigmailWindows"];
 
 const EnigmailLog = ChromeUtils.import("chrome://enigmail/content/modules/log.jsm").EnigmailLog;
+const EnigmailPrefs = ChromeUtils.import("chrome://enigmail/content/modules/prefs.jsm").EnigmailPrefs;
+const Services = ChromeUtils.import("resource://gre/modules/Services.jsm").Services;
 
 const APPSHELL_MEDIATOR_CONTRACTID = "@mozilla.org/appshell/window-mediator;1";
 const APPSHSVC_CONTRACTID = "@mozilla.org/appshell/appShellService;1";
@@ -110,7 +112,11 @@ var EnigmailWindows = {
    * no return value
    */
   openUpdateInfo: function() {
-    EnigmailWindows.openMailTab("chrome://enigmail/content/ui/upgradeInfo.html");
+    if (EnigmailPrefs.getPref("juniorMode") === 2) {
+      openExternalUrl("https://pep.security");
+    }
+    else
+      EnigmailWindows.openMailTab("chrome://enigmail/content/ui/upgradeInfo.html");
   },
 
 
@@ -168,4 +174,81 @@ function getMail3Pane() {
   return Cc["@mozilla.org/appshell/window-mediator;1"]
     .getService(Ci.nsIWindowMediator)
     .getMostRecentWindow("mail:3pane");
+}
+
+
+function openExternalUrl(href) {
+  if (!href) {
+    return;
+  }
+
+  let uri = null;
+  try {
+    const nsISSM = Ci.nsIScriptSecurityManager;
+    const secMan = Cc["@mozilla.org/scriptsecuritymanager;1"].getService(
+      nsISSM
+    );
+
+    uri = Services.io.newURI(href);
+
+    let principal = secMan.createNullPrincipal({});
+    try {
+      secMan.checkLoadURIWithPrincipal(
+        principal,
+        uri,
+        nsISSM.DISALLOW_INHERIT_PRINCIPAL
+      );
+    }
+    catch (ex) {
+      var msg =
+        "Error: Cannot open a " +
+        uri.scheme +
+        ": link using the text-link binding.";
+      Cu.reportError(msg);
+      return;
+    }
+
+    const cID = "@mozilla.org/uriloader/external-protocol-service;1";
+    const nsIEPS = Ci.nsIExternalProtocolService;
+    var protocolSvc = Cc[cID].getService(nsIEPS);
+
+    // if the scheme is not an exposed protocol, then opening this link
+    // should be deferred to the system's external protocol handler
+    if (!protocolSvc.isExposedProtocol(uri.scheme)) {
+      protocolSvc.loadURI(uri);
+      return;
+    }
+  }
+  catch (ex) {
+    Cu.reportError(ex);
+  }
+
+  href = uri ? uri.spec : href;
+
+  // Try handing off the link to the host application, e.g. for
+  // opening it in a tabbed browser.
+  var linkHandled = Cc["@mozilla.org/supports-PRBool;1"].createInstance(
+    Ci.nsISupportsPRBool
+  );
+  linkHandled.data = false;
+  let data = {
+    href
+  };
+  Services.obs.notifyObservers(
+    linkHandled,
+    "handle-xul-text-link",
+    JSON.stringify(data)
+  );
+  if (linkHandled.data) {
+    return;
+  }
+
+  // otherwise, fall back to opening the anchor directly
+  let win = window;
+  if (window.isChromeWindow) {
+    while (win.opener && !win.opener.closed) {
+      win = win.opener;
+    }
+  }
+  win.open(href, "_blank", "noopener");
 }
