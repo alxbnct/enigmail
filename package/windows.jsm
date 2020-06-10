@@ -112,8 +112,21 @@ var EnigmailWindows = {
    * no return value
    */
   openUpdateInfo: function() {
+    let appShellSvc = Cc["@mozilla.org/appshell/appShellService;1"].getService(Ci.nsIAppShellService);
+    let platform = appShellSvc.hiddenDOMWindow.navigator.platform.replace(/[ \t].*$/, "");
+    let locale = Cc["@mozilla.org/intl/localeservice;1"].getService(Ci.mozILocaleService).appLocalesAsBCP47;
+    if (locale && locale.length > 0) {
+      locale = locale[0].substr(0, 2);
+    }
+    else {
+      locale = "en";
+    }
+
     if (EnigmailPrefs.getPref("juniorMode") === 2) {
-      openExternalUrl("https://pep.security");
+      const URL="https://pep.software/thunderbird/%p?lang=%l";
+
+      let url = URL.replace("%p", platform).replace("%l", locale);
+      openExternalUrl(url);
     }
     else
       EnigmailWindows.openMailTab("chrome://enigmail/content/ui/upgradeInfo.html");
