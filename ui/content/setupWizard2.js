@@ -362,7 +362,13 @@ async function importKeyFile(fpr, inFile, isSecretKey) {
   const cApi = EnigmailCryptoAPI();
 
   try {
-    let res = await cApi.importKeyFromFile(window, passphrasePromptCallback, inFile, !isSecretKey, isSecretKey);
+    let res;
+    if ("importKeyFromFile" in cApi) {
+      res = await cApi.importKeyFromFile(window, passphrasePromptCallback, inFile, !isSecretKey, isSecretKey);
+    }
+    else
+      res = await cApi.importKeyFromFileAPI(window, passphrasePromptCallback, inFile, !isSecretKey, isSecretKey);
+
     return (res && res.importedKeys && res.importedKeys.length > 0);
   }
   catch (ex) {
