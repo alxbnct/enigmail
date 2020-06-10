@@ -222,7 +222,10 @@ Enigmail.msg = {
     }
     else if (vc.compare(oldVersion, "2.1.7") < 0) {
       EnigmailPrefs.setPref("configuredVersion", EnigmailApp.getVersion());
-      if (!EnigmailPEPAdapter.usingPep()) EnigmailConfigure.upgradeTo217();
+
+      if ((!EnigmailPEPAdapter.usingPep()) &&
+        new Date < new Date(2020, 8, 30)) // 2020-09-30; months are indexed from 0
+        EnigmailConfigure.upgradeTo217();
     }
   },
 
