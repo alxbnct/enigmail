@@ -820,6 +820,7 @@ Enigmail.msg = {
         }
         node = node.nextSibling;
       }
+      /*
       if (!bucketList.hasChildNodes()) {
         try {
           // TB only
@@ -827,13 +828,14 @@ Enigmail.msg = {
         }
         catch (ex) {}
       }
+      */
     }
 
-    try {
-      // TB only
+    // If we removed all the children and the bucket wasn't meant
+    // to stay open, close it.
+    if (!EnigmailPrefs.getPrefRoot().getBoolPref("mail.compose.show_attachment_pane")) {
       UpdateAttachmentBucket(bucketList.hasChildNodes());
     }
-    catch (ex) {}
 
     this.processFinalState();
     this.updateStatusBar();
