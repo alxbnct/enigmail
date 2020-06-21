@@ -785,3 +785,10 @@ Nous afficherons un code de configuration (mot de passe) sur l’écran suivant,
 <!ENTITY enigmail.importSetup.importingKeys          "Importation des clés dans GnuPG. Cela pourrait prendre un certain temps…">
 <!ENTITY enigmail.importSetup.restoringGnupgSettings "Restauration des paramètres GnuPG…">
 <!ENTITY enigmail.importSetup.restoringEnigmail      "Restauration des paramètres d’Enigmail…">
+
+<!ENTITY enigmail.tb78warn.title                     "Informations importantes pour Thunderbird 78">
+<!ENTITY enigmail.tb78warn.heading                   "Si vous utilisez des e-mails OpenPGP à des fins critiques, ne veuillez PAS manuellement mettre à jour vers Thunderbird 78.0.">
+<!ENTITY enigmail.tb78warn.desc1                     "Attendez plutôt à la mise à jour automatique.">
+<!ENTITY enigmail.tb78warn.desc2                     "Le module complémentaire Enigmail traditionnel ne sera pas disponible pour Thunderbird 78. En remplacement, OpenPGP est intégré directement dans Thunderbird 78.">
+<!ENTITY enigmail.tb78warn.desc3                     "L'équipe Thunderbird a encore besoin de temps pour finaliser leur travail. Dans la version 78.0, la fonction est encore expérimentale et désactivée par défaut. Si vous utilisez OpenPGP à des fins non critiques, vous pouvez l'activer manuellement et aider aux tests.">
+<!ENTITY enigmail.tb78warn.desc4                     "Il est prévu que OpenPGP soit stable dans Thunderbird version 78.2.">
