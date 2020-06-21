@@ -17,6 +17,7 @@ var E2TBWindows = ChromeUtils.import("chrome://enigmail/content/modules/windows.
 var E2TBFiles = ChromeUtils.import("chrome://enigmail/content/modules/files.jsm").EnigmailFiles;
 var E2TBKeyRing = ChromeUtils.import("chrome://enigmail/content/modules/keyRing.jsm").EnigmailKeyRing;
 var E2TBCryptoAPI = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI.jsm").EnigmailCryptoAPI;
+var E2TBPrefs = ChromeUtils.import("chrome://enigmail/content/modules/prefs.jsm").EnigmailPrefs;
 var Services = ChromeUtils.import("resource://gre/modules/Services.jsm").Services;
 
 // OpenPGP implementation in TB
@@ -84,6 +85,11 @@ async function startMigration() {
   for (let btn of ["btnSelectPrivateKeys", "btnStartMigration"]) {
     document.getElementById(btn).setAttribute("disabled", "true");
   }
+
+  // enable OpenPGP functionality unconditionally
+  E2TBPrefs.getPrefRoot().setBoolPref("mail.openpgp.enable", true);
+  RNP.init();
+
   gProcessing = true;
   let tmpDir = E2TBFiles.createTempSubDir("enig-exp", true);
   exportKeys(tmpDir);
