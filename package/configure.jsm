@@ -175,7 +175,10 @@ function displayUpgradeInfo(win) {
   EnigmailLog.DEBUG("configure.jsm: displayUpgradeInfo()\n");
   try {
     EnigmailTimer.setTimeout(function f() {
-      EnigmailDialog.info(win, EnigmailLocale.getString("upgrade217.warning"));
+      let win = EnigmailWindows.getBestParentWin();
+      win.openDialog("chrome://enigmail/content/ui/tb78warning.xul",
+        "_blank",
+        "chrome,dialog,modal,centerscreen,resizable,titlebar");
     }, 5000);
 
   }
@@ -227,7 +230,7 @@ var EnigmailConfigure = {
             EnigmailWindows.openSetupWizard(win);
         }
       }
-      catch(x) {
+      catch (x) {
         // ignore exceptions and proceed without setup wizard
       }
     }

@@ -130,6 +130,7 @@ UIFILES = \
 	updateGnuPG.js \
 	setupWizard2.js \
 	setupWizard2.xul \
+	tb78warning.xul \
 	tb60FilterEditorOverlay.js \
 	tb60FilterEditorOverlay.xul
 
