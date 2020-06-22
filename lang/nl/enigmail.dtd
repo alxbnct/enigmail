@@ -21,9 +21,9 @@
 <!ENTITY enigmail.send.label                        "Verzenden">
 <!ENTITY enigmail.perRecipientsOption.label         "Regel(s) per ontvanger aanmaken">
 <!ENTITY enigmail.keyMan.filter.label               "Sleutels zoeken">
-<!ENTITY enigmail.messenger.menulabel               "">
+<!ENTITY enigmail.messenger.menulabel               "Enigmail-voorkeuren overzetten">
 
-<!ENTITY enigmail.setupWiz.title                     "">
+<!ENTITY enigmail.setupWiz.title                     "Draag je instellingen van Enigmail over naar Thunderbird">
 <!ENTITY enigmail.setupWiz.pgIntro.desc              "">
 <!ENTITY enigmail.setupWiz.manyKeys.desc             "">
 <!ENTITY enigmail.setupWiz.manyKeys.selectButton     "">

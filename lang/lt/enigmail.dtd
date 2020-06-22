@@ -21,19 +21,23 @@
 <!ENTITY enigmail.send.label                        "Siųsti">
 <!ENTITY enigmail.perRecipientsOption.label         "Sukurti kiekvienam-gavėjui taisykles">
 <!ENTITY enigmail.keyMan.filter.label               "Ieškoti raktų">
-<!ENTITY enigmail.messenger.menulabel               "">
+<!ENTITY enigmail.messenger.menulabel               "Perkelti Enigmail nustatymus">
 
-<!ENTITY enigmail.setupWiz.title                     "">
-<!ENTITY enigmail.setupWiz.pgIntro.desc              "">
-<!ENTITY enigmail.setupWiz.manyKeys.desc             "">
-<!ENTITY enigmail.setupWiz.manyKeys.selectButton     "">
-<!ENTITY enigmail.setupWiz.startMigration.desc1      "">
-<!ENTITY enigmail.setupWiz.startMigration.desc2      "">
-<!ENTITY enigmail.setupWiz.startMigration.button     "">
+<!ENTITY enigmail.setupWiz.title                     "Perkelkite savo Enigmail nustatymus į Thunderbird">
+<!ENTITY enigmail.setupWiz.pgIntro.desc              "Šis vediklis eksportuos jūsų raktus ir nustatymus iš Enigmail bei GnuPG, ir
+                                                      importuos juos į Thunderbird raktų saugyklą.">
+<!ENTITY enigmail.setupWiz.manyKeys.desc             "Jūs turite kelis raktus, esančius GnuPG. Jeigu nenorite visų jų importuoti
+                                                      į Thunderbird, spustelėkite ant mygtuko &quot;Pasirinkti privačiuosius raktus&quot;, kad pasirinktumėte reikiamus raktus.">
+<!ENTITY enigmail.setupWiz.manyKeys.selectButton     "Pasirinkti privačiuosius raktus...">
+<!ENTITY enigmail.setupWiz.startMigration.desc1      "Norėdami pradėti perkėlimą, spustelėkite ant mygtuko &quot;Pradėti perkėlimą&quot;.">
+<!ENTITY enigmail.setupWiz.startMigration.desc2      "Perkėlimo procesas eksportuos jūsų privačiuosius raktus iš GnuPG ir importuos juos į Thunderbird.
+                                                      Jeigu jūsų raktai yra apsaugoti slaptafraze, jūsų bus paprašyta įvesti ją kiekvienam apsaugotam raktui -
+                                                      vieną kartą eksportuojant iš GnuPG, ir vieną kartą importuojant į Thunderbird.">
+<!ENTITY enigmail.setupWiz.startMigration.button     "Pradėti perkėlimą">
 
-<!ENTITY enigmail.setupWiz.exportingKeys             "">
-<!ENTITY enigmail.setupWiz.importingKeys             "">
-<!ENTITY enigmail.setupWiz.applyingSettings          "">
-<!ENTITY enigmail.setupWiz.migrationComplete         "">
+<!ENTITY enigmail.setupWiz.exportingKeys             "Eksportuojami raktai iš GnuPG...">
+<!ENTITY enigmail.setupWiz.importingKeys             "Importuojami raktai į Thunderbird...">
+<!ENTITY enigmail.setupWiz.applyingSettings          "Taikomi jūsų paskyros nustatymai...">
+<!ENTITY enigmail.setupWiz.migrationComplete         "Viskas atlikta! Enigmail yra daugiau nebereikalinga ir gali būti pašalinta.">
 
 <!ENTITY enigmail.copyCmd.label                      "Kopijuoti">

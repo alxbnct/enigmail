@@ -21,19 +21,23 @@
 <!ENTITY enigmail.send.label                        "Skicka">
 <!ENTITY enigmail.perRecipientsOption.label         "Skapa per-mottagare regler">
 <!ENTITY enigmail.keyMan.filter.label               "Sök efter nycklar">
-<!ENTITY enigmail.messenger.menulabel               "">
+<!ENTITY enigmail.messenger.menulabel               "Migrera Enigmail-inställningar">
 
-<!ENTITY enigmail.setupWiz.title                     "">
-<!ENTITY enigmail.setupWiz.pgIntro.desc              "">
-<!ENTITY enigmail.setupWiz.manyKeys.desc             "">
-<!ENTITY enigmail.setupWiz.manyKeys.selectButton     "">
-<!ENTITY enigmail.setupWiz.startMigration.desc1      "">
-<!ENTITY enigmail.setupWiz.startMigration.desc2      "">
-<!ENTITY enigmail.setupWiz.startMigration.button     "">
+<!ENTITY enigmail.setupWiz.title                     "Överför dina Enigmail-inställningar till Thunderbird">
+<!ENTITY enigmail.setupWiz.pgIntro.desc              "Den här guiden exporterar dina nycklar och inställningar från Enigmail och GnuPG, och
+                                                      importerar dem till Thunderbird nyckellager.">
+<!ENTITY enigmail.setupWiz.manyKeys.desc             "Du har flera privata nycklar i GnuPG. Om du inte vill importera dem alla
+                                                      till Thunderbird, klicka på knappen &quot;Välj privata nycklar&quot; för att välja de nycklar du behöver.">
+<!ENTITY enigmail.setupWiz.manyKeys.selectButton     "Välj privata nycklar ...">
+<!ENTITY enigmail.setupWiz.startMigration.desc1      "Klicka på knappen &quot;Börja migrera&quot; för att starta migreringen.">
+<!ENTITY enigmail.setupWiz.startMigration.desc2      "Migrationsprocessen exporterar dina privata nycklar från GnuPG och importerar dem till Thunderbird.
+                                                      Om dina nycklar är skyddade med ett lösenord uppmanas du att ange det för varje nyckel -
+                                                      en gång vid export från GnuPG och en gång för import till Thunderbird.">
+<!ENTITY enigmail.setupWiz.startMigration.button     "Börja migrera">
 
-<!ENTITY enigmail.setupWiz.exportingKeys             "">
-<!ENTITY enigmail.setupWiz.importingKeys             "">
-<!ENTITY enigmail.setupWiz.applyingSettings          "">
-<!ENTITY enigmail.setupWiz.migrationComplete         "">
+<!ENTITY enigmail.setupWiz.exportingKeys             "Exporterar nycklar från GnuPG ...">
+<!ENTITY enigmail.setupWiz.importingKeys             "Importerar nycklar till Thunderbird ...">
+<!ENTITY enigmail.setupWiz.applyingSettings          "Tillämpar dina kontoinställningar ...">
+<!ENTITY enigmail.setupWiz.migrationComplete         "Helt klar! Enigmail behövs nu inte längre och kan avinstalleras.">
 
 <!ENTITY enigmail.copyCmd.label                      "">
