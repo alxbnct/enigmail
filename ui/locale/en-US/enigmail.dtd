@@ -792,8 +792,9 @@
 
 
 <!ENTITY enigmail.tb78warn.title                     "Critical Information for Thunderbird 78">
-<!ENTITY enigmail.tb78warn.heading                   "If you depend on OpenPGP messaging for critical purposes, then please do NOT manually upgrade to Thunderbird 78.0.">
+<!ENTITY enigmail.tb78warn.heading                   "If you depend on the security of OpenPGP messages for important purposes, then please do NOT manually upgrade to Thunderbird 78.0.">
 <!ENTITY enigmail.tb78warn.desc1                     "Instead, wait until you are automatically upgraded.">
 <!ENTITY enigmail.tb78warn.desc2                     "The traditional Enigmail Add-on will not be available for Thunderbird 78. As a replacement, Thunderbird 78 will include built-in support for OpenPGP.">
-<!ENTITY enigmail.tb78warn.desc3                     "The Thunderbird team needs more time to finalize this work. In version 78.0 it's still an experimental feature and disabled by default. If you use OpenPGP for non-critical purposes, then you are welcome to enable it manually and help with testing.">
-<!ENTITY enigmail.tb78warn.desc4                     "The stable release of OpenPGP functionality is planned for Thunderbird version 78.2.">
+<!ENTITY enigmail.tb78warn.desc3                     "The Thunderbird team needs more time to finalize this work. In version 78.0 it's still an experimental feature and disabled by default.">
+<!ENTITY enigmail.tb78warn.desc4                     "If you don't depend on the security of OpenPGP for important purposes, then you are welcome to enable it manually and help with testing.">
+<!ENTITY enigmail.tb78warn.desc5                     "The stable release of OpenPGP functionality is planned for Thunderbird version 78.2.">

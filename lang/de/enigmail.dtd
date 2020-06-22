@@ -783,8 +783,9 @@ Bitte übertragen Sie die generierte Datei auf Ihren neuen Rechner, starten Sie 
 <!ENTITY enigmail.importSetup.restoringEnigmail      "Enigmail Einstellungen einrichten ...">
 
 <!ENTITY enigmail.tb78warn.title                     "Wichtige Information für Thunderbird 78">
-<!ENTITY enigmail.tb78warn.heading                   "Wenn Sie OpenPGP Emails für kritische Zwecke einsetzen, dann aktualsieren Sie bitte NICHT manuell auf Thunderbird 78.0.">
+<!ENTITY enigmail.tb78warn.heading                   "Wenn Sie die Sicherheit von OpenPGP Email für wichtige Zwecke einsetzen, dann aktualsieren Sie bitte NICHT manuell auf Thunderbird 78.0.">
 <!ENTITY enigmail.tb78warn.desc1                     "Warten Sie stattdessßen bis die Aktualisierung automatisch erfolgt.">
 <!ENTITY enigmail.tb78warn.desc2                     "Enigmail wird für Thunderbird 78 nicht mehr als traditionelle Erweiterung verfügbar sein. Als Ersatz wird OpenPGP direkt in Thunderbird 78 eingebaut.">
-<!ENTITY enigmail.tb78warn.desc3                     "Das Thunderbird Team benötigt noch etwas Zeit, um dies fertigzustellen. In Version 78.0 ist die Funktion deshalb noch experimentell und standardmäßig ausgeschaltet. Wenn Sie OpenPGP für unkritische Zwecke benötigen, sind Sie gerne eingeladen, die OpenPGP-Unterstützung manuell einzuschalten und beim Testen mitzuhelfen.">
-<!ENTITY enigmail.tb78warn.desc4                     "Es ist geplant, dass OpenPGP in der Thunderbird Version 78.2 stabil zur Verfügung stehen wird.">
+<!ENTITY enigmail.tb78warn.desc3                     "Das Thunderbird Team benötigt noch etwas Zeit, um dies fertigzustellen. In Version 78.0 ist die Funktion deshalb noch experimentell und standardmäßig ausgeschaltet.">
+<!ENTITY enigmail.tb78warn.desc4                     "Wenn Sie OpenPGP verschlüsselte Emails nicht für wichtige Zwecke benötigen, sind Sie gerne eingeladen, die OpenPGP-Unterstützung manuell einzuschalten und beim Testen mitzuhelfen.">
+<!ENTITY enigmail.tb78warn.desc5                     "Es ist geplant, dass OpenPGP in der Thunderbird Version 78.2 stabil zur Verfügung stehen wird.">

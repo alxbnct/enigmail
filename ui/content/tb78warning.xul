@@ -59,7 +59,8 @@
           <description class="enigmailDialogBody" align="start"><html:b>&enigmail.tb78warn.heading;</html:b> &enigmail.tb78warn.desc1;<html:br/><html:br/></description>
           <description class="enigmailDialogBody">&enigmail.tb78warn.desc2;<html:br/><html:br/></description>
           <description class="enigmailDialogBody">&enigmail.tb78warn.desc3;<html:br/><html:br/></description>
-          <description class="enigmailDialogBody">&enigmail.tb78warn.desc4;</description>
+          <description class="enigmailDialogBody">&enigmail.tb78warn.desc4;<html:br/><html:br/></description>
+          <description class="enigmailDialogBody">&enigmail.tb78warn.desc5;</description>
         </vbox>
       </vbox>
     </row>
