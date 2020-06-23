@@ -780,8 +780,9 @@
 <!ENTITY enigmail.importSetup.restoringEnigmail      "">
 
 <!ENTITY enigmail.tb78warn.title                     "Kriittistä tietoa Thunderbird 78:sta">
-<!ENTITY enigmail.tb78warn.heading                   "Jos olet riippuvainen OpenPGP-viestien turvallisuudesta tärkeitä tarkoituksia varten, älä päivitä manuaalisesti Thunderbird 78.0-versioon vaan odota kunnes sinut päivitetään automaattisesti.">
-<!ENTITY enigmail.tb78warn.desc1                     "Perinteinen Enigmail-lisäosa ei ole enää käytettävissä Thunderbird 78 versiossa. Sen sijaan Thunderbird 78 tulee sisältää sisäänrakennetun OpenPGP-tuen.">
-<!ENTITY enigmail.tb78warn.desc2                     "Thunderbird-tiimi tarvitsee kuitenkin enemmän aikaa tämän työn loppuunsaattamiseen. Versiossa 78.0 OpenPGP-tuki on edelleen kokeellinen ominaisuus ja oletuksena poistettu käytöstä.">
-<!ENTITY enigmail.tb78warn.desc3                     "Jos et ole riippuvainen OpenPGP:n tietoturvasta tärkeitä tarkoituksia varten olet tervetullut ottamaan sen käyttöön manuaalisesti ja auttamaan testauksessa.">
-<!ENTITY enigmail.tb78warn.desc4                     "OpenPGP-toimintojen vakaa julkaisu on suunniteltu Thunderbird-versioon 78.2.">
+<!ENTITY enigmail.tb78warn.heading                   "Jos olet riippuvainen OpenPGP-viestien turvallisuudesta tärkeitä tarkoituksia varten,">
+<!ENTITY enigmail.tb78warn.desc1                     "älä päivitä manuaalisesti Thunderbird 78.0-versioon vaan odota kunnes sinut päivitetään automaattisesti.">
+<!ENTITY enigmail.tb78warn.desc2                     "Perinteinen Enigmail-lisäosa ei ole enää käytettävissä Thunderbird 78 versiossa. Sen sijaan Thunderbird 78 tulee sisältää sisäänrakennetun OpenPGP-tuen.">
+<!ENTITY enigmail.tb78warn.desc3                     "Thunderbird-tiimi tarvitsee kuitenkin enemmän aikaa tämän työn loppuunsaattamiseen. Versiossa 78.0 OpenPGP-tuki on edelleen kokeellinen ominaisuus ja oletuksena poistettu käytöstä.">
+<!ENTITY enigmail.tb78warn.desc4                     "Jos et ole riippuvainen OpenPGP:n tietoturvasta tärkeitä tarkoituksia varten olet tervetullut ottamaan sen käyttöön manuaalisesti ja auttamaan testauksessa.">
+<!ENTITY enigmail.tb78warn.desc5                     "OpenPGP-toimintojen vakaa julkaisu on suunniteltu Thunderbird-versioon 78.2.">

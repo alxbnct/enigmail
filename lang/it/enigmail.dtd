@@ -663,7 +663,7 @@
                                                       Per utilizzare Enigmail, devi prima configurarlo correttamente.
                                                       Questo assistente ti guiderà attraverso il processo di configurazione.">
 <!-- wizard: install GnuPG step -->
-<!ENTITY enigmail.setupWiz.pgInstall.desc            "Per utilizzare OpenPGP, GnuPG è richiesto come componente aggiuntivo per le operazioni di cifratura. 
+<!ENTITY enigmail.setupWiz.pgInstall.desc            "Per utilizzare OpenPGP, GnuPG è richiesto come componente aggiuntivo per le operazioni di cifratura.
 La procedura guidata ha provato a individuare GnuPG, ma non è riuscita a trovarlo.">
 <!ENTITY enigmail.setupWiz.pgInstall.installDesc1    "Enigmail può scaricare GnuPG ed eseguire il programma di installazione al posto tuo.
 Se vuoi che ciò avvenga, fai clic sul pulsante 'Installa GnuPG' per scaricare e installare GnuPG.">
@@ -716,7 +716,7 @@ Ti raccomandiamo di esportare le tue chiavi sul tuo dispositivo esistente, e di 
 <!ENTITY enigmail.exportWiz.pgExport.title           "Esportazione impostazioni di Enigmail">
 <!ENTITY enigmail.exportWiz.pgExport.exporting       "Salvataggio in corso. Potresti ricevere la richiesta delle frasi segrete delle tue chiavi.">
 <!ENTITY enigmail.exportWiz.pgExport.done            "Le tue chiavi OpenPGP e le impostazioni di Enigmail sono ora salvate.
-Trasferisci il file generato sul tuo nuovo computer, esegui Thunderbird 
+Trasferisci il file generato sul tuo nuovo computer, esegui Thunderbird
 e avvia la procedura guidata dal menu di Enigmail.">
 <!ENTITY enigmail.exportWiz.pgExport.failed          "Si è verificato un errore durante l'esportazione. Le impostazioni potrebbero non essere state esportate.">
 
@@ -790,3 +790,11 @@ Mostreremo un codice di setup (password) sulla prossima schermata, che dovrai in
 <!ENTITY enigmail.importSetup.importingKeys          "Importazione chiavi in GnuPG. Potrebbe richiedere del tempo...">
 <!ENTITY enigmail.importSetup.restoringGnupgSettings "Ripristino impostazioni GnuPG...">
 <!ENTITY enigmail.importSetup.restoringEnigmail      "Ripristino impostazioni di Enigmail...">
+
+<!ENTITY enigmail.tb78warn.title                     "Annuncio importante per Thunderbird 78">
+<!ENTITY enigmail.tb78warn.heading                   "Se la tua attuale configurazione utilizza il protocollo OpenPGP per la sicurezza dei message, si prega di NON aggiornare manualmente alla versione 78 di Thunderbird.">
+<!ENTITY enigmail.tb78warn.desc1                     "Si prega di attendere il rilascio dell'aggiornamento automatico.">
+<!ENTITY enigmail.tb78warn.desc2                     "L'attuale Add-on Enigmail non sarà compatibile con Thunderbird 78. Supporto per il protocollo OpenPGP sarà incluso direttamente nella nuova versione di Thunderbird.">
+<!ENTITY enigmail.tb78warn.desc3                     "Il team di programmatori di Thunderbird è attualmente impegnato nel completamento di questa nuova implementazione, per questo motivo il protocollo OpenPGP è attualmente in stato sperimentale e disabilitato durante il rilascio della versione 78.">
+<!ENTITY enigmail.tb78warn.desc4                     "Se la tua attuale configurazione non necessita dell'utilizzo del protocollo OpenPGP, ti invitiamo ad attivarlo manualmente per supportare l'attuale fase di test.">
+<!ENTITY enigmail.tb78warn.desc5                     "OpenPGP sarà abilitato e disponibile per tutti gli utenti durante il rilascio della versione 78.2 di Thunderbird.">

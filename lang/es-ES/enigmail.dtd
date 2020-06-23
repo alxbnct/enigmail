@@ -716,7 +716,7 @@ Si desea hacerlo, pulse el botón 'Instalar GnuPG' para descargar e instalar Gnu
 <!ENTITY enigmail.exportWiz.pgExport.title           "Exportar configuración de Enigmail">
 <!ENTITY enigmail.exportWiz.pgExport.exporting       "Guardado en curso. Puede que se le pidan las frases-contraseña de sus claves.">
 <!ENTITY enigmail.exportWiz.pgExport.done            "Sus claves OpenPGP y su configuración de Enigmail ahora
-están guardadas. Por favor, transfiera el fichero generado a su 
+están guardadas. Por favor, transfiera el fichero generado a su
 nuevo equipo, ejecute Thunderbird e inicie el asistente de
 configuración desde el menú Enigmail.">
 <!ENTITY enigmail.exportWiz.pgExport.failed          "Ha ocurrido un error durante la exportación. La configuración no se ha podido exportar.">
@@ -791,3 +791,11 @@ configuración desde el menú Enigmail.">
 <!ENTITY enigmail.importSetup.importingKeys          "Importando claves en GnuPG. Esto puede demorar un tiempo ...">
 <!ENTITY enigmail.importSetup.restoringGnupgSettings "Restaurando configuracion de GnuPG ...">
 <!ENTITY enigmail.importSetup.restoringEnigmail      "Restaurando configuración de Enigmail ...">
+
+<!ENTITY enigmail.tb78warn.title                     "Información crítica para Thunderbird 78">
+<!ENTITY enigmail.tb78warn.heading                   "Si depende de la mensajería de OpenPGP para fines críticos, NO actualizar manualmente a Thunderbird versión 78.0. ">
+<!ENTITY enigmail.tb78warn.desc1                     "En cambio, espere hasta que se actualice automáticamente.">
+<!ENTITY enigmail.tb78warn.desc2                     "El complemento tradicional de Enigmail no estará disponible para Thunderbird 78. Como reemplazo, Thunderbird 78 incluirá soporte integrado para OpenPGP.">
+<!ENTITY enigmail.tb78warn.desc3                     "El equipo de Thunderbird necesita más tiempo para finalizar este trabajo. En la versión 78.0, OpenPGP sigue siendo una característica experimental y está deshabilitada por defecto.">
+<!ENTITY enigmail.tb78warn.desc4                     "Si desea utilizar OpenPGP para fines no críticos, puede habilitarlo manualmente y ayudarnos a probar esta funcionalidad.">
+<!ENTITY enigmail.tb78warn.desc5                     "El lanzamiento estable de la funcionalidad OpenPGP está planeado para Thunderbird versión 78.2.">

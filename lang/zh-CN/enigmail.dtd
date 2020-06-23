@@ -786,6 +786,7 @@
 <!ENTITY enigmail.tb78warn.title                     "關於 Thunderbird 78 版本之警告">
 <!ENTITY enigmail.tb78warn.heading                   "如閣下依賴 OpenPGP 加密傳遞重要訊息，*切勿手動升級* 到 Thunderbird 78 版本。">
 <!ENTITY enigmail.tb78warn.desc1                     "所有現時使用Enigmail的用戶請等待 Thunderbird 78.2 版本裏將提供的自動OpenPGP升級功能進行升級。">
-<!ENTITY enigmail.tb78warn.desc2                     "Thunderbird 78版本雖已內置OpenPGP加密功能， 但其團隊需要更多時間完成兼容性測試，現階段只供實驗性試用，功能於默認情況下關閉。">
-<!ENTITY enigmail.tb78warn.desc3                     "如閣下並非使用OpenPGP加密功能傳遞重要訊息，歡迎閣下啟動並試用Thunderbird新的內置OpenPGP加密功能。">
-<!ENTITY enigmail.tb78warn.desc4                     "Thunderbird團隊預計78.2 版本將會提供穩定的OpenPGP加密功能供大眾使用。謝謝！">
+<!ENTITY enigmail.tb78warn.desc2                     "由於Enigmail加載不會支援Thunderbird 78及往後版本，Thunderbird 78版本將會提供內置 OpenPGP 加密功能。">
+<!ENTITY enigmail.tb78warn.desc3                     "Thunderbird 78版本雖已內置OpenPGP加密功能， 但其團隊需要更多時間完成兼容性測試，現階段只供實驗性試用，功能於默認情況下關閉。">
+<!ENTITY enigmail.tb78warn.desc4                     "如閣下並非使用OpenPGP加密功能傳遞重要訊息，歡迎閣下啟動並試用Thunderbird新的內置OpenPGP加密功能。">
+<!ENTITY enigmail.tb78warn.desc5                     "Thunderbird團隊預計78.2 版本將會提供穩定的OpenPGP加密功能供大眾使用。謝謝！">

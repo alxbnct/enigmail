@@ -781,3 +781,11 @@ Se o desejar, prima o botão 'Instalar GnuPG' para transferir e instalar o GnuPG
 <!ENTITY enigmail.importSetup.importingKeys          "">
 <!ENTITY enigmail.importSetup.restoringGnupgSettings "">
 <!ENTITY enigmail.importSetup.restoringEnigmail      "">
+
+<!ENTITY enigmail.tb78warn.title                     "Informação Crítica sobre o Thunderbird 78">
+<!ENTITY enigmail.tb78warn.heading                   "Se você depende da segurança das mensagens com OpenPGP para fins importantes, então por favor NÃO atualize manualmente para o Thunderbird 78.0.">
+<!ENTITY enigmail.tb78warn.desc1                     "Ao invés disso, aguarde que seja automaticamente atualizado.">
+<!ENTITY enigmail.tb78warn.desc2                     "O tradicional complemento Enigmail não estará disponível para o Thunderbird 78. Como alternativa, o Thunderbird 78 está adicionando suporte ao OpenPGP.">
+<!ENTITY enigmail.tb78warn.desc3                     "A equipe Thunderbird precisa de mais tempo para finalizar este trabalho. Na versão 78.0, o suporte ao OpenPGP ainda é um recurso experimental e estará desativado por padrão.">
+<!ENTITY enigmail.tb78warn.desc4                     "Se você não depende da segurança do OpenPGP para fins importantes, então convidamos a habilitá-lo manualmente e ajudar nos testes.">
+<!ENTITY enigmail.tb78warn.desc5                     "O lançamento estável da funcionalidade OpenPGP está planejado para a versão 78.2 do Thunderbird.">

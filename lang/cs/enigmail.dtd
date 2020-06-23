@@ -778,3 +778,11 @@
 <!ENTITY enigmail.importSetup.importingKeys          "">
 <!ENTITY enigmail.importSetup.restoringGnupgSettings "">
 <!ENTITY enigmail.importSetup.restoringEnigmail      "">
+
+<!ENTITY enigmail.tb78warn.title                     "Důležitá informace pro vydání Thunderbirdu 78">
+<!ENTITY enigmail.tb78warn.heading                   "Pokud využíváte zabezpečení e-mailových zpráv pomocí OpenPGP každý den, nebo je pro vás opravdu velmi důležité, potom prosím NEprovádějte ruční aktualizaci na Thunderbird 78.0.">
+<!ENTITY enigmail.tb78warn.desc1                     "Místo toho vyčkejte na automatickou aktualizaci.">
+<!ENTITY enigmail.tb78warn.desc2                     "Doplněk Enigmail už nebude pro Thunderbird 78 dostupný a jako náhradu nabídne Thunderbird vestavěnou podporu OpenPGP.">
+<!ENTITY enigmail.tb78warn.desc3                     "Pro odladění fungování potřebují vývojáři dostatek času a ve verzi 78.0 bude podpora OpenPGP stále experimentální a ve výchozím stavu vypnutá.">
+<!ENTITY enigmail.tb78warn.desc4                     "Pokud pro vás není fungování OpenPGP kriticky důležité, můžete si podporu zapnout a pomoci s testováním.">
+<!ENTITY enigmail.tb78warn.desc5                     "Stabilní podpora OpenPGP je plánována ve verzi Thunderbird 78.2.">

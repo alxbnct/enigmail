@@ -787,3 +787,11 @@ Wij tonen een configuratie-code (wachtwoord) op het scherm, die u op het andere 
 <!ENTITY enigmail.importSetup.importingKeys          "Sleutels worden geïmporteerd in GnuPG. Dit kan enige tijd duren…">
 <!ENTITY enigmail.importSetup.restoringGnupgSettings "GnuPG-instellingen herstellen…">
 <!ENTITY enigmail.importSetup.restoringEnigmail      "Enigmail-instellingen herstellen…">
+
+<!ENTITY enigmail.tb78warn.title                     "Belangrijke informatie voor Thunderbird 78">
+<!ENTITY enigmail.tb78warn.heading                   "Gebruikt u OpenPGP voor de beveiliging van berichten, voer dan geen handmatige update uit naar Thunderbird 78.0,">
+<!ENTITY enigmail.tb78warn.desc1                     "maar wacht totdat Thunderbird zichzelf automatisch update.">
+<!ENTITY enigmail.tb78warn.desc2                     "De vertrouwde Enigmail Add-on komt niet beschikbaar voor Thunderbird 78. In plaats daarvan zal Thunderbird 78 een ingebouwde implementatie van OpenPGP bieden.">
+<!ENTITY enigmail.tb78warn.desc3                     "Het Thunderbird-team heeft echter nog enige tijd nodig om die af te maken. In versie 78.0 is de OpenPGP-ondersteuning nog experimenteel, en standaard niet geactiveerd.">
+<!ENTITY enigmail.tb78warn.desc4                     "Bent u niet afhankelijk van de versleuteling en beveiliging van berichten met OpenPGP, dan kunt u de ondersteuning handmatig activeren en ons helpen met het testen ervan.">
+<!ENTITY enigmail.tb78warn.desc5                     "Een stabiele versie van de OpenPGP functionaliteit is gepland voor Thunderbird versie 78.2.">
