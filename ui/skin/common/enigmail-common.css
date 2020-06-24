@@ -426,3 +426,14 @@ treechildren::-moz-tree-cell-text(STYLE) {}
 #enigmail-menubar > menu {
   color: var(--toolbar-color);
 }
+
+
+radio#CQradio1 .radio-check,
+radio#CQradio2 .radio-check,
+radio#CQradio3 .radio-check,
+radiogroup#dateLongRadioGroup .radio-check {
+  -moz-appearance: radio !important;
+}
+radiogroup#AlternativePref .radio-check {
+  -moz-appearance: radio !important;
+}
