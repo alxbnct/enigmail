@@ -47,3 +47,27 @@
   padding-right: 5px;
   height: 1.3em;
 }
+
+/***************************************************
+ * Styles for Menubar
+ ***************************************************/
+
+#enigmail-menubar {
+  background-color: var(--toolbar-bgcolor);
+  color: var(--toolbar-color);
+}
+
+#enigmail-menubar > menu {
+  color: var(--toolbar-color);
+}
+
+
+radio#CQradio1 .radio-check,
+radio#CQradio2 .radio-check,
+radio#CQradio3 .radio-check,
+radiogroup#dateLongRadioGroup .radio-check {
+  -moz-appearance: radio !important;
+}
+radiogroup#AlternativePref .radio-check {
+  -moz-appearance: radio !important;
+}
