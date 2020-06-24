@@ -663,7 +663,7 @@
                                                       Den här assistenten leder dig genom installationsprocessen.">
 <!-- wizard: install GnuPG step -->
 <!ENTITY enigmail.setupWiz.pgInstall.desc            "För att kunna använda Enigmail, krävs GnuPG som en ytterligare komponent för att göra det kryptografiska arbetet. Guiden försökte lokalisera GnuPG, men den kunde inte hittas.">
-<!ENTITY enigmail.setupWiz.pgInstall.installDesc1    "Enigmail kan hämta GnuPG och starta installationsprogrammet åt dig. 
+<!ENTITY enigmail.setupWiz.pgInstall.installDesc1    "Enigmail kan hämta GnuPG och starta installationsprogrammet åt dig.
                                                       Om du vill göra det klickar du på 'Installera GnuPG' för att hämta och installera GnuPG.">
 <!ENTITY enigmail.setupWiz.pgInstall.installDesc2    "Alternativt, om du redan har installerat GnuPG, använd 'Bläddra' -knappen för att ange sökvägen till GnuPG manuellt.">
 
@@ -705,7 +705,7 @@
 <!-- Export wizard -->
 <!ENTITY enigmail.exportWiz.title                    "Exportera dina inställningar för Enigmail">
 <!ENTITY enigmail.exportWiz.pgIntro.title            "Välkommen till guiden Exportera inställningar">
-<!ENTITY enigmail.exportWiz.pgIntro.desc             "Enigmail tillåter att överföra alla inställningar inklusive dina 
+<!ENTITY enigmail.exportWiz.pgIntro.desc             "Enigmail tillåter att överföra alla inställningar inklusive dina
                                                       OpenPGP-nycklar till en ny dator. Detta görs i två steg:">
 <!ENTITY enigmail.exportWiz.pgIntro.step1            "exportera dina data från din gamla dator med den här guiden">
 <!ENTITY enigmail.exportWiz.pgIntro.step2            "importera data till din nya dator med hjälp av installationsguiden.">
@@ -713,9 +713,9 @@
 <!ENTITY enigmail.exportWiz.pgExport.title           "Exporterar inställningar för Enigmail">
 <!ENTITY enigmail.exportWiz.pgExport.exporting       "Spara pågår. Du kan bli tillfrågad om lösenfrasen för din nyckel.">
 <!ENTITY enigmail.exportWiz.pgExport.done            "Dina OpenPGP-nycklar och dina inställningar för Enigmail har nu sparats.
-                                                       
-Vänligen överföra den genererade filen till den nya datorn, starta 
-                                                       
+
+Vänligen överföra den genererade filen till den nya datorn, starta
+
 Thunderbird och börja installationsguiden från menyn i Enigmail.">
 <!ENTITY enigmail.exportWiz.pgExport.failed          "Ett fel inträffade under exporten. Inställningarna kunde inte exporteras.">
 
@@ -789,3 +789,11 @@ Thunderbird och börja installationsguiden från menyn i Enigmail.">
 <!ENTITY enigmail.importSetup.importingKeys          "Importerar nycklar i GnuPG. Det här kan ta ett tag ...">
 <!ENTITY enigmail.importSetup.restoringGnupgSettings "Återställer GnuPG-inställningar ...">
 <!ENTITY enigmail.importSetup.restoringEnigmail      "Återställer Enigmail-inställningar ...">
+
+<!ENTITY enigmail.tb78warn.title                     "Kritisk information för Thunderbird 78">
+<!ENTITY enigmail.tb78warn.heading                   "Om du använder OpenPGP egenskaper för viktiga ändamål, vänligen uppgradera INTE manuellt till Thunderbird 78.0, utan vänta istället tills du uppgraderas automatiskt.">
+<!ENTITY enigmail.tb78warn.desc1                     "Enigmail i traditionell mening kommer inte att vara tillgängligt för Thunderbird 78 eftersom Thunderbird kommer att inkludera inbyggt stöd för OpenPGP.">
+<!ENTITY enigmail.tb78warn.desc2                     "Thunderbird-teamet behöver ändå mer tid för att slutföra detta arbete.">
+<!ENTITY enigmail.tb78warn.desc3                     "I Thunderbird 78.0 är OpenPGP-stödet fortfarande en experimentell funktion som kräver manuell aktivering.">
+<!ENTITY enigmail.tb78warn.desc4                     "Om du inte använder OpenPGP egenskaper för viktiga ändamål är du välkommen att aktivera OpenPGP manuellt och hjälpa med testning.">
+<!ENTITY enigmail.tb78warn.desc5                     "Enligt planerna ska OpenPGP-funktionaliteten vara stabil i Thunderbird 78.2.">

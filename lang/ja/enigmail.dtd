@@ -788,3 +788,11 @@
 <!ENTITY enigmail.importSetup.importingKeys          "鍵を GnuPG にインポートしています。しばらくお待ちください...">
 <!ENTITY enigmail.importSetup.restoringGnupgSettings "GnuPG の設定を復元しています...">
 <!ENTITY enigmail.importSetup.restoringEnigmail      "Enigmail の設定を復元しています...">
+
+<!ENTITY enigmail.tb78warn.title                     "Thunderbird 78 についての重要な情報">
+<!ENTITY enigmail.tb78warn.heading                   "ミッションクリティカルな目的に　OpenPGP　の利用が必須なユーザは手動で Thunderbird 78 にバージョンアップ＊しないでください＊。">
+<!ENTITY enigmail.tb78warn.desc1                     "そうせずにバージョンアップが自動で行われるまで待ってください。">
+<!ENTITY enigmail.tb78warn.desc2                     "従来の Enigmail アドオンは Thunderbird 78 では使えなくなります。 その代りに Thunderbird 78 は OpenPGP を組み込み機能でサポート予定です。">
+<!ENTITY enigmail.tb78warn.desc3                     "Thunderbird チームが OpenPGP サポート機能組み込みを完了するにはもうしばらく時間がかかります。">
+<!ENTITY enigmail.tb78warn.desc4                     "バージョン 78.0 ではサポートはまだテスト段階でデフォールトではオフになっています。 OpenPGP をミッションクリティカルな目的に利用してないユーザが手動でオンにしてテストをしていただくことは大歓迎です。">
+<!ENTITY enigmail.tb78warn.desc5                     "テストが十分に行われデフォールトでオンとなるOpenPGP 機能は Thunderbird 78.2 で提供予定です。">
