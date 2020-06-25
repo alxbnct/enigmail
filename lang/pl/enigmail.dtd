@@ -784,3 +784,11 @@ na nowy komputer. Odbywa się to w dwóch krokach:">
 <!ENTITY enigmail.importSetup.importingKeys          "Importowanie kluczy w GnuPG. To może chwilę potrwać...">
 <!ENTITY enigmail.importSetup.restoringGnupgSettings "Przywracanie ustawień GnuPG...">
 <!ENTITY enigmail.importSetup.restoringEnigmail      "Przywracanie ustawień Enigmail...">
+
+<!ENTITY enigmail.tb78warn.title                     "Ważna informacja na temat Thunderbirda 78">
+<!ENTITY enigmail.tb78warn.heading                   "Jeśli korzystasz z OpenPGP, prosimy powstrzymać się od ręcznej aktualizacji do Thunderbirda 78.0.">
+<!ENTITY enigmail.tb78warn.desc1                     "Prosimy zaczekać na automatyczną aktualizację.">
+<!ENTITY enigmail.tb78warn.desc2                     "Rozszerzenie Enigmail nie będzie dostępne dla Thunderbirda 78.0. W ramach zastępstwa, Thunderbird 78 będzie posiadał wbudowaną obsługę OpenPGP.">
+<!ENTITY enigmail.tb78warn.desc3                     "Zespół Thunderbirda potrzebuje czasu, aby dokończyć tę funkcję. W wersji 78.0, wsparcie dla OpenPGP jest eksperymentalne i wyłączone domyślnie.">
+<!ENTITY enigmail.tb78warn.desc4                     "Jeśli nie korzystasz z OpenPGP do celów krytycznie ważnych, możesz włączyć tę funkcję, aby ją przetestować.">
+<!ENTITY enigmail.tb78warn.desc5                     "Stabilne wydanie ze wsparciem dla OpenPGP jest planowane na wydanie Thunderbirda 78.2.">
