@@ -71,3 +71,26 @@ radiogroup#dateLongRadioGroup .radio-check {
 radiogroup#AlternativePref .radio-check {
   -moz-appearance: radio !important;
 }
+
+
+/* a spinning wheel circle */
+.enigmailWheel {
+  list-style-image: url("chrome://enigmail/content/skin/spinning-wheel.png");
+  max-width: 100%;
+  max-height: 100%;
+}
+
+.enigmailSpinning {
+  animation: enigmailDoRotation 1.4s infinite linear;
+  transform: translateZ(0);
+}
+
+@keyframes enigmailDoRotation {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}

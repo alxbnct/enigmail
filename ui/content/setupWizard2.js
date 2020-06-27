@@ -261,8 +261,6 @@ async function importKeys(tmpDir) {
 async function applyKeySignatures() {
   E2TBLog.DEBUG(`setupWizard2.js: applyKeySignatures\n`);
 
-  const applySettingsProgress = document.getElementById("applySettingsProgress");
-
   const cApi = E2TBCryptoAPI();
 
   let keyList = await cApi.getKeySignatures("", true);
@@ -304,9 +302,6 @@ async function applyKeySignatures() {
         "verified"
       );
     }
-
-    ++i;
-    applySettingsProgress.setAttribute("value", i / numKeys * 100);
   }
 }
 
