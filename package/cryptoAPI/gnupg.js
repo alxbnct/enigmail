@@ -353,7 +353,7 @@ class GnuPGCryptoAPI extends CryptoAPI {
    */
 
   async extractPublicKey(keyId) {
-    let ret = await GnuPG_extractPublicKey(keyId);
+    let ret = await GnuPG_extractPublicKey(keyId, EnigmailGpg.getGpgFeature("export-specific-uid"));
 
     if (ret.exitCode !== 0) {
       ret.errorMsg = EnigmailLocale.getString("failKeyExtract") + "\n" + ret.errorMsg;

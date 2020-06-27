@@ -163,13 +163,17 @@ async function GnuPG_extractSecretKey(userId, minimalKey) {
 }
 
 
-async function GnuPG_extractPublicKey(userId) {
+async function GnuPG_extractPublicKey(userId, cleanKey) {
   let args = EnigmailGpg.getStandardArgs(true);
   let exitCode = -1,
     errorMsg = "";
 
   args.push("-a");
   args.push("--export");
+  if (cleanKey) {
+    args.push("--export-options");
+    args.push("export-clean");
+  }
 
   if (userId) {
     args = args.concat(userId.split(/[ ,\t]+/));
