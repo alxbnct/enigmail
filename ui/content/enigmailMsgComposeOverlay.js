@@ -3271,7 +3271,7 @@ Enigmail.msg = {
       const dce = Components.interfaces.nsIDocumentEncoder;
       var wrapper = gMsgCompose.editor.QueryInterface(Components.interfaces.nsIEditorMailSupport);
       var editor = gMsgCompose.editor.QueryInterface(Components.interfaces.nsIPlaintextEditor);
-      var encoderFlags = dce.OutputFormatted | dce.OutputLFLineBreak;
+      const encoderFlags = dce.OutputFormatted | dce.OutputLFLineBreak;
 
       var wrapWidth = this.getMailPref("mailnews.wraplength");
       if (wrapWidth > 0 && wrapWidth < 68 && editor.wrapWidth > 0) {
@@ -3281,7 +3281,8 @@ Enigmail.msg = {
         }
       }
 
-      if (wrapWidth && editor.wrapWidth > 0) {
+      let origTxt = this.editorGetContentAs("text/plain", encoderFlags);
+      if (wrapWidth && (editor.wrapWidth > 0 && origTxt.length)) {
         // First use standard editor wrap mechanism:
         editor.wrapWidth = wrapWidth - 2;
         wrapper.rewrap(true);
@@ -4430,11 +4431,13 @@ Enigmail.msg = {
     catch (ex) {
       sendFlowed = true;
     }
-    var encoderFlags = dce.OutputFormatted | dce.OutputLFLineBreak;
+    const encoderFlags = dce.OutputFormatted | dce.OutputLFLineBreak;
 
     var wrapper = gMsgCompose.editor.QueryInterface(Components.interfaces.nsIEditorMailSupport);
     var editor = gMsgCompose.editor.QueryInterface(Components.interfaces.nsIPlaintextEditor);
     var wrapWidth = 72;
+
+    let origTxt = this.editorGetContentAs("text/plain", encoderFlags);
 
     if (!(sendInfo.sendFlags & ENCRYPT)) {
       // signed messages only
@@ -4450,7 +4453,7 @@ Enigmail.msg = {
             }
           }
           if (EnigmailPrefs.getPref("wrapHtmlBeforeSend")) {
-            if (wrapWidth) {
+            if (wrapWidth && (origTxt.length > wrapWidth -2)) {
               editor.wrapWidth = wrapWidth - 2; // prepare for the worst case: a 72 char's long line starting with '-'
               wrapper.rewrap(false);
             }
@@ -4468,17 +4471,16 @@ Enigmail.msg = {
     var errorMsgObj = {};
     var exitCode;
 
-    // Get plain text
+    // Get rewraped plain text
     // (Do we need to set the nsIDocumentEncoder.* flags?)
-    var origText = this.editorGetContentAs("text/plain",
-      encoderFlags);
-    if (!origText)
-      origText = "";
+    var wrappedText = this.editorGetContentAs("text/plain", encoderFlags);
+    if (!wrappedText)
+      wrappedText = "";
 
-    if (origText.length > 0) {
+    if (wrappedText.length > 0) {
       // Sign/encrypt body text
 
-      var escText = origText; // Copy plain text for possible escaping
+      var escText = wrappedText; // Copy plain text for possible escaping
 
       if (sendFlowed && !(sendInfo.sendFlags & ENCRYPT)) {
         // Prevent space stuffing a la RFC 2646 (format=flowed).
@@ -4510,7 +4512,7 @@ Enigmail.msg = {
 
       // Encode plaintext to charset from unicode
       var plainText = (sendInfo.sendFlags & ENCRYPT) ?
-        EnigmailData.convertFromUnicode(origText, charset) :
+        EnigmailData.convertFromUnicode(wrappedText, charset) :
         EnigmailData.convertFromUnicode(escText, charset);
 
       var cipherText = EnigmailEncryption.encryptMessage(window, sendInfo.uiFlags, plainText,
@@ -4544,14 +4546,14 @@ Enigmail.msg = {
 
         // Save original text (for undo)
         this.processed = {
-          "origText": origText,
+          "origText": wrappedText,
           "charset": charset
         };
 
       }
       else {
         // Restore original text
-        this.replaceEditorText(origText);
+        this.replaceEditorText(wrappedText);
         this.enableUndoEncryption(false);
 
         if (sendInfo.sendFlags & (ENCRYPT | SIGN)) {
