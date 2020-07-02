@@ -271,6 +271,10 @@ async function applyKeySignatures() {
   for (let fpr of gSelectedPrivateKeys) {
     let keyObj = E2TBKeyRing.getKeyById(fpr);
     secKeyIds[keyObj.keyId] = 1;
+    
+    if (keyObj.ownerTrust === "u") {
+      await applyPersonalKey(keyObj.fpr);
+    }
   }
 
   for (let keyObj of keyList) {
@@ -355,6 +359,13 @@ function handleClick(event) {
   } */
 }
 
+
+async function applyPersonalKey(fpr) {
+  try {
+    await PgpSqliteDb2.acceptAsPersonalKey(fpr);
+  }
+  catch (x) {}  
+}
 
 document.addEventListener("dialogaccept", function(event) {
   if (!onAccept())

@@ -17,7 +17,7 @@ const Services = ChromeUtils.import("resource://gre/modules/Services.jsm").Servi
 
 function getEnigmailVersion() {
   let versionStr = EnigmailApp.getVersion() + " (" + EnigmailBuildDate.built + ")";
-  return EnigmailLocale.getString("usingVersion", versionStr);
+  return "Enigmail v" + versionStr;
 }
 
 function getGpgWorking() {
