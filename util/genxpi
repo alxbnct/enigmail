@@ -60,9 +60,7 @@ find chrome/content/modules -name "*.js*" | LC_ALL=C sort > chrome/content/modul
 
 echo "Creating ${xpiFile} file"
 
-zip -9 --must-match\
-    ../${xpiFile} \
-    chrome/content/preferences/defaultPrefs.js \
+set chrome/content/preferences/defaultPrefs.js \
     chrome/content/modules/addrbook.jsm \
     chrome/content/modules/amPrefsService.jsm \
     chrome/content/modules/app.jsm \
@@ -187,9 +185,10 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
-zip -9 \
-    ../${xpiFile} \
-    chrome/content/ui/*.* \
+[ -n "$SOURCE_DATE_EPOCH" ] && touch --date "@$SOURCE_DATE_EPOCH" -- "$@"
+zip -9 --must-match ../${xpiFile} "$@"
+
+set chrome/content/ui/*.* \
     chrome/skin/aero/*.* \
     chrome/skin/modern/*.* \
     chrome/skin/tb-mac/*.* \
@@ -202,3 +201,6 @@ zip -9 \
     bootstrap.js \
     chrome.manifest \
     ${pkgFile}
+
+[ -n "$SOURCE_DATE_EPOCH" ] && touch --date "@$SOURCE_DATE_EPOCH" -- "$@"
+zip -9 ../${xpiFile} "$@"
