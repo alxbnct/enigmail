@@ -60,6 +60,9 @@ find chrome/content/modules -name "*.js*" | LC_ALL=C sort > chrome/content/modul
 
 echo "Creating ${xpiFile} file"
 
+# Avoid embedding time zone information about the current system into the XPI
+export TZ=UTC
+
 set chrome/content/preferences/defaultPrefs.js \
     chrome/content/modules/addrbook.jsm \
     chrome/content/modules/amPrefsService.jsm \
@@ -181,12 +184,13 @@ set chrome/content/preferences/defaultPrefs.js \
     chrome/content/modules/all-modules.txt \
     chrome/content/am-enigprefs.xul
 
+# Set modification timestamps to a fixed value for reproducibilty
+[ -n "$SOURCE_DATE_EPOCH" ] && touch --date "@$SOURCE_DATE_EPOCH" -- "$@"
+zip -9 -o -X --must-match ../${xpiFile} "$@"
+
 if [ $? -ne 0 ]; then
   exit 1
 fi
-
-[ -n "$SOURCE_DATE_EPOCH" ] && touch --date "@$SOURCE_DATE_EPOCH" -- "$@"
-zip -9 --must-match ../${xpiFile} "$@"
 
 set chrome/content/ui/*.* \
     chrome/skin/aero/*.* \
@@ -202,5 +206,6 @@ set chrome/content/ui/*.* \
     chrome.manifest \
     ${pkgFile}
 
+# Set modification timestamps to a fixed value for reproducibilty
 [ -n "$SOURCE_DATE_EPOCH" ] && touch --date "@$SOURCE_DATE_EPOCH" -- "$@"
-zip -9 ../${xpiFile} "$@"
+zip -9 -o -X ../${xpiFile} "$@"
