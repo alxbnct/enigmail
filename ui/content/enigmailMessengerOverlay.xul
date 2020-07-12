@@ -31,7 +31,7 @@
     <broadcaster id="enigmail-pEp-bc" collapsed="true"/>
   </broadcasterset>
 
-#ifndef POSTBOX
+#ifdef THUNDERBIRD
   <!-- Thunderbird secondary pane -->
 
   <panelmultiview id="appMenu-multiView">
@@ -349,7 +349,7 @@
           </menupopup>
         </menu>
 
-#ifndef POSTBOX
+#ifdef THUNDERBIRD
         <menu
             id="enigmailDecryptToFolder"
             label="&enigmail.decryptToFolder.label;"
@@ -454,7 +454,7 @@
                  recentLabel="&enigmail.recent.label;"
                  recentAccessKey="&enigmail.recent.accesskey;"
                  showFavorites="true"
-#ifndef POSTBOX
+#ifdef THUNDERBIRD
                  favoritesLabel="&contextMoveCopyMsgFavoritesMenu.label;"
                  favoritesAccessKey="&contextMoveCopyMsgFavoritesMenu.accesskey;"
 #endif

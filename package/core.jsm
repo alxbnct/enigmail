@@ -110,7 +110,7 @@ var EnigmailCore = {
         self.factories.push(new Factory(getEnigmailProtocolHandler()));
         self.factories.push(new Factory(mimeEncrypt.Handler));
 
-        if (isPostbox() || reason !== APP_STARTUP) {
+        if (isGecko52() || reason !== APP_STARTUP) {
           // Postbox or while not starting up
           initService();
         }
@@ -122,7 +122,7 @@ var EnigmailCore = {
       }
     }
 
-    if ((!isPostbox()) && reason === APP_STARTUP) {
+    if ((!isGecko52()) && reason === APP_STARTUP) {
       // if TB starts up, observe "mail-tabs-session-restored"
       Services.obs.addObserver(initService, "mail-tabs-session-restored", false);
     }
@@ -528,9 +528,10 @@ class Factory {
   }
 }
 
-function isPostbox() {
-  const POSTBOX_ID = "postbox@postbox-inc.com";
-  const XPCOM_APPINFO = "@mozilla.org/xre/app-info;1";
+function isGecko52() {
+  // determine if Platform is Mozilla 52
+  const vc = Cc["@mozilla.org/xpcom/version-comparator;1"].getService(Ci.nsIVersionComparator);
+  const appVer = Cc["@mozilla.org/xre/app-info;1"].getService(Ci.nsIXULAppInfo).platformVersion;
 
-  return Cc[XPCOM_APPINFO].getService(Ci.nsIXULAppInfo).ID == POSTBOX_ID;
+  return vc.compare(appVer, "53.0") < 0;
 }

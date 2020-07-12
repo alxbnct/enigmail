@@ -476,6 +476,8 @@ Enigmail.msg = {
 
   setMainMenuLabel: function() {
     if (EnigmailCompat.isPostbox()) return;
+    if (!EnigmailCompat.isAtLeastTb68()) return;
+
     let usePep = EnigmailPEPAdapter.usingPep();
     let o = ["menu_Enigmail", "appmenu-Enigmail"];
 

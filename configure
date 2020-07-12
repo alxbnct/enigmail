@@ -589,6 +589,7 @@ LIBOBJS
 enable_fix_lang
 TB_ARGS
 TB_PATH
+enable_interlink
 enable_postbox
 enable_lang
 enable_tests
@@ -651,6 +652,7 @@ enable_option_checking
 enable_tests
 enable_lang
 enable_postbox
+enable_interlink
 with_tb_path
 with_tb_args
 enable_fix_lang
@@ -1286,6 +1288,7 @@ Optional Features:
   --enable-tests          run unit tests during build process
   --disable-lang          disable creation of locales other than en-US
   --enable-postbox        build for Postbox instead of Thunderbird
+  --enable-interlink      build for Interlink instead of Thunderbird
   --disable-fix-lang      disable replacing of missing strings in
                           localizations with en-US
 
@@ -2022,6 +2025,13 @@ fi
 if test "${enable_postbox+set}" = set; then :
   enableval=$enable_postbox; enable_postbox=$enableval
 fi
+
+
+# Check whether --enable-interlink was given.
+if test "${enable_interlink+set}" = set; then :
+  enableval=$enable_interlink; enable_interlink=$enableval
+fi
+
 
 
 
@@ -3227,3 +3237,4 @@ if test -n "$ac_unrecognized_opts" && test "$enable_option_checking" != no; then
   { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: unrecognized options: $ac_unrecognized_opts" >&5
 $as_echo "$as_me: WARNING: unrecognized options: $ac_unrecognized_opts" >&2;}
 fi
+

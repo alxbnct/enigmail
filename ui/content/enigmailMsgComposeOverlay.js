@@ -820,22 +820,18 @@ Enigmail.msg = {
         }
         node = node.nextSibling;
       }
-      /*
-      if (!bucketList.hasChildNodes()) {
-        try {
-          // TB only
-          UpdateAttachmentBucket(false);
-        }
-        catch (ex) {}
-      }
-      */
     }
 
     // If we removed all the children and the bucket wasn't meant
     // to stay open, close it.
-    if (!EnigmailPrefs.getPrefRoot().getBoolPref("mail.compose.show_attachment_pane")) {
-      UpdateAttachmentBucket(bucketList.hasChildNodes());
+
+    try {
+      // TB 68+ only
+      if (!EnigmailPrefs.getPrefRoot().getBoolPref("mail.compose.show_attachment_pane")) {
+        UpdateAttachmentBucket(bucketList.hasChildNodes());
+      }
     }
+    catch(x) {}
 
     this.processFinalState();
     this.updateStatusBar();
@@ -3730,7 +3726,7 @@ Enigmail.msg = {
     let recList;
     let toAddrList = [];
     let arrLen = {};
-    const DeliverMode = Ci.nsIMsgCompDeliverMode;
+    const DeliverMode = Components.interfaces.nsIMsgCompDeliverMode;
 
     switch (msgSendType) {
       case DeliverMode.SaveAsDraft:
@@ -3808,7 +3804,7 @@ Enigmail.msg = {
     if (gotSendFlags & EnigmailConstants.SEND_ENCRYPTED)
       sendFlags |= EnigmailConstants.SEND_ENCRYPTED;
 
-    if (msgSendType === Ci.nsIMsgCompDeliverMode.Later) {
+    if (msgSendType === Components.interfaces.nsIMsgCompDeliverMode.Later) {
       EnigmailLog.DEBUG("enigmailMsgComposeOverlay.js: Enigmail.msg.getEncryptionFlags: adding SEND_LATER\n");
       sendFlags |= EnigmailConstants.SEND_LATER;
     }
@@ -4453,7 +4449,7 @@ Enigmail.msg = {
             }
           }
           if (EnigmailPrefs.getPref("wrapHtmlBeforeSend")) {
-            if (wrapWidth && (origTxt.length > wrapWidth -2)) {
+            if (wrapWidth && (origTxt.length > wrapWidth - 2)) {
               editor.wrapWidth = wrapWidth - 2; // prepare for the worst case: a 72 char's long line starting with '-'
               wrapper.rewrap(false);
             }

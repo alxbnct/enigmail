@@ -42,9 +42,14 @@ AC_ARG_ENABLE(postbox,
     AC_HELP_STRING([--enable-postbox],[build for Postbox instead of Thunderbird]),
     enable_postbox=$enableval)
 
+AC_ARG_ENABLE(interlink,
+    AC_HELP_STRING([--enable-interlink],[build for Interlink instead of Thunderbird]),
+    enable_interlink=$enableval)
+
 AC_SUBST(enable_tests)
 AC_SUBST(enable_lang)
 AC_SUBST(enable_postbox)
+AC_SUBST(enable_interlink)
 
 AC_ARG_WITH(tb-path,
         [  --with-tb-path=/path/to/thunderbird  set the path to an installed Thunderbird],

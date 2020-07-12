@@ -390,6 +390,7 @@ var EnigmailInstallPep = {
     EnigmailLog.DEBUG("installPep.jsm: startInstaller()\n");
 
     if (EnigmailCompat.isPostbox()) return null;
+    if (!EnigmailCompat.isAtLeastTb68()) return null;
     if (!manualInstall) {
       if (!EnigmailPrefs.getPref("pEpAutoDownload")) return null;
     }
@@ -421,6 +422,7 @@ var EnigmailInstallPep = {
     EnigmailLog.DEBUG("installPep.jsm: isPepInstallerAvailable()\n");
 
     if (EnigmailCompat.isPostbox()) return false;
+    if (!EnigmailCompat.isAtLeastTb68()) return false;
     if (!manualInstall) {
       // don't download anything if auto-download is disabled
       if (!EnigmailPrefs.getPref("pEpAutoDownload")) return false;
@@ -451,6 +453,7 @@ var EnigmailInstallPep = {
     EnigmailLog.DEBUG("installPep.jsm: isPepUpdateAvailable()\n");
 
     if (EnigmailCompat.isPostbox()) return false;
+    if (!EnigmailCompat.isAtLeastTb68()) return false;
     if (!manualInstall) {
       // don't download anything if auto-download is disabled
       if (!EnigmailPrefs.getPref("pEpAutoDownload")) return false;

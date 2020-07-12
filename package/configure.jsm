@@ -309,6 +309,8 @@ var EnigmailConfigure = {
   },
 
   upgradeTo217: function(win) {
-    if (!EnigmailCompat.isPostbox()) displayUpgradeInfo(win);
+    if (EnigmailCompat.isPostbox() || (!EnigmailCompat.isAtLeastTb68())) return;
+
+    displayUpgradeInfo(win);
   }
 };

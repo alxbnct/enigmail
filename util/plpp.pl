@@ -74,7 +74,7 @@ LINE: while (<$rd>) {
       $doWrite = 1;
     }
     else {
-      $doWrite = 01;
+      $doWrite = 0;
     }
     next LINE;
   }

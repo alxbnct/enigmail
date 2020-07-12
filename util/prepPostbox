@@ -3,7 +3,7 @@
 # add defines to all files
 
 if [ $# -lt 3 ]; then
-  echo "Usage: $0 [-c] {tbird|pbx} inputfile outputfile"
+  echo "Usage: $0 [-c] {tbird|pbx|itl} inputfile outputfile"
   echo "        -c  don't create Ci/Cu/Cc variables"
   exit 1
 fi
