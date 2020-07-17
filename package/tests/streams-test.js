@@ -62,5 +62,4 @@ test(function readFileChannel() {
   );
   ch.asyncOpen(stringListener, null);
   inspector.enterNestedEventLoop(0);
-  Assert.ok(!md.exists(), "file was deleted");
 });
