@@ -17,7 +17,7 @@ var EXPORTED_SYMBOLS = ["getOpenPGPLibrary"];
 
 Components.utils.importGlobalProperties(["Blob",
   "CSS",
-  "CSSRule",
+  //"CSSRule",
   "ChromeUtils",
   "DOMParser",
   "Directory",

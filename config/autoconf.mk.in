@@ -26,7 +26,7 @@ else
 ifeq ($(ENABLE_INTERLINK),yes)
 TARGET_TOOL=itl
 INCLUDE = $(DEPTH)/include/interlink.h
-BUILD = $(DEPTH)/build-itl
+BUILD = $(DEPTH)/build-il
 else
 TARGET_TOOL=tbird
 INCLUDE = $(DEPTH)/include/tbird.h
