@@ -57,10 +57,10 @@ test(function readFileChannel() {
   var stringListener = EnigmailStreams.newStringStreamListener(
     function compareResults(gotData) {
       Assert.equal(testString, gotData);
-      Assert.ok(md.exists(), false, "file was deleted:");
       inspector.exitNestedEventLoop();
     }
   );
   ch.asyncOpen(stringListener, null);
   inspector.enterNestedEventLoop(0);
+  Assert.ok(!md.exists(), "file was deleted");
 });
