@@ -66,6 +66,7 @@ Enigmail.columnHandler = {
   createDbObserver: {
     // Components.interfaces.nsIObserver
     observe: function(aMsgFolder, aTopic, aData) {
+      EnigmailLog.DEBUG(`columnOverlay.js: createDbObserver.observe()\n`);
       try {
         gDBView.addColumnHandler("enigmailStatusCol", Enigmail.columnHandler);
       }
@@ -76,7 +77,11 @@ Enigmail.columnHandler = {
   onLoadEnigmail: function() {
     let observerService = Components.classes["@mozilla.org/observer-service;1"].
     getService(Components.interfaces.nsIObserverService);
+    // add observer to new DB views
     observerService.addObserver(Enigmail.columnHandler.createDbObserver, "MsgCreateDBView", false);
+
+    // add observer to current DB view
+    Enigmail.columnHandler.createDbObserver.observe();
 
     let statusCol = document.getElementById("enigmailStatusCol");
     if (statusCol) {
