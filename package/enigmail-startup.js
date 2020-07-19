@@ -21,10 +21,14 @@ const AddonManager = Components.utils.import("resource://gre/modules/AddonManage
 
 const NS_ENIGCLINE_SERVICE_CID = Components.ID("{f4d4138e-dd4d-4cb0-b408-a41429d38e34}");
 const NS_CLINE_SERVICE_CONTRACTID = "@mozilla.org/enigmail/cline-handler;1";
+const NS_XPCOM_SHUTDOWN_OBSERVER_ID = "xpcom-shutdown";
 
 const nsICommandLineHandler = Ci.nsICommandLineHandler;
 const nsIFactory = Ci.nsIFactory;
 const nsISupports = Ci.nsISupports;
+
+const APP_STARTUP = 1;
+const APP_SHUTDOWN = 2;
 
 function EnigmailStartup() {}
 
@@ -44,15 +48,23 @@ EnigmailStartup.prototype = {
     // does nothing
   },
 
-  helpInfo: "  -pgpkeyman         Open the OpenPGP key management.\n",
+  helpInfo: "",
 
   lockFactory: function(lock) {}
 };
 
+
+function performShutdown(aSubject, aTopic, aData) {
+  const EnigmailLog = Cu.import("chrome://enigmail/content/modules/log.jsm").EnigmailLog;
+
+  Services.obs.removeObserver(performShutdown, aTopic);
+
+  EnigmailLog.DEBUG("enigmail-startup.js: onShutdown()\n");
+  EnigmailCore.shutdown(APP_SHUTDOWN);
+}
+
+
 function startup() {
-
-  const APP_STARTUP = 1;
-
   // Services.console.logStringMessage("Enigmail startup ...");
 
   AddonManager.getAddonByID("{847b3a00-7ab1-11d4-8f02-006008948af5}", addonData => {
@@ -65,9 +77,13 @@ function startup() {
     EnigmailCore.startup(APP_STARTUP);
     EnigmailPgpmimeHander.startup(APP_STARTUP);
 
+    // register for shutdown-event
+    Services.obs.addObserver(performShutdown, "profile-before-change", false);
+
     Services.console.logStringMessage("Enigmail startup completed");
   });
 }
+
 
 startup();
 const NSGetFactory = XPCOMUtils.generateNSGetFactory([EnigmailStartup]);

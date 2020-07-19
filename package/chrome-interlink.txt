@@ -1,0 +1,4 @@
+# Register Enigmail Service for Interink
+component {f4d4138e-dd4d-4cb0-b408-a41429d38e34} enigmail-startup.js
+contract @mozilla.org/enigmail/cline-handler;1 {f4d4138e-dd4d-4cb0-b408-a41429d38e34}
+category command-line-handler cline-enigmail @mozilla.org/enigmail/cline-handler;1
