@@ -2,25 +2,17 @@ content       enigmail                chrome/content/
 locale        enigmail    en-US       chrome/locale/en-US/
 
 
-# Skin for TBird Mac OS X
-skin          enigmail    classic/1.0 chrome/skin/tb-mac/ application!={92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a} os=Darwin
-# Skin for TBird Windows
-skin          enigmail    classic/1.0 chrome/skin/tb-win-xp/ application!={92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a} os=WINNT osversion<6
-skin          enigmail    classic/1.0 chrome/skin/aero/ application!={92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a} os=WINNT osversion>=6
-skin          enigmail    classic/1.0 chrome/skin/tb-win-xp/ application!={92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a} os=OS2
-# Skin for TBird other OS (e.g. Linux)
-skin          enigmail    classic/1.0 chrome/skin/tb-linux/ application!={92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a} os=Linux
-skin          enigmail    classic/1.0 chrome/skin/tb-linux/ application!={92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a} os=SunOS
-skin          enigmail    classic/1.0 chrome/skin/tb-linux/ application!={92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a} os=FreeBSD
-skin          enigmail    classic/1.0 chrome/skin/tb-linux/ application!={92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a} os=OpenBSD
-skin          enigmail    classic/1.0 chrome/skin/tb-linux/ application!={92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a} os=NetBSD
-skin          enigmail    classic/1.0 chrome/skin/tb-linux/ application!={92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a} os=AIX
-skin          enigmail    classic/1.0 chrome/skin/tb-linux/ application!={92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a} os=HP-UX
-skin          enigmail    classic/1.0 chrome/skin/tb-linux/ application!={92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a} os=DragonFly
-# Skin for SeaMonkey
-skin          enigmail    classic/1.0 chrome/skin/classic-seamonkey/ application={92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}
-skin          enigmail    modern/1.0 chrome/skin/modern/
-
-
-# Resource module registration
-# resource enigmail modules/
+# Skin for TBird / Interlink on Mac OS X
+skin          enigmail    classic/1.0 chrome/skin/tb-mac/ os=Darwin
+# Skin for TBird / Interlink on Windows
+skin          enigmail    classic/1.0 chrome/skin/aero/ os=WINNT
+skin          enigmail    classic/1.0 chrome/skin/aero/ os=OS2
+# Skin for TBird / Interlink on other OS (e.g. Linux)
+skin          enigmail    classic/1.0 chrome/skin/tb-linux/ os=Linux
+skin          enigmail    classic/1.0 chrome/skin/tb-linux/ os=SunOS
+skin          enigmail    classic/1.0 chrome/skin/tb-linux/ os=FreeBSD
+skin          enigmail    classic/1.0 chrome/skin/tb-linux/ os=OpenBSD
+skin          enigmail    classic/1.0 chrome/skin/tb-linux/ os=NetBSD
+skin          enigmail    classic/1.0 chrome/skin/tb-linux/ os=AIX
+skin          enigmail    classic/1.0 chrome/skin/tb-linux/ os=HP-UX
+skin          enigmail    classic/1.0 chrome/skin/tb-linux/ os=DragonFly

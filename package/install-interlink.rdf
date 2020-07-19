@@ -9,7 +9,7 @@
     <em:id>{847b3a00-7ab1-11d4-8f02-006008948af5}</em:id>
     <em:version>${EnigmailVersion}</em:version>
     <em:type>2</em:type> <!-- type = extension -->
-    <em:bootstrap>true</em:bootstrap>
+    <em:bootstrap>false</em:bootstrap>
 
     <!-- Target Applications this extension can install into,
          with minimum and maximum supported versions. -->

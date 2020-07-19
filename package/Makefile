@@ -135,6 +135,7 @@ build: $(GENFILES)
 
 deploy: $(PREFFILES)
 	$(DEPTH)/util/install -m 644 $(DIST)/chrome/content/preferences $(PREFFILES)
+	$(DEPTH)/util/install -m 644 $(DIST) enigmail-startup.js
 	echo '"use strict";' > $(DIST)/chrome/content/modules/buildDate.jsm
 	echo 'var EXPORTED_SYMBOLS = ["EnigmailBuildDate"];' >> $(DIST)/chrome/content/modules/buildDate.jsm
 	echo 'var EnigmailBuildDate = { built: "$(ENIG_BUILD_DATE)" };' >> $(DIST)/chrome/content/modules/buildDate.jsm
