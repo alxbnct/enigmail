@@ -13,10 +13,10 @@ DIRS = cryptoAPI
 
 PREFFILES = prefs/defaultPrefs.js
 
-ifeq ($(ENABLE_POSTBOX),yes)
-PEPJSM = pEp-nonfunc.jsm
-else
+ifeq ($(TARGET_TOOL),tbird)
 PEPJSM = pEp.jsm
+else
+PEPJSM = pEp-nonfunc.jsm
 endif
 
 MODFILES = \
