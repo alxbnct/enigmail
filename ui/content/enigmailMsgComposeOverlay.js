@@ -44,6 +44,7 @@ var EnigmailAutocrypt = ChromeUtils.import("chrome://enigmail/content/modules/au
 var EnigmailMime = ChromeUtils.import("chrome://enigmail/content/modules/mime.jsm").EnigmailMime;
 var EnigmailMsgRead = ChromeUtils.import("chrome://enigmail/content/modules/msgRead.jsm").EnigmailMsgRead;
 var EnigmailMimeEncrypt = ChromeUtils.import("chrome://enigmail/content/modules/mimeEncrypt.jsm").EnigmailMimeEncrypt;
+var EnigmailCompat = ChromeUtils.import("chrome://enigmail/content/modules/compat.jsm").EnigmailCompat;
 var jsmime = ChromeUtils.import("resource:///modules/jsmime.jsm").jsmime;
 
 
@@ -165,6 +166,12 @@ Enigmail.msg = {
     // Relabel SMIME button and menu item
     var smimeButton = document.getElementById("button-security");
     let toolbar = document.getElementById("composeToolbar2");
+
+    // hide inline-PGP on Interlink (Postbox doesn't have the menu item)
+    if (EnigmailCompat.isInterlink()) {
+      let inlineOpt = document.getElementById("enigmail_compose_inline_item");
+      inlineOpt.setAttribute("collapsed", "true");
+    }
 
     if (smimeButton) {
       smimeButton.setAttribute("label", "S/MIME");
