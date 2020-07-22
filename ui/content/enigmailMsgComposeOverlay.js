@@ -4238,7 +4238,7 @@ Enigmail.msg = {
       }
       sendFlags = rcpt.sendFlags;
 
-      if (this.sendPgpMime) {
+      if (this.sendPgpMime || EnigmailCompat.isPostbox() || EnigmailCompat.isInterlink()) {
         // Use PGP/MIME
         sendFlags |= EnigmailConstants.SEND_PGP_MIME;
       }
