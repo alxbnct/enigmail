@@ -234,15 +234,19 @@ ifeq ($(ENABLE_POSTBOX),yes)
 SKIN_AERO += postbox/win/enigmail.css
 SKIN_TB_MAC += postbox/mac/enigmail.css
 else
+ifeq ($(ENABLE_INTERLINK),yes)
+SKIN_AERO += interlink/enigmail.css
+else
 SKIN_AERO += tb-aero/enigmail.css
 SKIN_TB_MAC += tb-mac/enigmail.css
+endif
 endif
 
 all: deploy
 
-deploy: $(UIFILES) $(SKIN_TB_WIN_XP) $(SKIN_AERO) $(SKIN_TB_MAC) $(SKIN_TB_LINUX) 
+deploy: $(UIFILES) $(SKIN_TB_WIN_XP) $(SKIN_AERO) $(SKIN_TB_MAC) $(SKIN_TB_LINUX) $(SKIN_INTERLINK)
 	$(DEPTH)/util/install -m 644 $(DIST)/chrome/content/ui $(UIFILES)
-	$(DEPTH)/util/install -m 644 $(DIST)/chrome/skin/tb-win-xp $(SKIN_TB_WIN_XP)
 	$(DEPTH)/util/install -m 644 $(DIST)/chrome/skin/aero $(SKIN_AERO)
 	$(DEPTH)/util/install -m 644 $(DIST)/chrome/skin/tb-mac $(SKIN_TB_MAC)
 	$(DEPTH)/util/install -m 644 $(DIST)/chrome/skin/tb-linux $(SKIN_TB_LINUX)
+	$(DEPTH)/util/install -m 644 $(DIST)/chrome/skin/interlink $(SKIN_INTERLINK)
