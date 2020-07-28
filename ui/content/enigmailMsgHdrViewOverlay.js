@@ -197,6 +197,9 @@ Enigmail.hdrView = {
       errorMsg = "";
 
     var replaceUid = null;
+    if (!userId) {
+      userId = "";
+    }
     if (keyId && gFolderDisplay.selectedMessage) {
       replaceUid = EnigmailMsgRead.matchUidToSender(keyId, gFolderDisplay.selectedMessage);
     }
