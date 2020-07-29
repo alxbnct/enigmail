@@ -8,18 +8,18 @@
   <Description about="urn:mozilla:install-manifest">
     <em:id>{847b3a00-7ab1-11d4-8f02-006008948af5}</em:id>
     <em:version>${EnigmailVersion}</em:version>
-    <em:type>2</em:type> <!-- type = extension -->
+    <em:type>2</em:type> <!-- type 2 = extension -->
     <em:bootstrap>false</em:bootstrap>
 
     <!-- Target Applications this extension can install into,
          with minimum and maximum supported versions. -->
 
     <em:targetApplication>
-      <!-- Thunderbird -->
+      <!-- Interlink (Thunderbird) -->
       <Description>
         <em:id>{3550f703-e582-4d05-9a08-453d09bdfdc6}</em:id>
         <em:minVersion>52.0</em:minVersion>
-        <em:maxVersion>53.0</em:maxVersion>
+        <em:maxVersion>52.9.*</em:maxVersion>
       </Description>
     </em:targetApplication>
 
