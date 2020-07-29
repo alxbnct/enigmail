@@ -701,9 +701,9 @@ Enigmail.msg = {
         toolbarTxt.removeAttribute("hidden");
       }
       enigmailMenu.removeAttribute("hidden");
-      pepBroadcaster.setAttribute("hidden", "true");
-      pepMenu.setAttribute("hidden", "true");
-      pepStatusbar.setAttribute("hidden", "true");
+      if (pepBroadcaster) pepBroadcaster.setAttribute("hidden", "true");
+      if (pepMenu) pepMenu.setAttribute("hidden", "true");
+      if (pepStatusbar) pepStatusbar.setAttribute("hidden", "true");
     }
   },
 

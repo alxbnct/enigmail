@@ -612,7 +612,7 @@
 
 
 #ifndef POSTBOX
-  <!-- Thunderbird -->
+  <!-- Thunderbird/Interlink -->
   <popup id="attachmentItemContext" onpopupshowing="return Enigmail.hdrView.enigOnShowAttachmentContextMenu();">
 #else
   <!-- Postbox -->
