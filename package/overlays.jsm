@@ -339,6 +339,17 @@ async function insertXul(addonID, srcUrl, window, document) {
             }
           }
 
+          let customToolbar = $("customToolbars");
+          let additionalToolbars = [];
+          for (let i of customToolbar.attributes) {
+            if (i.name.search(/^toolbar[0-9]+$/) === 0) {
+              let tbar = i.value.split(/\|/)[0];
+              let toolbarId = `__customToolbar_${tbar.replace(/ /g, "_")}`;
+              additionalToolbars.push(toolbarId);
+            }
+          }
+
+
           let toolbox = $(toolboxId);
           let palette = toolbox.palette;
           let c = node.children;
@@ -346,10 +357,16 @@ async function insertXul(addonID, srcUrl, window, document) {
           while (c.length > 0) {
             // added toolbar buttons are removed from the palette's children
             if (c[0].tagName && c[0].tagName === "toolbarbutton") {
-              addToolbarButton(palette, c[0], toolbarId);
-            }
+              let button = c[0];
+              addToolbarButton(palette, button, toolbarId);
+                for (let tbar in additionalToolbars) {
+                  addToolbarButton(palette, button, additionalToolbars[tbar]);
+                }
+              }
           }
-        } else if (!target) {
+
+        }
+        else if (!target) {
           oconsole.log(`injectDOM: no target for ${node.tagName}, not inserting`);
           continue;
         }
