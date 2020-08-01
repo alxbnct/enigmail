@@ -1094,9 +1094,7 @@ Enigmail.hdrView = {
     }
   },
 
-  onShowAttachmentContextMenu: function(event) {
-    EnigmailLog.DEBUG("enigmailMsgHdrViewOverlay.js: this.onShowAttachmentContextMenu\n");
-
+  getSelectedAttachment: function() {
     let contextMenu, selectedAttachments;
     if (EnigmailCompat.isPostbox()) {
       // Postbox
@@ -1108,7 +1106,26 @@ Enigmail.hdrView = {
       // Thunderbird
       contextMenu = document.getElementById('attachmentItemContext');
       selectedAttachments = contextMenu.attachments;
+
+      if (!contextMenu.attachments) {
+        // Interlink
+        let attachmentList = document.getElementById("attachmentList");
+        if (attachmentList.selectedItems.length > 0) {
+          selectedAttachments = [attachmentList.selectedItems[0].attachment];
+        }
+        else {
+          selectedAttachments = currentAttachments;
+        }
+      }
     }
+
+    return selectedAttachments;
+  },
+
+  onShowAttachmentContextMenu: function(event) {
+    EnigmailLog.DEBUG("enigmailMsgHdrViewOverlay.js: this.onShowAttachmentContextMenu\n");
+
+    let selectedAttachments = Enigmail.hdrView.getSelectedAttachment();
 
     var decryptOpenMenu = document.getElementById('enigmail_ctxDecryptOpen');
     var decryptSaveMenu = document.getElementById('enigmail_ctxDecryptSave');
