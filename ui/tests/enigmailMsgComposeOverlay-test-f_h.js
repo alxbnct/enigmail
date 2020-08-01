@@ -986,8 +986,6 @@ function run_test() {
 
   do_load_module("chrome://enigmail/content/ui/enigmailMsgComposeOverlay.js");
 
-  //Overriding Problem
-  //TODO Use testHelper
   getOriginalMsgUri_test();
 
   fireSearchKeys_test();
@@ -1004,6 +1002,4 @@ function run_test() {
   getSmimeSigningEnabled_test();
   goAccountManager_test();
   handleClick_test();
-
-
 }

@@ -36,23 +36,25 @@ test:
     - printf 'user_pref("extensions.enigmail.logDirectory", "%s");\n' $(pwd)/tmp >> "$TBPROFILE/prefs.js"
     - printf 'user_pref("extensions.enigmail.configuredVersion", "99.0");\n' >> "$TBPROFILE/prefs.js"
     - printf 'user_pref("extensions.enigmail.pEpAutoDownload", false);\n' >> "$TBPROFILE/prefs.js"
+    - printf 'user_pref("app.eula.accepted", true);\n' >> "$TBPROFILE/prefs.js"
     - printf '{%s "main.js"}\n' '"mainFile":' > "$TBPROFILE/jsunit.json"
     #- export TBDOWNLOAD=$(curl -s 'https://download.mozilla.org/?product=thunderbird-beta-latest&os=linux64&lang=en-US' | sed -E 's/(.*href=")([^"]+)(".*)/\2/')
-    - export TBDOWNLOAD=https://archive.mozilla.org/pub/thunderbird/releases/68.2.2/linux-x86_64/en-US/thunderbird-68.2.2.tar.bz2
-    - curl -s -o thunderbird.tar.bz2 $TBDOWNLOAD
-    - tar -xjvf thunderbird.tar.bz2
-    - thunderbird/thunderbird --version
+    - export TBDOWNLOAD=https://repository.binaryoutcast.com/projects/interlink/releases/7463/interlink-52.9.7463.linux-x86_64-gtk3.tar.xz
+    - curl -s -o interlink.tar.xz $TBDOWNLOAD
+    - tar -xJvf interlink.tar.xz
+    - interlink/interlink --version
   script:
     - export TBPROFILE="$(pwd)/tb-test-profile"
     - export TMPDIR="$(pwd)/tmp"
     - mkdir -p $TMPDIR
     - export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/
-    - ./configure --enable-tests --with-tb-path=`printf '%s/thunderbird/thunderbird' "$(pwd)"` --with-tb-args="--headless --profile $TBPROFILE"
+    - export XAUTHORITY="$(pwd)/tmp/.Xauthority"
+    - ./configure --enable-tests --with-tb-path=`printf '%s/interlink/interlink' "$(pwd)"` --with-tb-args="--profile $TBPROFILE"
     - make xpi
     - cat config/autoconf.mk
     - ls $TBPROFILE
     - cat $TBPROFILE/prefs.js
-    - USER=root make unit
+    - USER=root xvfb-run -a -f "$XAUTHORITY" $(which make) unit
   artifacts:
     paths:
       - config

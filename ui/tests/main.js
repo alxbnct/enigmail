@@ -18,7 +18,6 @@ function execTest(filename) {
     do_subtest(filename);
 }
 
-
 // the subprocess tests
 execTest("enigmailMsgComposeOverlay-test-enc.js");
 execTest("enigmailMsgComposeOverlay-test-a_e.js");
