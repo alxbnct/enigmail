@@ -81,6 +81,26 @@ function startup() {
     Services.obs.addObserver(performShutdown, "profile-before-change", false);
 
     Services.console.logStringMessage("Enigmail startup completed");
+
+    // Try to start Unit-Test framework
+    let JSUnitService;
+    try {
+      JSUnitService = Cu.import("chrome://enigmail/content/jsunit/jsunit-service.js").JSUnitService;
+    }
+    catch (x) {
+      return;
+    }
+
+    try {
+      if (JSUnitService) {
+        JSUnitService.startup(APP_STARTUP).catch(ex => {
+          Services.console.logStringMessage(ex);
+        });
+      }
+    }
+    catch (ex) {
+      Services.console.logStringMessage(ex);
+    }
   });
 }
 
