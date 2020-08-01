@@ -165,6 +165,7 @@ var WindowListener = {
         }
       }
 
+      DEBUG_LOG(`enigmailOverlays.jsm: setupUI: will load: ${url}\n`);
       ovl.push(BASE_PATH + url);
     }
 
@@ -185,10 +186,15 @@ var WindowListener = {
     domWindow.addEventListener("load", function listener() {
       domWindow.removeEventListener("load", listener, false);
 
-      for (let w in overlays) {
-        // If this is a relevant window then setup its UI
-        if (domWindow.document.location.href.startsWith(w))
-          WindowListener.setupUI(domWindow, overlays[w]);
+      if (EnigmailCompat.isInterlink()) {
+        WindowListener.setupUI(domWindow, interlinkDummyOverlay);
+      }
+      else {
+        for (let w in overlays) {
+          // If this is a relevant window then setup its UI
+          if (domWindow.document.location.href.startsWith(w))
+            WindowListener.setupUI(domWindow, overlays[w]);
+        }
       }
     }, false);
   },
