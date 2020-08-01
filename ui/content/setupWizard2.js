@@ -89,6 +89,7 @@ async function startMigration() {
   // enable OpenPGP functionality unconditionally
   E2TBPrefs.getPrefRoot().setBoolPref("mail.openpgp.enable", true);
   RNP.init();
+  await PgpSqliteDb2.checkDatabaseStructure();
 
   gProcessing = true;
   let tmpDir = E2TBFiles.createTempSubDir("enig-exp", true);
