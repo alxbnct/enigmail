@@ -308,6 +308,7 @@
     </hbox>
   </hbox>
 
+#ifndef INTERLINK
   <link rel="stylesheet" type="text/css" href="chrome://enigmail/skin/enigmail.css"/>
-
+#endif
 </overlay>
