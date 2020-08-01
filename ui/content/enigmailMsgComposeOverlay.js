@@ -42,6 +42,7 @@ var EnigmailAutocrypt = ChromeUtils.import("chrome://enigmail/content/modules/au
 var EnigmailMime = ChromeUtils.import("chrome://enigmail/content/modules/mime.jsm").EnigmailMime;
 var EnigmailMsgRead = ChromeUtils.import("chrome://enigmail/content/modules/msgRead.jsm").EnigmailMsgRead;
 var EnigmailMimeEncrypt = ChromeUtils.import("chrome://enigmail/content/modules/mimeEncrypt.jsm").EnigmailMimeEncrypt;
+var EnigmailCompat = ChromeUtils.import("chrome://enigmail/content/modules/compat.jsm").EnigmailCompat;
 var jsmime = ChromeUtils.import("resource:///modules/jsmime.jsm").jsmime;
 
 
@@ -161,6 +162,12 @@ Enigmail.msg = {
     // Relabel SMIME button and menu item
     var smimeButton = document.getElementById("button-security");
     let toolbar = document.getElementById("composeToolbar2");
+
+    // hide inline-PGP on Interlink (Postbox doesn't have the menu item)
+    if (EnigmailCompat.isInterlink()) {
+      let inlineOpt = document.getElementById("enigmail_compose_inline_item");
+      inlineOpt.setAttribute("collapsed", "true");
+    }
 
     if (smimeButton) {
       smimeButton.setAttribute("label", "S/MIME");
@@ -773,20 +780,16 @@ Enigmail.msg = {
         }
         node = node.nextSibling;
       }
-      if (!bucketList.hasChildNodes()) {
-        try {
-          // TB only
-          UpdateAttachmentBucket(false);
-        }
-        catch (ex) {}
-      }
     }
 
     try {
-      // TB only
-      UpdateAttachmentBucket(bucketList.hasChildNodes());
+      // TB 68+ only
+      if (!EnigmailPrefs.getPrefRoot().getBoolPref("mail.compose.show_attachment_pane")) {
+        UpdateAttachmentBucket(bucketList.hasChildNodes());
+      }
     }
-    catch (ex) {}
+    catch(x) {}
+
 
     this.processFinalState();
     this.updateStatusBar();
@@ -3404,7 +3407,7 @@ Enigmail.msg = {
     let recList;
     let toAddrList = [];
     let arrLen = {};
-    const DeliverMode = Ci.nsIMsgCompDeliverMode;
+    const DeliverMode = Components.interfaces.nsIMsgCompDeliverMode;
 
     switch (msgSendType) {
       case DeliverMode.SaveAsDraft:
@@ -3482,7 +3485,7 @@ Enigmail.msg = {
     if (gotSendFlags & EnigmailConstants.SEND_ENCRYPTED)
       sendFlags |= EnigmailConstants.SEND_ENCRYPTED;
 
-    if (msgSendType === Ci.nsIMsgCompDeliverMode.Later) {
+    if (msgSendType === Components.interfaces.nsIMsgCompDeliverMode.Later) {
       EnigmailLog.DEBUG("enigmailMsgComposeOverlay.js: Enigmail.msg.getEncryptionFlags: adding SEND_LATER\n");
       sendFlags |= EnigmailConstants.SEND_LATER;
     }
@@ -4535,7 +4538,7 @@ Enigmail.msg = {
     }
 
     var tmpDir = EnigmailFiles.getTempDir();
-    let extAppLauncher = Cc["@mozilla.org/uriloader/external-helper-app-service;1"].getService(Ci.nsPIExternalAppLauncher);
+    let extAppLauncher = Cc["@mozilla.org/uriloader/external-helper-app-service;1"].getService(Components.interfaces.nsPIExternalAppLauncher);
 
     try {
       fileTemplate = Components.classes[LOCAL_FILE_CONTRACTID].createInstance(Components.interfaces.nsIFile);

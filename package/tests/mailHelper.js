@@ -11,8 +11,13 @@ var MailServices;
 try {
   MailServices = component("/modules/MailServices.jsm").MailServices;
 }
-catch (x){
-  MailServices = component("/modules/mailServices.js").MailServices;
+catch (x) {
+  try {
+    MailServices = ChromeUtils.import("resource:///modules/MailServices.js").MailServices;
+  }
+  catch (x) {
+    MailServices = ChromeUtils.import("resource://gre/modules/mailServices.js").MailServices;
+  }
 }
 
 var EnigmailFiles = component("enigmail/files.jsm").EnigmailFiles;

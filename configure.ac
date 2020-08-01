@@ -39,7 +39,7 @@ AC_ARG_ENABLE(lang,
     )
 
 AC_ARG_ENABLE(postbox,
-    AC_HELP_STRING([--enable-postbox],[build for Postbox instead of Thunderbird]),
+    AC_HELP_STRING([--enable-postbox],[build for Postbox instead of Interlink]),
     enable_postbox=$enableval)
 
 AC_SUBST(enable_tests)
@@ -47,7 +47,7 @@ AC_SUBST(enable_lang)
 AC_SUBST(enable_postbox)
 
 AC_ARG_WITH(tb-path,
-        [  --with-tb-path=/path/to/thunderbird  set the path to an installed Thunderbird],
+        [  --with-tb-path=/path/to/interlink  set the path to an installed Interlink],
         [if test "$withval" = yes ; then
            withval=no
         elif test "$withval" != no ; then
@@ -57,7 +57,7 @@ AC_ARG_WITH(tb-path,
 AC_SUBST(TB_PATH)
 
 AC_ARG_WITH(tb-args,
-        [  --with-tb-args="-P profilename"  set additional arguments for Thunderbird],
+        [  --with-tb-args="-P profilename"  set additional arguments for Interlink],
         [if test "$withval" = yes ; then
            withval=no
         elif test "$withval" != no ; then

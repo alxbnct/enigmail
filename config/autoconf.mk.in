@@ -22,9 +22,9 @@ TARGET_TOOL=pbx
 INCLUDE = $(DEPTH)/include/postbox.h
 BUILD = $(DEPTH)/build-pbx
 else
-TARGET_TOOL=tbird
-INCLUDE = $(DEPTH)/include/tbird.h
-BUILD = $(DEPTH)/build-tb
+TARGET_TOOL=itl
+INCLUDE = $(DEPTH)/include/interlink.h
+BUILD = $(DEPTH)/build-il
 endif
 
 DIST = $(BUILD)/dist

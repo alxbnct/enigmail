@@ -32,6 +32,14 @@ cd "$cwd"
 cat  ${srcDir}/package/chrome.manifest \
 > ${targetDir}/chrome.manifest
 
+if [ "${targetTool}" = "itl" ]; then
+  # Interlink: "classical XUL addon"
+  cat ${srcDir}/package/chrome-interlink.txt >> ${targetDir}/chrome.manifest
+  startupFile=enigmail-startup.js
+else
+  startupFile=bootstrap.js
+fi
+
 # Prepare languages other than en-US
 
 if [ "$enableLang" = "yes" ]; then
@@ -202,7 +210,7 @@ set chrome/content/ui/*.* \
     chrome/locale/*/*.* \
     chrome/locale/*/help/*.* \
     chrome/content/jsunit/*.* \
-    bootstrap.js \
+    ${startupFile} \
     chrome.manifest \
     ${pkgFile}
 

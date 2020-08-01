@@ -57,9 +57,6 @@ test(function readFileChannel() {
   var stringListener = EnigmailStreams.newStringStreamListener(
     function compareResults(gotData) {
       Assert.equal(testString, gotData);
-      if (!TestHelper.isWindows()) {
-        Assert.ok(md.exists(), "file was deleted:");
-      }
       inspector.exitNestedEventLoop();
     }
   );

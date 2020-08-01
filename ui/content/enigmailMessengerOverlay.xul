@@ -30,7 +30,7 @@
     <broadcaster id="enigmailBcDisplayClass" class="headerValue"/>
   </broadcasterset>
 
-#ifndef POSTBOX
+#ifdef THUNDERBIRD
   <!-- Thunderbird secondary pane -->
 
   <panelmultiview id="appMenu-multiView">
@@ -345,7 +345,7 @@
           </menupopup>
         </menu>
 
-#ifndef POSTBOX
+#ifdef THUNDERBIRD
         <menu
             id="enigmailDecryptToFolder"
             label="&enigmail.decryptToFolder.label;"
@@ -366,7 +366,23 @@
                      hasbeenopened="false" />
         </menu>
 #endif
+#ifdef INTERLINK
+        <menu
+            id="enigmailDecryptToFolder"
+            label="&enigmail.decryptToFolder.label;"
+            accesskey="&enigmail.decryptToFolder.accesskey;"
+            enigmailtype="enigmail"
+            oncommand="Enigmail.msg.decryptToFolder(event.target._folder)">
 
+          <menupopup id="enigmailDecryptfileHereMenu"
+                     type="folder"
+                     mode="filing"
+                     showFileHereLabel="true"
+                     showRecent="true"
+                     recentLabel="&enigmail.recent.label;"
+                     recentAccessKey="&enigmail.recent.accesskey;"/>
+        </menu>
+#endif
         <menuseparator enigmailtype="enigmail"/>
 
         <menuitem id="enigmail_keymgmt"
@@ -443,18 +459,27 @@
         accesskey="&enigmail.decryptToFolder.accesskey;"
         oncommand="Enigmail.msg.decryptToFolder(event.target._folder)">
       <menupopup id="enigmailCtxDecrypt-fileHereMenu"
-                 is="folder-menupopup"
-                 mode="filing"
-                 showFileHereLabel="true"
-                 showRecent="true"
-                 recentLabel="&enigmail.recent.label;"
-                 recentAccessKey="&enigmail.recent.accesskey;"
-                 showFavorites="true"
-#ifndef POSTBOX
-                 favoritesLabel="&contextMoveCopyMsgFavoritesMenu.label;"
-                 favoritesAccessKey="&contextMoveCopyMsgFavoritesMenu.accesskey;"
+#ifdef THUNDERBIRD
+                is="folder-menupopup"
+                mode="filing"
+                showFileHereLabel="true"
+                showRecent="true"
+                recentLabel="&enigmail.recent.label;"
+                recentAccessKey="&enigmail.recent.accesskey;"
+                showFavorites="true"
+                favoritesLabel="&contextMoveCopyMsgFavoritesMenu.label;"
+                favoritesAccessKey="&contextMoveCopyMsgFavoritesMenu.accesskey;"
+                hasbeenopened="false"
+#else
+                type="folder"
+                mode="filing"
+                showFileHereLabel="true"
+                showRecent="true"
+                recentLabel="&enigmail.recent.label;"
+                recentAccessKey="&enigmail.recent.accesskey;"
+
 #endif
-                 hasbeenopened="false" />
+                 />
     </menu>
   </menupopup>
 
@@ -582,7 +607,7 @@
   </vbox>
 
 
-#ifndef POSTBOX
+#ifdef POSTBOX
   <!-- Thunderbird -->
   <popup id="attachmentItemContext" onpopupshowing="return Enigmail.hdrView.enigOnShowAttachmentContextMenu();">
 #else

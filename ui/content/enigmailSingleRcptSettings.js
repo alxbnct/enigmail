@@ -15,6 +15,7 @@ var Cc = Components.classes;
 var Ci = Components.interfaces;
 
 var EnigmailRules = ChromeUtils.import("chrome://enigmail/content/modules/rules.jsm").EnigmailRules;
+var EnigmailCompat = ChromeUtils.import("chrome://enigmail/content/modules/compat.jsm").EnigmailCompat;
 
 // Initialize enigmailCommon
 EnigInitCommon("enigmailSingleRcptSettings");
@@ -39,11 +40,14 @@ function enigmailDlgOnLoad() {
   var matchingRule = document.getElementById("matchingRule");
   if (matchBegin && matchEnd) {
     matchingRule.selectedIndex = 0;
-  } else if (matchBegin) {
+  }
+  else if (matchBegin) {
     matchingRule.selectedIndex = 2;
-  } else if (matchEnd) {
+  }
+  else if (matchEnd) {
     matchingRule.selectedIndex = 3;
-  } else {
+  }
+  else {
     matchingRule.selectedIndex = 1;
   }
 
@@ -71,7 +75,8 @@ function enigmailDlgOnLoad() {
         enigSetKeys(window.arguments[INPUT].keyId);
         action = "actionUseKey";
     }
-  } else {
+  }
+  else {
     enigSetKeys("");
     action = "actionCont";
   }
@@ -85,18 +90,29 @@ function enigmailDlgOnLoad() {
 
   if (typeof(window.arguments[INPUT].sign) == "number") {
     document.getElementById("sign").selectedIndex = window.arguments[INPUT].sign;
-  } else {
+  }
+  else {
     document.getElementById("sign").selectedIndex = 1;
   }
   if (typeof(window.arguments[INPUT].encrypt) == "number") {
     document.getElementById("encrypt").selectedIndex = window.arguments[INPUT].encrypt;
-  } else {
+  }
+  else {
     document.getElementById("encrypt").selectedIndex = 1;
   }
-  if (typeof(window.arguments[INPUT].pgpmime) == "number") {
-    document.getElementById("pgpmime").selectedIndex = window.arguments[INPUT].pgpmime;
-  } else {
-    document.getElementById("pgpmime").selectedIndex = 1;
+
+  // Hide PGP/MIME line on Postbox and Interlink
+  if (EnigmailCompat.isPostbox() || EnigmailCompat.isInterlink()) {
+    document.getElementById("pgpMimeRow").setAttribute("hidden", "true");
+    document.getElementById("pgpmime").selectedIndex = 2;
+  }
+  else {
+    if (typeof(window.arguments[INPUT].pgpmime) == "number") {
+      document.getElementById("pgpmime").selectedIndex = window.arguments[INPUT].pgpmime;
+    }
+    else {
+      document.getElementById("pgpmime").selectedIndex = 1;
+    }
   }
 }
 
@@ -219,7 +235,8 @@ function enigmailDlgKeySelection() {
   window.openDialog("chrome://enigmail/content/ui/enigmailKeySelection.xul", "", "dialog,modal,centerscreen,resizable", inputObj, resultObj);
   try {
     if (resultObj.cancelled) return;
-  } catch (ex) {
+  }
+  catch (ex) {
     // cancel pressed -> do nothing
     return;
   }
@@ -233,16 +250,19 @@ function enigSetKeys(keyList) {
   }
   if ((keyList.length === 0) || (keyList.length == 1 && keyList[0].length === 0)) {
     encryptionList.appendItem(EnigGetString("noKeyToUse"), "");
-  } else {
+  }
+  else {
     for (let i = 0; i < keyList.length; i++) {
 
       if (keyList[i].indexOf("GROUP:") === 0) {
         encryptionList.appendItem(keyList[i].substr(6) + " " + EnigGetString("keyTrust.group"), keyList[i]);
-      } else {
+      }
+      else {
         let keyObj = EnigmailKeyRing.getKeyById(keyList[i]);
         if (keyObj) {
           encryptionList.appendItem("0x" + keyObj.keyId + " (" + keyObj.userId + ")", keyList[i]);
-        } else {
+        }
+        else {
           encryptionList.appendItem(keyList[i], keyList[i]);
         }
       }
@@ -254,7 +274,8 @@ function enigEnableKeySel(enable) {
   if (enable) {
     document.getElementById("encryptionList").removeAttribute("disabled");
     document.getElementById("encryptionListButton").removeAttribute("disabled");
-  } else {
+  }
+  else {
     document.getElementById("encryptionList").setAttribute("disabled", "true");
     document.getElementById("encryptionListButton").setAttribute("disabled", "true");
   }

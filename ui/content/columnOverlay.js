@@ -48,7 +48,9 @@ Enigmail.columnHandler = {
     return null;
   },
 
-  getRowProperties: function(row, props) {},
+  getRowProperties: function(row, props) {
+    return "enigmail";
+  },
   getImageSrc: function(row, col) {},
   getSortLongForRow: function(hdr) {
     var statusFlags = hdr.getUint32Property("enigmail");
