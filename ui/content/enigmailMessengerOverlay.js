@@ -2159,13 +2159,8 @@ Enigmail.msg = {
     }
     else {
       // Thunderbird
-      contextMenu = document.getElementById('attachmentItemContext');
-
-      if (contextMenu) {
-        // Thunderbird
-        selectedAttachments = contextMenu.attachments;
-        anAttachment = selectedAttachments[0];
-      }
+      selectedAttachments = Enigmail.hdrView.getSelectedAttachment();
+      anAttachment = selectedAttachments[0];
     }
 
     switch (actionType) {

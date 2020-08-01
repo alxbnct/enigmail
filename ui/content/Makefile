@@ -18,6 +18,7 @@ UIFILES = \
 	columnOverlay.xul \
 	columnOverlay.js \
 	commonWorkflows.js \
+	dummyOverlay.xul \
 	enigmailCommon.js \
 	enigmailAbCardViewOverlay.xul \
 	enigmailAbContactsPanel.xul \

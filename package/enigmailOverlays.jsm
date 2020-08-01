@@ -37,9 +37,8 @@ var EXPORTED_SYMBOLS = ["EnigmailOverlays"];
 const APP_STARTUP = 1;
 const APP_SHUTDOWN = 2;
 
-const {
-  Services
-} = ChromeUtils.import("resource://gre/modules/Services.jsm", {});
+const Services = ChromeUtils.import("resource://gre/modules/Services.jsm").Services;
+const EnigmailCompat = ChromeUtils.import("chrome://enigmail/content/modules/compat.jsm").EnigmailCompat;
 
 Components.utils.importGlobalProperties(["XMLHttpRequest"]);
 
@@ -49,6 +48,11 @@ const MY_ADDON_ID = "enigmail";
 
 var gMailStartupDone = false;
 var gCoreStartup = false;
+
+const interlinkDummyOverlay = [
+  "dummyOverlay.xul"
+];
+
 
 const overlays = {
   // main mail reading window
@@ -208,8 +212,13 @@ var WindowListener = {
 function loadUiForWindow(domWindow) {
   for (let w in overlays) {
     // If this is a relevant window then setup its UI
-    if (domWindow.document.location.href.startsWith(w))
-      WindowListener.setupUI(domWindow, overlays[w]);
+    if (domWindow.document.location.href.startsWith(w)) {
+      if (EnigmailCompat.isInterlink()) {
+        WindowListener.setupUI(domWindow, interlinkDummyOverlay);
+      }
+      else
+        WindowListener.setupUI(domWindow, overlays[w]);
+    }
   }
 }
 
