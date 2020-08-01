@@ -230,6 +230,74 @@ SKIN_TB_LINUX = \
 	images/headerProtected-18.svg \
 	images/headerUnprotected-18.svg
 
+SKIN_INTERLINK = \
+	interlink/enigmail.css \
+	common/enigmail-common.css \
+	common/enigmail-html.css \
+	images/enigmail-about.svg \
+	images/enigmail-logo.png \
+	images/ok-sign.svg \
+	classic-seamonkey/images/enigEncInactive.png \
+	classic-seamonkey/images/enigEncNotOk.png \
+	classic-seamonkey/images/enigEncOk.png \
+	classic-seamonkey/images/enigSignInactive.png \
+	classic-seamonkey/images/enigSignNotOk.png \
+	classic-seamonkey/images/enigSignOk.png \
+	classic-seamonkey/images/enigSignUnkown.png \
+	images/importSuccess.png \
+	images/twisty-open.png \
+	images/twisty-clsd.png \
+	images/spinning-wheel.png \
+	classic-seamonkey/images/col-encrypted-signed.png \
+	tb-windows/images/enigSignActiveNone.png \
+	tb-windows/images/enigSignActivePlus.png \
+	tb-windows/images/enigSignActiveMinus.png \
+	tb-windows/images/enigSignActiveConflict.png \
+	tb-windows/images/enigSignInactiveNone.png \
+	tb-windows/images/enigSignInactivePlus.png \
+	tb-windows/images/enigSignInactiveMinus.png \
+	tb-windows/images/enigSignInactiveConflict.png \
+	tb-windows/images/enigSignForceYes.png \
+	tb-windows/images/enigSignForceNo.png \
+	tb-windows/images/enigEncActiveNone.png \
+	tb-windows/images/enigEncActivePlus.png \
+	tb-windows/images/enigEncActiveMinus.png \
+	tb-windows/images/enigEncActiveConflict.png \
+	tb-windows/images/enigEncInactiveNone.png \
+	tb-windows/images/enigEncInactivePlus.png \
+	tb-windows/images/enigEncInactiveMinus.png \
+	tb-windows/images/enigEncInactiveConflict.png \
+	tb-windows/images/enigEncForceYes.png \
+	tb-windows/images/enigEncForceNo.png \
+	images/decrypt-inactive-24.svg \
+	images/decrypt-active-24.svg \
+	images/decrypt-inactive-16.svg \
+	images/decrypt-active-16.svg \
+	images/encrypt-inactive-24.svg \
+	images/encrypt-active-24.svg \
+	images/encrypt-disabled-24.svg \
+	images/sign-active-24.svg \
+	images/sign-disabled-24.svg \
+	images/sign-inactive-24.svg \
+	images/encrypt-inactive-16.svg \
+	images/encrypt-active-16.svg \
+	images/encrypt-disabled-16.svg \
+	images/sign-active-16.svg \
+	images/sign-disabled-16.svg \
+	images/sign-inactive-16.svg \
+	images/attach-inactive-24.svg \
+	images/attach-inactive-16.svg \
+	images/attach-disabled-24.svg \
+	images/attach-disabled-16.svg \
+	images/attach-active-24.svg \
+	images/attach-active-16.svg \
+	images/warning-16.png \
+	images/password-error.svg \
+	images/headerProtected-24.svg \
+	images/headerUnprotected-24.svg \
+	images/headerProtected-16.svg \
+	images/headerUnprotected-16.svg
+
 ifeq ($(ENABLE_POSTBOX),yes)
 SKIN_AERO += postbox/win/enigmail.css
 SKIN_TB_MAC += postbox/mac/enigmail.css
