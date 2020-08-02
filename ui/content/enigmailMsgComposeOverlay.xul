@@ -258,14 +258,5 @@
   </toolbar>
 #endif
 
-  <hbox id="status-bar">
-    <hbox align="center" insertbefore="statusText" class="statusbarpanel" id="enigmail-pep-statusbar">
-      <image class="enigmail-statusbar-pep-logo"/>
-      <label value="&enigmail.pEp.privacyStatus.label;"/>
-      <label id="enigmail-pep-privacy-status" value="&enigmail.pEp.composestatus.label;" class="enigmail-statusbar-pep-unsecure"
-        onclick="Enigmail.msg.onPepHandshakeButton(event)"/>
-    </hbox>
-  </hbox>
-
   <link rel="stylesheet" type="text/css" href="chrome://enigmail/skin/enigmail.css"/>
 </overlay>
