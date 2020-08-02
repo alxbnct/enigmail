@@ -11,9 +11,7 @@
   to messenger mail reading window
 -->
 
-#ifdef INTERLINK
 <?xml-stylesheet href="chrome://enigmail/skin/enigmail.css" type="text/css"?>
-#ifdef INTERLINK
 
 <!DOCTYPE window [
 <!ENTITY % messengerDTD SYSTEM "chrome://messenger/locale/messenger.dtd" >
@@ -27,10 +25,6 @@
     xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
   <script type="application/x-javascript"  src="chrome://enigmail/content/ui/enigmailMessengerOverlay.js"/>
-
-#ifndef INTERLINK
-  <link href="chrome://enigmail/skin/enigmail.css" rel="stylesheet" type="text/css"/>
-#endif
 
   <broadcasterset insertafter="mailKeys">
     <broadcaster id="enigmailBcDisplayClass" class="headerValue"/>
