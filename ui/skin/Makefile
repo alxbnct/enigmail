@@ -356,12 +356,17 @@ SKIN_INTERLINK = \
 ifeq ($(ENABLE_POSTBOX),yes)
 SKIN_AERO += postbox/win/enigmail.css
 SKIN_TB_MAC += postbox/mac/enigmail.css
+SKIN_TB_LINUX = 
+SKIN_INTERLINK = 
 else
 ifeq ($(ENABLE_INTERLINK),yes)
-SKIN_AERO += interlink/enigmail.css
+SKIN_AERO =
+SKIN_TB_LINUX =
+SKIN_TB_MAC =
 else
 SKIN_AERO += tb-aero/enigmail.css
 SKIN_TB_MAC += tb-mac/enigmail.css
+SKIN_INTERLINK =
 endif
 endif
 
