@@ -485,7 +485,7 @@
 
   <!-- the default set does not include the Enigmail decryption icon anymore -->
 
-  <!-- enigmailHdrBox is defined in messengerOverlay-(tbird|sm).xul -->
+  <!-- enigmailHdrBox is defined in messengerOverlay-(tbird|pbx).xul -->
 
   <vbox id="enigmailHdrBox">
     <hbox id="enigmailBox"
@@ -607,9 +607,9 @@
   </vbox>
 
 
-#ifdef POSTBOX
-  <!-- Thunderbird -->
-  <popup id="attachmentItemContext" onpopupshowing="return Enigmail.hdrView.enigOnShowAttachmentContextMenu();">
+#ifndef POSTBOX
+  <!-- Interlink -->
+  <popup id="attachmentItemContext">
 #else
   <!-- Postbox -->
   <popup id="msgPaneAttachmentContextMenu">
