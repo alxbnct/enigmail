@@ -395,7 +395,10 @@ Enigmail.prototype = {
 
     this.initialized = true;
 
-    getEnigmailGnuPGUpdate().runUpdateCheck();
+    getEnigmailTimer().setTimeout(
+      function() {
+        getEnigmailGnuPGUpdate().runUpdateCheck();
+      }, 240); // wait 4 minutes before starting the update checker
     getEnigmailLog().DEBUG("core.jsm: Enigmail.initialize: END\n");
   },
 
