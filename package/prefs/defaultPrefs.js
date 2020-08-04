@@ -179,6 +179,9 @@ pref("extensions.enigmail.warnOnSendingNewsgroups", true);
 // holds the timestamp of the last check for GnuPG updates
 pref("extensions.enigmail.gpgLastUpdate", "0");
 
+// offer to upgrade from GnuPG 2.0 to 2.2 or newer
+pref("extensions.enigmail.gpgUpgradeFrom20", false);
+
 // set locale for GnuPG calls to en-US (Windows only)
 pref("extensions.enigmail.gpgLocaleEn", true);
 
