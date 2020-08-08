@@ -136,7 +136,7 @@ test(withTestGpgHome(asyncTest(async function readWrite() {
     Assert.equal(res.length, 0, "key was deleted");
   }
   catch (ex) {
-    Assert.ok(false, "exception: " + ex.toString());
+    Assert.ok(false, "exception: " + ex.toString() + "\n" + ex.stack);
   }
 
 })));

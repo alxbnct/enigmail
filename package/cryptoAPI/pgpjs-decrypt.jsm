@@ -287,7 +287,7 @@ var pgpjs_decrypt = {
       return keyId.toHex().toUpperCase();
     });
 
-    let pubKeys = await pgpjs_keyStore.getKeysForKeyIds(false, keyIds);
+    let pubKeys = await pgpjs_keyStore.getKeysForKeyIds(false, keyIds, true);
 
     if (pubKeys.length === 0) {
       pubKeys = await downloadMissingKeys(keyIds);
@@ -342,7 +342,7 @@ var pgpjs_decrypt = {
           currentStatus = SIG_STATUS.unknown_key;
           result.keyId = keyId.toUpperCase();
         }
-        else if (!sigValid) {
+        else if (currentKey._enigmailKeyStatus === "disabled" || !sigValid) {
           currentStatus = SIG_STATUS.bad_signature;
           result.keyId = keyId.toUpperCase();
         }

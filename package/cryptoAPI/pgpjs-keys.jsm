@@ -541,6 +541,9 @@ var pgpjs_keys = {
       case 'i':
         keyTrust = EnigmailLocale.getString("keyValid.invalid");
         break;
+      case 'd':
+        keyTrust = EnigmailLocale.getString("keyValid.disabled");
+        break;
       case 'r':
         keyTrust = EnigmailLocale.getString("keyValid.revoked");
         break;

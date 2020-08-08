@@ -91,6 +91,27 @@ var pgpjs_keyStore = {
   },
 
   /**
+   * Modify the status of a key (enabled/disabled)
+   *
+   * @param {String} fpr: fingerprint of the key to change
+   * @param {Boolean} enabled: if true, key status is set to "enabled", otherwise to "disabled"
+   *
+   * @return {Promise<Array<Object>>} found keys:
+   *    object that suits as input for keyObj.contructor
+   */
+  setKeyStatus: async function(fpr, enabled) {
+    let conn = await keyStoreDatabase.openDatabase();
+
+    let updObj = {
+      status: enabled ?  'enabled' : "disabled",
+      fpr: fpr
+    };
+
+    await conn.execute("update openpgpkey set status = :status where fpr = :fpr;", updObj);
+    conn.close();
+  },
+
+  /**
    * Determine the path where the key database is stored
    *
    * @return {String}: full path including file name
@@ -133,6 +154,7 @@ var pgpjs_keyStore = {
     for (let i in rows) {
       foundKeys.push({
         fpr: i,
+        status: rows[i].status,
         key: (await PgpJS.key.readArmored(rows[i].armoredKey)).keys[0]
       });
     }
@@ -156,7 +178,12 @@ var pgpjs_keyStore = {
 
     let foundKeys = [];
     for (let i in rows) {
-      foundKeys.push(getKeyFromJSON(rows[i].metadata));
+      let key = getKeyFromJSON(rows[i].metadata);
+      if (rows[i].status === "disabled") {
+        key.ownerTrust = 'd';
+        key.keyTrust = 'd';
+      }
+      foundKeys.push(key);
     }
     return foundKeys;
   },
@@ -296,13 +323,15 @@ var pgpjs_keyStore = {
   /**
    * Retrieve the OpenPGP.js key objects for a given set of keyIds.
    *
-   * @param {Boolean} secretKeys: if true, only return secret keys
+   * @param {Boolean} secretKeys:     if true, only return secret keys
    * @param {Array<String>} keyIdArr: keyIDs to look up. If null, then all
-   *              secret or public keys are retrieved
+   *                                  secret or public keys are retrieved
+   * @param {Boolean} includeDisabledPubkeys: if true, include disabled public keys (false by default)
+   *                                  Note: secret keys are always returned
    *
    * @return {Array<Object>}: array of the found key objects
    */
-  getKeysForKeyIds: async function(secretKeys, keyIdArr = null) {
+  getKeysForKeyIds: async function(secretKeys, keyIdArr = null, includeDisabledPubkeys = false) {
     const PgpJS = getOpenPGPLibrary();
     let findKeyArr = [];
 
@@ -323,9 +352,15 @@ var pgpjs_keyStore = {
     let keys = await pgpjs_keyStore.readKeys(findKeyArr);
     for (let k of keys) {
       if (!secretKeys) {
-        returnArray.push(k.key.toPublic());
+        if ((!includeDisabledPubkeys) && k.status === "disabled") {
+          continue;
+        }
+        let pk = k.key.toPublic();
+        pk._enigmailKeyStatus = k.status;
+        returnArray.push(pk);
       }
       else {
+        k.key._enigmailKeyStatus = k.status;
         returnArray.push(k.key);
       }
     }
@@ -529,7 +564,7 @@ const keyStoreDatabase = {
     }
 
     if (keyArr !== null) {
-      searchStr = "select o.fpr, o.keydata, o.metadata from openpgpkey o inner join keyid_lookup l on l.fpr = o.fpr " +
+      searchStr = "select o.fpr, o.keydata, o.metadata, o.status from openpgpkey o inner join keyid_lookup l on l.fpr = o.fpr " +
         "where l.keyid in ('-' ";
 
       for (let i in keyArr) {
@@ -540,7 +575,7 @@ const keyStoreDatabase = {
       searchStr += ")";
     }
     else {
-      searchStr = "select fpr, keydata, metadata from openpgpkey";
+      searchStr = "select fpr, keydata, metadata, status from openpgpkey";
     }
 
     let rows = [];
@@ -548,6 +583,7 @@ const keyStoreDatabase = {
       function _onRow(record) {
         rows[record.getResultByName("fpr")] = {
           armoredKey: record.getResultByName("keydata"),
+          status: record.getResultByName("status"),
           metadata: record.getResultByName("metadata")
         };
       });
@@ -622,6 +658,45 @@ const keyStoreDatabase = {
 
     await conn.execute(`delete from openpgpkey where fpr in ('-' ${searchStr});`, null);
     await conn.execute(`delete from keyid_lookup where fpr in ('-' ${searchStr});`, null);
+
+    if (!connection) {
+      conn.close();
+    }
+  },
+
+  /**
+   * Enable or disable Keys
+   *
+   * @param {Array<String>} keyArr: Array of Fingerprints
+   * @param {Boolean} enable: true: enable key(s) / false: disable key(s)
+   * @param {Object} connection: [optional] database connection
+   */
+  enableKeys: async function(keyArr, enable, connection = null) {
+    EnigmailLog.DEBUG(`pgpjs-keystore.jsm: enableKeys(${keyArr})\n`);
+
+    if (! keyArr || keyArr.length === 0) return;
+
+    let conn;
+    let searchStr = "";
+
+    if (connection) {
+      conn = connection;
+    }
+    else {
+      conn = await this.openDatabase();
+    }
+
+    for (let i in keyArr) {
+      // make sure search string only contains A-F and 0-9
+      let s = keyArr[i].replace(/^0x/, "").replace(/[^A-Fa-f0-9]/g, "").toUpperCase();
+      searchStr += `, '${s}'`;
+    }
+
+    let updateObj = {
+      newStat: enable ? "enabled" : "disabled"
+    };
+
+    await conn.execute(`update openpgpkey set status = ':newStat' where fpr in ('-' ${searchStr});`, updateObj);
 
     if (!connection) {
       conn.close();
@@ -723,7 +798,8 @@ async function createKeysTable(connection) {
     "keydata text not null, " + // ASCII armored key
     "metadata text not null, " + // key metadata (JSON)
     "fpr text not null, " + // fingerprint of key
-    "datm text not null " + // timestamp of last modification
+    "datm text not null, " + // timestamp of last modification
+    "status text not null default 'enabled'" + // status (enabled/disabled)
     ");"
   );
 

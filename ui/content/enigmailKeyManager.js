@@ -69,7 +69,7 @@ function enigmailKeyManagerLoad() {
 
   const cApi = EnigmailCryptoAPI();
   if (! cApi.supportsFeature("uid-management")) {
-    for (let i of ["manageUid", "ctxManageUid", "addPhoto" ,"ctxAddPhoto", "enableKey", "ctxEnableKey"]) {
+    for (let i of ["manageUid", "ctxManageUid", "addPhoto" ,"ctxAddPhoto"]) {
       document.getElementById(i).style.visibility = "collapse";
     }
   }
@@ -383,7 +383,7 @@ function enigmailEnableKey() {
   var keyIndex = 0;
 
   function processNextKey() {
-    EnigmailKeyManagement.enableDisableKey(window, "0x" + gKeyList[keyList[keyIndex]].keyId, disableKey).
+    EnigmailKeyManagement.enableDisableKey(window, "0x" + gKeyList[keyList[keyIndex]].fpr, disableKey).
     then(retObj => {
       if (retObj.returnCode === 0) {
         ++keyIndex;

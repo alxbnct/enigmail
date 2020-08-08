@@ -115,6 +115,26 @@ var pgpjs_keymanipulation = {
     return createSuccess();
   },
 
+  enableDisableKey: async function(parent, keyId, disableKey) {
+    EnigmailLog.DEBUG(`pgpjs-keymanipulation.jsm: enableDisableKey: keyId=${keyId}\n`);
+
+    let fpr = keyId.replace(/^0x/, "");
+    let keyList = await pgpjs_keyStore.getKeysForKeyIds(false, [keyId.replace(/^0x/, "")], true);
+
+    if (!keyList || keyList.length === 0) {
+      return createError(EnigmailLocale.getString("keyNotFound", keyId));
+    }
+
+    try {
+      await pgpjs_keyStore.setKeyStatus(fpr, !disableKey);
+    }
+    catch (ex) {
+      return createError(ex.message);
+    }
+
+    return createSuccess();
+  },
+
   initiateChangePassphrase: async function(parent, keyId) {
     EnigmailLog.DEBUG(`pgpjs-keymanipulation.jsm: initiateChangePassphrase: keyId=${keyId}\n`);
     const EnigmailWindows = ChromeUtils.import("chrome://enigmail/content/modules/windows.jsm").EnigmailWindows;
