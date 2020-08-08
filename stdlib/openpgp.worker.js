@@ -31,7 +31,7 @@
  * @module worker/worker
  */
 
-importScripts('openpgp.js');
+importScripts('openpgp-lib.js');
 var openpgp = global.openpgp;
 
 var randomQueue = [];
