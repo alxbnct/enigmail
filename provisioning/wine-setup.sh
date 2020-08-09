@@ -23,6 +23,7 @@ echo "C:\\\\Enigmail\\\\enigmail-src\\\\build-pbx\\\\dist\\\\" > "$PARENTDIR/tes
 cat << EOT > "$PARENTDIR/test-profile/prefs.js"
 user_pref("app.update.auto", false);
 user_pref("app.update.enabled", false);
+user_pref("autoupdate.enabled", false);
 user_pref("app.update.url", "https://domain.invalid/");
 user_pref("extensions.autoDisableScopes", 14);
 user_pref("browser.dom.window.dump.enabled", true);
