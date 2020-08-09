@@ -118,6 +118,7 @@ var pgpjs_decrypt = {
 
       // try to decrypt the message using the secret keys one-by-one
       for (let secKey of secretKeys) {
+        secKey.revocationSignatures = []; // remove revocation sigs to allow decryption
         if (await pgpjs_keys.decryptSecretKey(secKey, EnigmailConstants.KEY_DECRYPT_REASON_ENCRYPTED_MSG)) {
           let result = await PgpJS.decrypt({
             message: message,
