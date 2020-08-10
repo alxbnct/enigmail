@@ -104,7 +104,7 @@ async function startMigration() {
     await enableOpenPGPPref();
   }
   if (!BondOpenPGP.allDependenciesLoaded()) {
-    E2TBDialog.alert(window, "Could not initialize OpenPGP - Cannot proceed.");
+    E2TBDialog.alert(window, E2TBLocale.getString("openpgpInitError"));
     window.close();
     return;
   }
