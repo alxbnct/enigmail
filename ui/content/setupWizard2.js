@@ -15,6 +15,7 @@ var E2TBLocale = ChromeUtils.import("chrome://enigmail/content/modules/locale.js
 var E2TBDialog = ChromeUtils.import("chrome://enigmail/content/modules/dialog.jsm").EnigmailDialog;
 var E2TBWindows = ChromeUtils.import("chrome://enigmail/content/modules/windows.jsm").EnigmailWindows;
 var E2TBFiles = ChromeUtils.import("chrome://enigmail/content/modules/files.jsm").EnigmailFiles;
+var E2TBTimer = ChromeUtils.import("chrome://enigmail/content/modules/timer.jsm").EnigmailTimer;
 var E2TBKeyRing = ChromeUtils.import("chrome://enigmail/content/modules/keyRing.jsm").EnigmailKeyRing;
 var E2TBCryptoAPI = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI.jsm").EnigmailCryptoAPI;
 var E2TBPrefs = ChromeUtils.import("chrome://enigmail/content/modules/prefs.jsm").EnigmailPrefs;
@@ -27,6 +28,7 @@ var uidHelper = ChromeUtils.import("chrome://openpgp/content/modules/uidHelper.j
 var PgpSqliteDb2 = ChromeUtils.import("chrome://openpgp/content/modules/sqliteDb.jsm").PgpSqliteDb2;
 var EnigmailCryptoAPI = ChromeUtils.import("chrome://openpgp/content/modules/cryptoAPI.jsm").EnigmailCryptoAPI;
 var RNP = ChromeUtils.import("chrome://openpgp/content/modules/RNP.jsm").RNP;
+var BondOpenPGP = ChromeUtils.import("chrome://openpgp/content/BondOpenPGP.jsm").BondOpenPGP;
 
 var gSelectedPrivateKeys = null,
   gPublicKeys = [],
@@ -37,6 +39,7 @@ var gSelectedPrivateKeys = null,
 
 function onLoad() {
   E2TBLog.DEBUG(`setupWizard2.js: onLoad()\n`);
+
   let dlg = document.getElementById("setupWizardDlg");
   gAcceptButton = dlg.getButton("accept");
   gAcceptButton.setAttribute("disabled", "true");
@@ -81,15 +84,30 @@ function selectPrivateKeys() {
   E2TBLog.DEBUG(`setupWizard2.js: selectPrivateKeys: selKey: ${gSelectedPrivateKeys.join(", ")}\n`);
 }
 
+function enableOpenPGPPref() {
+  E2TBPrefs.getPrefRoot().setBoolPref("mail.openpgp.enable", true);
+
+  return new Promise((resolve, reject) => {
+    E2TBTimer.setTimeout(function _f() {
+      resolve(true);
+    }, 1000);
+  });
+}
+
 async function startMigration() {
   for (let btn of ["btnSelectPrivateKeys", "btnStartMigration"]) {
     document.getElementById(btn).setAttribute("disabled", "true");
   }
 
   // enable OpenPGP functionality unconditionally
-  E2TBPrefs.getPrefRoot().setBoolPref("mail.openpgp.enable", true);
-  RNP.init();
-  await PgpSqliteDb2.checkDatabaseStructure();
+  if (!E2TBPrefs.getPrefRoot().getBoolPref("mail.openpgp.enable")) {
+    await enableOpenPGPPref();
+  }
+  if (!BondOpenPGP.allDependenciesLoaded()) {
+    E2TBDialog.alert(window, "Could not initialize OpenPGP - Cannot proceed.");
+    window.close();
+    return;
+  }
 
   gProcessing = true;
   let tmpDir = E2TBFiles.createTempSubDir("enig-exp", true);
@@ -98,7 +116,10 @@ async function startMigration() {
 
   // temprarily disable saving keys
   let origSaveKeyRing = RNP.saveKeyRings;
+
   RNP.saveKeyRings = function() {};
+  RNP.init();
+  await PgpSqliteDb2.checkDatabaseStructure();
 
   try {
     await importKeys(tmpDir);
