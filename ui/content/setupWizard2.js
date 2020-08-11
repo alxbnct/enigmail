@@ -28,7 +28,8 @@ var uidHelper = ChromeUtils.import("chrome://openpgp/content/modules/uidHelper.j
 var PgpSqliteDb2 = ChromeUtils.import("chrome://openpgp/content/modules/sqliteDb.jsm").PgpSqliteDb2;
 var EnigmailCryptoAPI = ChromeUtils.import("chrome://openpgp/content/modules/cryptoAPI.jsm").EnigmailCryptoAPI;
 var RNP = ChromeUtils.import("chrome://openpgp/content/modules/RNP.jsm").RNP;
-var BondOpenPGP = ChromeUtils.import("chrome://openpgp/content/BondOpenPGP.jsm").BondOpenPGP;
+const EnigmailLazy = ChromeUtils.import("chrome://openpgp/content/modules/lazy.jsm").EnigmailLazy;
+const getBondOpenPGP = EnigmailLazy.loader("../BondOpenPGP.jsm", "BondOpenPGP");
 
 var gSelectedPrivateKeys = null,
   gPublicKeys = [],
@@ -103,7 +104,7 @@ async function startMigration() {
   if (!E2TBPrefs.getPrefRoot().getBoolPref("mail.openpgp.enable")) {
     await enableOpenPGPPref();
   }
-  if (!BondOpenPGP.allDependenciesLoaded()) {
+  if (!getBondOpenPGP().allDependenciesLoaded()) {
     E2TBDialog.alert(window, E2TBLocale.getString("openpgpInitError"));
     window.close();
     return;
