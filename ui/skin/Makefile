@@ -201,6 +201,6 @@ all: deploy
 
 deploy: $(UIFILES) $(SKIN_POSTBOX) $(SKIN_INTERLINK) $(SKIN_PHOTONIC)
 	$(DEPTH)/util/install -m 644 $(DIST)/chrome/content/ui $(UIFILES)
-	$(DEPTH)/util/install -m 644 $(DIST)/chrome/skin/postbox $(ENABLE_POSTBOX)
+	$(DEPTH)/util/install -m 644 $(DIST)/chrome/skin/postbox $(SKIN_POSTBOX)
 	$(DEPTH)/util/install -m 644 $(DIST)/chrome/skin/interlink $(SKIN_INTERLINK)
 	$(DEPTH)/util/install -m 644 $(DIST)/chrome/skin/photonic $(SKIN_PHOTONIC)
