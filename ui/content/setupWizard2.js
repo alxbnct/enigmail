@@ -36,7 +36,8 @@ var gSelectedPrivateKeys = null,
   gAcceptButton = null,
   gCancelButton = null,
   gDialogCancelled = false,
-  gProcessing = false;
+  gProcessing = false,
+  gRestartNeeded = false;
 
 function onLoad() {
   E2TBLog.DEBUG(`setupWizard2.js: onLoad()\n`);
@@ -57,6 +58,7 @@ function onLoad() {
 }
 
 function onAccept() {
+  if (gRestartNeeded) restartApplication();
   return true;
 }
 
@@ -103,8 +105,10 @@ async function startMigration() {
   // enable OpenPGP functionality unconditionally
   if (!E2TBPrefs.getPrefRoot().getBoolPref("mail.openpgp.enable")) {
     await enableOpenPGPPref();
+    gRestartNeeded = true;
   }
   if (!getBondOpenPGP().allDependenciesLoaded()) {
+    gRestartNeeded = false;
     E2TBDialog.alert(window, E2TBLocale.getString("openpgpInitError"));
     window.close();
     return;
@@ -145,7 +149,12 @@ async function startMigration() {
   applyAccountSettings();
   if (gDialogCancelled) return;
 
-  document.getElementById("migrationComplete").style.visibility = "visible";
+  if (gRestartNeeded) {
+    document.getElementById("restartNeeded").style.visibility = "visible";
+  }
+  else {
+    document.getElementById("migrationComplete").style.visibility = "visible";
+  }
   gAcceptButton.removeAttribute("disabled");
   gCancelButton.setAttribute("disabled", "true");
 
@@ -449,4 +458,10 @@ function passphrasePromptCallback(win, keyId, resultFlags) {
 
   resultFlags.canceled = false;
   return p.value;
+}
+
+function restartApplication() {
+  let oAppStartup = Cc["@mozilla.org/toolkit/app-startup;1"].getService(Ci.nsIAppStartup);
+  if (!oAppStartup.eRestart) throw ("Restart is not supported");
+  oAppStartup.quit(oAppStartup.eAttemptQuit | oAppStartup.eRestart);
 }
