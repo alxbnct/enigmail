@@ -2,20 +2,9 @@ content       enigmail                chrome/content/
 locale        enigmail    en-US       chrome/locale/en-US/
 
 
-# Skin for TBird / Postbox on Mac OS X
-skin          enigmail    classic/1.0 chrome/skin/tb-mac/ os=Darwin platformversion>=51.0
-# Skin for TBird / Postbox on Windows
-skin          enigmail    classic/1.0 chrome/skin/aero/ os=WINNT platformversion>=51.0
-skin          enigmail    classic/1.0 chrome/skin/aero/ os=OS2 platformversion>=51.0
-# Skin for TBird on other OS (e.g. Linux)
-skin          enigmail    classic/1.0 chrome/skin/tb-linux/ os=Linux platformversion>=51.0
-skin          enigmail    classic/1.0 chrome/skin/tb-linux/ os=SunOS platformversion>=51.0
-skin          enigmail    classic/1.0 chrome/skin/tb-linux/ os=FreeBSD platformversion>=51.0
-skin          enigmail    classic/1.0 chrome/skin/tb-linux/ os=OpenBSD platformversion>=51.0
-skin          enigmail    classic/1.0 chrome/skin/tb-linux/ os=NetBSD platformversion>=51.0
-skin          enigmail    classic/1.0 chrome/skin/tb-linux/ os=AIX platformversion>=51.0
-skin          enigmail    classic/1.0 chrome/skin/tb-linux/ os=HP-UX platformversion>=51.0
-skin          enigmail    classic/1.0 chrome/skin/tb-linux/ os=DragonFly platformversion>=51.0
+# Skin for Postbox (Mac OS X and Windows)
+skin          enigmail    classic/1.0 chrome/skin/postbox/ platformversion>=51.0
 
-# Skin for Interlink
+# Skin for Interlink (Linux and Windows)
 skin          enigmail    classic/1.0 chrome/skin/interlink/ platformversion<20.0
+skin          enigmail    photonic chrome/skin/photonic/ platformversion<20.0
