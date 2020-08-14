@@ -133,7 +133,7 @@ var EnigmailDecryption = {
       endIndexObj.value - beginIndexObj.value + 1);
 
     if (indentStrObj.value) {
-      var indentRegexp = new RegExp("^" + indentStrObj.value, "gm");
+      var indentRegexp = new RegExp("^" + indentStrObj.value.replace(/[.*+\-?^${}()|[\]\\]/g, "\\$&"), "gm");
       pgpBlock = pgpBlock.replace(indentRegexp, "");
       if (indentStrObj.value.substr(-1) == " ") {
         var indentRegexpStr = "^" + indentStrObj.value.replace(/ $/m, "$");

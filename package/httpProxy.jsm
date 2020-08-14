@@ -59,11 +59,16 @@ var EnigmailHttpProxy = {
         var proxyHostName = prefRoot.getCharPref("network.proxy.http");
         var proxyHostPort = prefRoot.getIntPref("network.proxy.http_port");
         var noProxy = prefRoot.getCharPref("network.proxy.no_proxies_on").split(/[ ,]/);
-        for (var i = 0; i < noProxy.length; i++) {
-          var proxySearch = new RegExp(noProxy[i].replace(/\./g, "\\.").replace(/\*/g, ".*") + "$", "i");
-          if (noProxy[i] && hostName.search(proxySearch) >= 0) {
-            i = noProxy.length + 1;
+
+        for (let host of noProxy) {
+          // Replace regex chars, except star.
+          host = host.replace(/[.+\-?^${}()|[\]\\]/g, "\\$&");
+          // Make star match anything.
+          host = host.replace(/\*/g, ".*");
+          let proxySearch = new RegExp(host + "$", "i");
+          if (host && hostName.test(proxySearch)) {
             proxyHostName = null;
+            break;
           }
         }
 

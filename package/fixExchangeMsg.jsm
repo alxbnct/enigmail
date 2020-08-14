@@ -229,7 +229,7 @@ var EnigmailFixExchangeMsg = {
    */
   getCorrectedExchangeBodyData: function(bodyData, boundary) {
     EnigmailLog.DEBUG("fixExchangeMsg.jsm: getCorrectedExchangeBodyData: boundary='" + boundary + "'\n");
-    let boundRx = new RegExp("^--" + boundary, "gm");
+    let boundRx = new RegExp("^--" + boundary.replace(/[.*+\-?^${}()|[\]\\]/g, "\\$&"), "gm");
     let match = boundRx.exec(bodyData);
 
     if (match.index < 0) {
@@ -286,7 +286,7 @@ var EnigmailFixExchangeMsg = {
    */
   getCorrectediPGMailBodyData: function(bodyData, boundary) {
     EnigmailLog.DEBUG("fixExchangeMsg.jsm: getCorrectediPGMailBodyData: boundary='" + boundary + "'\n");
-    let boundRx = new RegExp("^--" + boundary, "gm");
+    let boundRx = new RegExp("^--" + boundary.replace(/[.*+\-?^${}()|[\]\\]/g, "\\$&"), "gm");
     let match = boundRx.exec(bodyData);
 
     if (match.index < 0) {

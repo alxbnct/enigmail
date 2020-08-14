@@ -105,7 +105,7 @@ var EnigmailArmor = {
 
     var blockHeader = text.substr(beginIndex, offset - beginIndex + 1);
 
-    var blockRegex = new RegExp("^" + indentStr +
+    var blockRegex = new RegExp("^" + indentStr.replace(/[.*+\-?^${}()|[\]\\]/g, "\\$&") +
       "-----BEGIN PGP (.{1,30})-----\\s*\\r?\\n");
 
     var matches = blockHeader.match(blockRegex);
@@ -252,13 +252,14 @@ var EnigmailArmor = {
 
     let msg = text.substr(b[0].begin);
 
-    let lx = new RegExp("\\n" + b[0].indent + "\\r?\\n");
+    let indent = b[0].indent.replace(/[.*+\-?^${}()|[\]\\]/g, "\\$&");
+    let lx = new RegExp("\\n" + indent + "\\r?\\n");
     let hdrEnd = msg.search(lx);
     if (hdrEnd < 0) return headers;
 
     let lines = msg.substr(0, hdrEnd).split(/\r?\n/);
 
-    let rx = new RegExp("^" + b[0].indent + "([^: ]+)(: )(.*)");
+    let rx = new RegExp("^" + indent + "([^: ]+)(: )(.*)");
     // skip 1st line (ARMOR-line)
     for (let i = 1; i < lines.length; i++) {
       let m = lines[i].match(rx);

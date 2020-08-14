@@ -4388,16 +4388,7 @@ Enigmail.msg = {
   },
 
   unsetAdditionalHeader: function(hdr) {
-    if ("otherRandomHeaders" in gMsgCompose.compFields) {
-      // TB <= 36
-      let h = gMsgCompose.compFields.otherRandomHeaders;
-      let r = new RegExp("^(" + hdr + ":)(.*)$", "im");
-      let m = h.replace(r, "").replace(/(\r\n)+/, "\r\n");
-      gMsgCompose.compFields.otherRandomHeaders = m;
-    }
-    else {
-      gMsgCompose.compFields.deleteHeader(hdr);
-    }
+    gMsgCompose.compFields.deleteHeader(hdr);
   },
 
   modifyCompFields: function() {
@@ -4709,14 +4700,14 @@ Enigmail.msg = {
       }
 
       // Delete indentation
-      indentRegexp = new RegExp("^" + indentStr, "gm");
+      indentRegexp = new RegExp("^" + indentStr.replace(/[.*+\-?^${}()|[\]\\]/g, "\\$&"), "gm");
 
       pgpBlock = pgpBlock.replace(indentRegexp, "");
       //tail     =     tail.replace(indentRegexp, "");
 
       if (indentStr.match(/[ \t]*$/)) {
         indentStr = indentStr.replace(/[ \t]*$/gm, "");
-        indentRegexp = new RegExp("^" + indentStr + "$", "gm");
+        indentRegexp = new RegExp("^" + indentStr.replace(/[.*+\-?^${}()|[\]\\]/g, "\\$&") + "$", "gm");
 
         pgpBlock = pgpBlock.replace(indentRegexp, "");
       }

@@ -278,7 +278,8 @@ class NsLookupHandler extends GenericHandler {
     if (lines.length > 3 && lines[3].search(/: NXDOMAIN/) > 0) return [];
 
     if (this.recordType === "MX") {
-      let reg = new RegExp("^" + this.hostName.toLowerCase() + "(.* )([^ \t]+.*[^\.])\\.?$");
+      let hn = this.hostName.toLowerCase();
+      let reg = new RegExp("^" + hn.replace(/[.*+\-?^${}()|[\]\\]/g, "\\$&") + "(.* )([^ \t]+.*[^\.])\\.?$");
       for (let i = 2; i < lines.length; i++) {
         let m = lines[i].match(reg);
 
@@ -310,7 +311,8 @@ class NsLookupHandler_Windows extends NsLookupHandler {
     let lines = stdoutData.split(/[\r\n]+/);
 
     if (this.recordType === "MX") {
-      let reg = new RegExp("^" + this.hostName.toLowerCase() + "(.* )([^ \t]+.*[^\.])\\.?$");
+      let hn = this.hostName.toLowerCase();
+      let reg = new RegExp("^" + hn.replace(/[.*+\-?^${}()|[\]\\]/g, "\\$&") + "(.* )([^ \t]+.*[^\.])\\.?$");
       for (let i = 2; i < lines.length; i++) {
         let m = lines[i].match(reg);
 

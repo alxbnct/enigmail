@@ -656,7 +656,7 @@ PgpMimeEncrypt.prototype = {
           let j = hdrLines[i].indexOf(":");
           if (j > 0) {
             let h = hdrLines[i].substr(0, j).replace(/\s*$/, "");
-            let re = new RegExp("^" + hdrStr + "$", "i");
+            let re = new RegExp("^" + hdrStr.replace(/[.*+\-?^${}()|[\]\\]/g, "\\$&") + "$", "i");
             if (h.search(re) === 0) {
               foundIndex = 1;
               res = hdrLines[i].substr(j + 1).replace(/^\s*/, "");

@@ -177,7 +177,8 @@ async function insertXul(addonID, srcUrl, window, document) {
 
     function getToolbarNthTag(toolbar, tagName, elemIndex) {
       if (elemIndex >= 0) {
-        let s = new RegExp(`^${tagName}[0-9]+$`);
+        let tagRegEx = tagName.replace(/[.*+\-?^${}()|[\]\\]/g, "\\$&");
+        let s = new RegExp(`^${tagRegEx}[0-9]+$`);
         let node = toolbar.firstChild;
         let n = -1;
         while (node) {

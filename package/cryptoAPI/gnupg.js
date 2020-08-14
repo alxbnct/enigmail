@@ -208,7 +208,7 @@ class GnuPGCryptoAPI extends CryptoAPI {
 
     if (EnigmailGpg.getGpgFeature("export-result")) {
       // GnuPG 2.1.10+
-      let r = new RegExp("^\\[GNUPG:\\] EXPORTED " + fpr, "m");
+      let r = new RegExp("^\\[GNUPG:\\] EXPORTED " + fpr.replace(/[.*+\-?^${}()|[\]\\]/g, "\\$&"), "m");
       if (res.stderrData.search(r) < 0) {
         retObj.exitCode = 2;
         retObj.errorMsg = EnigmailLocale.getString("failKeyExtract");

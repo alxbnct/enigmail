@@ -37,7 +37,7 @@ var EnigmailMsgRead = {
 
       if (hdr !== "*") { // do nothing if extraAddonHeaders is "*" (all headers)
         for (let h of ExtraHeaders) {
-          let sr = new RegExp("\\b" + h + "\\b", "i");
+          let sr = new RegExp("\\b" + escapeRegex(h) + "\\b", "i");
           if (hdr.search(h) < 0) {
             if (hdr.length > 0) hdr += " ";
             hdr += h;
@@ -62,7 +62,7 @@ var EnigmailMsgRead = {
 
     let hdr = r.getCharPref("mailnews.headers.extraExpandedHeaders");
     for (let h of ExtraHeaders) {
-      let sr = new RegExp("\\b" + h + "\\b", "i");
+      let sr = new RegExp("\\b" + escapeRegex(h) + "\\b", "i");
       if (hdr.search(h) >= 0) {
         hdr = hdr.replace(sr, " ");
       }
@@ -86,10 +86,6 @@ var EnigmailMsgRead = {
    * Determine if an attachment is possibly signed
    */
   checkSignedAttachment: function(attachmentObj, index, currentAttachments) {
-    function escapeRegex(string) {
-      return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
-    }
-
     var attachmentList;
     if (index !== null) {
       attachmentList = attachmentObj;
@@ -307,3 +303,8 @@ var EnigmailMsgRead = {
     this.cleanupOldPref();
   }
 };
+
+// Create a safe regexp from a string
+function escapeRegex(str) {
+  return str.replace(/[.*+\-?^${}()|[\]\\]/g, "\\$&"); // $& means the whole matched string
+}

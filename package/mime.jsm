@@ -250,7 +250,7 @@ var EnigmailMime = {
       if (bound === "") return null;
 
       // search for "outer" MIME delimiter(s)
-      let r = new RegExp("^--" + bound, "mg");
+      let r = new RegExp("^--" + bound.replace(/[.*+\-?^${}()|[\]\\]/g, "\\$&"), "mg");
 
       startPos = -1;
       endPos = -1;

@@ -64,16 +64,6 @@ function unsetAdditionalHeader_test() {
   };
 
   Enigmail.msg.unsetAdditionalHeader('hdr');
-
-  gMsgCompose = {
-    compFields: {
-      otherRandomHeaders: 'hello'
-    }
-  };
-
-  Enigmail.msg.unsetAdditionalHeader('hdr: hello\r\n');
-
-  Assert.equal(gMsgCompose.compFields.otherRandomHeaders, 'hello');
 }
 
 

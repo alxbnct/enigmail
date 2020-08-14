@@ -15,7 +15,7 @@ var EnigmailWindows = ChromeUtils.import("chrome://enigmail/content/modules/wind
 var EnigmailAbOverlay = {
   createRuleFromAddress: function(emailAddressNode) {
     if (emailAddressNode) {
-      var r = new RegExp("^" + emailAddressNode.protocol);
+      var r = new RegExp("^" + emailAddressNode.protocol.replace(/[.*+\-?^${}()|[\]\\]/g, "\\$&"));
       var emailAddress = emailAddressNode.href.replace(r, "");
       EnigmailWindows.createNewRule(window, emailAddress);
     }

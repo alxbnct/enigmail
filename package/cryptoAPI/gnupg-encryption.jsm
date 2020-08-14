@@ -162,7 +162,7 @@ var GnuPG_Encryption = {
           fromMailAddr = "[A-F0-9]+" + fromMailAddr;
         }
 
-        let s = new RegExp("^(\\[GNUPG:\\] )?INV_(RECP|SGNR) [0-9]+ (\\<|0x)?" + fromMailAddr + "\\>?", "m");
+        let s = new RegExp("^(\\[GNUPG:\\] )?INV_(RECP|SGNR) [0-9]+ (\\<|0x)?" + fromMailAddr.replace(/[.*+\-?^${}()|[\]\\]/g, "\\$&") + "\\>?", "m");
         if (retStatusObj.statusMsg.search(s) >= 0) {
           retStatusObj.errorMsg += "\n\n" + EnigmailLocale.getString("keyError.resolutionAction");
         }
