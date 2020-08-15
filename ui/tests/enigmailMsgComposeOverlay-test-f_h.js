@@ -1,9 +1,12 @@
-/*global Enigmail: false, Assert: false, do_load_module: false, trustAllKeys_test: false, JSUnit: false, EnigmailConstants: false, EnigmailLocale: false */
+/*global Enigmail: false, Assert: false, do_load_module: false, trustAllKeys_test: false, JSUnit: false, EnigmailConstants: false,
+ EnigmailLocale: false, do_get_cwd: false, test: false */
 /*
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
+do_load_module("file://" + do_get_cwd().path + "/testHelper.js"); /*global withEnigmail: false, withTestGpgHome: false, asyncTest: false */
 
 var window;
 var document;
@@ -346,9 +349,11 @@ function getForceRecipientDlg_test() {
   EnigmailPrefs.getPref = function(prop) {
     if (prop === "assignKeysByRules") {
       return true;
-    } else if (prop === "assignKeysByEmailAddr") {
+    }
+    else if (prop === "assignKeysByEmailAddr") {
       return false;
-    } else if (prop === "assignKeysManuallyIfMissing") {
+    }
+    else if (prop === "assignKeysManuallyIfMissing") {
       return false;
     }
 
@@ -361,9 +366,11 @@ function getForceRecipientDlg_test() {
   EnigmailPrefs.getPref = function(prop) {
     if (prop === "assignKeysByRules") {
       return true;
-    } else if (prop === "assignKeysByEmailAddr") {
+    }
+    else if (prop === "assignKeysByEmailAddr") {
       return true;
-    } else if (prop === "assignKeysManuallyIfMissing") {
+    }
+    else if (prop === "assignKeysManuallyIfMissing") {
       return false;
     }
 
@@ -699,7 +706,8 @@ function processAccountSpecificDefaultOptions_test() {
     //Function Overriding
     if (str === "sign") {
       return false;
-    } else {
+    }
+    else {
       return true;
     }
   };
@@ -734,7 +742,8 @@ function processFinalState_test() {
     //Function Overriding
     if (prop === "signIfEnc" || prop === "signIfNotEnc" || prop === "signIfNotEnc" || prop === "signIfEnc" || prop === "sign-pgp" || prop === "encrypt") {
       return true;
-    } else {
+    }
+    else {
       return false;
     }
   };
@@ -931,7 +940,8 @@ function replaceEditorText_test() {
     Assert.ok(true);
     if (val === "Enigmail" || val === "text") {
       Assert.ok(true);
-    } else {
+    }
+    else {
       Assert.ok(false);
     }
   };
@@ -945,7 +955,8 @@ function replaceEditorText_test() {
     Assert.ok(true);
     if (val === " " || val === "text") {
       Assert.ok(true);
-    } else {
+    }
+    else {
       Assert.ok(false);
     }
   };
@@ -979,7 +990,7 @@ function resetUpdatedFields_test() {
 
 }
 
-function run_test() {
+test(function run_test() {
   window = JSUnit.createStubWindow();
   window.document = JSUnit.createDOMDocument();
   document = window.document;
@@ -1002,4 +1013,4 @@ function run_test() {
   getSmimeSigningEnabled_test();
   goAccountManager_test();
   handleClick_test();
-}
+});

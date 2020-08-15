@@ -1,9 +1,12 @@
-/*global Enigmail: false, Assert: false, do_load_module: false, trustAllKeys_test: false, JSUnit: false, EnigmailConstants: false, EnigmailLocale: false */
+/*global Enigmail: false, Assert: false, do_load_module: false, trustAllKeys_test: false, JSUnit: false, EnigmailConstants: false,
+  EnigmailLocale: false, do_get_cwd: false, test: false */
 /*
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
+do_load_module("file://" + do_get_cwd().path + "/testHelper.js"); /*global withEnigmail: false, withTestGpgHome: false, asyncTest: false */
 
 var window;
 var document;
@@ -391,7 +394,8 @@ function displayProtectHeadersStatus_test() {
       setAttribute: function(prop, val) {
         if (prop === "checked") {
           Assert.equal(val, "true");
-        } else if (prop === "tooltiptext") {
+        }
+        else if (prop === "tooltiptext") {
           Assert.equal(val, EnigmailLocale.getString("msgCompose.protectSubject.tooltip"));
         }
       }
@@ -579,34 +583,33 @@ function enableUndoEncryption_test() {
 
 }
 
+test(function run_test() {
+    window = JSUnit.createStubWindow();
+    window.document = JSUnit.createDOMDocument();
+    document = window.document;
 
-function run_test() {
-  window = JSUnit.createStubWindow();
-  window.document = JSUnit.createDOMDocument();
-  document = window.document;
+    do_load_module("chrome://enigmail/content/ui/enigmailMsgComposeOverlay.js");
 
-  do_load_module("chrome://enigmail/content/ui/enigmailMsgComposeOverlay.js");
+    //Overriding Problem
+    //TODO Use testHelper
+    displayProtectHeadersStatus_test();
 
-  //Overriding Problem
-  //TODO Use testHelper
-  displayProtectHeadersStatus_test();
-
-  addAttachment_test();
-  addRecipients_test();
-  addressOnChange_test();
-  allowAttachOwnKey_test();
-  attachKey_test();
-  attachOwnKey_test();
-  checkProtectHeaders_test();
-  compileFromAndTo_test();
-  createEnigmailSecurityFields_test();
-  delayedProcessFinalState_test();
-  displayPartialEncryptedWarning_test();
-  displaySecuritySettings_test();
-  displaySMimeToolbar_test();
-  editorGetCharset_test();
-  editorGetContentAs_test();
-  editorInsertAsQuotation_test();
-  editorSelectAll_test();
-  enableUndoEncryption_test();
-}
+    addAttachment_test();
+    addRecipients_test();
+    addressOnChange_test();
+    allowAttachOwnKey_test();
+    attachKey_test();
+    attachOwnKey_test();
+    checkProtectHeaders_test();
+    compileFromAndTo_test();
+    createEnigmailSecurityFields_test();
+    delayedProcessFinalState_test();
+    displayPartialEncryptedWarning_test();
+    displaySecuritySettings_test();
+    displaySMimeToolbar_test();
+    editorGetCharset_test();
+    editorGetContentAs_test();
+    editorInsertAsQuotation_test();
+    editorSelectAll_test();
+    enableUndoEncryption_test();
+  });

@@ -153,7 +153,7 @@ var EnigmailCore = {
     let EnigmailCryptoAPI = getEnigmailCryptoAPI();
     const cApi = EnigmailCryptoAPI();
 
-    cApi.shutdown();
+    cApi.finalize();
 
     getEnigmailLocale().shutdown();
     getEnigmailLog().onShutdown();

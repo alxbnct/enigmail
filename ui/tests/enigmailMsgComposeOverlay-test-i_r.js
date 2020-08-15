@@ -1,9 +1,13 @@
-/*global Enigmail: false, Assert: false, do_load_module: false, trustAllKeys_test: false, JSUnit: false, EnigmailConstants: false, EnigmailLocale: false */
+/*global Enigmail: false, Assert: false, do_load_module: false, trustAllKeys_test: false, JSUnit: false, EnigmailConstants: false,
+  EnigmailLocale: false, do_get_cwd: false, test: false */
 /*
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
+
+do_load_module("file://" + do_get_cwd().path + "/testHelper.js"); /*global withEnigmail: false, withTestGpgHome: false, asyncTest: false */
 
 var window;
 var document;
@@ -826,7 +830,7 @@ function resetUpdatedFields_test() {
 }
 
 
-function run_test() {
+test(function run_test() {
   window = JSUnit.createStubWindow();
   window.document = {};
   document = window.document;
@@ -851,4 +855,4 @@ function run_test() {
   replaceEditorText_test();
   resetUpdatedFields_test();
 
-}
+});
