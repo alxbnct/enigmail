@@ -7,11 +7,6 @@
 
 "use strict";
 
-// use OpenPGP.sj for all tests
-var EnigmailPrefs = Components.utils.import("chrome://enigmail/content/modules/prefs.jsm").EnigmailPrefs;
-EnigmailPrefs.setPref("cryptoAPI", 2);
-
-
 do_load_module("file://" + do_get_cwd().path + "/testHelper.js");
 
 /* global component: false, test: false, withTestGpgHome: false, withEnigmail: false, do_get_file: false, withOverwriteFuncs: false */
@@ -87,7 +82,10 @@ test(withTestGpgHome(withEnigmail(withOverwriteFuncs(
 
     const EnigmailCryptoAPI = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI.jsm").EnigmailCryptoAPI;
     const cApi = EnigmailCryptoAPI();
-    cApi.initialize();
+
+    if (cApi.apiName === "OpenPGP.js") {
+      cApi.initialize();
+    }
 
     const isWin = (Cc["@mozilla.org/xre/app-info;1"].getService(Ci.nsIXULRuntime).OS === "WINNT");
     let secKey;
