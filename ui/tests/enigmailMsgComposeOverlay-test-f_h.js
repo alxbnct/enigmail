@@ -58,55 +58,65 @@ var EnigmailFuncs = {
 };
 
 function fireSearchKeys_test() {
+  return new Promise((resolve, reject) => {
+    Enigmail.msg.isEnigmailEnabled = function() {
+      return true;
+    };
 
-  Enigmail.msg.isEnigmailEnabled = function() {
-    return true;
-  };
+    Enigmail.msg.searchKeysTimeout = true;
 
-  Enigmail.msg.searchKeysTimeout = true;
+    Enigmail.msg.findMissingKeys = function() {
+      Assert.ok(false, "Should not be called now");
+    };
 
-  Enigmail.msg.fireSearchKeys();
-  Assert.equal(Enigmail.msg.searchKeysTimeout, true);
+    Enigmail.msg.fireSearchKeys();
+    Assert.equal(Enigmail.msg.searchKeysTimeout, true);
 
-  Enigmail.msg.searchKeysTimeout = false;
+    Enigmail.msg.searchKeysTimeout = false;
 
-  Enigmail.msg.findMissingKeys = function() {
-    Assert.ok(true);
-  };
+    Enigmail.msg.findMissingKeys = function() {
+      Assert.ok(true);
+    };
 
-  EnigmailTimer.setTimeout = function(callback, time) {
-    Assert.ok(true);
-    Assert.equal(time, 5000);
-    callback();
-    Assert.equal(Enigmail.msg.searchKeysTimeout, null);
-    return false;
-  };
+    EnigmailTimer.setTimeout = function(callback, time) {
+      Assert.ok(true);
+      Assert.equal(time, 5000);
+      callback().then(r => {
+        Assert.equal(Enigmail.msg.searchKeysTimeout, null);
+        resolve(true);
+      });
+      return false;
+    };
 
-  Enigmail.msg.fireSearchKeys();
-  Assert.equal(Enigmail.msg.searchKeysTimeout, false);
+    Enigmail.msg.fireSearchKeys();
+    Assert.equal(Enigmail.msg.searchKeysTimeout, false);
+  });
 }
 
 function fireSendFlags_test() {
+  return new Promise((resolve, reject) => {
+    Enigmail.msg.determineSendFlags = function() {
+      Assert.ok(true);
+    };
 
-  Enigmail.msg.determineSendFlags = function() {
-    Assert.ok(true);
-  };
+    Enigmail.msg.fireSearchKeys = function() {
+      Assert.ok(true);
+    };
 
-  Enigmail.msg.fireSearchKeys = function() {
-    Assert.ok(true);
-  };
+    EnigmailTimer.setTimeout = function(callback, time) {
+      callback().then(r => {
+        Assert.ok(true);
+        resolve(true);
+      });
+      return null;
+    };
 
-  EnigmailTimer.setTimeout = function(callback, time) {
-    callback();
-    Assert.ok(true);
-    return null;
-  };
+    Enigmail.msg.determineSendFlagId = false;
 
-  Enigmail.msg.determineSendFlagId = false;
+    Enigmail.msg.fireSendFlags();
 
-  Enigmail.msg.fireSendFlags();
-
-  Assert.equal(Enigmail.msg.determineSendFlagId, null);
+    Assert.equal(Enigmail.msg.determineSendFlagId, null);
+  });
 }
 
 function fixMessageSubject_test() {
@@ -990,7 +1000,7 @@ function resetUpdatedFields_test() {
 
 }
 
-test(function run_test() {
+test(asyncTest(async function run_test() {
   window = JSUnit.createStubWindow();
   window.document = JSUnit.createDOMDocument();
   document = window.document;
@@ -999,8 +1009,8 @@ test(function run_test() {
 
   getOriginalMsgUri_test();
 
-  fireSearchKeys_test();
-  fireSendFlags_test();
+  await fireSearchKeys_test();
+  await fireSendFlags_test();
   fixMessageSubject_test();
   focusChange_test();
   getAccDefault_test();
@@ -1013,4 +1023,4 @@ test(function run_test() {
   getSmimeSigningEnabled_test();
   goAccountManager_test();
   handleClick_test();
-});
+}));
