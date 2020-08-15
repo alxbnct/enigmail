@@ -7,6 +7,11 @@
 
 "use strict";
 
+// use OpenPGP.sj for all tests
+var EnigmailPrefs = Components.utils.import("chrome://enigmail/content/modules/prefs.jsm").EnigmailPrefs;
+EnigmailPrefs.setPref("cryptoAPI", 2);
+
+
 do_load_module("file://" + do_get_cwd().path + "/testHelper.js");
 
 /* global component: false, test: false, withTestGpgHome: false, withEnigmail: false, do_get_file: false, withOverwriteFuncs: false */
@@ -79,9 +84,6 @@ test(withTestGpgHome(withEnigmail(withOverwriteFuncs(
     new: function() {}
   }],
   function encryptMsg_test1() {
-    // use OpenPGP.sj for all tests
-    const EnigmailPrefs = component("enigmail/prefs.jsm").EnigmailPrefs;
-    EnigmailPrefs.setPref("cryptoAPI", 2);
 
     const EnigmailCryptoAPI = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI.jsm").EnigmailCryptoAPI;
     const cApi = EnigmailCryptoAPI();
