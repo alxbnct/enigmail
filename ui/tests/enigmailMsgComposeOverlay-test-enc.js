@@ -79,6 +79,10 @@ test(withTestGpgHome(withEnigmail(withOverwriteFuncs(
     new: function() {}
   }],
   function encryptMsg_test1() {
+    const EnigmailCryptoAPI = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI.jsm").EnigmailCryptoAPI;
+    const cApi = EnigmailCryptoAPI();
+    cApi.initialize();
+
     const isWin = (Cc["@mozilla.org/xre/app-info;1"].getService(Ci.nsIXULRuntime).OS === "WINNT");
     let secKey;
     if (!isWin) {
