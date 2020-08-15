@@ -79,6 +79,10 @@ test(withTestGpgHome(withEnigmail(withOverwriteFuncs(
     new: function() {}
   }],
   function encryptMsg_test1() {
+    // use OpenPGP.sj for all tests
+    const EnigmailPrefs = component("enigmail/prefs.jsm").EnigmailPrefs;
+    EnigmailPrefs.setPref("cryptoAPI", 2);
+
     const EnigmailCryptoAPI = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI.jsm").EnigmailCryptoAPI;
     const cApi = EnigmailCryptoAPI();
     cApi.initialize();
