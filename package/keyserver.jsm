@@ -105,6 +105,7 @@ function parseKeyserverUrl(keyserver) {
       break;
     case "https":
     case "hkps":
+    case "vks":
       port = ENIG_DEFAULT_HKPS_PORT;
       break;
     case "ldap":
@@ -122,8 +123,12 @@ function parseKeyserverUrl(keyserver) {
     protocol = "hkps";
     port = ENIG_DEFAULT_HKPS_PORT;
   }
-  if (keyserver.search(/^(keybase\.io)$/) === 0) {
+  else if (keyserver.search(/^(keybase\.io)$/) === 0) {
     protocol = "keybase";
+    port = ENIG_DEFAULT_HKPS_PORT;
+  }
+  else if (keyserver.search(/^(keys\.openpgp\.org)$/) === 0) {
+    protocol = "vks";
     port = ENIG_DEFAULT_HKPS_PORT;
   }
 
@@ -1203,7 +1208,11 @@ const accessVksServer = {
 
     let method = "GET";
 
-    let url = "https://" + keySrv.host + ":443";
+    if (keySrv.protocol === "hkp") {
+      keySrv.port = EnigmailConstants.ENIG_DEFAULT_HKPS_PORT;
+    }
+
+    let url = "https://" + keySrv.host + ":" + keySrv.port;
 
     if (actionFlag === EnigmailConstants.UPLOAD_KEY) {
       url += "/vks/v1/upload";
