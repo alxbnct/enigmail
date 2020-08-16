@@ -4423,29 +4423,33 @@ Enigmail.msg = {
     if (!this.isAutocryptEnabled()) return;
 
     this.identity = getCurrentIdentity();
-    let fromMail = this.identity.email;
+    let identityMail = this.identity.email.toLowerCase();
+    let senderEmail = identityMail;
 
     try {
-      fromMail = EnigmailFuncs.stripEmail(gMsgCompose.compFields.from);
+      senderEmail = EnigmailFuncs.stripEmail(gMsgCompose.compFields.from);
     }
     catch (ex) {}
 
     let key;
     if (this.identity.getIntAttribute("pgpKeyMode") > 0) {
       key = EnigmailKeyRing.getKeyById(this.identity.getCharAttribute("pgpkeyId"));
+      if (senderEmail !== identityMail && !key.containsUid(senderEmail)) {
+        return;
+      }
     }
     else {
-      key = EnigmailKeyRing.getSecretKeyByEmail(this.identity.email);
+      key = EnigmailKeyRing.getSecretKeyByEmail(senderEmail);
     }
 
     if (key) {
       let srv = this.getCurrentIncomingServer();
       let prefMutual = (srv.getIntValue("acPreferEncrypt") > 0 ? "; prefer-encrypt=mutual" : "");
 
-      let k = key.getMinimalPubKey(fromMail);
+      let k = key.getMinimalPubKey(senderEmail);
       if (k.exitCode === 0) {
         let keyData = " " + k.keyData.replace(/(.{72})/g, "$1\r\n ").replace(/\r\n $/, "");
-        this.setAdditionalHeader('Autocrypt', 'addr=' + fromMail + prefMutual + '; keydata=\r\n' + keyData);
+        this.setAdditionalHeader('Autocrypt', 'addr=' + senderEmail + prefMutual + '; keydata=\r\n' + keyData);
       }
     }
   },
