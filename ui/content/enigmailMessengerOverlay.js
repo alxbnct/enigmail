@@ -553,6 +553,12 @@ Enigmail.msg = {
   messageDecrypt: function(event, isAuto) {
     EnigmailLog.DEBUG("enigmailMessengerOverlay.js: messageDecrypt: " + event + "\n");
 
+    try {
+      // don't try to decrypt RSS feeds
+      if (gFolderDisplay.selectedMessages[0].folder.server.type === "rss") return;
+    }
+    catch (x) {}
+
     event = event ? true : false;
     var cbObj = {
       event: event,
