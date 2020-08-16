@@ -21,19 +21,24 @@
 <!ENTITY enigmail.send.label                        "Invia">
 <!ENTITY enigmail.perRecipientsOption.label         "Crea una regola/e per i singoli destinatari">
 <!ENTITY enigmail.keyMan.filter.label               "Cerca chiave">
-<!ENTITY enigmail.messenger.menulabel               "">
+<!ENTITY enigmail.messenger.menulabel               "Migra le Impostazioni Enigmail">
 
-<!ENTITY enigmail.setupWiz.title                     "">
-<!ENTITY enigmail.setupWiz.pgIntro.desc              "">
-<!ENTITY enigmail.setupWiz.manyKeys.desc             "">
-<!ENTITY enigmail.setupWiz.manyKeys.selectButton     "">
-<!ENTITY enigmail.setupWiz.startMigration.desc1      "">
-<!ENTITY enigmail.setupWiz.startMigration.desc2      "">
-<!ENTITY enigmail.setupWiz.startMigration.button     "">
+<!ENTITY enigmail.setupWiz.title                     "Trasferisci le tue Impostazioni Enigmail a Thunderbird">
+<!ENTITY enigmail.setupWiz.pgIntro.desc              "Questo processo automatico esporterà le chiavi e le impostazioni da Enigmail a GnuPG, e
+ e le importerà nel portachiavi Thunderbird.">
+<!ENTITY enigmail.setupWiz.manyKeys.desc             "Tu hai diverse chiavi private in GnuPG. Se non vuoi importarle tutte
+su Thunderbird, clicca il pulsante 'Selezione Chiavi Private' per selezionare queste chiavi che richiedi.">
+<!ENTITY enigmail.setupWiz.manyKeys.selectButton     "Seleziona chiavi private...">
+<!ENTITY enigmail.setupWiz.startMigration.desc1      "Per favore clicca il pulsante 'Avvia Migrazione' per avviare la migrazione.">
+<!ENTITY enigmail.setupWiz.startMigration.desc2      "Il processo di migrazione esporterà le tue chiavi private da GnuPG e le importerà in Thunderbird.
+Se le tue chiavi sono protette da frase segreta, ti verrà richiesto d'immetterla per ognuna di esse -
+alla volta mentre si esporterà da GnuPG  per importare in Thunderbird.">
+<!ENTITY enigmail.setupWiz.startMigration.button     "Avvia Migrazione">
 
-<!ENTITY enigmail.setupWiz.exportingKeys             "">
-<!ENTITY enigmail.setupWiz.importingKeys             "">
-<!ENTITY enigmail.setupWiz.applyingSettings          "">
-<!ENTITY enigmail.setupWiz.migrationComplete         "">
+<!ENTITY enigmail.setupWiz.exportingKeys             "Esportazione chiavi da GnuPG...">
+<!ENTITY enigmail.setupWiz.importingKeys             "Importazione chiavi in Thunderbird...">
+<!ENTITY enigmail.setupWiz.applyingSettings          "Applicazione delle impostazioni del tuo account...">
+<!ENTITY enigmail.setupWiz.migrationComplete         "Fatto! Ora Enigmail non è più necessario e può essere disinstallato.">
+<!ENTITY enigmail.setupWiz.restartNeeded             "Per completare la configurazione, Thunderbird sarà riavviato.">
 
-<!ENTITY enigmail.copyCmd.label                      "">
+<!ENTITY enigmail.copyCmd.label                      "Copia">

@@ -35,5 +35,6 @@
 <!ENTITY enigmail.setupWiz.importingKeys             "Importation des clés dans Thunderbird…">
 <!ENTITY enigmail.setupWiz.applyingSettings          "Application des paramètres de votre compte…">
 <!ENTITY enigmail.setupWiz.migrationComplete         "C’est fait ! Enigmail n’est plus nécessaire et peut être désinstallé.">
+<!ENTITY enigmail.setupWiz.restartNeeded             "Afin de terminer la configuration, Thunderbird redémarrera maintenant.">
 
 <!ENTITY enigmail.copyCmd.label                      "Copier">

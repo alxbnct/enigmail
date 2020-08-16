@@ -21,19 +21,24 @@
 <!ENTITY enigmail.send.label                        "Gönder">
 <!ENTITY enigmail.perRecipientsOption.label         "Alıcı başına kural(lar) oluştur">
 <!ENTITY enigmail.keyMan.filter.label               "Anahtar ara">
-<!ENTITY enigmail.messenger.menulabel               "">
+<!ENTITY enigmail.messenger.menulabel               "Enigmail Ayarlarını Aktar">
 
-<!ENTITY enigmail.setupWiz.title                     "">
-<!ENTITY enigmail.setupWiz.pgIntro.desc              "">
-<!ENTITY enigmail.setupWiz.manyKeys.desc             "">
-<!ENTITY enigmail.setupWiz.manyKeys.selectButton     "">
-<!ENTITY enigmail.setupWiz.startMigration.desc1      "">
-<!ENTITY enigmail.setupWiz.startMigration.desc2      "">
-<!ENTITY enigmail.setupWiz.startMigration.button     "">
+<!ENTITY enigmail.setupWiz.title                     "Enigmail Ayarlarınızı Thunderbird'e Aktarın">
+<!ENTITY enigmail.setupWiz.pgIntro.desc              "Bu sihirbaz Enigmail ve GnuPG'den anahtarlarınızı ve ayarlarınızı alacak ve 
+                                             Thunderbird anahtar deposuna kopyalayacaktır.">
+<!ENTITY enigmail.setupWiz.manyKeys.desc             "GnuPG'de bir çok gizli anahtarınız var. Eğer hepsini Thunderbird'e aktarmak
+                                                   istemiyorsanız, aktarmak istediklerinizi seçmek için 'Gizli Anahtarları Seç' düğmesine tıklayın.">
+<!ENTITY enigmail.setupWiz.manyKeys.selectButton     "Gizli Anahtarları Seç ... ">
+<!ENTITY enigmail.setupWiz.startMigration.desc1      "Aktarmayı başlatmak için lütfen 'Aktarmaya Başla' düğmesine tıklayın.">
+<!ENTITY enigmail.setupWiz.startMigration.desc2      "Bu aktarma süreci GnuPG'den gizli anahtarlarınızı alacak ve Thunderbird'e kopyalacaktır.
+                                                       Eğer anahtarlarınız bir parola ile korunuyorsa, her anahtar için girmeniz istenecektir.
+                                                       Hem GnuPG'den alırken, hem de Thunderbird'e kopyalanırken.">
+<!ENTITY enigmail.setupWiz.startMigration.button     "Aktarmaya Başla">
 
-<!ENTITY enigmail.setupWiz.exportingKeys             "">
-<!ENTITY enigmail.setupWiz.importingKeys             "">
-<!ENTITY enigmail.setupWiz.applyingSettings          "">
-<!ENTITY enigmail.setupWiz.migrationComplete         "">
+<!ENTITY enigmail.setupWiz.exportingKeys             "GnuPG'den anahtarlar alınıyor ...">
+<!ENTITY enigmail.setupWiz.importingKeys             "Anahtarlar Thunderbird'e Kopyalanıyor ...">
+<!ENTITY enigmail.setupWiz.applyingSettings          "Hesap ayarlarınız uygulanıyor ...">
+<!ENTITY enigmail.setupWiz.migrationComplete         "İşlem tamam! Enigmail'e artık ihtiyacınız yok ve kaldırılabilir.">
+<!ENTITY enigmail.setupWiz.restartNeeded             "Kurulumu tamamlamak için Thunderbird şimdi yeniden başlatılacaktır.">
 
-<!ENTITY enigmail.copyCmd.label                      "">
+<!ENTITY enigmail.copyCmd.label                      "Kopyala">

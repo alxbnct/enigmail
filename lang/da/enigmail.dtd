@@ -1,39 +1,44 @@
 <!ENTITY enigmail.keyUserId.label         "Konto / Bruger ID">
 <!ENTITY enigmail.general.okLabel         "OK">
-<!ENTITY enigmail.doneButton.label        "">
+<!ENTITY enigmail.doneButton.label        "Færdig">
 <!ENTITY enigmail.doneButton.accesskey    "D">
-<!ENTITY enigmail.userSelectionList.label           "">
-<!ENTITY enigmail.usersNotFound.label               "">
-<!ENTITY enigmail.keyExpiry.label                   "">
-<!ENTITY enigmail.uidValidity.label                 "">
-<!ENTITY enigmail.keySelection.label                "">
-<!ENTITY enigmail.keyId.label                       "">
-<!ENTITY enigmail.userSelSendSigned.label           "">
+<!ENTITY enigmail.userSelectionList.label           "Enigmail nøglevalg">
+<!ENTITY enigmail.usersNotFound.label               "Modtagere ugyldige, utroværdige eller ikke fundet">
+<!ENTITY enigmail.keyExpiry.label                   "Udløb">
+<!ENTITY enigmail.uidValidity.label                 "Validitet">
+<!ENTITY enigmail.keySelection.label                "Valg">
+<!ENTITY enigmail.keyId.label                       "NøgleID">
+<!ENTITY enigmail.userSelSendSigned.label           "Send signeret">
 <!ENTITY enigmail.userSelSendSigned.accesskey       "V">
-<!ENTITY enigmail.userSelSendEncrypted.label        "">
+<!ENTITY enigmail.userSelSendEncrypted.label        "Send krypteret">
 <!ENTITY enigmail.userSelSendEncrypted.accesskey    "E">
-<!ENTITY enigmail.displayNoLonger.label             "">
-<!ENTITY enigmail.importMissingKeys.label           "">
+<!ENTITY enigmail.displayNoLonger.label             "Vis ikke denne meddelelse igen hvis kryptering ikke er mulig">
+<!ENTITY enigmail.importMissingKeys.label           "Hent manglende nøgler">
 <!ENTITY enigmail.importMissingKeys.accesskey       "D">
-<!ENTITY enigmail.importMissingKeys.tooltip         "">
-<!ENTITY enigmail.refreshKeys.label                 "">
+<!ENTITY enigmail.importMissingKeys.tooltip         "Forsøg at importere de manglende nøgler fra en nøgleserver">
+<!ENTITY enigmail.refreshKeys.label                 "Opdater nøgleliste">
 <!ENTITY enigmail.refreshKeys.accesskey             "R">
-<!ENTITY enigmail.send.label                        "">
-<!ENTITY enigmail.perRecipientsOption.label         "">
-<!ENTITY enigmail.keyMan.filter.label               "">
-<!ENTITY enigmail.messenger.menulabel               "">
+<!ENTITY enigmail.send.label                        "Send">
+<!ENTITY enigmail.perRecipientsOption.label         "Definér regler pr. modtager(e)">
+<!ENTITY enigmail.keyMan.filter.label               "Søg efter nøgler">
+<!ENTITY enigmail.messenger.menulabel               "Migrer Enigmail-indstillinger">
 
-<!ENTITY enigmail.setupWiz.title                     "">
-<!ENTITY enigmail.setupWiz.pgIntro.desc              "">
-<!ENTITY enigmail.setupWiz.manyKeys.desc             "">
-<!ENTITY enigmail.setupWiz.manyKeys.selectButton     "">
-<!ENTITY enigmail.setupWiz.startMigration.desc1      "">
-<!ENTITY enigmail.setupWiz.startMigration.desc2      "">
-<!ENTITY enigmail.setupWiz.startMigration.button     "">
+<!ENTITY enigmail.setupWiz.title                     "Overfør dine Engimail-indstillinger til Thunderbird">
+<!ENTITY enigmail.setupWiz.pgIntro.desc              "Denne guide vil eksportere dine nøgler og indstillinger fra Enigmail og GnuPG, og
+                                                      importere dem til Thunderbirds nøglelager.">
+<!ENTITY enigmail.setupWiz.manyKeys.desc             "Du har flere private nøgler i GnuPG. Hvis du ikke vil importere dem alle 
+                                                      til Thunderbird, så klik 'Vælg private nøgler' for at vælge de nøgler du har brug for.">
+<!ENTITY enigmail.setupWiz.manyKeys.selectButton     "Vælg private nøgler">
+<!ENTITY enigmail.setupWiz.startMigration.desc1      "Klik venligst knappen &quot;Start migrering&quot; for at starte migreringen.">
+<!ENTITY enigmail.setupWiz.startMigration.desc2      "Migreringsprocessen vil eksportere dine private nøgler fra GnuPG og importere dem til Thunderbird.
+                                                      Hvis dine nøgler er beskyttet af en kode, vil du blive spurgt om denne for hver nøgle -
+                                                      en gang under eksportering fra GnuPG og en gang under importering til Thunderbird.">
+<!ENTITY enigmail.setupWiz.startMigration.button     "Start migrering">
 
-<!ENTITY enigmail.setupWiz.exportingKeys             "">
-<!ENTITY enigmail.setupWiz.importingKeys             "">
-<!ENTITY enigmail.setupWiz.applyingSettings          "">
-<!ENTITY enigmail.setupWiz.migrationComplete         "">
+<!ENTITY enigmail.setupWiz.exportingKeys             "Eksporterer nøgler fra GnuPG ...">
+<!ENTITY enigmail.setupWiz.importingKeys             "Importerer nøgler til Thunderbird ...">
+<!ENTITY enigmail.setupWiz.applyingSettings          "Sætter dine kontoindstillinger ...">
+<!ENTITY enigmail.setupWiz.migrationComplete         "Færdig! Enigmail er nu ikke længere nødvendig og kan afinstalleres.">
+<!ENTITY enigmail.setupWiz.restartNeeded             "For at færdiggøre opsætningen genstartes Thunderbird nu.">
 
-<!ENTITY enigmail.copyCmd.label                      "">
+<!ENTITY enigmail.copyCmd.label                      "Kopier">

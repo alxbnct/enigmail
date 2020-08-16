@@ -28,16 +28,17 @@
                                                       importuos juos į Thunderbird raktų saugyklą.">
 <!ENTITY enigmail.setupWiz.manyKeys.desc             "Jūs turite kelis raktus, esančius GnuPG. Jeigu nenorite visų jų importuoti
                                                       į Thunderbird, spustelėkite ant mygtuko &quot;Pasirinkti privačiuosius raktus&quot;, kad pasirinktumėte reikiamus raktus.">
-<!ENTITY enigmail.setupWiz.manyKeys.selectButton     "Pasirinkti privačiuosius raktus...">
+<!ENTITY enigmail.setupWiz.manyKeys.selectButton     "Pasirinkti privačiuosius raktus…">
 <!ENTITY enigmail.setupWiz.startMigration.desc1      "Norėdami pradėti perkėlimą, spustelėkite ant mygtuko &quot;Pradėti perkėlimą&quot;.">
 <!ENTITY enigmail.setupWiz.startMigration.desc2      "Perkėlimo procesas eksportuos jūsų privačiuosius raktus iš GnuPG ir importuos juos į Thunderbird.
                                                       Jeigu jūsų raktai yra apsaugoti slaptafraze, jūsų bus paprašyta įvesti ją kiekvienam apsaugotam raktui -
                                                       vieną kartą eksportuojant iš GnuPG, ir vieną kartą importuojant į Thunderbird.">
 <!ENTITY enigmail.setupWiz.startMigration.button     "Pradėti perkėlimą">
 
-<!ENTITY enigmail.setupWiz.exportingKeys             "Eksportuojami raktai iš GnuPG...">
-<!ENTITY enigmail.setupWiz.importingKeys             "Importuojami raktai į Thunderbird...">
-<!ENTITY enigmail.setupWiz.applyingSettings          "Taikomi jūsų paskyros nustatymai...">
+<!ENTITY enigmail.setupWiz.exportingKeys             "Eksportuojami raktai iš GnuPG…">
+<!ENTITY enigmail.setupWiz.importingKeys             "Importuojami raktai į Thunderbird…">
+<!ENTITY enigmail.setupWiz.applyingSettings          "Taikomi jūsų paskyros nustatymai…">
 <!ENTITY enigmail.setupWiz.migrationComplete         "Viskas atlikta! Enigmail yra daugiau nebereikalinga ir gali būti pašalinta.">
+<!ENTITY enigmail.setupWiz.restartNeeded             "Norint užbaigti sąranką, dabar Thunderbird bus paleista iš naujo.">
 
 <!ENTITY enigmail.copyCmd.label                      "Kopijuoti">

@@ -35,5 +35,6 @@
 <!ENTITY enigmail.setupWiz.importingKeys             "">
 <!ENTITY enigmail.setupWiz.applyingSettings          "">
 <!ENTITY enigmail.setupWiz.migrationComplete         "">
+<!ENTITY enigmail.setupWiz.restartNeeded             "">
 
 <!ENTITY enigmail.copyCmd.label                      "">
