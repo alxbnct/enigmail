@@ -1,8 +1,8 @@
 /*
-  * This Source Code Form is subject to the terms of the Mozilla Public
-  * License, v. 2.0. If a copy of the MPL was not distributed with this
-  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
-  */
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
 
 
 "use strict";
@@ -34,14 +34,14 @@ const STATUS_NOT_REQUIRED = 2;
 const IOSERVICE_CONTRACTID = "@mozilla.org/network/io-service;1";
 
 /*
-  *  Decrypt a message and copy it to a folder
-  *
-  * @param nsIMsgDBHdr hdr   Header of the message
-  * @param String destFolder   Folder URI
-  * @param Boolean move      If true the original message will be deleted
-  *
-  * @return a Promise that we do that
-  */
+ *  Decrypt a message and copy it to a folder
+ *
+ * @param nsIMsgDBHdr hdr   Header of the message
+ * @param String destFolder   Folder URI
+ * @param Boolean move      If true the original message will be deleted
+ *
+ * @return a Promise that we do that
+ */
 var EnigmailPersistentCrypto = {
 
   /***
@@ -737,7 +737,27 @@ CryptMessageIntoFolder.prototype = {
   mimeToString: function(mimePart, includeHeaders) {
     EnigmailLog.DEBUG("persistentCrypto.jsm: mimeToString: part: '" + mimePart.partNum + "'\n");
 
-    let msg = "";
+    let msg = "",
+      encoding = "";
+    if (mimePart.body.length > 0) {
+      encoding = getTransferEncoding(mimePart);
+      if (!encoding) encoding = "8bit";
+
+      if (encoding === "quoted-printable") {
+        mimePart.headers._rawHeaders.set("content-transfer-encoding", ["base64"]);
+        encoding = "base64";
+      }
+
+      if (encoding === "base64") {
+        // eslint-disable-next-line no-control-regex
+        if (mimePart.body.search(/[^\x00-\xFF]/) >= 0) {
+          // convert to UTF-8 if ASCII character > 255 found
+          mimePart.body = EnigmailData.convertFromUnicode(mimePart.body, "utf-8");
+          setCharset(mimePart, "utf-8");
+        }
+      }
+    }
+
     let rawHdr = mimePart.headers._rawHeaders;
 
     if (includeHeaders && rawHdr.size > 0) {
@@ -749,14 +769,6 @@ CryptMessageIntoFolder.prototype = {
     }
 
     if (mimePart.body.length > 0) {
-      let encoding = getTransferEncoding(mimePart);
-      if (!encoding) encoding = "8bit";
-
-      if (encoding === "quoted-printable") {
-        mimePart.headers._rawHeaders.set("content-transfer-encoding", ["base64"]);
-        encoding = "base64";
-      }
-
       if (encoding === "base64") {
         msg += EnigmailData.encodeBase64(mimePart.body);
       }
@@ -1032,6 +1044,30 @@ function getCharset(mime) {
   }
   return null;
 }
+
+/**
+ * Replace the charset of a given message
+ *
+ * @param {Object} mime: mime part to work on
+ * @param {String} newCharset: the new character set to use
+ */
+function setCharset(mime, newCharset) {
+  try {
+    if (mime && ("headers" in mime) && mime.headers.has("content-type")) {
+      mime.headers.get("content-type").set("charset", newCharset);
+      let ct = mime.headers.get("content-type").type;
+      let it = mime.headers.get("content-type").entries();
+      for (let i of it) {
+        ct += '; ' + i[0] + '="' + i[1] + '"';
+      }
+      mime.headers._rawHeaders.set("content-type", [ct]);
+    }
+  }
+  catch (e) {
+    EnigmailLog.DEBUG("persistentCrypto.jsm: setCharset: " + e + "\n");
+  }
+}
+
 
 function getProtocol(mime) {
   try {
