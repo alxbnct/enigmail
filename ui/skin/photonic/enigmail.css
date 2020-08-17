@@ -12,22 +12,12 @@
 
 #button-enigmail-decrypt
   {
-    list-style-image : url("chrome://enigmail/skin/decrypt-active-24.svg");
+    list-style-image : url("chrome://enigmail/skin/decrypt-active-18.svg");
   }
 
 #button-enigmail-decrypt[disabled]
   {
-    list-style-image : url("chrome://enigmail/skin/decrypt-inactive-24.svg");
-  }
-
-toolbar[iconsize="small"] #button-enigmail-decrypt
-  {
-    list-style-image : url("chrome://enigmail/skin/decrypt-active-16.svg");
-  }
-
-toolbar[iconsize="small"] #button-enigmail-decrypt[disabled]
-  {
-    list-style-image : url("chrome://enigmail/skin/decrypt-inactive-16.svg");
+    list-style-image : url("chrome://enigmail/skin/decrypt-inactive-18.svg");
   }
 
 
@@ -37,51 +27,26 @@ toolbar[iconsize="small"] #button-enigmail-decrypt[disabled]
 
 #button-enigmail-encrypt
 {
-  list-style-image : url("chrome://enigmail/skin/encrypt-inactive-24.svg");
+  list-style-image : url("chrome://enigmail/skin/encrypt-inactive-18.svg");
 }
 
 #button-enigmail-encrypt[disabled] {
-  list-style-image : url("chrome://enigmail/skin/encrypt-disabled-24.svg");
+  list-style-image : url("chrome://enigmail/skin/encrypt-disabled-18.svg");
 }
 
 #button-enigmail-encrypt[encrypted="activeNone"]
 {
-  list-style-image : url("chrome://enigmail/skin/encrypt-active-24.svg");
+  list-style-image : url("chrome://enigmail/skin/encrypt-active-18.svg");
 }
 
 #button-enigmail-encrypt[encrypted="forceYes"]
 {
-  list-style-image : url("chrome://enigmail/skin/encrypt-active-24.svg");
+  list-style-image : url("chrome://enigmail/skin/encrypt-active-18.svg");
 }
 
 #button-enigmail-encrypt[encrypted="forceNo"]
 {
-  list-style-image : url("chrome://enigmail/skin/encrypt-inactive-24.svg");
-}
-
-
-toolbar[iconsize="small"] #button-enigmail-encrypt
-{
-  list-style-image : url("chrome://enigmail/skin/encrypt-inactive-16.svg");
-}
-
-toolbar[iconsize="small"] #button-enigmail-encrypt[disabled] {
-  list-style-image : url("chrome://enigmail/skin/encrypt-disabled-16.svg");
-}
-
-toolbar[iconsize="small"] #button-enigmail-encrypt[encrypted="activeNone"]
-{
-  list-style-image : url("chrome://enigmail/skin/encrypt-active-16.svg");
-}
-
-toolbar[iconsize="small"] #button-enigmail-encrypt[encrypted="forceYes"]
-{
-  list-style-image : url("chrome://enigmail/skin/encrypt-active-16.svg");
-}
-
-toolbar[iconsize="small"] #button-enigmail-encrypt[encrypted="forceNo"]
-{
-  list-style-image : url("chrome://enigmail/skin/encrypt-inactive-16.svg");
+  list-style-image : url("chrome://enigmail/skin/encrypt-inactive-18.svg");
 }
 
 
@@ -91,53 +56,29 @@ toolbar[iconsize="small"] #button-enigmail-encrypt[encrypted="forceNo"]
 
 #button-enigmail-sign
 {
-  list-style-image : url("chrome://enigmail/skin/sign-inactive-24.svg");
+  list-style-image : url("chrome://enigmail/skin/sign-inactive-18.svg");
 }
 
 
 #button-enigmail-sign[disabled] {
-  list-style-image : url("chrome://enigmail/skin/sign-disabled-24.svg");
+  list-style-image : url("chrome://enigmail/skin/sign-disabled-18.svg");
 }
 
 #button-enigmail-sign[signed="activeNone"]
 {
-  list-style-image : url("chrome://enigmail/skin/sign-active-24.svg");
+  list-style-image : url("chrome://enigmail/skin/sign-active-18.svg");
 }
 
 #button-enigmail-sign[signed="forceYes"]
 {
-  list-style-image : url("chrome://enigmail/skin/sign-active-24.svg");
+  list-style-image : url("chrome://enigmail/skin/sign-active-18.svg");
 }
 
 #button-enigmail-sign[signed="forceNo"]
 {
-  list-style-image : url("chrome://enigmail/skin/sign-inactive-24.svg");
+  list-style-image : url("chrome://enigmail/skin/sign-inactive-18.svg");
 }
 
-
-toolbar[iconsize="small"] #button-enigmail-sign
-{
-  list-style-image : url("chrome://enigmail/skin/sign-inactive-16.svg");
-}
-
-toolbar[iconsize="small"] #button-enigmail-sign[disabled] {
-  list-style-image : url("chrome://enigmail/skin/sign-disabled-16.svg");
-}
-
-toolbar[iconsize="small"] #button-enigmail-sign[signed="activeNone"]
-{
-  list-style-image : url("chrome://enigmail/skin/sign-active-16.svg");
-}
-
-toolbar[iconsize="small"] #button-enigmail-sign[signed="forceYes"]
-{
-  list-style-image : url("chrome://enigmail/skin/sign-active-16.svg");
-}
-
-toolbar[iconsize="small"] #button-enigmail-sign[signed="forceNo"]
-{
-  list-style-image : url("chrome://enigmail/skin/sign-inactive-16.svg");
-}
 
 /***************************************************
  *  Icons for compose toolbar: attach own key
@@ -145,31 +86,18 @@ toolbar[iconsize="small"] #button-enigmail-sign[signed="forceNo"]
 
 #button-enigmail-attach
 {
-  list-style-image : url("chrome://enigmail/skin/attach-inactive-24.svg");
+  list-style-image : url("chrome://enigmail/skin/attach-inactive-18.svg");
 }
 
 #button-enigmail-attach[disabled] {
-  list-style-image : url("chrome://enigmail/skin/attach-disabled-24.svg");
+  list-style-image : url("chrome://enigmail/skin/attach-disabled-18.svg");
 }
 
 #button-enigmail-attach[addPubkey="true"]
 {
-  list-style-image : url("chrome://enigmail/skin/attach-active-24.svg");
+  list-style-image : url("chrome://enigmail/skin/attach-active-18.svg");
 }
 
-toolbar[iconsize="small"] #button-enigmail-attach
-{
-  list-style-image : url("chrome://enigmail/skin/attach-inactive-16.svg");
-}
-
-toolbar[iconsize="small"] #button-enigmail-attach[disabled] {
-  list-style-image : url("chrome://enigmail/skin/attach-disabled-16.svg");
-}
-
-toolbar[iconsize="small"] #button-enigmail-attach[addPubkey="true"]
-{
-  list-style-image : url("chrome://enigmail/skin/attach-active-16.svg");
-}
 
 /***************************************************
  *  Icons for compose toolbar: Protect header
@@ -177,31 +105,18 @@ toolbar[iconsize="small"] #button-enigmail-attach[addPubkey="true"]
 
 #enigmail-toolbar-encryptHdr-button
 {
-  list-style-image : url("chrome://enigmail/skin/headerUnprotected-24.svg");
+  list-style-image : url("chrome://enigmail/skin/headerUnprotected-18.svg");
 }
 
 #enigmail-toolbar-encryptHdr-button[disabled] {
-  list-style-image : url("chrome://enigmail/skin/headerUnprotected-24.svg");
+  list-style-image : url("chrome://enigmail/skin/headerUnprotected-18.svg");
 }
 
 #enigmail-toolbar-encryptHdr-button[checked="true"]
 {
-  list-style-image : url("chrome://enigmail/skin/headerProtected-24.svg");
+  list-style-image : url("chrome://enigmail/skin/headerProtected-18.svg");
 }
 
-toolbar[iconsize="small"] #enigmail-toolbar-encryptHdr-button
-{
-  list-style-image : url("chrome://enigmail/skin/headerUnprotected-16.svg");
-}
-
-toolbar[iconsize="small"] #enigmail-toolbar-encryptHdr-button[disabled] {
-  list-style-image : url("chrome://enigmail/skin/headerUnprotected-16.svg");
-}
-
-toolbar[iconsize="small"] #enigmail-toolbar-encryptHdr-button[checked="true"]
-{
-  list-style-image : url("chrome://enigmail/skin/headerProtected-16.svg");
-}
 
 /***************************************************
  *  Icons for messenger status bar
