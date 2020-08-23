@@ -24,9 +24,10 @@
 <!ENTITY enigmail.messenger.menulabel               "Enigmail-voorkeuren overzetten">
 
 <!ENTITY enigmail.setupWiz.title                     "Draag je instellingen van Enigmail over naar Thunderbird">
-<!ENTITY enigmail.setupWiz.pgIntro.desc              "">
-<!ENTITY enigmail.setupWiz.manyKeys.desc             "">
-<!ENTITY enigmail.setupWiz.manyKeys.selectButton     "">
+<!ENTITY enigmail.setupWiz.pgIntro.desc              "Deze dialoog zal je sleutels en instellingen van Enigmail en GnuPG exporteren, en deze importeren in de sleutelopslag van Thunderbird">
+<!ENTITY enigmail.setupWiz.manyKeys.desc             "Je hebt verschillende private sleutels in GnuPG.  Als je deze niet allemaal in Thunderbird
+wil importeren, klik op de knop ‘Private sleutels selecteren’ om de sleutels die je nodig hebt te selecteren.">
+<!ENTITY enigmail.setupWiz.manyKeys.selectButton     "Privésleutels selecteren …">
 <!ENTITY enigmail.setupWiz.startMigration.desc1      "">
 <!ENTITY enigmail.setupWiz.startMigration.desc2      "">
 <!ENTITY enigmail.setupWiz.startMigration.button     "">
