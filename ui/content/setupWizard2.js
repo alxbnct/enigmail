@@ -19,6 +19,7 @@ var E2TBTimer = ChromeUtils.import("chrome://enigmail/content/modules/timer.jsm"
 var E2TBKeyRing = ChromeUtils.import("chrome://enigmail/content/modules/keyRing.jsm").EnigmailKeyRing;
 var E2TBCryptoAPI = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI.jsm").EnigmailCryptoAPI;
 var E2TBPrefs = ChromeUtils.import("chrome://enigmail/content/modules/prefs.jsm").EnigmailPrefs;
+var E2TBCore = ChromeUtils.import("chrome://enigmail/content/modules/core.jsm").EnigmailCore;
 var Services = ChromeUtils.import("resource://gre/modules/Services.jsm").Services;
 
 // OpenPGP implementation in TB
@@ -41,6 +42,12 @@ var gSelectedPrivateKeys = null,
 
 function onLoad() {
   E2TBLog.DEBUG(`setupWizard2.js: onLoad()\n`);
+
+  if (!E2TBCore.getService(window, false)) {
+    E2TBDialog.alert(window, E2TBLocale.getString("gpgNotInPath"));
+    window.close();
+    return;
+  }
 
   let dlg = document.getElementById("setupWizardDlg");
   gAcceptButton = dlg.getButton("accept");
