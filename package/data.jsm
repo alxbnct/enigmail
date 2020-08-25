@@ -65,7 +65,7 @@ var EnigmailData = {
    * Encode a string in base64, with a max. line length of 72 characters
    */
   encodeBase64: function(str) {
-    return btoa(str).replace(/(.{72})/g, "$1\r\n");
+    return btoa(str).replace(/(.{1,72})/g, "$1\r\n");
   },
 
   convertToUnicode: function(text, charset) {
