@@ -697,9 +697,9 @@ CryptMessageIntoFolder.prototype = {
       }
       mimePart.body = decryptedMessage;
 
-      let origCharset = getCharset(getHeaderValue(mimePart, 'content-type'));
+      let origCharset = getCharset(mimePart);
       if (origCharset) {
-        mimePart.headers_rawHeaders.set('content-type', getHeaderValue(mimePart, 'content-type').replace(origCharset, charset));
+        mimePart.headers._rawHeaders.set('content-type', getHeaderValue(mimePart, 'content-type').toString().replace(origCharset, charset));
       }
       else {
         mimePart.headers._rawHeaders.set('content-type', getHeaderValue(mimePart, 'content-type') + "; charset=" + charset);
@@ -977,7 +977,7 @@ function getHeaderValue(mimeStruct, header) {
         return hdrVal;
       }
       else {
-        return mimeStruct.headers[header].join(" ");
+        return mimeStruct.headers.getRawHeader(header);
       }
     }
     else {
