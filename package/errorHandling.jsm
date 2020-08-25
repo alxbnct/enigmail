@@ -528,7 +528,7 @@ function parseErrorOutputWith(c) {
       inDecryption = 0;
     } else if (inDecryption >0) {
       m = c.statusArray[i].match(/^(PLAINTEXT [0-9]+ [0-9]+ )(.*)$/);
-      if (m && m.length >= 3) c.retStatusObj.encryptedFileName = m[2];
+      if (m && m.length >= 3 && !m[2].match(/^-&[0-9]+$/)) c.retStatusObj.encryptedFileName = m[2];
     }
   }
 
