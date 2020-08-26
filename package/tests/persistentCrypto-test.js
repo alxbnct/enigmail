@@ -183,6 +183,44 @@ test(withTestGpgHome(withEnigmail(function messageWithAttachemntIsMovedAndReEncr
   );
 })));
 
+test(withTestGpgHome(withEnigmail(function messageMultibyteIsMovedAndDecrypted() {
+  let keyFile = do_get_file("resources/testing-domain.invalid.pub-sec", false);
+  EnigmailKeyRing.importKeyFromFile(keyFile, {}, {});
+
+  MailHelper.cleanMailFolder(MailHelper.rootFolder);
+  const sourceFolder = MailHelper.createMailFolder("source-box");
+  MailHelper.loadEmailToMailFolder("resources/plain-multibyte.eml", sourceFolder);
+
+  const header = MailHelper.fetchFirstMessageHeaderIn(sourceFolder);
+  const targetFolder = MailHelper.createMailFolder("target-box");
+  const move = true;
+  copyListener.OnStopCopy = function(statusCode) {
+    Assert.equal(targetFolder.getTotalMessages(false), 1);
+    inspector.exitNestedEventLoop();
+  };
+
+  EnigmailPersistentCrypto.dispatchMessages([header], targetFolder.URI, copyListener, move);
+  inspector.enterNestedEventLoop(0);
+
+  const dispatchedHeader = MailHelper.fetchFirstMessageHeaderIn(targetFolder);
+  Assert.ok(dispatchedHeader !== null);
+
+  let msgUriSpec = dispatchedHeader.folder.getUriForMsg(dispatchedHeader);
+  let urlObj = EnigmailCompat.getUrlFromUriSpec(msgUriSpec);
+
+  do_test_pending();
+  EnigmailMime.getMimeTreeFromUrl(
+    urlObj.spec,
+    true,
+    function(mimeTree) {
+      Assert.equal(mimeTree.subParts.length, 0);
+      Assert.assertContains(mimeTree.body, "こんにちは世界");
+      do_test_finished();
+    },
+    false
+  );
+})));
+
 var loadSecretKey = function() {
   const secretKey = do_get_file("resources/dev-strike.sec", false);
   EnigmailKeyRing.importKeyFromFile(secretKey, [], {});
