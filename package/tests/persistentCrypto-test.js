@@ -184,7 +184,9 @@ test(withTestGpgHome(withEnigmail(function messageWithAttachemntIsMovedAndReEncr
 })));
 
 test(withTestGpgHome(withEnigmail(function messageMultibyteIsMovedAndDecrypted() {
-  loadSecretKey();
+  let keyFile = do_get_file("resources/testing-domain.invalid.pub-sec", false);
+  EnigmailKeyRing.importKeyFromFile(keyFile, {}, {});
+
   MailHelper.cleanMailFolder(MailHelper.rootFolder);
   const sourceFolder = MailHelper.createMailFolder("source-box");
   MailHelper.loadEmailToMailFolder("resources/plain-multibyte.eml", sourceFolder);
