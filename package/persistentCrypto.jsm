@@ -195,6 +195,12 @@ CryptMessageIntoFolder.prototype = {
     let inputMsg = this.mimeToString(mimeTree, false);
     const cApi = EnigmailCryptoAPI();
 
+    if (!mimeTree.fullContentType) {
+      // if no content-type is provided, it's text/plain by definition (RFC 2045)
+      mimeTree.fullContentType = "text/plain";
+      mimeTree.headers._rawHeaders.set("content-type", ["text/plain"]);
+    }
+
     if (mimeTree.fullContentType.search(/^multipart\/encrypted/i) < 0) {
       // add header for MIME part, unless it's originally a PGP/MIME encrypted message
       let msgHeader = formatMimeHeader("content-type", mimeTree.headers._rawHeaders.get("content-type")) + "\n";
