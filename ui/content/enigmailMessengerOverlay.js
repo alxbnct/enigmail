@@ -173,6 +173,11 @@ Enigmail.msg = {
       EnigmailPEPAdapter.checkForPepUpdate();
     }, 600 * 1000);
 
+    // Display upgrading info for pEp
+    if (EnigmailPEPAdapter.usingPep()) {
+      EnigmailWindows.openPepUpgradeInfo();
+    }
+
     // Need to add event listener to Enigmail.msg.messagePane to make it work
     // Adding to msgFrame doesn't seem to work
     Enigmail.msg.messagePane.addEventListener("unload", Enigmail.msg.messageFrameUnload.bind(Enigmail.msg), true);

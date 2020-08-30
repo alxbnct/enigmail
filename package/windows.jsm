@@ -17,12 +17,16 @@ const EnigmailApp = ChromeUtils.import("chrome://enigmail/content/modules/app.js
 const EnigmailPEPAdapter = ChromeUtils.import("chrome://enigmail/content/modules/pEpAdapter.jsm").EnigmailPEPAdapter;
 const EnigmailCompat = ChromeUtils.import("chrome://enigmail/content/modules/compat.jsm").EnigmailCompat;
 const EnigmailStdlib = ChromeUtils.import("chrome://enigmail/content/modules/stdlib.jsm").EnigmailStdlib;
+const Services = ChromeUtils.import("resource://gre/modules/Services.jsm").Services;
+const AppConstants = ChromeUtils.import("resource://gre/modules/AppConstants.jsm").AppConstants;
 
 const APPSHELL_MEDIATOR_CONTRACTID = "@mozilla.org/appshell/window-mediator;1";
 const APPSHSVC_CONTRACTID = "@mozilla.org/appshell/appShellService;1";
 
 const LOCAL_FILE_CONTRACTID = "@mozilla.org/file/local;1";
 const IOSERVICE_CONTRACTID = "@mozilla.org/network/io-service;1";
+
+var gPepUpgradeDisplayed = false;
 
 var EnigmailWindows = {
   /**
@@ -717,5 +721,101 @@ var EnigmailWindows = {
         tabs.closeTab(tabs.tabInfo[i]);
       }
     }
+  },
+
+  openPepUpgradeInfo: function() {
+    if (gPepUpgradeDisplayed) return; // only show dialog once per session
+    gPepUpgradeDisplayed = true;
+    let locale = Cc["@mozilla.org/intl/localeservice;1"].getService(Ci.mozILocaleService).appLocalesAsBCP47;
+    if (locale && locale.length > 0) {
+      locale = locale[0].substr(0, 2);
+    }
+    else {
+      locale = "en";
+    }
+
+    let platform = AppConstants.platform.replace(/[ \t].*$/, "");
+    const URL="https://pep.software/thunderbird/%p?lang=%l";
+
+    let url = URL.replace("%p", platform).replace("%l", locale);
+    openExternalUrl(url);
   }
 };
+
+
+
+function openExternalUrl(href) {
+  if (!href) {
+    return;
+  }
+
+  let uri = null;
+  try {
+    const nsISSM = Ci.nsIScriptSecurityManager;
+    const secMan = Cc["@mozilla.org/scriptsecuritymanager;1"].getService(
+      nsISSM
+    );
+
+    uri = Services.io.newURI(href);
+
+    let principal = secMan.createNullPrincipal({});
+    try {
+      secMan.checkLoadURIWithPrincipal(
+        principal,
+        uri,
+        nsISSM.DISALLOW_INHERIT_PRINCIPAL
+      );
+    }
+    catch (ex) {
+      var msg =
+        "Error: Cannot open a " +
+        uri.scheme +
+        ": link using the text-link binding.";
+      Cu.reportError(msg);
+      return;
+    }
+
+    const cID = "@mozilla.org/uriloader/external-protocol-service;1";
+    const nsIEPS = Ci.nsIExternalProtocolService;
+    var protocolSvc = Cc[cID].getService(nsIEPS);
+
+    // if the scheme is not an exposed protocol, then opening this link
+    // should be deferred to the system's external protocol handler
+    if (!protocolSvc.isExposedProtocol(uri.scheme)) {
+      protocolSvc.loadURI(uri);
+      return;
+    }
+  }
+  catch (ex) {
+    Cu.reportError(ex);
+  }
+
+  href = uri ? uri.spec : href;
+
+  // Try handing off the link to the host application, e.g. for
+  // opening it in a tabbed browser.
+  var linkHandled = Cc["@mozilla.org/supports-PRBool;1"].createInstance(
+    Ci.nsISupportsPRBool
+  );
+  linkHandled.data = false;
+  let data = {
+    href
+  };
+  Services.obs.notifyObservers(
+    linkHandled,
+    "handle-xul-text-link",
+    JSON.stringify(data)
+  );
+  if (linkHandled.data) {
+    return;
+  }
+
+  // otherwise, fall back to opening the anchor directly
+  let win = window;
+  if (window.isChromeWindow) {
+    while (win.opener && !win.opener.closed) {
+      win = win.opener;
+    }
+  }
+  win.open(href, "_blank", "noopener");
+}
