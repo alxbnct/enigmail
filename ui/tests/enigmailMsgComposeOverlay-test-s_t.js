@@ -334,7 +334,6 @@ function setIdentityDefaults_test() {
   Assert.equal(Enigmail.msg.statusEncryptedStr, EnigmailLocale.getString("encryptNo"));
   Assert.equal(Enigmail.msg.statusSignedStr, EnigmailLocale.getString("signNo", [""]));
   Assert.equal(Enigmail.msg.statusPGPMimeStr, EnigmailLocale.getString("pgpmimeNormal"));
-  Assert.equal(Enigmail.msg.statusInlinePGPStr, EnigmailLocale.getString("inlinePGPNormal"));
   Assert.equal(Enigmail.msg.statusSMimeStr, EnigmailLocale.getString("smimeNormal"));
   Assert.equal(Enigmail.msg.statusAttachOwnKey, EnigmailLocale.getString("attachOwnKeyNo"));
 
@@ -346,7 +345,6 @@ function setIdentityDefaults_test() {
   Enigmail.msg.statusEncryptedStr = "";
   Enigmail.msg.statusSignedStr = "";
   Enigmail.msg.statusPGPMimeStr = "";
-  Enigmail.msg.statusInlinePGPStr = "";
   Enigmail.msg.statusSMimeStr = "";
   Enigmail.msg.statusAttachOwnKey = "";
 

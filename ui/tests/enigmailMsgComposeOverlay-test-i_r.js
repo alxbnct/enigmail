@@ -354,7 +354,6 @@ function msgComposeReset_test() {
   Assert.equal(Enigmail.msg.statusEncryptedStr, "???");
   Assert.equal(Enigmail.msg.statusSignedStr, "???");
   Assert.equal(Enigmail.msg.statusPGPMimeStr, "???");
-  Assert.equal(Enigmail.msg.statusInlinePGPStr, "???");
   Assert.equal(Enigmail.msg.statusAttachOwnKey, "???");
   Assert.equal(Enigmail.msg.enableRules, true);
   Assert.equal(Enigmail.msg.identity, null);
