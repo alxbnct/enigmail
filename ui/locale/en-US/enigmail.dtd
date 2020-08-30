@@ -175,7 +175,6 @@
 <!ENTITY enigmail.sendOptionsMenu.label        "Send Options...">
 <!ENTITY enigmail.defaultKeySelOpts.label      "Key Selection Options...">
 <!ENTITY enigmail.usePgpMime.label             "Protocol: PGP/MIME">
-<!ENTITY enigmail.useInline.label              "Protocol: Inline PGP">
 <!ENTITY enigmail.useSmime.label               "Protocol: S/MIME">
 
 <!ENTITY enigmail.tempTrustAllKeys.label       "Trust the keys of all recipients">
@@ -196,7 +195,6 @@
 <!ENTITY enigmail.defaultKeySelOpts.accesskey  "K">
 <!ENTITY enigmail.pgpAccountSettings.accesskey "E">
 <!ENTITY enigmail.usePgpMime.accesskey         "G">
-<!ENTITY enigmail.useInline.accesskey          "I">
 <!ENTITY enigmail.useSmime.accesskey           "S">
 
 <!ENTITY enigmail.tempTrustAllKeys.accesskey   "T">
@@ -298,26 +296,6 @@
 <!ENTITY enigmail.refreshKeys.accesskey             "R">
 <!ENTITY enigmail.send.label                        "Send">
 <!ENTITY enigmail.perRecipientsOption.label         "Create per-recipient rule(s)">
-
-<!ENTITY enigmail.enigmailAttachDesc.label          "This message contains attachments. How would you like encrypt/sign them?">
-<!ENTITY enigmail.enigEncryptAttachNone.label           "Just encrypt/sign the message text, but not the attachments">
-<!ENTITY enigmail.enigAttachNoneSign.label              "Sign the message text, but not the attachments">
-<!ENTITY enigmail.enigAttachNoneEncrypt.label           "Encrypt the message text, but not the attachments">
-<!ENTITY enigmail.enigAttachNoneEncryptAndSign.label    "Encrypt and sign the message text, but not the attachments">
-<!ENTITY enigmail.enigEncryptAttachInline.label         "Encrypt/sign each attachment separately and send the message using inline PGP">
-<!ENTITY enigmail.enigAttachInlineSign.label            "Sign each attachment separately and send the message using inline PGP">
-<!ENTITY enigmail.enigAttachInlineEncrypt.label         "Encrypt each attachment separately and send the message using inline PGP">
-<!ENTITY enigmail.enigAttachInlineEncryptAndSign.label  "Encrypt and sign each attachment separately and send the message using inline PGP">
-<!ENTITY enigmail.enigEncryptAttachPgpMime.label        "Encrypt/sign the message as a whole and send it using PGP/MIME">
-<!ENTITY enigmail.enigAttachPgpMimeSign.label           "Sign the message as a whole and send it using PGP/MIME">
-<!ENTITY enigmail.enigAttachPgpMimeEncrypt.label        "Encrypt the message as a whole and send it using PGP/MIME">
-<!ENTITY enigmail.enigAttachPgpMimeEncryptAndSign.label "Encrypt and sign the message as a whole and send it using PGP/MIME">
-<!ENTITY enigmail.enigEncryptAttachDontEncryptMsg.label        "Don't encrypt/sign the message at all">
-<!ENTITY enigmail.enigAttachDontEncryptMsgSign.label           "Don't sign the message at all">
-<!ENTITY enigmail.enigAttachDontEncryptMsgEncrypt.label        "Don't encrypt the message at all">
-<!ENTITY enigmail.enigAttachDontEncryptMsgEncryptAndSign.label "Don't encrypt and sign the message at all">
-<!ENTITY enigmail.encryptAttachSkipDlg.label        "Use the selected method for all future attachments">
-
 
 <!ENTITY enigmail.ctxDecryptOpen.label              "Decrypt and Open">
 <!ENTITY enigmail.ctxDecryptSave.label              "Decrypt and Save As...">

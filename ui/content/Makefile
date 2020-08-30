@@ -31,8 +31,6 @@ UIFILES = \
 	enigmailAddUidDlg.xul \
 	enigmailMsgBox.js \
 	enigmailMsgBox.xul \
-	enigmailAttachmentsDialog.xul \
-	enigmailAttachmentsDialog.js \
 	enigmailAmIdEditOverlay.xul \
 	enigmailCheckLanguage.xul \
 	enigmailCardDetails.js \
