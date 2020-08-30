@@ -41,9 +41,6 @@ pref("extensions.enigmail.autoDecrypt", true);
 // enable X-Enigmail-xxx headers
 pref("extensions.enigmail.addHeaders", false);
 
-// countdown for alerts when composing inline PGP HTML msgs
-pref("extensions.enigmail.composeHtmlAlertCount", 3);
-
 // show warning message when clicking on sign icon
 pref("extensions.enigmail.displaySignWarn", true);
 
@@ -76,12 +73,6 @@ pref("extensions.enigmail.initAlert", true);
 
 // use -a for encrypting attachments for inline PGP
 pref("extensions.enigmail.inlineAttachAsciiArmor", false);
-
-// extension to append for inline-encrypted attachments
-pref("extensions.enigmail.inlineAttachExt", ".pgp");
-
-// extension to append for inline-signed attachments
-pref("extensions.enigmail.inlineSigAttachExt", ".sig");
 
 // debug log directory (if set, also enabled debugging)
 pref("extensions.enigmail.logDirectory", "");
@@ -208,9 +199,6 @@ pref("extensions.enigmail.warnRefreshAll", true);
 
 // display a warning when the keys for all contacts are downloaded
 pref("extensions.enigmail.warnDownloadContactKeys", true);
-
-// wrap HTML messages before sending inline PGP messages
-pref("extensions.enigmail.wrapHtmlBeforeSend", true);
 
 // enable encryption/signing of headers like subject, from, to
 // 1: default: ask user at 1st time use / 0: off /  2: on

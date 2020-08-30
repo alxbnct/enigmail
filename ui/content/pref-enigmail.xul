@@ -45,12 +45,6 @@
     <tooltip id="backupPrefs.tooltip">
       <description>&enigmail.backupPrefs.tooltip;</description>
     </tooltip>
-    <tooltip id="wrapHtmlBeforeSend.tooltip">
-      <description>&enigmail.wrapHtmlBeforeSend.tooltip;</description>
-    </tooltip>
-    <tooltip id="autoKeyServerSelection.tooltip">
-      <description>&enigmail.autoKeyServerSelection.tooltip;</description>
-    </tooltip>
 
     <!-- sending preferences: accepted keys -->
     <tooltip id="acceptedKeysTrusted.tooltip">
@@ -300,10 +294,6 @@
           <checkbox id="enigmail_protectHeaders"
                     label="&enigmail.protectHeadersPrefs.label;"
                     tooltip="protectHeaders.tooltip"/>
-
-          <checkbox id="enigmail_wrapHtmlBeforeSend"
-                    label="&enigmail.wrapHtmlBeforeSend.label;"
-                    tooltip="wrapHtmlBeforeSend.tooltip"/>
 
           <checkbox id="enigmail_useDefaultComment"
                     invert="true"

@@ -268,9 +268,6 @@
 <!ENTITY enigmail.assignKeysManuallyAlways.tooltip    "Always finally open the dialog to manually assign keys.">
 <!ENTITY enigmail.defineRules.label               "Edit Rules ...">
 
-
-<!ENTITY enigmail.wrapHtmlBeforeSend.label        "Re-wrap signed HTML text before sending">
-<!ENTITY enigmail.wrapHtmlBeforeSend.tooltip      "Rearrange the text to ensure that the signature will remain intact.">
 <!ENTITY enigmail.autoKeyRetrieve.label           "Automatically download keys for signature verification">
 <!ENTITY enigmail.autoKeyRetrieve2.label          "from the following keyserver:">
 <!ENTITY enigmail.resetRememberedValues.label     "Reset Warnings">
@@ -360,14 +357,6 @@
 <!ENTITY enigmail.keyManWindow.accesskey           "y">
 
 <!ENTITY enigmail.singleRcptSettings.label          "Enigmail - Recipient Settings">
-
-<!ENTITY enigmail.compose.excesslength.label        "You have very long lines in your email. They should be handled differently to avoid bad signatures.">
-<!ENTITY enigmail.compose.excesslength_action.label "How do you want to proceed?">
-<!ENTITY enigmail.wrapSelectionList.label           "Select wrap">
-<!ENTITY enigmail.compose.wrap_radio.label          "Wrap automatically (good signature, but may not look good)">
-<!ENTITY enigmail.compose.sendasis_radio.label      "Send as is (and risk a bad signature)">
-<!ENTITY enigmail.compose.use_mime_radio.label      "Use PGP/MIME (good signature, but some receivers cannot decode it)">
-<!ENTITY enigmail.compose.editmanually.label        "Edit manually">
 
 <!ENTITY enigmail.selKeysButton.label               "Select Key(s)...">
 <!ENTITY enigmail.action.label                      "Action">
