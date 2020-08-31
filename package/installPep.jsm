@@ -100,7 +100,8 @@ Installer.prototype = {
       hash: this.hash,
       comamnd: this.command,
       mount: this.mount,
-      pepVersion: this.pepVersion
+      pepVersion: this.pepVersion,
+      migrateToPepAddon: this.migrateToPepAddon
     };
 
     return o;
@@ -127,6 +128,7 @@ Installer.prototype = {
           let doc = JSON.parse(this.responseText);
           self.url = doc.url;
           self.pepVersion = doc.pepVersion;
+          self.migrateToPepAddon = doc.migrateToPepAddon;
           self.hash = sanitizeHash(doc.hash);
           deferred.resolve();
         }
@@ -482,6 +484,13 @@ var EnigmailInstallPep = {
       // and available version <= PEP_MAX_VERSION?
       if (vc.compare(currentPepVersion, urlObj.pepVersion) < 0 &&
         vc.compare(urlObj.pepVersion, PEP_MAX_VERSION) < 0) return true;
+    }
+
+    if (urlObj && ("migrateToPepAddon" in urlObj)) {
+      if (urlObj.migrateToPepAddon === "1") {
+        let EnigmailWindows = ChromeUtils.import("chrome://enigmail/content/modules/windows.jsm").EnigmailWindows;
+        EnigmailWindows.openPepUpgradeInfo();
+      }
     }
 
     return false;
