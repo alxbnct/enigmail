@@ -134,7 +134,7 @@ var EnigmailPersistentCrypto = {
         try {
           EnigmailMime.getMimeTreeFromUrl(msgUrl, true,
             function f_(mime) {
-              crypt.messageParseCallback(mime, hdr);
+              crypt.messageParseCallback(mime, hdr, msgUrl);
             });
         }
         catch (ex) {
@@ -159,9 +159,10 @@ function CryptMessageIntoFolder(destFolder, move, resolve, targetKey) {
 }
 
 CryptMessageIntoFolder.prototype = {
-  messageParseCallback: async function(mimeTree, msgHdr) {
+  messageParseCallback: async function(mimeTree, msgHdr, msgUrl) {
     this.mimeTree = mimeTree;
     this.hdr = msgHdr;
+    this.msgUrl = msgUrl;
 
     if (mimeTree.headers.has("subject")) {
       this.subject = mimeTree.headers.get("subject");
@@ -173,7 +174,7 @@ CryptMessageIntoFolder.prototype = {
 
     // Encrypt the message if a target key is given.
     if (this.targetKey) {
-      msg = this.encryptToKey(mimeTree);
+      msg = await this.encryptToKey(mimeTree);
       if (!msg) {
         // do nothing (still better than destroying the message)
         this.resolve(true);
@@ -194,14 +195,50 @@ CryptMessageIntoFolder.prototype = {
       this.resolve(true);
   },
 
-  encryptToKey: function(mimeTree) {
+  getRawMessageData: function(msgUrl) {
+    return new Promise((resolve, reject) => {
+      try {
+        const f = function _cb(data) {
+          EnigmailLog.DEBUG(`persistentCrypto.jsm: getRawMessageData - got data (${data.length})\n`);
+          resolve(data);
+        };
+
+        let bufferListener = EnigmailStreams.newStringStreamListener(f);
+        let ioServ = Cc[IOSERVICE_CONTRACTID].getService(Components.interfaces.nsIIOService);
+        let msgUri = ioServ.newURI(msgUrl, null, null);
+
+        let channel = EnigmailStreams.createChannel(msgUrl);
+        channel.asyncOpen(bufferListener, msgUri);
+      }
+      catch (ex) {
+        EnigmailLog.DEBUG(`persistentCrypto.jsm: getRawMessageData - exception ${ex.toString()}\n`);
+        reject(ex);
+      }
+    });
+  },
+
+  encryptToKey: async function(mimeTree) {
     let exitCodeObj = {};
     let statusFlagsObj = {};
     let errorMsgObj = {};
     EnigmailLog.DEBUG("persistentCrypto.jsm: Encrypting message.\n");
 
+    let inputMsg = "";
 
-    let inputMsg = this.mimeToString(mimeTree, false);
+    if (mimeTree.fullContentType &&
+      mimeTree.fullContentType.search(/^multipart\/signed/i) === 0 &&
+      !mimeTree.body) {
+      // make sure we get the unmodified raw message for PGP/MIME (or S/MIME) signed messages
+      inputMsg = await this.getRawMessageData(`${this.msgUrl.spec}`);
+      let bodyIdx = inputMsg.search(/\r?\n\r?\n/);
+      if (bodyIdx > 0) {
+        inputMsg = inputMsg.substr(bodyIdx + 2);
+      }
+
+    }
+    else {
+      inputMsg = this.mimeToString(mimeTree, false);
+    }
 
     if (!mimeTree.fullContentType) {
       // if no content-type is provided, it's text/plain by definition (RFC 2045)
