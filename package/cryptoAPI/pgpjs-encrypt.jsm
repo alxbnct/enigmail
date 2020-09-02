@@ -60,8 +60,10 @@ var pgpjs_encrypt = {
         throw Error("From address is not a key ID");
       }
 
+      let ownKeyId = from;
+
       if (encryptionFlags & EnigmailConstants.SEND_ENCRYPTED) {
-        if (!EnigmailConstants.SEND_SIGNED) {
+        if (!(encryptionFlags & EnigmailConstants.SEND_SIGNED)) {
           from = null;
         }
 
@@ -88,7 +90,7 @@ var pgpjs_encrypt = {
 
         recipientArr = recipientArr.concat(hiddenRcpt);
 
-        if (encryptionFlags & EnigmailConstants.SEND_ENCRYPT_TO_SELF) recipientArr.push(from);
+        if (encryptionFlags & EnigmailConstants.SEND_ENCRYPT_TO_SELF) recipientArr.push(ownKeyId);
         let result = await encryptData(recipientArr, from, plainText);
 
         if ("data" in result) {
