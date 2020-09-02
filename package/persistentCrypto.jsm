@@ -23,6 +23,7 @@ const EnigmailConstants = ChromeUtils.import("chrome://enigmail/content/modules/
 const jsmime = ChromeUtils.import("resource:///modules/jsmime.jsm").jsmime;
 const EnigmailStdlib = ChromeUtils.import("chrome://enigmail/content/modules/stdlib.jsm").EnigmailStdlib;
 const EnigmailCryptoAPI = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI.jsm").EnigmailCryptoAPI;
+const EnigmailStreams = ChromeUtils.import("chrome://enigmail/content/modules/streams.jsm").EnigmailStreams;
 
 const getFixExchangeMsg = EnigmailLazy.loader("enigmail/fixExchangeMsg.jsm", "EnigmailFixExchangeMsg");
 const getDialog = EnigmailLazy.loader("enigmail/dialog.jsm", "EnigmailDialog");
@@ -129,7 +130,7 @@ var EnigmailPersistentCrypto = {
         try {
           EnigmailMime.getMimeTreeFromUrl(msgUrl, true,
             function f_(mime) {
-              crypt.messageParseCallback(mime, hdr);
+              crypt.messageParseCallback(mime, hdr, msgUrl);
             });
         }
         catch (ex) {
@@ -154,9 +155,10 @@ function CryptMessageIntoFolder(destFolder, move, resolve, targetKey) {
 }
 
 CryptMessageIntoFolder.prototype = {
-  messageParseCallback: async function(mimeTree, msgHdr) {
+  messageParseCallback: async function(mimeTree, msgHdr, msgUrl) {
     this.mimeTree = mimeTree;
     this.hdr = msgHdr;
+    this.msgUrl = msgUrl;
 
     if (mimeTree.headers.has("subject")) {
       this.subject = mimeTree.headers.get("subject");
@@ -189,11 +191,47 @@ CryptMessageIntoFolder.prototype = {
       this.resolve(true);
   },
 
+  getRawMessageData: function(msgUrl) {
+    return new Promise((resolve, reject) => {
+      try {
+        const f = function _cb(data) {
+          EnigmailLog.DEBUG(`persistentCrypto.jsm: getRawMessageData - got data (${data.length})\n`);
+          resolve(data);
+        };
+
+        let bufferListener = EnigmailStreams.newStringStreamListener(f);
+        let ioServ = Cc[IOSERVICE_CONTRACTID].getService(Components.interfaces.nsIIOService);
+        let msgUri = ioServ.newURI(msgUrl, null, null);
+
+        let channel = EnigmailStreams.createChannel(msgUrl);
+        channel.asyncOpen(bufferListener, msgUri);
+      }
+      catch (ex) {
+        EnigmailLog.DEBUG(`persistentCrypto.jsm: getRawMessageData - exception ${ex.toString()}\n`);
+        reject(ex);
+      }
+    });
+  },
+
   encryptToKey: async function(mimeTree) {
     EnigmailLog.DEBUG("persistentCrypto.jsm: Encrypting message.\n");
 
-    let inputMsg = this.mimeToString(mimeTree, false);
+    let inputMsg = "";
     const cApi = EnigmailCryptoAPI();
+
+    if (mimeTree.fullContentType &&
+      mimeTree.fullContentType.search(/^multipart\/signed/i) === 0 &&
+      !mimeTree.body) {
+      // make sure we get the unmodified raw message for PGP/MIME (or S/MIME) signed messages
+      inputMsg = await this.getRawMessageData(`${this.msgUrl.spec}`);
+      let bodyIdx = inputMsg.search(/\r?\n\r?\n/);
+      if (bodyIdx > 0) {
+        inputMsg = inputMsg.substr(bodyIdx + 2);
+      }
+    }
+    else {
+      inputMsg = this.mimeToString(mimeTree, false);
+    }
 
     if (!mimeTree.fullContentType) {
       // if no content-type is provided, it's text/plain by definition (RFC 2045)
@@ -215,6 +253,7 @@ CryptMessageIntoFolder.prototype = {
 
       inputMsg = msgHeader + "\n" + inputMsg;
     }
+
 
     let ret = null;
     try {
