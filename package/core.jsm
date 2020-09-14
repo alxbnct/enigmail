@@ -88,15 +88,7 @@ var EnigmailCore = {
       if (observerFired > 0) return;
 
       ++observerFired;
-      const configuredVersion = getEnigmailPrefs().getPref("configuredVersion");
-
-      if (configuredVersion && configuredVersion.length > 0) {
-        self.createInstance();
-        if (!gEnigmailService.initialized) {
-          // try to initialize Enigmail
-          gEnigmailService.initialize(null, getEnigmailApp().getVersion());
-        }
-      }
+      self.getService(null, false);
     }
 
     function continueStartup(type) {
@@ -358,6 +350,7 @@ Enigmail.prototype = {
   initialized: false,
   initializationAttempted: false,
   initializationError: "",
+  _postInitFunctions: [],
 
   initialize: function(domWindow, version) {
     this.initializationAttempted = true;
@@ -386,6 +379,15 @@ Enigmail.prototype = {
     getEnigmailKeyRefreshService().start(getEnigmailKeyServer());
 
     this.initialized = true;
+
+    for (let fn of this._postInitFunctions) {
+      try {
+        fn();
+      }
+      catch(x) {}
+    }
+    this._postInitFunctions = [];
+
 
     getEnigmailTimer().setTimeout(
       function() {
@@ -426,22 +428,34 @@ Enigmail.prototype = {
     }
   },
 
-  getService: function(win, startingPreferences) {
+  addPostInitTask: function(postInitFunc) {
+    this._postInitFunctions.push(postInitFunc);
+  },
+
+  getService: function(win) {
     if (!win) {
       win = getEnigmailWindows().getBestParentWin();
     }
 
-    getEnigmailLog().DEBUG("core.jsm: svc = " + this + "\n");
+    const EnigmailLog = getEnigmailLog();
+    EnigmailLog.DEBUG("core.jsm: svc = " + this + "\n");
 
     if (!this.initialized) {
       const firstInitialization = !this.initializationAttempted;
       const configuredVersion = getEnigmailPrefs().getPref("configuredVersion");
+      const currentVersion = getEnigmailApp().getVersion();
+
+      EnigmailLog.DEBUG(`core.jsm: getService: last used version: "${configuredVersion}"\n`);
+
+      if (getEnigmailApp().getVersion() !== configuredVersion) {
+        getEnigmailConfigure().configureEnigmail(this);
+      }
 
       try {
         // Initialize enigmail
 
         EnigmailCore.init(getEnigmailApp().getVersion());
-        this.initialize(win, getEnigmailApp().getVersion());
+        this.initialize(win, currentVersion);
 
         try {
           // Reset alert count to default value
@@ -450,6 +464,8 @@ Enigmail.prototype = {
         catch (ex) {}
       }
       catch (ex) {
+        EnigmailLog.DEBUG(`core.jsm: getService: got exception: ${ex.toString()}\n`);
+
         if (configuredVersion !== "") {
           if (firstInitialization) {
             // Display initialization error alert
@@ -482,10 +498,11 @@ Enigmail.prototype = {
         }
       }
 
-      getEnigmailLog().DEBUG(`core.jsm: getService: last used version: "${configuredVersion}"\n`);
+      EnigmailLog.DEBUG(`core.jsm: getService: done\n`);
 
-      if (getEnigmailApp().getVersion() !== configuredVersion) {
-        getEnigmailConfigure().configureEnigmail(win, startingPreferences, this);
+      if (configuredVersion === "") {
+        // TODO: change to initial setup
+        getEnigmailConfigure().setupEnigmail(win, this);
       }
     }
 

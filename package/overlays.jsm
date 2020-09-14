@@ -436,7 +436,7 @@ async function insertXul(addonID, srcUrl, window, document) {
   }
 
   if (xul.length === 0 && links.length === 0 && scripts.length === 0) {
-    oconsole.error("insertXul: No element to overlay found. Maybe a parsing error?");
+    //oconsole.error("insertXul: No element to overlay found. Maybe a parsing error?");
     return [];
   }
 

@@ -129,11 +129,6 @@ function defaultPgpMime() {
       }
     }
   }
-
-  if (EnigmailPrefs.getPref("advancedUser") && changedSomething) {
-    EnigmailDialog.alert(null,
-      EnigmailLocale.getString("preferences.defaultToPgpMime"));
-  }
 }
 
 /**
@@ -143,7 +138,6 @@ function defaultPgpMime() {
 function setAutocryptForOldAccounts() {
   try {
     let accountManager = Cc["@mozilla.org/messenger/account-manager;1"].getService(Ci.nsIMsgAccountManager);
-    let changedSomething = false;
 
     for (let acct = 0; acct < accountManager.accounts.length; acct++) {
       let ac = accountManager.accounts.queryElementAt(acct, Ci.nsIMsgAccount);
@@ -187,53 +181,20 @@ function displayUpgradeInfo() {
 
 var EnigmailConfigure = {
   /**
-   * configureEnigmail: main function for configuring Enigmail during the first run
-   * this method is called from core.jsm if Enigmail has not been set up before
-   * (determined via checking the configuredVersion in the preferences)
-   *
-   * @param {nsIWindow} win:                 The parent window. Null if no parent window available
-   * @param {Boolean}   startingPreferences: if true, called while switching to new preferences
-   *                        (to avoid re-check for preferences)
-   * @param {Object}    esvc:                Enigmail service object
-   *
-   * @return {Promise<null>}
+   * configureEnigmail: main function for configuring Enigmail after startup
+   * 
+   * @param {Object} esvc: Enigmail service object 
+   * 
    */
-  configureEnigmail: async function(win, startingPreferences, esvc) {
+  configureEnigmail: function(esvc) {
     EnigmailLog.DEBUG("configure.jsm: configureEnigmail()\n");
-
-    if (!EnigmailStdlib.hasConfiguredAccounts()) {
-      EnigmailLog.DEBUG("configure.jsm: configureEnigmail: no account configured. Waiting 60 seconds.\n");
-
-      // try again in 60 seconds
-      EnigmailTimer.setTimeout(
-        function _f() {
-          EnigmailConfigure.configureEnigmail(win, startingPreferences);
-        },
-        60000);
-      return;
-    }
 
     let oldVer = EnigmailPrefs.getPref("configuredVersion");
 
     let vc = Cc["@mozilla.org/xpcom/version-comparator;1"].getService(Ci.nsIVersionComparator);
 
     if (oldVer === "") {
-      try {
-        await this.detectGnuPG(esvc);
-        let setupResult = await EnigmailAutoSetup.determinePreviousInstallType();
-
-        switch (EnigmailAutoSetup.value) {
-          case EnigmailConstants.AUTOSETUP_NOT_INITIALIZED:
-          case EnigmailConstants.AUTOSETUP_NO_ACCOUNT:
-            break;
-          default:
-            EnigmailPrefs.setPref("configuredVersion", EnigmailApp.getVersion());
-            EnigmailWindows.openSetupWizard(win);
-        }
-      }
-      catch(x) {
-        // ignore exceptions and proceed without setup wizard
-      }
+      return;
     }
     else {
       if (vc.compare(oldVer, "1.7a1pre") < 0) {
@@ -250,36 +211,12 @@ var EnigmailConfigure = {
 
         upgradePrefsSending();
       }
-      if (vc.compare(oldVer, "1.7") < 0) {
-        // open a modal dialog. Since this might happen during the opening of another
-        // window, we have to do this asynchronously
-        EnigmailTimer.setTimeout(
-          function _cb() {
-            var doIt = EnigmailDialog.confirmDlg(win,
-              EnigmailLocale.getString("enigmailCommon.versionSignificantlyChanged"),
-              EnigmailLocale.getString("enigmailCommon.checkPreferences"),
-              EnigmailLocale.getString("dlg.button.close"));
-            if (!startingPreferences && doIt) {
-              // same as:
-              // - EnigmailWindows.openPrefWindow(window, true, 'sendingTab');
-              // but
-              // - without starting the service again because we do that right now
-              // - and modal (waiting for its end)
-              win.openDialog("chrome://enigmail/content/ui/pref-enigmail.xul",
-                "_blank", "chrome,resizable=yes,modal", {
-                  'showBasic': true,
-                  'clientType': 'thunderbird',
-                  'selectTab': 'sendingTab'
-                });
-            }
-          }, 100);
-      }
 
       if (vc.compare(oldVer, "1.9a2pre") < 0) {
         defaultPgpMime();
       }
       if (vc.compare(oldVer, "2.0a1pre") < 0) {
-        this.upgradeTo20();
+        this.upgradeTo20(esvc);
       }
       if (vc.compare(oldVer, "2.0.1a2pre") < 0) {
         this.upgradeTo201();
@@ -297,9 +234,51 @@ var EnigmailConfigure = {
     EnigmailPrefs.savePrefs();
   },
 
-  upgradeTo20: function() {
-    replaceKeyIdWithFpr();
-    displayUpgradeInfo();
+  /**
+   * Set up Enigmail after it was installed for the 1st time
+   *  
+   * @param {nsIWindow} win: The parent window. Null if no parent window available
+   * @param {Object}    esvc: Enigmail service object 
+   * 
+   * @return {Promise<null>}
+   */
+  setupEnigmail: async function(win, esvc) {
+    EnigmailLog.DEBUG("configure.jsm: setupEnigmail()\n");
+
+    if (!EnigmailStdlib.hasConfiguredAccounts()) {
+      EnigmailLog.DEBUG("configure.jsm: setupEnigmail: no account configured. Waiting 60 seconds.\n");
+
+      // try again in 60 seconds
+      EnigmailTimer.setTimeout(
+        function _f() {
+          EnigmailConfigure.setupEnigmail(win, esvc);
+        },
+        60000);
+      return;
+    }
+
+
+    try {
+      await this.detectGnuPG(esvc);
+      let setupResult = await EnigmailAutoSetup.determinePreviousInstallType();
+
+      switch (EnigmailAutoSetup.value) {
+        case EnigmailConstants.AUTOSETUP_NOT_INITIALIZED:
+        case EnigmailConstants.AUTOSETUP_NO_ACCOUNT:
+          break;
+        default:
+          EnigmailPrefs.setPref("configuredVersion", EnigmailApp.getVersion());
+          EnigmailWindows.openSetupWizard(win);
+      }
+    }
+    catch(x) {
+      // ignore exceptions and proceed without setup wizard
+    }
+  },
+
+  upgradeTo20: function(esvc) {
+    esvc.addPostInitTask(replaceKeyIdWithFpr);
+    esvc.addPostInitTask(displayUpgradeInfo);
   },
 
   upgradeTo201: function() {
@@ -313,6 +292,7 @@ var EnigmailConfigure = {
   upgradeTo30: function() {
     setGnuPGDefault();
   },
+
 
   /**
    * Determine if GnuPG is available, and at least one key is present and set the cryptoAPI

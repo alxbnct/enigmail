@@ -37,6 +37,14 @@ test:
     - printf 'user_pref("extensions.enigmail.configuredVersion", "99.0");\n' >> "$TBPROFILE/prefs.js"
     - printf 'user_pref("extensions.enigmail.pEpAutoDownload", false);\n' >> "$TBPROFILE/prefs.js"
     - printf 'user_pref("app.eula.accepted", true);\n' >> "$TBPROFILE/prefs.js"
+    - printf 'user_pref("mail.accountmanager.accounts", "account1");\n' >> "$TBPROFILE/prefs.js"
+    - printf 'user_pref("mail.account.account1.server", "server1");\n' >> "$TBPROFILE/prefs.js"
+    - printf 'user_pref("mail.server.server1.directory-rel", "[ProfD]Mail/Local Folders");\n' >> "$TBPROFILE/prefs.js"
+    - printf 'user_pref("mail.server.server1.storeContractID", "@mozilla.org/msgstore/berkeleystore;1");\n' >> "$TBPROFILE/prefs.js"
+    - printf 'user_pref("mail.server.server1.type", "none");\n' >> "$TBPROFILE/prefs.js"
+    - printf 'user_pref("mail.server.server1.userName", "nobody");\n' >> "$TBPROFILE/prefs.js"
+    - printf 'user_pref("mail.server.server1.hostname", "Local Folders");\n' >> "$TBPROFILE/prefs.js"
+    - printf 'user_pref("mail.server.server1.name", "Local Folders");\n' >> "$TBPROFILE/prefs.js"
     - printf '{%s "main.js"}\n' '"mainFile":' > "$TBPROFILE/jsunit.json"
     #- export TBDOWNLOAD=$(curl -s 'https://download.mozilla.org/?product=thunderbird-beta-latest&os=linux64&lang=en-US' | sed -E 's/(.*href=")([^"]+)(".*)/\2/')
     - export TBDOWNLOAD=https://repository.binaryoutcast.com/projects/interlink/releases/7463/interlink-52.9.7463.linux-x86_64-gtk3.tar.xz
