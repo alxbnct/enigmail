@@ -36,7 +36,8 @@ var gSelectedPrivateKeys = null,
   gCancelButton = null,
   gDialogCancelled = false,
   gProcessing = false,
-  gRestartNeeded = false;
+  gRestartNeeded = false,
+  gRequireGpgme = false;
 
 function onLoad() {
   E2TBLog.DEBUG(`setupWizard2.js: onLoad()\n`);
@@ -191,22 +192,36 @@ function exportKeys(tmpDir) {
     numKeysProcessed = 0;
 
   for (let fpr of gSelectedPrivateKeys) {
-    if (gDialogCancelled) return closeAfterCancel();
-
-    let secKeyFile = tmpDir.clone();
-    secKeyFile.append(fpr + ".sec");
-
-    E2TBLog.DEBUG("setupWizard2.js: exportKeys: secFile: " + secKeyFile.path + "\n");
-    E2TBKeyRing.extractKey(true, fpr, secKeyFile, exitCodeObj, errorMsgObj);
-
-    ++numKeysProcessed;
-    setExportProgress(numKeysProcessed / totalNumKeys * 100);
-
-    if (exitCodeObj.value !== 0) {
-      E2TBLog.DEBUG(`importExportWizard: error while exporting secret key ${fpr}\n`);
-      E2TBDialog.alert(window, E2TBLocale.getString("dataExportError"));
-      return false;
+    let secKeyObj = E2TBKeyRing.getKeyById(fpr);
+    if (secKeyObj.token && secKeyObj.token !== "+") {
+      E2TBLog.DEBUG(`setupWizard2.js: exportKeys: found offline/smartcard key ${fpr}\n`);
+      gRequireGpgme = true;
     }
+  }
+
+  if (!gRequireGpgme) {
+    for (let fpr of gSelectedPrivateKeys) {
+      if (gDialogCancelled) return closeAfterCancel();
+
+      let secKeyFile = tmpDir.clone();
+      secKeyFile.append(fpr + ".sec");
+
+      E2TBLog.DEBUG("setupWizard2.js: exportKeys: secFile: " + secKeyFile.path + "\n");
+      E2TBKeyRing.extractKey(true, fpr, secKeyFile, exitCodeObj, errorMsgObj);
+
+      ++numKeysProcessed;
+      setExportProgress(numKeysProcessed / totalNumKeys * 100);
+
+      if (exitCodeObj.value !== 0) {
+        E2TBLog.DEBUG(`importExportWizard: error while exporting secret key ${fpr}\n`);
+        E2TBDialog.alert(window, E2TBLocale.getString("dataExportError"));
+        return false;
+      }
+    }
+  }
+  else {
+    numKeysProcessed += gSelectedPrivateKeys.length;
+    setExportProgress(numKeysProcessed / totalNumKeys * 100);
   }
 
   for (let fpr of allPubKeys) {
@@ -247,27 +262,35 @@ async function importKeys(tmpDir) {
   document.getElementById("importingKeys").style.visibility = "visible";
 
   let numKeysProcessed = 0;
-  const totalNumKeys = gSelectedPrivateKeys.length + gPublicKeys.length;
+  const totalNumKeys = gPublicKeys.length + (gRequireGpgme ? 0 : gSelectedPrivateKeys.length);
 
-  for (let fpr of gSelectedPrivateKeys) {
-    if (gDialogCancelled) return closeAfterCancel();
+  if (!gRequireGpgme) {
+    for (let fpr of gSelectedPrivateKeys) {
+      if (gDialogCancelled) return closeAfterCancel();
 
-    let secKeyFile = tmpDir.clone();
-    secKeyFile.append(fpr + ".sec");
+      let secKeyFile = tmpDir.clone();
+      secKeyFile.append(fpr + ".sec");
 
-    E2TBLog.DEBUG("setupWizard2.js: importKeys: secFile: " + secKeyFile.path + "\n");
-    if (!(await importKeyFile(fpr, secKeyFile, true))) {
-      secKeysFailed.push(fpr);
+      E2TBLog.DEBUG("setupWizard2.js: importKeys: secFile: " + secKeyFile.path + "\n");
+      if (!(await importKeyFile(fpr, secKeyFile, true))) {
+        secKeysFailed.push(fpr);
+      }
+      ++numKeysProcessed;
+      setImportProgress(numKeysProcessed / totalNumKeys * 100);
     }
-    ++numKeysProcessed;
-    setImportProgress(numKeysProcessed / totalNumKeys * 100);
-  }
 
-  if (secKeysFailed.length > 0) {
-    E2TBDialog.alert(
-      window,
-      E2TBLocale.getString("importSecKeysFailed", secKeysFailed.join("\n"))
-    );
+    if (secKeysFailed.length > 0) {
+      E2TBDialog.alert(
+        window,
+        E2TBLocale.getString("importSecKeysFailed", secKeysFailed.join("\n"))
+      );
+    }
+  }
+  else {
+    // TODO: allow to import both gpgme and "classical" key
+    // TODO: accept keys from gpgme as usable (one of the "yes" in key manager)
+    E2TBPrefs.getPrefRoot().setBoolPref("mail.openpgp.allow_external_gnupg", true);
+    gRestartNeeded = true;
   }
 
   for (let fpr of gPublicKeys) {
@@ -389,6 +412,10 @@ function applyIdentitySettings(identity) {
     identity.setCharAttribute("openpgp_key_id", keyObj.keyId);
     identity.setIntAttribute("encryptionpolicy", identity.getIntAttribute("defaultEncryptionPolicy") > 0 ? 2 : 0);
     identity.setBoolAttribute("sign_mail", (identity.getIntAttribute("defaultSigningPolicy") > 0));
+    if (gRequireGpgme) {
+      identity.setCharAttribute("last_entered_external_gnupg_key_id", keyObj.keyId);
+      identity.setBoolAttribute("is_gnupg_key_id", true);
+    }
   }
 }
 
