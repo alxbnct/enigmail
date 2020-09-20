@@ -38,53 +38,11 @@
   <html:div id="searchingGnuPG" style="width: 440px">
     <html:p>&enigmail.setupWiz.pgIntro.desc;</html:p>
     <html:div>
-      <html:p>&enigmail.setupWiz.searchingGnuPG;
-        <html:span aria-label="&enigmail.general.okLabel;" id="foundGnuPG" style="visibility: hidden" class="enigmailOkSign"/>
+      <html:p>&enigmail.setupWiz.insepctingEnv;
+        <html:span id="usingGnuPG" style="visibility: collapse">&enigmail.setupWiz.usingGnuPG;</html:span>
+        <html:span id="usingOpenpgpJS" style="visibility: collapse">&enigmail.setupWiz.usingOpenpgpJS;</html:span>
       </html:p>
     </html:div>
-  </html:div>
-
-  <html:div id="requireGnuPG" style="width: 440px: margin:auto; visibility: collapse">
-    <html:p>
-      &enigmail.setupWiz.pgInstall.desc;
-    </html:p>
-
-    <html:div id="installBox" style="visibility: collapse">
-      <html:p>
-        &enigmail.setupWiz.pgInstall.installDesc1;
-      </html:p>
-      <html:p>
-        &enigmail.setupWiz.pgInstall.installDesc2;
-      </html:p>
-      <html:p>
-        <html:button type="button" id="btnInstallGnupg" onclick="installGnuPG()">&enigmail.setupWiz.pgInstall.installButton;</html:button>
-        <html:button type="button" id="btnLocateGnuPG" onclick="locateGpg()">&enigmail.setupWiz.pgInstall.locateButton;</html:button>
-      </html:p>
-    </html:div>
-
-    <html:div id="findGpgBox" style="width: 440px; visibility: collapse">
-      <html:p>
-        &enigmail.setupWiz.pgInstall.locateDesc;
-      </html:p>
-      <html:p>
-        <html:button onclick="locateGpg()">&enigmail.setupWiz.pgInstall.locateButton;</html:button>
-      </html:p>
-    </html:div>
-
-    <html:div id="progressBox" style="width: 440px; visibility: collapse">
-      <html:p>
-        &enigmail.setupWiz.pgInstall.downloadLabel;
-      </html:p>
-      <html:progress id="downloadProgress" style="width: 100%;" max="100" value="0"/>
-      <html:p/>
-      <html:div id="installProgressBox" style="visibility: collapse">
-        <html:p id="installLabel">
-          &enigmail.setupWiz.pgInstall.installLabel;
-        </html:p>
-        <html:progress id="installProgress" style="width: 100%; :indeterminate;" max="100"/>
-      </html:div>
-    </html:div>
-
   </html:div>
 
   <html:div id="determineInstall" style="width: 440px; margin:auto; visibility: collapse">
@@ -92,7 +50,6 @@
       <image class="enigmailWheel enigmailSpinning"/>
     </html:p>
   </html:div>
-
 
   <html:div id="previousInstall_acSetup" style="width: 440px; visibility: collapse;">
     <html:p id="foundAcSetupMessage"></html:p>

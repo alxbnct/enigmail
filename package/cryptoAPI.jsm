@@ -12,7 +12,11 @@ var EXPORTED_SYMBOLS = ["EnigmailCryptoAPI"];
 var gCurrentApi = null;
 var Services = ChromeUtils.import("resource://gre/modules/Services.jsm").Services;
 
-function EnigmailCryptoAPI() {
+function EnigmailCryptoAPI(reset = false) {
+  if (reset) {
+    gCurrentApi = null;
+  }
+
   if (!gCurrentApi) {
     const EnigmailPrefs = ChromeUtils.import("chrome://enigmail/content/modules/prefs.jsm").EnigmailPrefs;
 

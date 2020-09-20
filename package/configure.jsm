@@ -182,9 +182,9 @@ function displayUpgradeInfo() {
 var EnigmailConfigure = {
   /**
    * configureEnigmail: main function for configuring Enigmail after startup
-   * 
-   * @param {Object} esvc: Enigmail service object 
-   * 
+   *
+   * @param {Object} esvc: Enigmail service object
+   *
    */
   configureEnigmail: function(esvc) {
     EnigmailLog.DEBUG("configure.jsm: configureEnigmail()\n");
@@ -236,10 +236,10 @@ var EnigmailConfigure = {
 
   /**
    * Set up Enigmail after it was installed for the 1st time
-   *  
+   *
    * @param {nsIWindow} win: The parent window. Null if no parent window available
-   * @param {Object}    esvc: Enigmail service object 
-   * 
+   * @param {Object}    esvc: Enigmail service object
+   *
    * @return {Promise<null>}
    */
   setupEnigmail: async function(win, esvc) {
@@ -252,15 +252,14 @@ var EnigmailConfigure = {
       EnigmailTimer.setTimeout(
         function _f() {
           EnigmailConfigure.setupEnigmail(win, esvc);
-        },
-        60000);
+        }, 60000);
       return;
     }
 
 
     try {
       await this.detectGnuPG(esvc);
-      let setupResult = await EnigmailAutoSetup.determinePreviousInstallType();
+      await determineInstallType();
 
       switch (EnigmailAutoSetup.value) {
         case EnigmailConstants.AUTOSETUP_NOT_INITIALIZED:
@@ -271,7 +270,7 @@ var EnigmailConfigure = {
           EnigmailWindows.openSetupWizard(win);
       }
     }
-    catch(x) {
+    catch (x) {
       // ignore exceptions and proceed without setup wizard
     }
   },
@@ -315,9 +314,24 @@ var EnigmailConfigure = {
         throw new Error("GnuPG found, but no key available");
       }
     }
-    catch(ex) {
-      EnigmailLog.DEBUG(`configure.jsm: detectGnuPG: error ${ex.toString()}\n`);
+    catch (ex) {
+      EnigmailLog.DEBUG(`configure.jsm: detectGnuPG: ${ex.toString()}\n`);
       EnigmailPrefs.setPref("cryptoAPI", 2);
+
+      const EnigmailCryptoAPI = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI.jsm").EnigmailCryptoAPI;
+      const cApi = EnigmailCryptoAPI(true);
+      cApi.initialize(null, esvc, null);
     }
   }
 };
+
+
+function determineInstallType() {
+  return new Promise((resolve, reject) => {
+    EnigmailTimer.setTimeout(() => {
+      EnigmailAutoSetup.determinePreviousInstallType().then(() => {
+        resolve(true);
+      });
+    }, 10000);
+  });
+}

@@ -629,20 +629,10 @@
 <!ENTITY enigmail.setupWiz.pgIntro.desc              "It looks like you started Enigmail for the first time on this computer.
                                                       In order to use Enigmail, you need to first set it up properly.
                                                       This assistant will guide you through the setup process.">
-<!-- wizard: install GnuPG step -->
-<!ENTITY enigmail.setupWiz.pgInstall.desc            "Enigmail requires GnuPG for doing the cryptographic work.
-                                                      The wizard tried to locate the GnuPG executable, but it could not be found.">
-<!ENTITY enigmail.setupWiz.pgInstall.installDesc1    "Enigmail can download GnuPG and launch the installer for you.
-                                                      If you wish to do so, click on the 'Install GnuPG' button to download and install GnuPG.">
-<!ENTITY enigmail.setupWiz.pgInstall.installDesc2    "Alternatively, if you already installed GnuPG, use the 'Browse' button to specify the path to GnuPG manually.">
 
-<!ENTITY enigmail.setupWiz.pgInstall.locateDesc      "Please locate GnuPG using the Browse button.">
-<!ENTITY enigmail.setupWiz.pgInstall.installButton   "Install GnuPG ...">
-<!ENTITY enigmail.setupWiz.pgInstall.locateButton    "Browse ...">
-<!ENTITY enigmail.setupWiz.pgInstall.downloadLabel   "Downloading GnuPG ...">
-<!ENTITY enigmail.setupWiz.pgInstall.installLabel    "Starting the installer. Please follow the steps of the GnuPG installer wizard.">
-
-<!ENTITY enigmail.setupWiz.searchingGnuPG            "Looking for GnuPG ...">
+<!ENTITY enigmail.setupWiz.insepctingEnv             "Inspecting your environment ...">
+<!ENTITY enigmail.setupWiz.usingGnuPG                "Found a usable configuration of GnuPG">
+<!ENTITY enigmail.setupWiz.usingOpenpgpJS            "Will use the builtin crypto-engine of Enigmail">
 <!ENTITY enigmail.setupWiz.checkingSetup             "Checking your existing setup ...">
 <!ENTITY enigmail.setupWiz.startSetupButton          "Start Setup">
 <!ENTITY enigmail.setupWiz.useImportKeys             "Alternatively, you can import your keys using the 'Import Keys' button below.">

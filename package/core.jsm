@@ -384,7 +384,7 @@ Enigmail.prototype = {
       try {
         fn();
       }
-      catch(x) {}
+      catch (x) {}
     }
     this._postInitFunctions = [];
 
