@@ -288,6 +288,10 @@ async function importKeys(tmpDir) {
 
   if (gRequireGpgme) {
     E2TBPrefs.getPrefRoot().setBoolPref("mail.openpgp.allow_external_gnupg", true);
+    let gpgPath = E2TBPrefs.getPref("agentPath");
+    if (gpgPath.length > 0) {
+      E2TBPrefs.getPrefRoot().setCharPref("mail.openpgp.alternative_gpg_path", gpgPath);
+    }
     gRestartNeeded = true;
   }
 
