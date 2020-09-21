@@ -319,8 +319,8 @@ var EnigmailConfigure = {
       EnigmailPrefs.setPref("cryptoAPI", 2);
 
       const EnigmailCryptoAPI = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI.jsm").EnigmailCryptoAPI;
-      const cApi = EnigmailCryptoAPI(true);
-      cApi.initialize(null, esvc, null);
+      EnigmailCryptoAPI(true);
+      esvc.reinitialize();
     }
   }
 };
