@@ -20,6 +20,7 @@ var E2TBKeyRing = ChromeUtils.import("chrome://enigmail/content/modules/keyRing.
 var E2TBCryptoAPI = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI.jsm").EnigmailCryptoAPI;
 var E2TBPrefs = ChromeUtils.import("chrome://enigmail/content/modules/prefs.jsm").EnigmailPrefs;
 var E2TBCore = ChromeUtils.import("chrome://enigmail/content/modules/core.jsm").EnigmailCore;
+var E2TBApp = ChromeUtils.import("chrome://enigmail/content/modules/app.jsm").EnigmailApp;
 var Services = ChromeUtils.import("resource://gre/modules/Services.jsm").Services;
 
 // OpenPGP implementation in TB
@@ -143,7 +144,17 @@ async function startMigration() {
   finally {
     // restore saving function
     RNP.saveKeyRings = origSaveKeyRing;
+  }
+
+  try {
     RNP.saveKeyRings();
+  }
+  catch (ex) {
+    let profD = E2TBApp.getProfileDirectory();
+    profD.append("pubring.asc");
+    E2TBDialog.alert(window, E2TBLocale.getString("fileWriteFailed", profD.path));
+    window.close();
+    return;
   }
 
   if (gDialogCancelled) return;
