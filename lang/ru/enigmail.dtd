@@ -21,20 +21,21 @@
 <!ENTITY enigmail.send.label                        "Отправить">
 <!ENTITY enigmail.perRecipientsOption.label         "Создать правила для адресата">
 <!ENTITY enigmail.keyMan.filter.label               "Поиск ключей">
-<!ENTITY enigmail.messenger.menulabel               "">
+<!ENTITY enigmail.messenger.menulabel               "Настройки миграции Enigmail">
 
-<!ENTITY enigmail.setupWiz.title                     "">
-<!ENTITY enigmail.setupWiz.pgIntro.desc              "">
+<!ENTITY enigmail.setupWiz.title                     "перенесет настройки Enigmail в Thunderbird">
+<!ENTITY enigmail.setupWiz.pgIntro.desc              "Этот мастер экспортирует ваши ключи и настройки из Enigmail и GnuPG, а также
+">
 <!ENTITY enigmail.setupWiz.manyKeys.desc             "">
-<!ENTITY enigmail.setupWiz.manyKeys.selectButton     "">
-<!ENTITY enigmail.setupWiz.startMigration.desc1      "">
+<!ENTITY enigmail.setupWiz.manyKeys.selectButton     "Выберите приватные ключи ...">
+<!ENTITY enigmail.setupWiz.startMigration.desc1      "Пожалуйста, нажмите кнопку &quot;Начать миграцию&quot;, чтобы инициировать миграцию.">
 <!ENTITY enigmail.setupWiz.startMigration.desc2      "">
-<!ENTITY enigmail.setupWiz.startMigration.button     "">
+<!ENTITY enigmail.setupWiz.startMigration.button     "Начать миграцию">
 
-<!ENTITY enigmail.setupWiz.exportingKeys             "">
-<!ENTITY enigmail.setupWiz.importingKeys             "">
-<!ENTITY enigmail.setupWiz.applyingSettings          "">
-<!ENTITY enigmail.setupWiz.migrationComplete         "">
-<!ENTITY enigmail.setupWiz.restartNeeded             "">
+<!ENTITY enigmail.setupWiz.exportingKeys             "Экспорт ключей из GnuPG ...">
+<!ENTITY enigmail.setupWiz.importingKeys             "Импорт ключей в Thunderbird ...">
+<!ENTITY enigmail.setupWiz.applyingSettings          "Применение настроек вашего аккаунта ...">
+<!ENTITY enigmail.setupWiz.migrationComplete         "Готово! Enigmail больше не нужен и может быть удален.">
+<!ENTITY enigmail.setupWiz.restartNeeded             "Для завершения установки Thunderbird будет перезапущен.">
 
-<!ENTITY enigmail.copyCmd.label                      "">
+<!ENTITY enigmail.copyCmd.label                      "Скопировать">

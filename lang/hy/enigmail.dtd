@@ -1,0 +1,40 @@
+<!ENTITY enigmail.keyUserId.label         "Անձնական էջ / օգտագիրոջ նույնացում">
+<!ENTITY enigmail.general.okLabel         "ԼԱՎ">
+<!ENTITY enigmail.doneButton.label        "Արված է">
+<!ENTITY enigmail.doneButton.accesskey    "О">
+<!ENTITY enigmail.userSelectionList.label           "Enigmail֊ի բանալու ընտրություն">
+<!ENTITY enigmail.usersNotFound.label               "հասցեատէրերը սխալ են, գտնված չեն կամ վստահված չեն">
+<!ENTITY enigmail.keyExpiry.label                   "Գործման ժամկետ">
+<!ENTITY enigmail.uidValidity.label                 "վավերական">
+<!ENTITY enigmail.keySelection.label                "Ընտրություն">
+<!ENTITY enigmail.keyId.label                       "Բանալու նույնարկիչ">
+<!ENTITY enigmail.userSelSendSigned.label           "Ստորագրել ուղարկելուց առաջ">
+<!ENTITY enigmail.userSelSendSigned.accesskey       "G">
+<!ENTITY enigmail.userSelSendEncrypted.label        "Ուղարկելուց առաջ գաղտնագրել">
+<!ENTITY enigmail.userSelSendEncrypted.accesskey    "I">
+<!ENTITY enigmail.displayNoLonger.label             "Եթե գաղտնագրումը անհնար է՝ չցուցադրել այս պատուհանը">
+<!ENTITY enigmail.importMissingKeys.label           "Խնդրել պակասող բանալիները">
+<!ENTITY enigmail.importMissingKeys.accesskey       "P">
+<!ENTITY enigmail.importMissingKeys.tooltip         "Փորձել ներածել պակասող բանալիները բանալիների սպասարկչից">
+<!ENTITY enigmail.refreshKeys.label                 "Թարմեցնել բանալիների ցուցակը">
+<!ENTITY enigmail.refreshKeys.accesskey             "J">
+<!ENTITY enigmail.send.label                        "Ուղարկել">
+<!ENTITY enigmail.perRecipientsOption.label         "Ստեղծել կանոններ հասցեատիրոջ համար">
+<!ENTITY enigmail.keyMan.filter.label               "Որոնել․">
+<!ENTITY enigmail.messenger.menulabel               "">
+
+<!ENTITY enigmail.setupWiz.title                     "">
+<!ENTITY enigmail.setupWiz.pgIntro.desc              "">
+<!ENTITY enigmail.setupWiz.manyKeys.desc             "">
+<!ENTITY enigmail.setupWiz.manyKeys.selectButton     "">
+<!ENTITY enigmail.setupWiz.startMigration.desc1      "">
+<!ENTITY enigmail.setupWiz.startMigration.desc2      "">
+<!ENTITY enigmail.setupWiz.startMigration.button     "">
+
+<!ENTITY enigmail.setupWiz.exportingKeys             "">
+<!ENTITY enigmail.setupWiz.importingKeys             "">
+<!ENTITY enigmail.setupWiz.applyingSettings          "">
+<!ENTITY enigmail.setupWiz.migrationComplete         "">
+<!ENTITY enigmail.setupWiz.restartNeeded             "">
+
+<!ENTITY enigmail.copyCmd.label                      "">
