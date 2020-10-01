@@ -767,6 +767,17 @@ class GnuPGCryptoAPI extends CryptoAPI {
   getTrustLabel(trustCode) {
     return GnuPG_getTrustLabel(trustCode);
   }
+
+    /**
+   * Return the OpenPGP configuration directory (if any)
+   *
+   * @return {String}: config directory or null if none
+   */
+  getConfigDir() {
+    const EnigmailGpgAgent = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/gnupg-agent.jsm").EnigmailGpgAgent;
+
+    return EnigmailGpgAgent.getGpgHomeDir();
+  }
 }
 
 

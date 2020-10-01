@@ -34,8 +34,7 @@
     <html:p>&enigmail.importSetup.specifyImportFile;</html:p>
     <html:p>
       <html:input type="text" id="importFileName" readonly="true" size="30"/>
-      <!-- FIXME -->
-      <!-- html:button type="button" id="btnBrowse" onclick="browseFile()">enigmail.setupWiz.pgInstall.locateButton;</html:button> -->
+      <html:button type="button" id="btnBrowse" onclick="browseFile()">&enigmail.browseButton.label;</html:button>
     </html:p>
   </html:div>
 

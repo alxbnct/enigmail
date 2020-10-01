@@ -126,6 +126,8 @@
 <!ENTITY enigmail.decryptToFolder.label     "Decrypt to folder">
 <!ENTITY enigmail.decryptToFolder.accesskey "y">
 
+<!ENTITY enigmail.browseButton.label              "Browse...">
+
 <!-- "recent" label for Folder selection submenu -->
 <!ENTITY enigmail.recent.label              "Recent">
 <!ENTITY enigmail.recent.accesskey          "R">

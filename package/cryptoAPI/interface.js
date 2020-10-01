@@ -535,4 +535,13 @@ class CryptoAPI {
   getTrustLabel(trustCode) {
     return trustCode;
   }
+
+  /**
+   * Return the OpenPGP configuration directory (if any)
+   *
+   * @return {String}: config directory or null if none
+   */
+  getConfigDir() {
+    return null;
+  }
 }

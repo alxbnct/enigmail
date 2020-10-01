@@ -375,20 +375,26 @@ var EnigmailKeyRing = {
    * Export public and possibly secret key(s) to a file
    *
    * @param includeSecretKey  Boolean  - if true, secret keys are exported
-   * @param userId            String   - space or comma separated list of keys to export. Specification by
-   *                                     key ID, email or fingerprint
+   * @param keySpec           String   - space or comma separated list of keys to export. Specification by
+   *                                     key ID, email or fingerprint. If null, all keys will be selected
    * @param outputFile        String or nsIFile - output file name or Object - or NULL
    * @param exitCodeObj       Object   - o.value will contain exit code
    * @param errorMsgObj       Object   - o.value will contain error message from GnuPG
    *
    * @return String - if outputFile is NULL, the key block data; "" if a file is written
    */
-  extractKey: function(includeSecretKey, userId, outputFile, exitCodeObj, errorMsgObj) {
-    EnigmailLog.DEBUG(`keyRing.jsm: EnigmailKeyRing.extractKey: ${userId}\n`);
+  extractKey: function(includeSecretKey, keySpec, outputFile, exitCodeObj, errorMsgObj) {
+    EnigmailLog.DEBUG(`keyRing.jsm: EnigmailKeyRing.extractKey: ${keySpec}\n`);
 
     const cApi = EnigmailCryptoAPI();
 
-    let keys = userId.split(/[ ,\t]+/);
+    if (!keySpec) {
+      keySpec = gKeyListObj.keyList.map(keyObj => {
+        return "0x" + keyObj.fpr;
+      }).join(" ");
+    }
+
+    let keys = keySpec.split(/[ ,\t]+/);
     let keyList = [];
     let k;
 
@@ -425,8 +431,8 @@ var EnigmailKeyRing = {
     if (includeSecretKey) {
 
       let keyList;
-      if (userId) {
-        keyList = userId.split(/[ ,\t]+/);
+      if (keySpec) {
+        keyList = keySpec.split(/[ ,\t]+/);
       }
       else {
         keyList = this.getAllSecretKeys().map(keyObj => {

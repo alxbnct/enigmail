@@ -15,9 +15,9 @@ var EnigmailFiles = ChromeUtils.import("chrome://enigmail/content/modules/files.
 var EnigmailLog = ChromeUtils.import("chrome://enigmail/content/modules/log.jsm").EnigmailLog;
 var EnigmailKeyRing = ChromeUtils.import("chrome://enigmail/content/modules/keyRing.jsm").EnigmailKeyRing;
 var EnigmailConfigBackup = ChromeUtils.import("chrome://enigmail/content/modules/configBackup.jsm").EnigmailConfigBackup;
-var EnigmailGpgAgent = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/gnupg-agent.jsm").EnigmailGpgAgent;
 var EnigmailLocale = ChromeUtils.import("chrome://enigmail/content/modules/locale.jsm").EnigmailLocale;
 var EnigmailPrefs = ChromeUtils.import("chrome://enigmail/content/modules/prefs.jsm").EnigmailPrefs;
+var EnigmailCryptoAPI = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI.jsm").EnigmailCryptoAPI;
 var osUtils = ChromeUtils.import("resource://gre/modules/FileUtils.jsm");
 
 var gWorkFile = {
@@ -55,6 +55,7 @@ function browseExportFile(referencedId) {
 }
 
 function doExport(tmpDir) {
+  const cApi = EnigmailCryptoAPI();
 
   let exitCodeObj = {},
     errorMsgObj = {};
@@ -89,16 +90,18 @@ function doExport(tmpDir) {
   }
 
   try {
-    let homeDir = EnigmailGpgAgent.getGpgHomeDir();
+    let configDir = cApi.getConfigDir();
     let gpgConfgFile = null;
     let zipW = EnigmailFiles.createZipFile(gWorkFile.file);
 
     zipW.addEntryFile("keyring.asc", Ci.nsIZipWriter.COMPRESSION_DEFAULT, keyRingFile, false);
-    zipW.addEntryFile("ownertrust.txt", Ci.nsIZipWriter.COMPRESSION_DEFAULT, otFile, false);
+    if (otFile.exists()) {
+      zipW.addEntryFile("ownertrust.txt", Ci.nsIZipWriter.COMPRESSION_DEFAULT, otFile, false);
+    }
     zipW.addEntryFile("prefs.json", Ci.nsIZipWriter.COMPRESSION_DEFAULT, prefsFile, false);
 
-    if (homeDir) {
-      gpgConfgFile = new osUtils.FileUtils.File(homeDir);
+    if (configDir) {
+      gpgConfgFile = new osUtils.FileUtils.File(configDir);
       gpgConfgFile.append("gpg.conf");
     }
 
