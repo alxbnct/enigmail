@@ -25,7 +25,7 @@
   buttonaccesskeyaccept="&enigmail.doneButton.accesskey;"
   buttonlabelaccept="&enigmail.doneButton.label;"
   onload="onLoad();"
-  minwidth="460px" minheight="360px">
+  minwidth="460px" minheight="450px">
 
   <script type="application/x-javascript" src="chrome://enigmail/content/ui/importSettings.js"/>
 
@@ -43,18 +43,18 @@
   </html:p>
 
   <html:div style="margin:auto">
-    <html:p id="importingKeys" style="visibility: collapse">
+    <html:p id="importingKeys" style="visibility: hidden">
       &enigmail.importSetup.importingKeys;
       <html:img id="importingKeysOK" aria-label="&enigmail.general.okLabel;" class="enigmailOkSign" style="visibility: hidden"/>
       <image id="spinningWheel" class="enigmailWheel enigmailSpinning"/>
     </html:p>
   </html:div>
 
-  <html:p id="restoreGnuPGSettings" style="visibility: collapse">
+  <html:p id="restoreGnuPGSettings" style="visibility: hidden">
     &enigmail.importSetup.restoringGnupgSettings; <html:img id="restoreGnuPGSettingsOK" aria-label="&enigmail.general.okLabel;" class="enigmailOkSign" style="visibility: hidden"/>
   </html:p>
 
-  <html:p id="restoreEnigmailPrefs" style="visibility: collapse">
+  <html:p id="restoreEnigmailPrefs" style="visibility: hidden">
     &enigmail.importSetup.restoringEnigmail; <html:img id="restoreEnigmailPrefsOK" aria-label="&enigmail.general.okLabel;" class="enigmailOkSign" style="visibility: hidden"/>
   </html:p>
 </dialog>

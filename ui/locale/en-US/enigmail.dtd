@@ -698,8 +698,8 @@
 <!ENTITY enigmail.importSetup.topDesc                "Using this dialog, you can restore your settings and keys from an existing Enigmail installation. To create a backup of your settings and keys, use the 'Transfer Settings' tab in the Enigmail preferences.">
 <!ENTITY enigmail.importSetup.specifyImportFile      "Please specify the backup file to use for restoring your settings and keys:">
 <!ENTITY enigmail.importSetup.startRestoreLabel      "Start Restoring">
-<!ENTITY enigmail.importSetup.importingKeys          "Importing keys in GnuPG. This may take a while ...">
-<!ENTITY enigmail.importSetup.restoringGnupgSettings "Restoring GnuPG settings ...">
+<!ENTITY enigmail.importSetup.importingKeys          "Importing keys. This may take a while ...">
+<!ENTITY enigmail.importSetup.restoringGnupgSettings "Restoring crypto-settings ...">
 <!ENTITY enigmail.importSetup.restoringEnigmail      "Restoring Enigmail settings ...">
 
 <!ENTITY enigmail.changePasswd.title                 "Change the passphrase of your OpenPGP Key">
