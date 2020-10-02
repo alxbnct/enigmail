@@ -41,25 +41,30 @@ var pgpjs_keyStore = {
         let blocks = getArmor().splitArmoredBlocks(keyData);
 
         for (let b of blocks) {
-          let res = await PgpJS.message.readArmored(b);
-          if (res.packets.length > 0) {
-            switch (res.packets[0].tag) {
-              case PgpJS.enums.packet.publicKey:
-              case PgpJS.enums.packet.secretKey:
-                res = await PgpJS.key.readArmored(b);
-                break;
-              case PgpJS.enums.packet.signature:
-                if (res.packets[0].signatureType === PgpJS.enums.signature.key_revocation) {
-                  res = await appendRevocationCert(res);
-                }
-                else {
-                  res = {};
-                }
-                break;
+          try {
+            let res = await PgpJS.message.readArmored(b);
+            if (res.packets.length > 0) {
+              switch (res.packets[0].tag) {
+                case PgpJS.enums.packet.publicKey:
+                case PgpJS.enums.packet.secretKey:
+                  res = await PgpJS.key.readArmored(b);
+                  break;
+                case PgpJS.enums.packet.signature:
+                  if (res.packets[0].signatureType === PgpJS.enums.signature.key_revocation) {
+                    res = await appendRevocationCert(res);
+                  }
+                  else {
+                    res = {};
+                  }
+                  break;
+              }
             }
-          }
 
-          if ("keys" in res) keys = keys.concat(res.keys);
+            if ("keys" in res) keys = keys.concat(res.keys);
+          }
+          catch(x) {
+            EnigmailLog.DEBUG(`pgpjs-keystore.jsm: writeKey: error while reading keys: ${x.toString()}\n`);
+          }
         }
       }
       else {
@@ -103,7 +108,7 @@ var pgpjs_keyStore = {
     let conn = await keyStoreDatabase.openDatabase();
 
     let updObj = {
-      status: enabled ?  'enabled' : "disabled",
+      status: enabled ? 'enabled' : "disabled",
       fpr: fpr
     };
 
@@ -282,11 +287,11 @@ var pgpjs_keyStore = {
     let error = null;
 
     try {
-    await conn.executeTransaction(async function _trx() {
-      return keyStoreDatabase.deleteKeysFromDb(keyArr, conn);
-    });
-  }
-    catch(ex) {
+      await conn.executeTransaction(async function _trx() {
+        return keyStoreDatabase.deleteKeysFromDb(keyArr, conn);
+      });
+    }
+    catch (ex) {
       error = ex;
     }
     conn.close();
@@ -674,7 +679,7 @@ const keyStoreDatabase = {
   enableKeys: async function(keyArr, enable, connection = null) {
     EnigmailLog.DEBUG(`pgpjs-keystore.jsm: enableKeys(${keyArr})\n`);
 
-    if (! keyArr || keyArr.length === 0) return;
+    if (!keyArr || keyArr.length === 0) return;
 
     let conn;
     let searchStr = "";
