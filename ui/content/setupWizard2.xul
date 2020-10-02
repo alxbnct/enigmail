@@ -39,8 +39,8 @@
     <html:p>&enigmail.setupWiz.pgIntro.desc;</html:p>
     <html:div>
       <html:p>&enigmail.setupWiz.insepctingEnv;
-        <html:span id="usingGnuPG" style="visibility: collapse">&enigmail.setupWiz.usingGnuPG;</html:span>
-        <html:span id="usingOpenpgpJS" style="visibility: collapse">&enigmail.setupWiz.usingOpenpgpJS;</html:span>
+        <html:span id="usingGnuPG" style="display: none">&enigmail.setupWiz.usingGnuPG;</html:span>
+        <html:span id="usingOpenpgpJS" style="display: none">&enigmail.setupWiz.usingOpenpgpJS;</html:span>
       </html:p>
     </html:div>
   </html:div>

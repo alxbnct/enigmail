@@ -124,7 +124,7 @@ function displayExistingEmails() {
 function checkGnupgInstallation() {
   let cryptoEngine = EnigmailPrefs.getPref("cryptoAPI");
   let uiItem = cryptoEngine === 1 ? "usingGnuPG" : "usingOpenpgpJS";
-  document.getElementById(uiItem).style.visibility = "visible";
+  document.getElementById(uiItem).style.display = "initial";
 }
 
 
