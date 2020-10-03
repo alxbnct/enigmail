@@ -441,12 +441,14 @@ var EnigmailKeyRing = {
       }
       let secKeyBlock = keyList.map(uid => {
         let keyObj = EnigmailKeyRing.getKeyById(uid);
-        if (keyObj) return keyObj.getSecretKey(false).keyData;
+        if (keyObj) {
+          return keyObj.secretAvailable ? keyObj.getSecretKey(false).keyData : "";
+        }
 
         let k = EnigmailKeyRing.getKeysByUserId(uid);
         if (k && k.length > 0) {
           return k.map(keyObj => {
-            return keyObj.getSecretKey(false).keyData;
+            return keyObj.secretAvailable ? keyObj.getSecretKey(false).keyData : "";
           }).join("\n");
         }
         else {
