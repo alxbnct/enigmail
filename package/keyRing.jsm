@@ -439,7 +439,7 @@ var EnigmailKeyRing = {
           return keyObj.keyId;
         });
       }
-      let secKeyBlock = keyList.map(uid => {
+      let secKeyArr = keyList.map(uid => {
         let keyObj = EnigmailKeyRing.getKeyById(uid);
         if (keyObj) {
           return keyObj.secretAvailable ? keyObj.getSecretKey(false).keyData : "";
@@ -454,9 +454,14 @@ var EnigmailKeyRing = {
         else {
           return "";
         }
-      }).join("\n");
+      });
 
-      keyBlock += "\n" + secKeyBlock;
+      let secKeyBlock = "";
+      for (let k of secKeyArr) {
+        if (k) secKeyBlock += "\n" + k;
+      }
+
+      keyBlock += secKeyBlock + "\n";
     }
 
     if (outputFile) {
