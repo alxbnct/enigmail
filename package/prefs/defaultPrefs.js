@@ -263,6 +263,7 @@ pref("mail.identity.default.attachPgpKey", false);
 pref("mail.identity.default.autoEncryptDrafts", true);
 pref("mail.identity.default.protectSubject", true);
 pref("mail.identity.default.warnWeakReply", false);
+pref("mail.identity.default.mimePreferOpenPGP", 1); // prefer S/MIME or PGP/MIME (0: S/MIME, 1: PGP/MIME)
 
 /*
    Default pref values for the enigmail per-account
@@ -270,9 +271,6 @@ pref("mail.identity.default.warnWeakReply", false);
 */
 pref("mail.server.default.enableAutocrypt", true); // see https://autocrypt.org
 pref("mail.server.default.acPreferEncrypt", 0);
-
-// prefer S/MIME or PGP/MIME (0: S/MIME, 1: PGP/MIME)
-pref("mail.identity.default.mimePreferOpenPGP", 1);
 
 /*
    Other settings (change Mozilla behaviour)

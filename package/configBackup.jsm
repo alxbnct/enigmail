@@ -7,14 +7,11 @@
 
 var EXPORTED_SYMBOLS = ["EnigmailConfigBackup"];
 
-
-
-
-
 const EnigmailLog = ChromeUtils.import("chrome://enigmail/content/modules/log.jsm").EnigmailLog;
 const EnigmailRules = ChromeUtils.import("chrome://enigmail/content/modules/rules.jsm").EnigmailRules;
 const EnigmailFiles = ChromeUtils.import("chrome://enigmail/content/modules/files.jsm").EnigmailFiles;
 const EnigmailPrefs = ChromeUtils.import("chrome://enigmail/content/modules/prefs.jsm").EnigmailPrefs;
+const EnigmailFuncs = ChromeUtils.import("chrome://enigmail/content/modules/funcs.jsm").EnigmailFuncs;
 
 const TYPE_BOOL = 1;
 const TYPE_CHAR = 2;
@@ -31,7 +28,15 @@ const IdentityPref = {
   openPgpUrlName: TYPE_CHAR,
   pgpMimeMode: TYPE_BOOL,
   attachPgpKey: TYPE_BOOL,
-  autoEncryptDrafts: TYPE_BOOL
+  autoEncryptDrafts: TYPE_BOOL,
+  protectSubject: TYPE_BOOL,
+  warnWeakReply: TYPE_BOOL,
+  mimePreferOpenPGP: TYPE_INT
+};
+
+const AccountPref = {
+  enableAutocrypt: TYPE_BOOL,
+  acPreferEncrypt: TYPE_INT
 };
 
 var EnigmailConfigBackup = {
@@ -105,6 +110,25 @@ var EnigmailConfigBackup = {
         }
       }
 
+      let acct = EnigmailFuncs.getAccountForIdentity(identity);
+      if (acct) {
+        let srv = acct.incomingServer;
+        keyObj.server = {};
+        for (let pref in AccountPref) {
+          switch (AccountPref[pref]) {
+            case TYPE_BOOL:
+              keyObj.server[pref] = srv.getBoolValue(pref);
+              break;
+            case TYPE_INT:
+              keyObj.server[pref] = srv.getIntValue(pref);
+              break;
+            case TYPE_CHAR:
+              keyObj.server[pref] = srv.getCharValue(pref);
+              break;
+          }
+        }
+      }
+
       prefObj.mailIdentities[identity.key] = keyObj;
     }
 
@@ -151,18 +175,43 @@ var EnigmailConfigBackup = {
           prefObj.mailIdentities[k].foundMatchingEmail = true;
           let keyObj = prefObj.mailIdentities[k];
           for (let pref in IdentityPref) {
-            switch (IdentityPref[pref]) {
-              case TYPE_BOOL:
-                identity.setBoolAttribute(pref, keyObj[pref]);
-                break;
-              case TYPE_INT:
-                identity.setIntAttribute(pref, keyObj[pref]);
-                break;
-              case TYPE_CHAR:
-                identity.setCharAttribute(pref, keyObj[pref]);
-                break;
+            if (pref in keyObj) {
+              switch (IdentityPref[pref]) {
+                case TYPE_BOOL:
+                  identity.setBoolAttribute(pref, keyObj[pref]);
+                  break;
+                case TYPE_INT:
+                  identity.setIntAttribute(pref, keyObj[pref]);
+                  break;
+                case TYPE_CHAR:
+                  identity.setCharAttribute(pref, keyObj[pref]);
+                  break;
+              }
             }
           }
+
+          if ("account" in keyObj) {
+            let acct = EnigmailFuncs.getAccountForIdentity(identity);
+            if (acct) {
+              let srv = acct.incomingServer;
+              for (let pref in AccountPref) {
+                if (pref in keyObj.server) {
+                  switch (AccountPref[pref]) {
+                    case TYPE_BOOL:
+                      srv.setBoolValue(pref, keyObj.server[pref]);
+                      break;
+                    case TYPE_INT:
+                      srv.setIntValue(pref, keyObj.server[pref]);
+                      break;
+                    case TYPE_CHAR:
+                      srv.setCharValue(pref, keyObj.server[pref]);
+                      break;
+                  }
+                }
+              }
+            }
+          }
+
           return;
         }
       }

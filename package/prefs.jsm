@@ -242,10 +242,10 @@ var EnigmailPrefs = {
       var name = allPrefs[q];
 
       /*
-       * agentPath is system-depend, configuredVersion build-depend and
-       * advancedUser must be set in order to save the profile.
+       * agentPath and cryptoAPI are depending on the system
+       * configuredVersion depends on release version
        */
-      if (name == "agentPath" || name == "configuredVersion") {
+      if (name == "agentPath" || name == "configuredVersion" || name === "cryptoAPI") {
         continue;
       }
 
