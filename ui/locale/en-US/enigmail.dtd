@@ -78,7 +78,7 @@
 <!ENTITY enigmail.advanced.label         "Advanced">
 <!ENTITY enigmail.transferSettings.label "Transfer Settings">
 
-<!ENTITY enigmail.basicPrefs.label       "Basic Settings">
+<!ENTITY enigmail.basicPrefs.label       "Crypto-Engine">
 
 <!ENTITY enigmail.moreOptions.label       "More Options">
 <!ENTITY enigmail.general.okLabel         "OK">
