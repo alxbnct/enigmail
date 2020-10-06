@@ -315,21 +315,6 @@
           <separator/>
 
           <hbox>
-            <hbox align="center">
-              <label control="enigmail_agentAdditionalParam"
-                     tooltip="agentAdditionalParam.tooltip"
-                     value="&enigmail.agentAdditionalParam.label;"/>
-            </hbox>
-            <hbox>
-              <textbox id="enigmail_agentAdditionalParam"
-                       tooltip="agentAdditionalParam.tooltip"
-                       size="30"/>
-            </hbox>
-          </hbox>
-
-          <separator/>
-
-          <hbox>
             <button id="resetRememberedValues"
                     label="&enigmail.resetRememberedValues.label;"
                     tooltip="resetRememberedValues.tooltip"
@@ -403,6 +388,21 @@
                   <button id="enigmail_browsePath"
                           label="&enigmail.browse.label;"
                     oncommand="enigLocateGpg();"/>
+                </hbox>
+
+                <separator/>
+
+                <hbox>
+                  <hbox align="center">
+                    <label control="enigmail_agentAdditionalParam"
+                          tooltip="agentAdditionalParam.tooltip"
+                          value="&enigmail.agentAdditionalParam.label;"/>
+                  </hbox>
+                  <hbox>
+                    <textbox id="enigmail_agentAdditionalParam"
+                            tooltip="agentAdditionalParam.tooltip"
+                            size="30"/>
+                  </hbox>
                 </hbox>
               </vbox>
             </vbox>
