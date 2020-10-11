@@ -220,6 +220,22 @@ Enigmail.msg = {
     }
   },
 
+  displayMainMenu: function(menuPopup) {
+    EnigmailFuncs.collapseAdvanced(menuPopup, 'hidden', Enigmail.msg.setMenuSettings(''));
+
+    const cApi = EnigmailCryptoAPI();
+
+    for (let e of ["enigmail_clearPassphrase"]) {
+      let obj = document.getElementById(e);
+      if (cApi.supportsFeature("smartcard")) {
+        obj.removeAttribute("collapsed");
+      }
+      else {
+        obj.setAttribute("collapsed", "true");
+      }
+    }
+  },
+
   toggleSMimeEncrypt: function() {
     EnigmailLog.DEBUG("enigmailMsgComposeOverlay.js: Enigmail.msg.toggleSMimeEncrypt\n");
 

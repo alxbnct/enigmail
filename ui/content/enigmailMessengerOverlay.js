@@ -48,6 +48,7 @@ var EnigmailArmor = ChromeUtils.import("chrome://enigmail/content/modules/armor.
 var EnigmailWks = ChromeUtils.import("chrome://enigmail/content/modules/webKey.jsm").EnigmailWks;
 var EnigmailStdlib = ChromeUtils.import("chrome://enigmail/content/modules/stdlib.jsm").EnigmailStdlib;
 var EnigmailConfigure = ChromeUtils.import("chrome://enigmail/content/modules/configure.jsm").EnigmailConfigure;
+var EnigmailCryptoAPI = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI.jsm").EnigmailCryptoAPI;
 var Services = ChromeUtils.import("resource://gre/modules/Services.jsm").Services;
 
 var Enigmail;
@@ -476,6 +477,17 @@ Enigmail.msg = {
     }
 
     EnigmailFuncs.collapseAdvanced(menuPopup, 'hidden', Enigmail.msg.updateOptionsDisplay());
+
+    const cApi = EnigmailCryptoAPI();
+    for (let e of ["enigmail_smartCard", "enigmail_clearPassphrase"]) {
+      obj = document.getElementById(e);
+      if (cApi.supportsFeature("smartcard")) {
+        obj.removeAttribute("collapsed");
+      }
+      else {
+        obj.setAttribute("collapsed", "true");
+      }
+    }
 
   },
 

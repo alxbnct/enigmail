@@ -66,7 +66,7 @@
             insertbefore="tasksMenu">
 
         <menupopup id="menu_EnigmailPopup"
-                   onpopupshowing="EnigmailFuncs.collapseAdvanced(this, 'hidden', Enigmail.msg.setMenuSettings(''))">
+                   onpopupshowing="Enigmail.msg.displayMainMenu(this)">
 
           <!-- encryption state / toggle menu -->
           <menuitem id="enigmail_compose_encrypt_item"
