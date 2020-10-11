@@ -194,7 +194,7 @@
             </vbox>
 
             <!-- sending preferences: accepted keys -->
-            <vbox class="enigmailCaptionbox">
+            <vbox class="enigmailCaptionbox" id="acceptedKeysBox">
               <html:h1><html:span>&enigmail.acceptedKeysOption.label;</html:span></html:h1>
               <vbox>
                 <radiogroup id="enigmail_acceptedKeys"

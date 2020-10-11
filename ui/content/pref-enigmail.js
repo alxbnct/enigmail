@@ -156,6 +156,9 @@ function prefOnLoad() {
     document.getElementById("GnuPGBox").removeAttribute("collapsed");
     document.getElementById("idleBox").removeAttribute("collapsed");
   }
+  else {
+    document.getElementById("acceptedKeysBox").setAttribute("collapsed", "true");
+  }
 
   gOrigMaxIdle = String(maxIdle);
   gAdvancedMode = EnigGetPref("advancedUser");

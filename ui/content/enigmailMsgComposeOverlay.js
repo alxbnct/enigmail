@@ -225,7 +225,7 @@ Enigmail.msg = {
 
     const cApi = EnigmailCryptoAPI();
 
-    for (let e of ["enigmail_clearPassphrase"]) {
+    for (let e of ["enigmail_clearPassphrase", "enigmail_trust_all_keys"]) {
       let obj = document.getElementById(e);
       if (cApi.supportsFeature("smartcard")) {
         obj.removeAttribute("collapsed");
