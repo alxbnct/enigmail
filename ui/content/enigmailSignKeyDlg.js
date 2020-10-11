@@ -25,6 +25,7 @@ var gUidCount = null;
 function onLoad() {
   var key;
   var i;
+  const cApi = EnigmailCryptoAPI();
 
   window.arguments[1].refresh = false;
 
@@ -40,6 +41,10 @@ function onLoad() {
     window.close();
     return;
   }
+  if (!cApi.supportsFeature("smartcard")) {
+    document.getElementById("ownKeyTrustLabel").setAttribute("collapsed", "true");
+  }
+
   var menulist = document.getElementById("signWithKey");
 
   for (key of keys) {
