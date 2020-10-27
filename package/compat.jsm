@@ -211,7 +211,10 @@ var EnigmailCompat = {
   },
 
   isPostbox: isPostbox,
-  isInterlink: isInterlink
+  isInterlink: isInterlink,
+  isThunderbird: function() {
+    return (!isPostbox() && !isInterlink());
+  }
 };
 
 function isPostbox() {

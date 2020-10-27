@@ -480,7 +480,12 @@ Enigmail.msg = {
       this.reasonSigned = EnigmailLocale.getString("reasonEnabledByDefault");
     }
 
-    this.sendPgpMime = this.getAccDefault("pgpMimeMode");
+    if (EnigmailCompat.isThunderbird()) {
+      this.sendPgpMime = this.getAccDefault("pgpMimeMode");
+    }
+    else {
+      this.sendPgpMime = true;
+    }
     this.attachOwnKeyObj.appendAttachment = this.getAccDefault("attachPgpKey");
     this.setOwnKeyStatus();
     this.attachOwnKeyObj.attachedObj = null;
