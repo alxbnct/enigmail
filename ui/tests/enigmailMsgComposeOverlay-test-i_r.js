@@ -518,7 +518,7 @@ function processAccountSpecificDefaultOptions_test() {
 
   Assert.equal(Enigmail.msg.sendMode, 1);
   Assert.equal(Enigmail.msg.reasonSigned, EnigmailLocale.getString("reasonEnabledByDefault"));
-  Assert.equal(Enigmail.msg.sendPgpMime, false);
+  Assert.equal(Enigmail.msg.sendPgpMime, true);
   Assert.equal(Enigmail.msg.attachOwnKeyObj.appendAttachment, false);
   Assert.equal(Enigmail.msg.attachOwnKeyObj.attachedObj, null);
   Assert.equal(Enigmail.msg.attachOwnKeyObj.attachedKey, null);
@@ -533,7 +533,7 @@ function processAccountSpecificDefaultOptions_test() {
 
   Assert.equal(Enigmail.msg.sendMode, 0);
   Assert.equal(Enigmail.msg.reasonSigned, EnigmailLocale.getString("reasonEnabledByDefault"));
-  Assert.equal(Enigmail.msg.sendPgpMime, false);
+  Assert.equal(Enigmail.msg.sendPgpMime, true);
   Assert.equal(Enigmail.msg.attachOwnKeyObj.appendAttachment, false);
   Assert.equal(Enigmail.msg.attachOwnKeyObj.attachedObj, null);
   Assert.equal(Enigmail.msg.attachOwnKeyObj.attachedKey, null);
