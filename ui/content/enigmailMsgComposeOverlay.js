@@ -338,9 +338,6 @@ Enigmail.msg = {
         case 'sign-pgp':
           res = (this.identity.getIntAttribute("defaultSigningPolicy") > 0);
           break;
-        case 'pgpMimeMode':
-          res = this.identity.getBoolAttribute(key);
-          break;
         case 'signIfNotEnc':
           res = this.identity.getBoolAttribute("pgpSignPlain");
           break;
@@ -374,7 +371,6 @@ Enigmail.msg = {
         case 'encrypt':
         case 'signIfNotEnc':
         case 'signIfEnc':
-        case 'pgpMimeMode':
         case 'attachPgpKey':
         case 'sign-pgp':
           return false;
@@ -473,7 +469,7 @@ Enigmail.msg = {
       this.reasonSigned = EnigmailLocale.getString("reasonEnabledByDefault");
     }
 
-    this.sendPgpMime = this.getAccDefault("pgpMimeMode");
+    this.sendPgpMime = true;
     this.attachOwnKeyObj.appendAttachment = this.getAccDefault("attachPgpKey");
     this.setOwnKeyStatus();
     this.attachOwnKeyObj.attachedObj = null;

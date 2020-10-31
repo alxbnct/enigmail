@@ -68,10 +68,6 @@
                         checked="false"
                         observes="enigmail_bcEnablePgp"
                         label="&enigmail.defaultSigning.label;"/>
-              <checkbox id="enigmail_pgpMimeMode"
-                        checked="false"
-                        observes="enigmail_bcEnablePgp"
-                        label="&enigmail.usePGPMimeAlways.label;"/>
 
               <separator/>
 

@@ -231,9 +231,6 @@ function getAccDefault_test() {
     return false;
   };
 
-  ret = Enigmail.msg.getAccDefault('pgpMimeMode');
-  Assert.equal(ret, false);
-
   ret = Enigmail.msg.getAccDefault("signIfNotEnc");
   Assert.equal(ret, false);
 
@@ -288,9 +285,6 @@ function getAccDefault_test() {
   Assert.equal(ret, false);
 
   ret = Enigmail.msg.getAccDefault('signIfEnc');
-  Assert.equal(ret, false);
-
-  ret = Enigmail.msg.getAccDefault('pgpMimeMode');
   Assert.equal(ret, false);
 
   ret = Enigmail.msg.getAccDefault('attachPgpKey');

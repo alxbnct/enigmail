@@ -68,8 +68,8 @@ function enigmailKeyManagerLoad() {
   }
 
   const cApi = EnigmailCryptoAPI();
-  if (! cApi.supportsFeature("uid-management")) {
-    for (let i of ["manageUid", "ctxManageUid", "addPhoto" ,"ctxAddPhoto"]) {
+  if (!cApi.supportsFeature("uid-management")) {
+    for (let i of ["manageUid", "ctxManageUid", "addPhoto", "ctxAddPhoto"]) {
       document.getElementById(i).style.visibility = "collapse";
     }
   }
@@ -177,7 +177,6 @@ function getSelectedKeys() {
     gUserList.view.selection.getRangeAt(i, start, end);
     for (let c = start.value; c <= end.value; c++) {
       try {
-        //selList.push(gUserList.view.getItemAtIndex(c).getAttribute("keyNum"));
         selList.push(gKeyListView.getFilteredRow(c).keyNum);
       }
       catch (ex) {
@@ -288,20 +287,19 @@ function onListClick(event) {
   event.stopPropagation();
 
   var keyList = getSelectedKeys();
-  var keyType = "";
+  var rowType = "";
   var uatNum = "";
   if (keyList.length == 1) {
-    var rangeCount = gUserList.view.selection.getRangeCount();
     var start = {};
     var end = {};
     gUserList.view.selection.getRangeAt(0, start, end);
     try {
-      keyType = gUserList.view.getItemAtIndex(start.value).getAttribute("keytype");
-      uatNum = gUserList.view.getItemAtIndex(start.value).getAttribute("uatNum");
+      rowType = gKeyListView.getFilteredRow(start.value).rowType;
+      uatNum = gKeyListView.getFilteredRow(start.value).uatNum;
     }
     catch (ex) {}
   }
-  if (keyType == "uat") {
+  if (rowType == "uat") {
     enigShowSpecificPhoto(Number(uatNum));
   }
   else {
@@ -408,20 +406,19 @@ function enigmailEnableKey() {
 function enigShowPhoto() {
 
   var keyList = getSelectedKeys();
-  var keyType = "";
+  var rowType = "";
   var uatNum = "";
   if (keyList.length == 1) {
-    var rangeCount = gUserList.view.selection.getRangeCount();
     var start = {};
     var end = {};
     gUserList.view.selection.getRangeAt(0, start, end);
     try {
-      keyType = gUserList.view.getItemAtIndex(start.value).getAttribute("keytype");
-      uatNum = gUserList.view.getItemAtIndex(start.value).getAttribute("uatNum");
+      rowType = gKeyListView.getFilteredRow(start.value).rowType;
+      uatNum = gKeyListView.getFilteredRow(start.value).uatNum;
     }
     catch (ex) {}
 
-    if (keyType == "uat") {
+    if (rowType == "uat") {
       enigShowSpecificPhoto(uatNum);
       return;
     }
@@ -572,7 +569,7 @@ function createNewMail() {
   var rangeCount = gUserList.view.selection.getRangeCount();
   var start = {};
   var end = {};
-  var keyType,
+  var rowType,
     keyNum,
     r,
     i;
@@ -582,15 +579,16 @@ function createNewMail() {
 
     for (r = start.value; r <= end.value; r++) {
       try {
-        keyType = gUserList.view.getItemAtIndex(r).getAttribute("keytype");
-        keyNum = gUserList.view.getItemAtIndex(r).getAttribute("keyNum");
+        rowType = gKeyListView.getFilteredRow(r).rowType;
+        keyNum = gKeyListView.getFilteredRow(r).keyNum;
 
-        if (keyType == "uid") {
-          var uidNum = Number(gUserList.view.getItemAtIndex(r).getAttribute("uidNum"));
+        if (rowType === "uid") {
+          var uidNum = Number(gKeyListView.getFilteredRow(r).uidNum);
           addresses.push(gKeyList[keyNum].userIds[uidNum].userId);
         }
-        else
+        else if (rowType === "key") {
           addresses.push(gKeyList[keyNum].userId);
+        }
       }
       catch (ex) {}
     }
@@ -1320,8 +1318,8 @@ function getSortColumn() {
       return "keytype";
     case "validityCol":
       return "validity";
-    // case "trustCol":
-    //   return "trust"; // ownerTrust
+      // case "trustCol":
+      //   return "trust"; // ownerTrust
     case "expCol":
       return "expiry";
     case "fprCol":
@@ -1448,8 +1446,8 @@ var gKeyListView = {
               return EnigmailLocale.getString("keyValid.disabled");
             }
             return EnigGetTrustLabel(keyObj.keyTrust);
-          // case "trustCol":
-          //   return EnigGetTrustLabel(keyObj.ownerTrust);
+            // case "trustCol":
+            //   return EnigGetTrustLabel(keyObj.ownerTrust);
           case "expCol":
             return keyObj.expiry;
           case "fprCol":
@@ -1465,8 +1463,8 @@ var gKeyListView = {
               return EnigmailLocale.getString("keyValid.disabled");
             }
             return EnigGetTrustLabel(keyObj.userIds[r.uidNum].keyTrust);
-          // case "trustCol":
-          //   return EnigGetTrustLabel(keyObj.ownerTrust);
+            // case "trustCol":
+            //   return EnigGetTrustLabel(keyObj.ownerTrust);
         }
         break;
       case "uidHdr":

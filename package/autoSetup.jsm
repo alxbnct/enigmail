@@ -365,7 +365,6 @@ var EnigmailAutoSetup = {
             id.setBoolAttribute("enablePgp", true);
             id.setCharAttribute("pgpkeyId", keyId);
             id.setIntAttribute("pgpKeyMode", 1);
-            id.setBoolAttribute("pgpMimeMode", true);
             id.setBoolAttribute("pgpSignEncrypted", true);
           }
         }
@@ -436,7 +435,6 @@ var EnigmailAutoSetup = {
           id.setBoolAttribute("enablePgp", true);
           id.setCharAttribute("pgpkeyId", "0x" + keyObj.fpr);
           id.setIntAttribute("pgpKeyMode", 1);
-          id.setBoolAttribute("pgpMimeMode", true);
           id.setBoolAttribute("pgpSignEncrypted", true);
         }
       }

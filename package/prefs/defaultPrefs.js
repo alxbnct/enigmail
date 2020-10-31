@@ -176,9 +176,6 @@ pref("extensions.enigmail.gpgUpgradeFrom20", false);
 // set locale for GnuPG calls to en-US (Windows only)
 pref("extensions.enigmail.gpgLocaleEn", true);
 
-// use PGP/MIME (0=never, 1=allow, 2=always)
-// pref("extensions.enigmail.usePGPMimeOption",1); -- OBSOLETE, see mail.identity.default.pgpMimeMode
-
 // Use gpg for keyserver operations (vs. Thunderbird)
 pref("extensions.enigmail.useGpgKeysTool", false);
 
@@ -258,7 +255,6 @@ pref("mail.identity.default.pgpSignEncrypted", true);
 pref("mail.identity.default.defaultSigningPolicy", 0);
 pref("mail.identity.default.defaultEncryptionPolicy", 0);
 pref("mail.identity.default.openPgpUrlName", "");
-pref("mail.identity.default.pgpMimeMode", true);
 pref("mail.identity.default.attachPgpKey", false);
 pref("mail.identity.default.autoEncryptDrafts", true);
 pref("mail.identity.default.protectSubject", true);

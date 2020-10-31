@@ -109,29 +109,6 @@ function replaceKeyIdWithFpr() {
 
 
 /**
- * Change the default to PGP/MIME for all accounts, except nntp
- * (v1.8.x -> v1.9)
- */
-function defaultPgpMime() {
-  let accountManager = Cc["@mozilla.org/messenger/account-manager;1"].getService(Ci.nsIMsgAccountManager);
-  let changedSomething = false;
-
-  for (let acct = 0; acct < accountManager.accounts.length; acct++) {
-    let ac = accountManager.accounts.queryElementAt(acct, Ci.nsIMsgAccount);
-    if (ac.incomingServer.type.search(/(pop3|imap|movemail)/) >= 0) {
-
-      for (let i = 0; i < ac.identities.length; i++) {
-        let id = ac.identities.queryElementAt(i, Ci.nsIMsgIdentity);
-        if (id.getBoolAttribute("enablePgp") && !id.getBoolAttribute("pgpMimeMode")) {
-          changedSomething = true;
-        }
-        id.setBoolAttribute("pgpMimeMode", true);
-      }
-    }
-  }
-}
-
-/**
  * set the Autocrypt prefer-encrypt option to "mutual" for all existing
  * accounts
  */
@@ -212,9 +189,6 @@ var EnigmailConfigure = {
         upgradePrefsSending();
       }
 
-      if (vc.compare(oldVer, "1.9a2pre") < 0) {
-        defaultPgpMime();
-      }
       if (vc.compare(oldVer, "2.0a1pre") < 0) {
         this.upgradeTo20(esvc);
       }

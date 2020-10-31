@@ -26,7 +26,6 @@ const IdentityPref = {
   defaultSigningPolicy: TYPE_INT,
   defaultEncryptionPolicy: TYPE_INT,
   openPgpUrlName: TYPE_CHAR,
-  pgpMimeMode: TYPE_BOOL,
   attachPgpKey: TYPE_BOOL,
   autoEncryptDrafts: TYPE_BOOL,
   protectSubject: TYPE_BOOL,

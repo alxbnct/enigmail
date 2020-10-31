@@ -629,7 +629,6 @@ var EnigmailAutocrypt = {
                   id.identity.setCharAttribute("pgpkeyId", "0x" + setupData.fpr);
                   id.identity.setBoolAttribute("enablePgp", true);
                   id.identity.setBoolAttribute("pgpSignEncrypted", true);
-                  id.identity.setBoolAttribute("pgpMimeMode", true);
                   id.identity.setIntAttribute("pgpKeyMode", 1);
                   resolve(setupData);
                 }
