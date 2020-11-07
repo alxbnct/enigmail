@@ -1156,7 +1156,7 @@ Enigmail.msg = {
 
   determineHeadAndTail: function(msgText) {
     let startIndex = msgText.search(/-----BEGIN PGP (SIGNED )?MESSAGE-----/m);
-    let endIndex = msgText.indexOf("-----END PGP");
+    let endIndex = msgText.search(/-----END PGP (SIGNED )?MESSAGE-----/m);
     let hasHead = false;
     let hasTail = false;
     let crypto = 0;
@@ -1614,7 +1614,7 @@ Enigmail.msg = {
 
     let bodyElement = this.getBodyElement();
 
-    if (bodyElement.textContent.search(/^\r?\n?Subject: [^\r\n]+\r?\n\r?\n/i) === 0 &&
+    if (bodyElement && bodyElement.textContent.search(/^\r?\n?Subject: [^\r\n]+\r?\n\r?\n/i) === 0 &&
       ("subject" in currentHeaderData) &&
       currentHeaderData.subject.headerValue === "pEp") {
 
