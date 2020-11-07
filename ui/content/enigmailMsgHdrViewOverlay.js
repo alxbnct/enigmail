@@ -541,6 +541,15 @@ Enigmail.hdrView = {
       let messageContainer = this.getPostboxContainer();
 
       let doc = document.getElementById("messagepane").contentDocument;
+      let sc = messageContainer.getElementsByClassName("securitycontentbox");
+
+      for (let i = 0; i < sc.length; i++) {
+        if (sc[i].id === "enigmailFlexActionButton") {
+          sc[i].parentElement.removeChild(sc[i]);
+          break;
+        }
+      }
+
       let div = doc.createElement('div');
       div.className = 'securitycontentbox';
       div.setAttribute('value', hdrMessage);
@@ -767,7 +776,13 @@ Enigmail.hdrView = {
         this.statusBar.setAttribute("signed", "unknown");
       }
       else if (statusFlags & EnigmailConstants.INLINE_KEY) {
-        this.enigmailBox.setAttribute("class", "expandedEnigmailBox enigmailHeaderBoxLabelSignatureUnknown");
+        if (!EnigmailCompat.isPostbox()) {
+          this.enigmailBox.setAttribute("class", "expandedEnigmailBox enigmailHeaderBoxLabelSignatureUnknown");
+        }
+        else {
+          Enigmail.hdrView.displayFlexAction(secInfo.statusInfo, EnigmailLocale.getString("detailsDlg.importKey"), "keyImp");
+          return;
+        }
       }
       else {
         this.enigmailBox.setAttribute("class", "expandedEnigmailBox enigmailHeaderBoxLabelNoSignature");
