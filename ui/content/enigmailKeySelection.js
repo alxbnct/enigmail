@@ -118,7 +118,8 @@ function getKeyList(secretOnly, refresh) {
       userList = EnigmailKeyRing.getAllSecretKeys();
       if (!userList) return null;
       keyList = EnigmailFuncs.cloneObj(userList);
-    } else {
+    }
+    else {
       userList = EnigmailKeyRing.getAllKeys(window);
       if (!userList) return null;
 
@@ -136,7 +137,8 @@ function getKeyList(secretOnly, refresh) {
         keyList.push(grpList[i]);
       }
     }
-  } catch (ex) {
+  }
+  catch (ex) {
     EnigmailLog.writeException("enigmailKeySelection.js: getKeyList", ex);
   }
 
@@ -169,13 +171,15 @@ function sortKeys(a, b) {
   // 4th: sort according to user IDs
   else if (a.userId.toLowerCase() < b.userId.toLowerCase()) {
     r = -1;
-  } else if (a.userId.toLowerCase() > b.userId.toLowerCase()) {
+  }
+  else if (a.userId.toLowerCase() > b.userId.toLowerCase()) {
     r = 1;
   }
   // 5th: sort according to trust level (higher index value in front)
   else if (TRUSTLEVELS_SORTED.indexOf(a.keyTrust) > TRUSTLEVELS_SORTED.indexOf(b.keyTrust)) {
     r = -1;
-  } else {
+  }
+  else {
     r = 1;
   }
   return r;
@@ -191,7 +195,8 @@ function prepareDialog(secretOnly) {
       dialogHeader.innerHTML = window.arguments[INPUT].dialogHeader;
       dialogHeader.style.visibility = "visible";
     }
-  } else {
+  }
+  else {
     let box = document.getElementById("dialogHeaderBox");
     box.setAttribute("class", "enigmailCaptionboxNoTitle");
     box.removeChild(box.firstChild);
@@ -234,7 +239,8 @@ function prepareDialog(secretOnly) {
         dialogMsgListRows.appendChild(row);
       }
       dialogMsgList.removeAttribute("collapsed");
-    } else {
+    }
+    else {
       dialogMsgList.setAttribute("collapsed", "true");
     }
   }
@@ -269,7 +275,8 @@ function prepareDialog(secretOnly) {
     document.getElementById("dialogHeadline").setAttribute("collapsed", "true");
     document.getElementById("enigmailUserSelSendSigned").setAttribute("collapsed", "true");
     document.getElementById("enigmailUserSelSendEncrypted").setAttribute("collapsed", "true");
-  } else if (window.arguments[INPUT].options.indexOf("noforcedisp") >= 0) {
+  }
+  else if (window.arguments[INPUT].options.indexOf("noforcedisp") >= 0) {
     document.getElementById("displayNoLonger").removeAttribute("collapsed");
   }
 
@@ -315,7 +322,8 @@ function buildList(refresh) {
   var uidNotValid;
   if (gAlwaysTrust) {
     uidNotValid = "";
-  } else {
+  }
+  else {
     uidNotValid = "o-qn";
   }
 
@@ -324,7 +332,8 @@ function buildList(refresh) {
 
   try {
     prepareDialog(secretOnly);
-  } catch (ex) {
+  }
+  catch (ex) {
     EnigmailLog.DEBUG("EXCEPTION: " + ex.toString() + "\n");
   }
 
@@ -336,7 +345,8 @@ function buildList(refresh) {
     if (typeof(window.arguments[INPUT].toKeys) == "string") {
       toKeys = window.arguments[INPUT].toKeys;
     }
-  } catch (ex) {}
+  }
+  catch (ex) {}
 
   var invalidAddr = "";
   try {
@@ -348,7 +358,8 @@ function buildList(refresh) {
     if (typeof(window.arguments[INPUT].invalidAddr) == "string") {
       invalidAddr = " " + window.arguments[INPUT].invalidAddr + " ";
     }
-  } catch (ex) {}
+  }
+  catch (ex) {}
 
   // sort out PGP keys in toAddr
   var toAddrList = getToAddrList();
@@ -434,13 +445,15 @@ function buildList(refresh) {
             if (invalidAddr.indexOf(" " + mailAddr + " ") < 0) {
               aValidUsers.push(mailAddr);
               aUserList[i].activeState = (toAddr.search(s1) >= 0 ? 1 : 0);
-            } else {
+            }
+            else {
               // mail address found as invalid address: marks that to sort them to the beginning
               aUserList[i].uidMatchInvalid = true;
               aUserList[i].uidValid = false;
               aUserList[i].activeState = 0;
             }
-          } else {
+          }
+          else {
             aUserList[i].uidValid = false;
             aUserList[i].activeState = 0;
           }
@@ -455,7 +468,8 @@ function buildList(refresh) {
             }
           }
         }
-      } else {
+      }
+      else {
         // special handling for gpg groups
         mailAddr = stripEmailFromKey(aUserList[i].userId);
         aValidUsers.push(mailAddr);
@@ -463,7 +477,8 @@ function buildList(refresh) {
         aUserList[i].uidValid = true;
         if (toKeys.length > 0) {
           aUserList[i].activeState = (toKeys.indexOf("GROUP:" + aUserList[i].keyId + ",") >= 0 ? 1 : 0);
-        } else
+        }
+        else
           aUserList[i].activeState = 0;
       }
 
@@ -489,7 +504,8 @@ function buildList(refresh) {
         }
       }
     }
-  } catch (ex) {
+  }
+  catch (ex) {
     EnigmailLog.ERROR("enigmailKeySelection.js: ERROR in buildList: " + ex.toString() + "\n" + ex.stack + "\n");
   }
 
@@ -516,7 +532,8 @@ function buildTreeView(aUserList, hideExpired, secretOnly) {
       // do not show if expired keys are hidden
       if (secretOnly) {
         treeItem = enigUserSelCreateRow(aUserList[i], aUserList[i].activeState, aUserList[i].userId, aUserList[i].keyId, aUserList[i].created, "", true);
-      } else {
+      }
+      else {
         treeItem = enigUserSelCreateRow(aUserList[i], aUserList[i].activeState, aUserList[i].userId, aUserList[i].keyId, aUserList[i].expiry, aUserList[i].keyTrust, aUserList[i].uidValid);
       }
       if (aUserList[i].hasSubUserIds()) {
@@ -604,7 +621,8 @@ function enigUserSelCreateRow(userObj, activeState, userId, keyValue, dateField,
   var keyCol = document.createXULElement("treecell");
   if (userObj.keyTrust != KEY_IS_GROUP) {
     keyCol.setAttribute("label", "0x" + keyValue);
-  } else {
+  }
+  else {
     keyCol.setAttribute("label", EnigGetString("keyTrust.group"));
   }
   keyCol.setAttribute("id", "keyid");
@@ -632,7 +650,8 @@ function enigUserSelCreateRow(userObj, activeState, userId, keyValue, dateField,
     if (!gAllowExpired && activeState >= 0) {
       activeState = 2;
     }
-  } else if (!gAlwaysTrust) {
+  }
+  else if (!gAlwaysTrust) {
     if (("mfu".indexOf(userObj.keyTrust.charAt(0)) < 0) ||
       (uidValidityStatus.length > 0) &&
       ("o-qn".indexOf(uidValidityStatus.charAt(0)) >= 0)) {
@@ -655,7 +674,8 @@ function enigUserSelCreateRow(userObj, activeState, userId, keyValue, dateField,
   var treeItem = document.createXULElement("treeitem");
   if (userObj.keyTrust == KEY_IS_GROUP) {
     treeItem.setAttribute("id", "GROUP:" + userObj.keyId);
-  } else {
+  }
+  else {
     treeItem.setAttribute("id", "0x" + userObj.keyId);
     if (userObj.fpr.length > 0) {
       treeItem.setAttribute("fpr", "0x" + userObj.fpr);
@@ -683,11 +703,13 @@ function onAccept() {
       item = gUserList.view.getItemAtIndex(gUserList.currentIndex);
       if (item.getAttribute("fpr")) {
         resultObj.userList.push(item.getAttribute("fpr"));
-      } else {
+      }
+      else {
         resultObj.userList.push(item.getAttribute("id"));
       }
     }
-  } else {
+  }
+  else {
     item = treeChildren.firstChild;
     while (item) {
       var aRows = item.getElementsByAttribute("id", "indicator");
@@ -696,7 +718,8 @@ function onAccept() {
         if (elem.getAttribute("active") == "1") {
           if (item.getAttribute("fpr")) {
             resultObj.userList.push(item.getAttribute("fpr"));
-          } else {
+          }
+          else {
             resultObj.userList.push(item.getAttribute("id"));
           }
         }
@@ -731,7 +754,8 @@ function getToAddrList() {
   var toAddrList;
   try {
     toAddrList = EnigmailFuncs.stripEmail(window.arguments[INPUT].toAddr).split(/[ ,]+/);
-  } catch (ex) {
+  }
+  catch (ex) {
     toAddrList = [];
   }
   return toAddrList;
@@ -757,10 +781,12 @@ function userSelCallback(event) {
       if (Tree.view.selection.count > 0) {
         row = Tree.view.selection.currentIndex;
       }
-    } else {
+    }
+    else {
       return;
     }
-  } else if (event.type == "click") {
+  }
+  else if (event.type == "click") {
     // Mouse event
     Tree = document.getElementById("enigmailUserIdSelection");
 
@@ -800,7 +826,8 @@ function userSelCallback(event) {
     var elem = aRows[0];
     if (elem.getAttribute("active") == "1") {
       EnigSetActive(elem, 0);
-    } else if (elem.getAttribute("active") == "0") {
+    }
+    else if (elem.getAttribute("active") == "0") {
       EnigSetActive(elem, 1);
     }
   }
@@ -822,7 +849,8 @@ function displayNoLonger() {
   var dispMsg = document.getElementById("displayNoLonger");
   if (gSendEncrypted) {
     dispMsg.setAttribute("disabled", "true");
-  } else {
+  }
+  else {
     dispMsg.removeAttribute("disabled");
   }
 }
@@ -837,7 +865,8 @@ function disableList() {
     if (node.localName == "treecol") {
       if (gSendEncrypted) {
         node.removeAttribute("properties");
-      } else {
+      }
+      else {
         node.setAttribute("properties", "enigDontEncrypt");
       }
     }
@@ -870,7 +899,7 @@ function searchMissingKeys() {
 
   EnigDownloadKeys(inputObj, resultObj);
 
-  if (resultObj.importedKeys > 0) {
+  if (resultObj.importedKeys && resultObj.importedKeys.length > 0) {
     resultObj = window.arguments[RESULT];
     resultObj.userList = [];
     resultObj.repeatEvaluation = true;
@@ -896,7 +925,8 @@ function applyFilter() {
     for (let item = treeChildren.firstChild; item; item = item.nextSibling) {
       item.setAttribute("hidden", false);
     }
-  } else {
+  }
+  else {
     // hide items that are
     // - not active
     // - and do not match the search string in all names/emails or key
@@ -941,10 +971,12 @@ function applyFilter() {
 function stripEmailFromKey(uid) {
   try {
     return EnigmailFuncs.stripEmail(uid).toLowerCase();
-  } catch (ex) {
+  }
+  catch (ex) {
     // remove quotes
     return EnigmailFuncs.stripEmail(uid.replace(/"/g, "")).toLowerCase();
-  } finally {
+  }
+  finally {
     // search for last ocurrence of < >
     return uid.replace(/(.*)(<)([^<> ]+)(>[^<>]*)$/, "$3").toLowerCase(); // eslint-disable-line no-unsafe-finally
   }
