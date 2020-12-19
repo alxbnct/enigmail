@@ -87,8 +87,10 @@
 
 <!ENTITY enigmail.keyserver.label         "Keyserver">
 <!ENTITY enigmail.keyserverDlg.label      "Select Keyserver">
-<!ENTITY enigmail.keyservers.label        "Specify your keyserver(s):">
+<!ENTITY enigmail.keyservers.label        "List of keyservers to choose from for search/upload/download:">
 <!ENTITY enigmail.keyservers.sample2      "Example: keys.openpgp.org, pool.sks-keyservers.net">
+<!ENTITY enigmail.autoKeyServerSelection.label     "Use first keyserver by default - do not display the keyserver selection dialog">
+<!ENTITY enigmail.autoKeyServerSelection.tooltip   "Take the first keyserver from the list as default">
 
 <!ENTITY enigmail.searchForKey.example    "Example: 'Forename Surname &lt;user@example.com&gt;'">
 <!ENTITY enigmail.searchForKey.desc1	    "'Forename Surname' finds all keys that contain 'Forename' OR 'Surname'">
@@ -103,9 +105,6 @@
 <!ENTITY enigmail.noHushMailSupport.tooltip    "Use the '&lt;' and '&gt;' characters to specify email addresses for GnuPG. Disable if recipients have old Hushmail keys.">
 <!ENTITY enigmail.mime_parts_on_demand.tooltip "You should turn this OFF if you are receiving PGP/MIME messages on IMAP folders.">
 <!ENTITY enigmail.disableSMIMEui.tooltip       "Remove the S/MIME button from the message composition window toolbar">
-
-<!ENTITY enigmail.autoKeyServerSelection.label     "Always use first keyserver">
-<!ENTITY enigmail.autoKeyServerSelection.tooltip   "Take the first keyserver from the list as default">
 
 <!ENTITY enigmail.decryptbutton.label     "Decrypt">
 <!ENTITY enigmail.decryptbutton.tip       "Decrypt or verify the message with Enigmail">
