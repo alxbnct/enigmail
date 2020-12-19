@@ -1299,6 +1299,15 @@ function accessKeyServer(accessType, callbackFunc) {
 
   if (keyServer.length === 0) return;
 
+  if (accessType === EnigmailConstants.UPLOAD_KEY && isValidatingKeyserver(keyServer)) {
+    for (let k of keyList) {
+      if (!k.secretAvailable) {
+        EnigmailDialog.alert(window, EnigmailLocale.getString("keyMan.uploadNotOwnedKeys"));
+        return;
+      }
+    }
+  }
+
   if (accessType !== EnigmailConstants.REFRESH_KEY) {
     inputObj.keyServer = keyServer;
     inputObj.accessType = accessType;
@@ -1314,6 +1323,15 @@ function accessKeyServer(accessType, callbackFunc) {
   } else {
     EnigmailKeyServer.refresh(keyServer);
   }
+}
+
+
+function isValidatingKeyserver(keyerverUrl) {
+  keyerverUrl = keyerverUrl.toLowerCase();
+
+  return (keyerverUrl.search(/vks:\/\//) === 0 ||
+    keyerverUrl.search(/keys.openpgp.org/) >= 0 ||
+    keyerverUrl.search(/keys.mailvelope.com/) >= 0);
 }
 
 function getSortDirection() {
