@@ -52,7 +52,10 @@ Enigmail.edit = {
     this.isSingleIdEditor = document.getElementById("enigmail_singleId") ? true : false;
     this.openPgpSendKeyWithMsg = document.getElementById("openpgp.sendKeyWithMsg");
 
-    document.getElementById("enigmail_amPrefAutocryptDesc").innerHTML = EnigmailLocale.getString("amPrefAutocrypt.desc");
+    try {
+      document.getElementById("enigmail_amPrefAutocryptDesc").innerHTML = EnigmailLocale.getString("amPrefAutocrypt.desc");
+    }
+    catch(x) {}
 
     if (this.isSingleIdEditor) {
       let acTab = document.getElementById("enigmail_autocryptTab");
@@ -93,7 +96,8 @@ Enigmail.edit = {
       this.pgpSignPlainPolicy.checked = this.identity.getBoolAttribute("pgpSignPlain");
       this.autoEncryptDrafts.checked = this.identity.getBoolAttribute("autoEncryptDrafts");
       this.openPgpSendKeyWithMsg.checked = this.identity.getBoolAttribute("attachPgpKey");
-    } else {
+    }
+    else {
       this.enablePgp.checked = false;
       this.cryptoChoicesEnabled = false;
       this.pgpSignEncPolicy.checked = true;
@@ -104,7 +108,8 @@ Enigmail.edit = {
     if (this.account) {
       this.enableAc.checked = this.account.incomingServer.getBoolValue("enableAutocrypt");
       this.acPreferEncrypt.checked = (this.account.incomingServer.getIntValue("acPreferEncrypt") > 0);
-    } else {
+    }
+    else {
       this.enableAc.checked = true;
     }
 
@@ -114,11 +119,15 @@ Enigmail.edit = {
     this.enableAllPrefs();
   },
 
+  /**
+   * Initialize values for single Identitity Editor (not for account Mgr)
+   */
   onLoadEditor: function() {
     if (typeof(gAccount) == "object") {
       this.account = gAccount;
       this.identity = gIdentity;
-    } else if ("arguments" in window) {
+    }
+    else if ("arguments" in window) {
       this.identity = window.arguments[0].identity;
       this.account = window.arguments[0].account;
     }
@@ -139,11 +148,13 @@ Enigmail.edit = {
       if (onOk() === false) {
         return false;
       }
-    } catch (ex) {}
+    }
+    catch (ex) {}
     this.onSave();
     if (typeof(smimeOnAcceptEditor) == "function") {
       return smimeOnAcceptEditor();
-    } else
+    }
+    else
       return true;
   },
 
@@ -184,7 +195,8 @@ Enigmail.edit = {
     var elem = document.getElementById("enigmail_bcEnablePgp");
     if (this.cryptoChoicesEnabled) {
       if (elem) elem.removeAttribute("disabled");
-    } else {
+    }
+    else {
       if (elem) elem.setAttribute("disabled", "true");
     }
 
@@ -195,7 +207,8 @@ Enigmail.edit = {
   enableKeySel: function(enable) {
     if (enable) {
       document.getElementById("enigmail_bcUseKeyId").removeAttribute("disabled");
-    } else {
+    }
+    else {
       document.getElementById("enigmail_bcUseKeyId").setAttribute("disabled", "true");
     }
   },
@@ -203,7 +216,8 @@ Enigmail.edit = {
   enableAcSettings: function() {
     if (this.cryptoChoicesEnabled && this.enableAc.checked) {
       this.acPreferEncrypt.removeAttribute("disabled");
-    } else {
+    }
+    else {
       this.acPreferEncrypt.setAttribute("disabled", "true");
     }
   },
@@ -230,7 +244,8 @@ Enigmail.edit = {
       var selKey = resultObj.userList[0];
       //selKey = "0x"+selKey.substring(10,18);
       this.pgpKeyId.value = selKey;
-    } catch (ex) {
+    }
+    catch (ex) {
       // cancel pressed -> don't send mail
       return;
     }
