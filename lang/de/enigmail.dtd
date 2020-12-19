@@ -83,8 +83,8 @@
 
 <!ENTITY enigmail.keyserver.label         "Schlüsselserver">
 <!ENTITY enigmail.keyserverDlg.label      "Schlüsselserver auswählen">
-<!ENTITY enigmail.keyservers.label        "Geben Sie Ihre(n) Schlüsselserver an:">
-<!ENTITY enigmail.keyservers.sample2      "Beispiel: pool.sks-keyservers.net, pgp.mit.edu">
+<!ENTITY enigmail.keyservers.label        "Liste der Schlüsselserver zur Auswahl für Suche/Upload/Download:">
+<!ENTITY enigmail.keyservers.sample2      "Beispiel: keys.openpgp.org, pool.sks-keyservers.net">
 
 <!ENTITY enigmail.searchForKey.example    "Beispiel 'Vorname Nachname <nutzer@example.com>'">
 <!ENTITY enigmail.searchForKey.desc1	    "'Vorname Nachname' findet alle Schlüssel die 'Vorname' ODER 'Nachname' enthalten">
@@ -100,8 +100,8 @@
 <!ENTITY enigmail.mime_parts_on_demand.tooltip "Deaktivieren, wenn Sie PGP/MIME-Nachrichten in IMAP-Ordnern empfangen.">
 <!ENTITY enigmail.disableSMIMEui.tooltip       "Die S/MIME-Schaltfläche aus der Funktionsleiste im Verfassen-Fenster entfernen.">
 
-<!ENTITY enigmail.autoKeyServerSelection.label     "Immer ersten Schlüsselserver verwenden">
-<!ENTITY enigmail.autoKeyServerSelection.tooltip   "Den ersten Schlüsselserver aus der Liste als Vorgabe nehmen.">
+<!ENTITY enigmail.autoKeyServerSelection.label     "Den ersten Schlüsselserver standardmäßig verwenden - Auswahldialog für Schlüsselserver nicht anzeigen">
+<!ENTITY enigmail.autoKeyServerSelection.tooltip   "Den ersten Schlüsselserver aus der Liste als Vorgabe nehmen. Der Dialog zur Auswahl des Schlüsselservers wird nicht angezeigt.">
 
 <!ENTITY enigmail.decryptbutton.label     "Entschlüsseln">
 <!ENTITY enigmail.decryptbutton.tip       "Nachricht mit Enigmail entschlüsseln oder überprüfen">
