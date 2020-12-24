@@ -230,7 +230,7 @@ CryptMessageIntoFolder.prototype = {
       }
     }
     else {
-      inputMsg = this.mimeToString(mimeTree, false);
+      inputMsg = this.mimeToString(mimeTree, false, true);
     }
 
     if (!mimeTree.fullContentType) {
@@ -779,7 +779,7 @@ CryptMessageIntoFolder.prototype = {
    *
    ******/
 
-  mimeToString: function(mimePart, includeHeaders) {
+  mimeToString: function(mimePart, includeHeaders, convertCharset = false) {
     EnigmailLog.DEBUG("persistentCrypto.jsm: mimeToString: part: '" + mimePart.partNum + "'\n");
 
     let msg = "",
@@ -799,6 +799,13 @@ CryptMessageIntoFolder.prototype = {
           // convert to UTF-8 if ASCII character > 255 found
           mimePart.body = EnigmailData.convertFromUnicode(mimePart.body, "utf-8");
           setCharset(mimePart, "utf-8");
+        }
+      }
+
+      if (convertCharset && encoding === "8bit") {
+        let cs = getCharset(mimePart);
+        if (cs) {
+          mimePart.body = EnigmailData.convertFromUnicode(mimePart.body, cs);
         }
       }
     }
