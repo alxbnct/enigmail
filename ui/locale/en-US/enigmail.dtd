@@ -277,9 +277,9 @@
 <!ENTITY enigmail.uidValidity.label                 "Validity">
 <!ENTITY enigmail.keySelection.label                "Selection">
 <!ENTITY enigmail.keyId.label                       "Key ID">
-<!ENTITY enigmail.userSelSendSigned.label           "Send signed">
+<!ENTITY enigmail.userSelSendSigned.label           "Sign message">
 <!ENTITY enigmail.userSelSendSigned.accesskey       "S">
-<!ENTITY enigmail.userSelSendEncrypted.label        "Send encrypted">
+<!ENTITY enigmail.userSelSendEncrypted.label        "Encrypt message">
 <!ENTITY enigmail.userSelSendEncrypted.accesskey    "E">
 <!ENTITY enigmail.displayNoLonger.label             "Do not display this dialog again if encryption is not possible">
 <!ENTITY enigmail.importMissingKeys.label           "Download missing keys">
@@ -288,7 +288,9 @@
 <!ENTITY enigmail.refreshKeys.label                 "Refresh Key List">
 <!ENTITY enigmail.refreshKeys.accesskey             "R">
 <!ENTITY enigmail.send.label                        "Send">
+<!ENTITY enigmail.send.accesskey                    "N">
 <!ENTITY enigmail.perRecipientsOption.label         "Create per-recipient rule(s)">
+<!ENTITY enigmail.perRecipientsOption.accesskey     "C">
 
 <!ENTITY enigmail.ctxDecryptOpen.label              "Decrypt and Open">
 <!ENTITY enigmail.ctxDecryptSave.label              "Decrypt and Save As...">

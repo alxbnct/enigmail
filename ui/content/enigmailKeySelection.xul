@@ -23,7 +23,9 @@
         buttons="accept,cancel,extra1"
         theme="default-light"
         buttonlabelaccept="&enigmail.send.label;"
+        buttonaccesskeyaccept="&enigmail.send.accesskey;"
         buttonlabelextra1="&enigmail.perRecipientsOption.label;"
+        buttonaccesskeyextra1="&enigmail.perRecipientsOption.accesskey;"
         minheight="450">
 
 
