@@ -20,18 +20,21 @@
               prefstring="mail.identity.%identitykey%.enablePgp"
               preftype="bool" prefattribute="value"
               label="&enigmail.amPrefEnablePgp.label;"
+              accesskey="&enigmail.amPrefEnablePgp.accesskey;"
               oncommand="Enigmail.edit.toggleEnable();"/>
     <vbox>
       <vbox class="enigmailGroupbox" id="enigmail_encryption.titleBox">
         <radiogroup id="enigmail_pgpKeyMode" aria-labelledby="enablePgp">
           <radio id="enigmail_keymode_useFromAddress"
                  label="&enigmail.amPrefUseFromAddr.label;"
+                 accesskey="&enigmail.amPrefUseFromAddr.accesskey;"
                  value="0"
                  observes="enigmail_bcEnablePgp"
                  oncommand="Enigmail.edit.enableKeySel(false);"/>
           <vbox>
             <radio id="enigmail_keymode_usePgpkeyId"
                    label="&enigmail.amPrefUseKeyId.label;"
+                   accesskey="&enigmail.amPrefUseKeyId.accesskey;"
                    observes="enigmail_bcEnablePgp"
                    value="1"
                    oncommand="Enigmail.edit.enableKeySel(true);"/>
@@ -42,7 +45,9 @@
                        readonly="true"
                        flex="1"
                        preftype="wstring" prefattribute="value"/>
-              <button id="enigmail_selectPgpKey" label="&enigmail.amPrefSelectKey.label;"
+              <button id="enigmail_selectPgpKey"
+                      label="&enigmail.amPrefSelectKey.label;"
+                      accesskey="&enigmail.amPrefSelectKey.accesskey;"
                       observes="enigmail_bcUseKeyId"
                       oncommand="Enigmail.edit.selectKeyId()"/>
             </hbox>
@@ -51,8 +56,12 @@
 
         <tabbox flex="1" id="enigmail_tabs">
           <tabs id="enigmail_tabBox">
-            <tab id="enigmail_msgCompTab"   label="&enigmail.amPrefMsgComp.label;"/>
-            <tab id="enigmail_autocryptTab" label="&enigmail.autocrypt.label;"/>
+            <tab id="enigmail_msgCompTab"
+                  label="&enigmail.amPrefMsgComp.label;"
+                  accesskey="&enigmail.amPrefMsgComp.accesskey;"/>
+            <tab id="enigmail_autocryptTab"
+                  label="&enigmail.amPrefAutocrypt.label;"
+                  accesskey="&enigmail.amPrefAutocrypt.accesskey;"/>
           </tabs>
 
           <tabpanels flex="1" id="enigmail_tabPanels">
@@ -63,11 +72,13 @@
               <checkbox id="enigmail_encrypt_ifPossible"
                         checked="false"
                         observes="enigmail_bcEnablePgp"
-                        label="&enigmail.defaultEncryption.label;"/>
+                        label="&enigmail.defaultEncryption.label;"
+                        accesskey="&enigmail.defaultEncryption.accesskey;"/>
               <checkbox id="enigmail_sign_ifPossible"
                         checked="false"
                         observes="enigmail_bcEnablePgp"
-                        label="&enigmail.defaultSigning.label;"/>
+                        label="&enigmail.defaultSigning.label;"
+                        accesskey="&enigmail.defaultSigning.accesskey;"/>
 
               <separator/>
 
@@ -76,17 +87,20 @@
                 <checkbox id="enigmail_sign_notEncrypted"
                           checked="false"
                           observes="enigmail_bcEnablePgp"
-                          label="&enigmail.finallySignNotEncrypted.label;"/>
+                          label="&enigmail.finallySignNotEncrypted.label;"
+                          accesskey="&enigmail.finallySignNotEncrypted.accesskey;"/>
                 <checkbox id="enigmail_sign_encrypted"
                           checked="false"
                           observes="enigmail_bcEnablePgp"
-                          label="&enigmail.finallySignEncrypted.label;"/>
+                          label="&enigmail.finallySignEncrypted.label;"
+                          accesskey="&enigmail.finallySignEncrypted.accesskey;"/>
               </hbox>
 
               <separator/>
 
               <checkbox id="enigmail_autoEncryptDrafts" checked="false"
-                        label="&enigmail.autoEncryptDrafts.label;"/>
+                        label="&enigmail.autoEncryptDrafts.label;"
+                        accesskey="&enigmail.autoEncryptDrafts.accesskey;"/>
 
               <separator/>
 
@@ -95,10 +109,12 @@
                 <hbox flex="1">
                   <radio id="enigmail_mime_preferSMime"
                          label="&enigmail.amPrefMimePreferSMime.label;"
+                         accesskey="&enigmail.amPrefMimePreferSMime.accesskey;"
                          value="0"
                          observes="enigmail_bcEnablePgp"/>
                   <radio id="enigmail_mime_preferEnigmail"
                          label="&enigmail.amPrefMimePreferEnigmail.label;"
+                         accesskey="&enigmail.amPrefMimePreferEnigmail.accesskey;"
                          value="1"
                          observes="enigmail_bcEnablePgp"/>
                 </hbox>
@@ -108,6 +124,7 @@
 
               <checkbox id="openpgp.sendKeyWithMsg"
                           label="&enigmail.amPrefPgp.sendKeyWithMsg.label;"
+                          accesskey="&enigmail.amPrefPgp.sendKeyWithMsg.accesskey;"
                           checked="false"/>
             </vbox>
 
@@ -120,12 +137,14 @@
                   preftype="bool" prefattribute="value"
                   observes="enigmail_bcEnablePgp"
                   oncommand="Enigmail.edit.enableAcSettings()"
-                  label="&enigmail.enableAutocrypt.label;"/>
+                  label="&enigmail.enableAutocrypt.label;"
+                  accesskey="&enigmail.enableAutocrypt.accesskey;"/>
 
               <checkbox id="enigmail_acPreferEncrypt"
                   prefstring="mail.server.%serverkey%.acPreferEncrypt"
                   preftype="bool" prefattribute="value"
-                  label="&enigmail.acPreferEncrypt.label;"/>
+                  label="&enigmail.acPreferEncrypt.label;"
+                  accesskey="&enigmail.acPreferEncrypt.accesskey;"/>
             </vbox>
           </tabpanels>
         </tabbox>
@@ -136,6 +155,7 @@
                   id="enigmail_openpgpPrefsButton"
                   observes="enigmail_bcEnablePgp"
                   label="&enigmail.openpgpPrefsButton.label;"
+                  accesskey="&enigmail.openpgpPrefsButton.accesskey;"
                   oncommand="EnigmailWindows.openPrefWindow(window, true, 'sendingTab');"/>
         </hbox>
       </vbox>

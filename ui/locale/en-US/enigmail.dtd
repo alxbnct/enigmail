@@ -203,16 +203,22 @@
 
 <!-- account specific options -->
 <!ENTITY enigmail.defaultSigning.label            "Sign messages by default">
+<!ENTITY enigmail.defaultSigning.accesskey        "G">
 <!ENTITY enigmail.defaultEncryption.label         "Encrypt messages by default">
+<!ENTITY enigmail.defaultEncryption.accesskey     "E">
 
 <!ENTITY enigmail.afterDefaultsAndRules.label     "After application of defaults and rules:">
 <!ENTITY enigmail.finallySignEncrypted.label      "Sign encrypted messages">
+<!ENTITY enigmail.finallySignEncrypted.accesskey  "M">
 <!ENTITY enigmail.finallySignNotEncrypted.label   "Sign non-encrypted messages">
+<!ENTITY enigmail.finallySignNotEncrypted.accesskey "N">
 
 <!ENTITY enigmail.autoEncryptDrafts.label         "Encrypt draft messages on saving">
+<!ENTITY enigmail.autoEncryptDrafts.accesskey     "D">
 
 <!ENTITY enigmail.advancedPrefsButton.label       "Advanced...">
 <!ENTITY enigmail.openpgpPrefsButton.label        "Enigmail Preferences...">
+<!ENTITY enigmail.openpgpPrefsButton.accesskey    "R">
 
 
 <!-- Sending Preferences -->
@@ -311,11 +317,18 @@
 <!ENTITY enigmail.amPrefTitle.label                 "Signing/Encryption Options...">
 <!ENTITY enigmail.amPrefDesc.label                  "Support for OpenPGP encryption and signing messages is provided by Enigmail. You need to have GnuPG (gpg) installed in order to use this feature.">
 <!ENTITY enigmail.amPrefEnablePgp.label             "Enable OpenPGP support (Enigmail) for this identity">
+<!ENTITY enigmail.amPrefEnablePgp.accesskey         "O">
 <!ENTITY enigmail.amPrefUseFromAddr.label           "Use email address of this identity to identify OpenPGP key">
+<!ENTITY enigmail.amPrefUseFromAddr.accesskey       "A">
 <!ENTITY enigmail.amPrefUseKeyId.label              "Use specific OpenPGP key ID:">
+<!ENTITY enigmail.amPrefUseKeyId.accesskey          "U">
 <!ENTITY enigmail.amPrefSelectKey.label             "Select Key">
+<!ENTITY enigmail.amPrefSelectKey.accesskey         "S">
 <!ENTITY enigmail.amPrefMsgComp.label               "Message Composition">
+<!ENTITY enigmail.amPrefMsgComp.accesskey           "C">
 <!ENTITY enigmail.amPrefDefaultEncrypt.label        "Message Composition Default Options">
+<!ENTITY enigmail.amPrefAutocrypt.label             "Autocrypt">
+<!ENTITY enigmail.amPrefAutocrypt.accesskey         "Y">
 <!ENTITY enigmail.encryptionDlg.label               "Enigmail Encryption &amp; Signing Settings">
 <!ENTITY enigmail.encDlgProtocol.label              "Encryption/Signing Standard">
 <!ENTITY enigmail.encDlgEncrypt.label               "Encrypt Message">
@@ -332,7 +345,9 @@
 <!ENTITY enigmail.encDlgReset.accesskey             "R">
 <!ENTITY enigmail.amPrefMimePreferProto.label       "If both, Enigmail and S/MIME encryption are possible, then:">
 <!ENTITY enigmail.amPrefMimePreferEnigmail.label    "Prefer Enigmail (OpenPGP)">
+<!ENTITY enigmail.amPrefMimePreferEnigmail.accesskey "P">
 <!ENTITY enigmail.amPrefMimePreferSMime.label       "Prefer S/MIME">
+<!ENTITY enigmail.amPrefMimePreferSMime.accesskey   "I">
 
 <!ENTITY enigmail.progressText.label               "Progress:">
 
@@ -630,6 +645,7 @@
 <!ENTITY enigmail.setupWiz.importKeysBtn             "Import Keys">
 
 <!ENTITY enigmail.amPrefPgp.sendKeyWithMsg.label     "Attach my public key to messages">
+<!ENTITY enigmail.amPrefPgp.sendKeyWithMsg.accesskey "K">
 
 <!ENTITY enigmail.addPhoto.question.label            "Do you want to add the following picture to the key?">
 <!ENTITY enigmail.addPhoto.title                     "Add Photo to Key">
@@ -660,7 +676,9 @@
 <!ENTITY enigmail.exportWiz.pgExport.failed          "An error occurred during the export. The settings could not be exported.">
 
 <!ENTITY enigmail.acPreferEncrypt.label              "Signal to your correspondents that you prefer encrypted mails">
+<!ENTITY enigmail.acPreferEncrypt.accesskey          "P">
 <!ENTITY enigmail.enableAutocrypt.label              "Enable Autocrypt">
+<!ENTITY enigmail.enableAutocrypt.accesskey          "E">
 
 <!ENTITY enigmail.acSetupPasswd.dlgTitle             "Autocrypt Setup Code">
 <!ENTITY enigmail.acSetupPasswd.password             "Setup Code:">
