@@ -6,21 +6,20 @@
 
 // Uses: chrome://enigmail/content/ui/enigmailCommon.js
 
-/* global EnigInitCommon, EnigGetString, GetEnigmailSvc, EnigAlert, EnigConfirm, EnigHelpWindow */
-
 "use strict";
 
 var Cu = Components.utils;
 var Cc = Components.classes;
 var Ci = Components.interfaces;
 
-// Initialize enigmailCommon
-EnigInitCommon("enigmailRulesEditor");
-
 var EnigmailRules = ChromeUtils.import("chrome://enigmail/content/modules/rules.jsm").EnigmailRules;
 var EnigmailLog = ChromeUtils.import("chrome://enigmail/content/modules/log.jsm").EnigmailLog;
+var EnigmailCore = ChromeUtils.import("chrome://enigmail/content/modules/core.jsm").EnigmailCore;
 var EnigmailSearchCallback = ChromeUtils.import("chrome://enigmail/content/modules/searchCallback.jsm").EnigmailSearchCallback;
 var EnigmailCompat = ChromeUtils.import("chrome://enigmail/content/modules/compat.jsm").EnigmailCompat;
+var EnigmailDialog = ChromeUtils.import("chrome://enigmail/content/modules/dialog.jsm").EnigmailDialog;
+var EnigmailLocale = ChromeUtils.import("chrome://enigmail/content/modules/locale.jsm").EnigmailLocale;
+var EnigmailWindows = ChromeUtils.import("chrome://enigmail/content/modules/windows.jsm").EnigmailWindows;
 
 const INPUT = 0;
 const RESULT = 1;
@@ -30,8 +29,8 @@ var gNumRows = null;
 var gAutocryptRules = [];
 var gTimeoutId = {};
 
-function enigmailDlgOnLoad() {
-  var enigmailSvc = GetEnigmailSvc();
+function onLoadDialog() {
+  var enigmailSvc = EnigmailCore.getService(window);
   if (!enigmailSvc)
     return;
 
@@ -45,7 +44,7 @@ function enigmailDlgOnLoad() {
     var treeChildren = document.getElementById("rulesTreeChildren");
     var rulesList = rulesListObj.value;
     if (rulesList.firstChild.nodeName == "parsererror") {
-      EnigAlert("Invalid pgprules.xml file:\n" + rulesList.firstChild.textContent);
+      EnigmailDialog.alert(window, "Invalid pgprules.xml file:\n" + rulesList.firstChild.textContent);
       return;
     }
     EnigmailLog.DEBUG("enigmailRulesEditor.js: dlgOnLoad: keys loaded\n");
@@ -77,16 +76,13 @@ function enigmailDlgOnLoad() {
       node = node.nextSibling;
     }
   }
-  var rulesTree = document.getElementById("rulesTree");
   gSearchInput = document.getElementById("filterEmail");
   EnigmailSearchCallback.setup(gSearchInput, gTimeoutId, applyFilter, 200);
+  onSelectCallback();
 }
 
-function enigmailDlgOnAccept() {
+function onAcceptDialog() {
   EnigmailLog.DEBUG("enigmailRulesEditor.js: dlgOnAccept:\n");
-  var enigmailSvc = GetEnigmailSvc();
-  if (!enigmailSvc)
-    return false;
   EnigmailRules.clearRules();
 
   var node = getFirstNode();
@@ -127,24 +123,24 @@ function createCol(value, label, treeItem, translate) {
     case "pgpMime":
       switch (Number(label)) {
         case 0:
-          label = EnigGetString("never");
+          label = EnigmailLocale.getString("never");
           break;
         case 1:
-          label = EnigGetString("possible");
+          label = EnigmailLocale.getString("possible");
           break;
         case 2:
-          label = EnigGetString("always");
+          label = EnigmailLocale.getString("always");
           break;
       }
       break;
     case "keyId":
       if (label == ".") {
-        label = EnigGetString("nextRcpt");
+        label = EnigmailLocale.getString("nextRcpt");
       }
       break;
     case "negateRule":
       if (Number(label) == 1) {
-        label = EnigGetString("negateRule");
+        label = EnigmailLocale.getString("negateRule");
       }
       else {
         label = "";
@@ -183,14 +179,54 @@ function getFirstNode() {
   return document.getElementById("rulesTreeChildren").firstChild;
 }
 
-function getCurrentNode() {
-  var rulesTree = document.getElementById("rulesTree");
-  return rulesTree.view.getItemAtIndex(rulesTree.currentIndex);
+
+function getSelectedNodes() {
+  let rulesTree = document.getElementById("rulesTree");
+  let selList = [];
+  let rangeCount = rulesTree.view.selection.getRangeCount();
+
+  for (let i = 0; i < rangeCount; i++) {
+    let start = {};
+    let end = {};
+    rulesTree.view.selection.getRangeAt(i, start, end);
+    for (let c = start.value; c <= end.value; c++) {
+      selList.push(rulesTree.view.getItemAtIndex(c));
+    }
+  }
+  return selList;
 }
 
 
-function enigDoEdit() {
-  var node = getCurrentNode();
+function onSelectCallback() {
+  let nodeList = getSelectedNodes();
+
+  const singleSelectionElements = ["modifyRule", "moveUp", "moveDown"];
+
+  if (nodeList.length === 1) {
+    for (let e of singleSelectionElements) {
+      document.getElementById(e).removeAttribute("disabled");
+    }
+  }
+  else {
+    for (let e of singleSelectionElements) {
+      document.getElementById(e).setAttribute("disabled", "true");
+    }
+  }
+
+
+  if (nodeList.length > 0) {
+    document.getElementById("deleteRule").removeAttribute("disabled");
+  }
+  else {
+    document.getElementById("deleteRule").setAttribute("disabled", "true");
+  }
+}
+
+function editRule() {
+  let nodeList = getSelectedNodes();
+  if (nodeList.length === 0) return;
+
+  var node = nodeList[0];
   if (node) {
     var inputObj = {};
     var resultObj = {};
@@ -210,7 +246,7 @@ function enigDoEdit() {
   }
 }
 
-function enigDoAdd() {
+function addRule() {
   var inputObj = {};
   var resultObj = {};
   inputObj.options = "nosave";
@@ -231,18 +267,24 @@ function enigDoAdd() {
   }
 }
 
-function enigDoDelete() {
-  var node = getCurrentNode();
-  if (node) {
-    if (EnigConfirm(EnigGetString("deleteRule"), EnigGetString("dlg.button.delete"))) {
+function deleteRule() {
+  let nodeList = getSelectedNodes();
+
+  if (nodeList.length > 0) {
+    if (EnigmailDialog.confirmDlg(window, EnigmailLocale.getString(nodeList.length === 1 ? "deleteRule.single" : "deleteRule.multiple"), EnigmailLocale.getString("dlg.button.delete"))) {
       var treeChildren = document.getElementById("rulesTreeChildren");
-      treeChildren.removeChild(node);
+      for (let node of nodeList) {
+        treeChildren.removeChild(node);
+      }
     }
   }
 }
 
-function enigDoMoveUp() {
-  var node = getCurrentNode();
+function moveRuleUp() {
+  let nodeList = getSelectedNodes();
+  if (nodeList.length !== 1) return;
+
+  var node = nodeList[0];
   if (!node) return;
   var prev = node.previousSibling;
   if (prev) {
@@ -257,9 +299,11 @@ function enigDoMoveUp() {
   }
 }
 
-function enigDoMoveDown() {
-  var node = getCurrentNode();
-  if (!node) return;
+function moveRuleDown() {
+  let nodeList = getSelectedNodes();
+  if (nodeList.length !== 1) return;
+
+  var node = nodeList[0];
   var nextNode = node.nextSibling;
   if (nextNode) {
     var rulesTree = document.getElementById("rulesTree");
@@ -272,7 +316,7 @@ function enigDoMoveDown() {
   }
 }
 
-function enigDoSearch() {
+function applySearchFilter() {
   var searchTxt = document.getElementById("filterEmail").value;
   if (!searchTxt) return;
   searchTxt = searchTxt.toLowerCase();
@@ -288,7 +332,7 @@ function enigDoSearch() {
   }
 }
 
-function enigDoResetFilter() {
+function resetFilter() {
   document.getElementById("filterEmail").value = "";
   var node = getFirstNode();
   while (node) {
@@ -299,18 +343,18 @@ function enigDoResetFilter() {
 
 function applyFilter() {
   if (gSearchInput.value === "") {
-    enigDoResetFilter();
+    resetFilter();
     return;
   }
 
-  enigDoSearch();
+  applySearchFilter();
 }
 
 document.addEventListener("dialogaccept", function(event) {
-  if (!enigmailDlgOnAccept())
+  if (!onAcceptDialog())
     event.preventDefault(); // Prevent the dialog closing.
 });
 
 document.addEventListener("dialoghelp", function(event) {
-  EnigHelpWindow('rulesEditor');
+  EnigmailWindows.openHelpWindow('rulesEditor');
 });

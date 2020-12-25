@@ -19,12 +19,11 @@
         title="&enigmail.rulesEditor.label;"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         xmlns:html="http://www.w3.org/1999/xhtml"
-        onload="enigmailDlgOnLoad();"
+        onload="onLoadDialog();"
         minheight="300"
         buttons="accept,cancel,help"
         persist="screenX screenY width height">
 
-  <script type="application/x-javascript" src="chrome://enigmail/content/ui/enigmailCommon.js"/>
   <script type="application/x-javascript" src="chrome://enigmail/content/ui/enigmailRulesEditor.js"/>
 
   <vbox class="enigmailGroupbox" width="700px" flex="1">
@@ -36,8 +35,9 @@
       <hbox flex="1" >
         <tree id="rulesTree" flex="1"
               hidecolumnpicker="false"
-              seltype="single"
-              ondblclick="enigDoEdit()">
+              seltype="multiple"
+              onselect="onSelectCallback()"
+              ondblclick="editRule()">
           <treecols>
             <treecol style="width:40px" id="negateRule" flex="0" label="&enigmail.not.label;" persist="width"
                      hidden="true" ignoreincolumnpicker="true"/>
@@ -57,20 +57,24 @@
         <vbox>
           <button label="&enigmail.add.label;"
                   accesskey="&enigmail.add.accesskey;"
-                  oncommand="enigDoAdd();"/>
+                  oncommand="addRule();"/>
           <button label="&enigmail.edit.label;"
                   accesskey="&enigmail.edit.accesskey;"
-                  oncommand="enigDoEdit();"/>
+                  id="modifyRule"
+                  oncommand="editRule();"/>
           <button label="&enigmail.delete.label;"
                   accesskey="&enigmail.delete.accesskey;"
-                  oncommand="enigDoDelete();"/>
+                  id="deleteRule"
+                  oncommand="deleteRule();"/>
           <separator/>
           <button label="&enigmail.moveUp.label;"
                   accesskey="&enigmail.moveUp.accesskey;"
-                  oncommand="enigDoMoveUp();"/>
+                  id="moveUp"
+                  oncommand="moveRuleUp();"/>
           <button label="&enigmail.moveDown.label;"
                   accesskey="&enigmail.moveDown.accesskey;"
-                  oncommand="enigDoMoveDown();"/>
+                  id="moveDown"
+                  oncommand="moveRuleDown();"/>
         </vbox>
       </hbox>
     </vbox>
