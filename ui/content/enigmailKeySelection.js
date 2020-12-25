@@ -290,6 +290,7 @@ function prepareDialog(secretOnly) {
     dialogHeaderDesc.firstChild.data = EnigGetString("keysToUse", window.arguments[INPUT].forUser);
     dialogHeaderDesc.removeAttribute("collapsed");
     notFoundCapt.setAttribute("collapsed", "true");
+    document.getElementById("enigmailUserSelSendSigned").setAttribute("collapsed", "true");
   }
 
   if (window.arguments[INPUT].options.indexOf(",sendlabel=") >= 0) {
@@ -298,6 +299,7 @@ function prepareDialog(secretOnly) {
     var pos2 = window.arguments[INPUT].options.indexOf(",", pos1);
     var acceptButton = document.getElementById("enigmailKeySelectionDlg").getButton("accept");
     acceptButton.setAttribute("label", window.arguments[INPUT].options.substring(pos1 + 1, pos2));
+    acceptButton.setAttribute("accesskey", window.arguments[INPUT].options.substr(pos1 + 1, 1));
   }
 }
 
