@@ -1585,7 +1585,6 @@ Enigmail.hdrView = {
     modifyMessageHeaders: function(uri, headerData, mimePartNumber) {
       EnigmailLog.DEBUG("enigmailMsgHdrViewOverlay.js: EnigMimeHeaderSink.modifyMessageHeaders:\n");
 
-      let updateHdrBox = Enigmail.hdrView.updateHdrBox;
       let uriSpec = (uri ? uri.spec : null);
       let hdr;
 
@@ -1600,6 +1599,9 @@ Enigmail.hdrView = {
       if (typeof(hdr) !== "object") return;
       if (!this.displaySubPart(mimePartNumber, uriSpec)) return;
 
+      // Don't replace subject for mailing lists
+      if (currentHeaderData["list-post"]) return;
+
       let msg = gFolderDisplay.selectedMessage;
 
       if ("subject" in hdr) {
@@ -1609,35 +1611,6 @@ Enigmail.hdrView = {
       if ("date" in hdr) {
         msg.date = Date.parse(hdr.date) * 1000;
       }
-      /*
-            if ("newsgroups" in hdr) {
-              updateHdrBox("newsgroups", hdr.newsgroups);
-            }
-
-            if ("followup-to" in hdr) {
-              updateHdrBox("followup-to", hdr["followup-to"]);
-            }
-
-            if ("from" in hdr) {
-              gExpandedHeaderView.from.outputFunction(gExpandedHeaderView.from, hdr.from);
-              msg.setStringProperty("Enigmail-From", hdr.from);
-            }
-
-            if ("to" in hdr) {
-              gExpandedHeaderView.to.outputFunction(gExpandedHeaderView.to, hdr.to);
-              msg.setStringProperty("Enigmail-To", hdr.to);
-            }
-
-            if ("cc" in hdr) {
-              gExpandedHeaderView.cc.outputFunction(gExpandedHeaderView.cc, hdr.cc);
-              msg.setStringProperty("Enigmail-Cc", hdr.cc);
-            }
-
-            if ("reply-to" in hdr) {
-              gExpandedHeaderView["reply-to"].outputFunction(gExpandedHeaderView["reply-to"], hdr["reply-to"]);
-              msg.setStringProperty("Enigmail-ReplyTo", hdr["reply-to"]);
-            }
-      */
     },
 
     handleSMimeMessage: function(uri) {
