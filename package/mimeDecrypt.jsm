@@ -751,8 +751,8 @@ MimeDecryptHandler.prototype = {
     if (this.decryptedHeaders && ("subject" in this.decryptedHeaders)) {
       let boundary = EnigmailMime.createBoundary();
       return `Content-Type: multipart/mixed; boundary="${boundary}"\r\n\r\n` +
-        `--${boundary}\nContent-Type: text/plain\r\n\r\n` +
-        `${EnigmailLocale.getString("mimeDecrypt.encryptedSubject")}: ${this.decryptedHeaders.subject}\r\n\r\n` +
+        `--${boundary}\nContent-Type: text/plain; charset="UTF-8"\r\n\r\n` +
+        `${EnigmailLocale.getString("mimeDecrypt.encryptedSubject")}: ${EnigmailData.convertFromUnicode(this.decryptedHeaders.subject, "utf-8")}\r\n\r\n` +
         `--${boundary}\r\n` +
         decryptedData + `--${boundary}--\r\n`;
     }
