@@ -434,13 +434,14 @@ var pgpjs_keys = {
    * Sign a key.
    *
    * @param {Object} signingKey: OpenPGP.js key that is used for signing the key
-   * @param {Object} keyToSign: OpenPGP.js key to sign (all valid UIDs)
+   * @param {Object} keyToSign: OpenPGP.js key to sign
+   * @param {Array<String} uidList: List of UIDs to sign
    *
    * @return {Object}
    *  - {Object} signedKey: the signed key / null in case of error
    *  - {String} errorMsg: In case of error: Error message
    */
-  signKey: async function(signingKey, keyToSign) {
+  signKey: async function(signingKey, keyToSign, uidList) {
     EnigmailLog.DEBUG(`pgpjs-keys.jsm: changeKeyExpiry: (${keyToSign.getFingerprint()})\n`);
 
     if (!await pgpjs_keys.decryptSecretKey(signingKey, EnigmailConstants.KEY_DECRYPT_REASON_MANIPULATE_KEY)) {
@@ -453,6 +454,12 @@ var pgpjs_keys = {
     let signedSomething = false;
 
     for (let i = 0; i < keyToSign.users.length; i++) {
+      // don't sign UATs
+      if (keyToSign.users[i].userId === null) continue;
+
+      // skip non-matching userIds
+      if (uidList.indexOf(keyToSign.users[i].userId.userid) < 0) continue;
+
       const uid = keyToSign.users[i];
       try {
         await uid.verify(keyToSign.keyPacket);

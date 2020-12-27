@@ -57,8 +57,9 @@ test(withTestGpgHome(withEnigmail(function shouldSignKey() {
   do_test_pending();
   var window = JSUnit.createStubWindow();
   EnigmailKeyEditor.signKey(window,
-    "anonymous strike <strike.devtest@gmail.com>",
+    "0x65537E212DC19025AD38EDB2781617319CE311C4",
     "781617319CE311C4",
+    ["anonymous strike <strike.devtest@gmail.com>"],
     false,
     5
   ).then(resultObj => {

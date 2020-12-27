@@ -423,6 +423,7 @@
 <!ENTITY enigmail.sKeyDlg.signKey.label            "Key to be signed:">
 <!ENTITY enigmail.sKeyDlg.fingerprint.label        "Fingerprint:">
 <!ENTITY enigmail.sKeyDlg.signWithKey.label        "Key for signing:">
+<!ENTITY enigmail.sKeyDlg.signUids.label           "Sign the following User IDs:">
 <!ENTITY enigmail.sKeyDlg.ownKeyTrust.label        "Note: you have to set owner trust to ultimate for your own keys to be shown here.">
 
 <!ENTITY enigmail.addUidDlg.title                  "Enigmail - Add User ID">

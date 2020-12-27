@@ -21,6 +21,7 @@ var EnigmailKeyManagement = EnigmailCryptoAPI().getKeyManagement();
 
 var gExportableSignatureList = null;
 var gUidCount = null;
+var gNumUid = 0;
 
 function onLoad() {
   var key;
@@ -96,26 +97,37 @@ function onLoad() {
       document.getElementById("fingerprint").value = keyObj.fprFormatted;
     }
 
+    document.getElementById("label-uid-0").value = keyObj.userId;
+
     if (keyObj.hasSubUserIds()) {
-      let sUid = document.getElementById("secondaryUids");
+      let sUid = document.getElementById("uidForSigning");
       let nUid = 0;
 
       for (let j = 1; j < keyObj.userIds.length; j++) {
         if (keyObj.userIds[j].type === "uid" && (!EnigmailTrust.isInvalid(keyObj.userIds[j].keyTrust))) {
           ++nUid;
-          let uidLbl = document.createXULElement("label");
-          uidLbl.setAttribute("value", keyObj.userIds[j].userId);
-          sUid.appendChild(uidLbl);
+          sUid.appendChild(createRowElem(keyObj.userIds[j].userId, nUid));
         }
       }
 
-      if (nUid > 0) {
-        document.getElementById("secondaryUidRow").removeAttribute("collapsed");
-      }
+      gNumUid = nUid;
     }
-
   }
   catch (ex) {}
+}
+
+function createRowElem(uidLabel, idNum) {
+  let hbox = document.createXULElement("hbox");
+  hbox.setAttribute("align", "center");
+  let chk = document.createXULElement("checkbox");
+  chk.id = `checkbox-uid-${idNum}`;
+  chk.setAttribute("checked", "true");
+  hbox.appendChild(chk);
+  let lbl = document.createXULElement("label");
+  lbl.id = `label-uid-${idNum}`;
+  lbl.setAttribute("value", uidLabel);
+  hbox.appendChild(lbl);
+  return hbox;
 }
 
 function onAccept() {
@@ -127,9 +139,18 @@ function onAccept() {
     return true;
   }
 
+  let signUids = [];
+
+  for (let i = 0; i <= gNumUid; i++) {
+    if (document.getElementById(`checkbox-uid-${i}`).getAttribute("checked") === "true") {
+      signUids.push( document.getElementById(`label-uid-${i}`).value);
+    }
+  }
+
   EnigmailKeyManagement.signKey(window,
     "0x" + signWithKey.selectedItem.value,
     window.arguments[0].keyId,
+    [ ... new Set(signUids)], // make UIDs unique
     false,
     "0"
   ).then(resultObj => {

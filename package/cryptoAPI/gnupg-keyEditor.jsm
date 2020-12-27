@@ -398,13 +398,36 @@ var EnigmailKeyEditor = {
   },
 
 
-  signKey: function(parent, signingKey, keyToBeSigned, signLocally, trustLevel) {
+  signKey: function(parent, signingKey, keyToBeSigned, signUids, signLocally, trustLevel) {
     EnigmailLog.DEBUG("gnupg-keyEditor.jsm: signKey: trustLevel=" + trustLevel + ", signingKey=" + signingKey + ", keyToBeSigned=" + keyToBeSigned + "\n");
 
     return new Promise((resolve, reject) => {
-      editKey(parent, true, signingKey, keyToBeSigned, (signLocally ? "lsign" : "sign"), {
+      let keyObj = EnigmailKeyRing.getKeyById(keyToBeSigned);
+      if (!keyObj) {
+        resolve({
+          returnCode: 1,
+          errorMsg: "key not found"
+        });
+      }
+
+      let uidNums = [];
+
+      for (let num = 0; num < keyObj.userIds.length; num++) {
+        if (keyObj.userIds[num].type === "uid") {
+          let foundIndex = signUids.indexOf(keyObj.userIds[num].userId);
+          if (foundIndex >= 0) {
+            uidNums.push(num + 1);
+          }
+        }
+      }
+
+      editKey(parent, true, signingKey, keyToBeSigned, "", {
           trustLevel: trustLevel,
-          usePassphrase: true
+          signUidNums: uidNums,
+          signLocally: signLocally,
+          usePassphrase: true,
+          step: 0,
+          uidIndex: 0
         },
         signKeyCallback,
         null,
@@ -720,8 +743,22 @@ function signKeyCallback(inputData, keyEdit, ret) {
     getPin(inputData.parent, EnigmailLocale.getString("enterCardPin"), ret);
   }
   else if (keyEdit.doCheck(GET_LINE, "keyedit.prompt")) {
-    ret.exitCode = 0;
-    ret.quitNow = true;
+    if (inputData.step === 0) {
+      if (inputData.uidIndex < inputData.signUidNums.length) {
+        ret.exitCode = 0;
+        ret.writeTxt = `uid ${inputData.signUidNums[inputData.uidIndex]}`;
+        ++inputData.uidIndex;
+      }
+      else {
+        inputData.step = 1;
+        ret.exitCode = 0;
+        ret.writeTxt = (inputData.signLocally ? "lsign" : "sign");
+      }
+    }
+    else {
+      ret.exitCode = 0;
+      ret.quitNow = true;
+    }
   }
   else {
     ret.quitNow = true;

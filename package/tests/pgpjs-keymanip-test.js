@@ -199,7 +199,7 @@ test(withTestGpgHome(asyncTest(async function testWrongPassword() {
       r = await key.decrypt("wrong password");
       Assert.ok(false, "key decryption must not succeed");
     }
-    catch(ex) {
+    catch (ex) {
       Assert.ok(pgpjs_keys.isWrongPassword(ex), "wrong password detected");
     }
   }
@@ -228,7 +228,7 @@ test(withTestGpgHome(asyncTest(async function testPartialKeyDecryption() {
       r = await key.decrypt(passwd);
       Assert.ok(false, "key decryption must not succeed");
     }
-    catch(ex) {
+    catch (ex) {
       Assert.ok(pgpjs_keys.isKeyFullyDecrypted(ex, key), "key is fully decrypted");
     }
   }
@@ -259,7 +259,7 @@ test(withTestGpgHome(asyncTest(async function testWrongPassword() {
       r = await key.decrypt("wrong password");
       Assert.ok(false, "key decryption must not succeed");
     }
-    catch(ex) {
+    catch (ex) {
       Assert.ok(pgpjs_keys.isWrongPassword(ex), "wrong password detected");
     }
   }
@@ -287,7 +287,11 @@ test(withTestGpgHome(asyncTest(async function testSignKey() {
 
     // signing Key ID 0x65537E212DC19025AD38EDB2781617319CE311C4
     // key to sign: 0xADC49530CB6B132412D856107F1568CB8997F7BA
-    r = await pgpjs_keymanipulation.signKey(null, "0x65537E212DC19025AD38EDB2781617319CE311C4", "0xADC49530CB6B132412D856107F1568CB8997F7BA", false, "1");
+    r = await pgpjs_keymanipulation.signKey(null,
+      "0x65537E212DC19025AD38EDB2781617319CE311C4",
+      "0xADC49530CB6B132412D856107F1568CB8997F7BA",
+      ["Unit Test <alice@example.invalid>", "Unit Test <bob@somewhere.invalid>"],
+      false, "1");
     Assert.equal(r.returnCode, 0, "signing suceeded");
     let keys = await pgpjs_keyStore.readKeys(["0xADC49530CB6B132412D856107F1568CB8997F7BA"]);
     let signedKey = keys[0].key;
@@ -297,7 +301,19 @@ test(withTestGpgHome(asyncTest(async function testSignKey() {
         Assert.equal(uid.otherCertifications.length, 0);
       }
       else {
-        Assert.equal(uid.otherCertifications.length, 2);
+        if (uid.userId) {
+          // User IDs
+          if (uid.userId.userid === "test.bob@somewhere.invalid") {
+            Assert.equal(uid.otherCertifications.length, 1);
+          }
+          else {
+            Assert.equal(uid.otherCertifications.length, 2, "user ID: " + uid.userId.userid);
+          }
+        }
+        else {
+          // User attributes
+          Assert.equal(uid.otherCertifications.length, 1);
+        }
       }
     }
   }
