@@ -382,7 +382,14 @@ Enigmail.hdrView = {
         statusMsg = EnigmailLocale.getString("decryptedMsgWithFormatError");
       }
       else {
-        statusMsg = EnigmailLocale.getString("decryptedMsg");
+        if (statusFlags & (EnigmailConstants.UNVERIFIED_SIGNATURE | EnigmailConstants.BAD_SIGNATURE |
+          EnigmailConstants.EXPIRED_SIGNATURE |
+          EnigmailConstants.EXPIRED_KEY_SIGNATURE | EnigmailConstants.GOOD_SIGNATURE)) {
+            statusMsg = EnigmailLocale.getString("decryptedMsg");
+          }
+          else {
+            statusMsg = EnigmailLocale.getString("decryptedMsgNotSigned");
+          }
       }
       if (!statusInfo) {
         statusInfo = statusMsg;

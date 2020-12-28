@@ -3154,7 +3154,7 @@ Enigmail.msg = {
         this.statusEncryptedInStatusBar == EnigmailConstants.ENIG_FINAL_FORCEYES)) {
       EnigmailLog.DEBUG("enigmailMsgComposeOverlay.js: Enigmail.msg.isSendConfirmationRequired: promised encryption did not succeed\n");
       if (!EnigmailDialog.confirmDlg(window,
-          EnigmailLocale.getString("msgCompose.internalEncryptionError"),
+          EnigmailLocale.getString("msgCompose.encrytionDowngraded"),
           EnigmailLocale.getString("msgCompose.button.sendAnyway"))) {
         return null; // cancel sending
       }
