@@ -97,7 +97,7 @@ function onLoad() {
       document.getElementById("fingerprint").value = keyObj.fprFormatted;
     }
 
-    document.getElementById("label-uid-0").value = keyObj.userId;
+    document.getElementById("checkbox-uid-0").setAttribute("label", keyObj.userId);
 
     if (keyObj.hasSubUserIds()) {
       let sUid = document.getElementById("uidForSigning");
@@ -122,11 +122,8 @@ function createRowElem(uidLabel, idNum) {
   let chk = document.createXULElement("checkbox");
   chk.id = `checkbox-uid-${idNum}`;
   chk.setAttribute("checked", "true");
+  chk.setAttribute("label", uidLabel);
   hbox.appendChild(chk);
-  let lbl = document.createXULElement("label");
-  lbl.id = `label-uid-${idNum}`;
-  lbl.setAttribute("value", uidLabel);
-  hbox.appendChild(lbl);
   return hbox;
 }
 
@@ -143,14 +140,14 @@ function onAccept() {
 
   for (let i = 0; i <= gNumUid; i++) {
     if (document.getElementById(`checkbox-uid-${i}`).getAttribute("checked") === "true") {
-      signUids.push( document.getElementById(`label-uid-${i}`).value);
+      signUids.push(document.getElementById(`checkbox-uid-${i}`).getAttribute("label"));
     }
   }
 
   EnigmailKeyManagement.signKey(window,
     "0x" + signWithKey.selectedItem.value,
     window.arguments[0].keyId,
-    [ ... new Set(signUids)], // make UIDs unique
+    [...new Set(signUids)], // make UIDs unique
     false,
     "0"
   ).then(resultObj => {

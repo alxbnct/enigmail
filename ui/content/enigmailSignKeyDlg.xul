@@ -46,7 +46,6 @@
           <vbox id="uidForSigning">
             <hbox align="center">
               <checkbox id="checkbox-uid-0" checked="true"/>
-              <label id="label-uid-0" value=""/>
             </hbox>
           </vbox>
         </row>
