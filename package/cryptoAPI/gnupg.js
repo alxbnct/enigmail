@@ -489,14 +489,23 @@ class GnuPGCryptoAPI extends CryptoAPI {
 
   async decrypt(encrypted, options) {
     EnigmailLog.DEBUG(`gnupg.js: decrypt()\n`);
+    const EnigmailDialog = ChromeUtils.import("chrome://enigmail/content/modules/dialog.jsm").EnigmailDialog;
 
     options.logFile = EnigmailErrorHandling.getTempLogFile();
     const args = GnuPGDecryption.getDecryptionArgs(options);
     let res = await EnigmailExecution.execAsync(EnigmailGpg.agentPath, args, encrypted);
     EnigmailErrorHandling.appendLogFileToDebug(options.logFile);
 
+    if (res.statusFlags & EnigmailConstants.BAD_PASSPHRASE) {
+      EnigmailLog.ERROR("gnupg.js: decrypt: Error - bad passphrase\n");
+      EnigmailDialog.alert(null, EnigmailLocale.getString("failedDecryptVerify") + "\n\n" + EnigmailLocale.getString("badPhrase"));
+      throw {
+        errorMsg: EnigmailLocale.getString("badPhrase")
+      };
+    }
     if (res.statusFlags & EnigmailConstants.MISSING_PASSPHRASE) {
-      EnigmailLog.ERROR("decryption.jsm: decryptMessageStart: Error - no passphrase supplied\n");
+      EnigmailLog.ERROR("gnupg.js: decrypt: Error - no passphrase supplied\n");
+      EnigmailDialog.alert(null, EnigmailLocale.getString("failedDecryptVerify") + "\n\n" + EnigmailLocale.getString("noPassphrase"));
       throw {
         errorMsg: EnigmailLocale.getString("noPassphrase")
       };
@@ -768,7 +777,7 @@ class GnuPGCryptoAPI extends CryptoAPI {
     return GnuPG_getTrustLabel(trustCode);
   }
 
-    /**
+  /**
    * Return the OpenPGP configuration directory (if any)
    *
    * @return {String}: config directory or null if none
