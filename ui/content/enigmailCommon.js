@@ -494,6 +494,7 @@ function EnigRevokeKey(keyId, userId, callbackFunc) {
     keyId = "0x" + keyId;
   }
   var userDesc = keyId + " - " + userId;
+
   if (!EnigConfirm(EnigGetString("revokeKeyQuestion", userDesc), EnigGetString("keyMan.button.revokeKey")))
     return false;
 
@@ -550,8 +551,12 @@ function EnigCreateRevokeCert(keyId, userId, callbackFunc) {
     keyId = "0x" + keyId;
   }
 
-  var defaultFileName = userId.replace(/[<>]/g, "");
-  defaultFileName += " (" + keyId + ") revocation.rev";
+  let keyObj = EnigmailKeyRing.getKeyById(keyId);
+  if (!keyObj)
+    return -1;
+
+  let defaultFileName = keyObj.userId.replace(/[<>]/g, "");
+  defaultFileName += " (0x" + keyObj.keyId + ") revocation.rev";
   var outFile = EnigFilePicker(EnigGetString("saveRevokeCertAs"),
     "", true, "*.rev",
     defaultFileName, [EnigGetString("revocationFile"), "*.rev"]);
@@ -561,17 +566,17 @@ function EnigCreateRevokeCert(keyId, userId, callbackFunc) {
   if (!enigmailSvc)
     return -1;
 
-  EnigmailKeyManagement.genRevokeCert(window, keyId, outFile, "1", "",
-    function _revokeCertCb(exitCode, errorMsg) {
-      if (exitCode !== 0) {
-        EnigAlert(EnigGetString("revokeCertFailed") + "\n\n" + errorMsg);
-      }
-      else {
-        EnigAlert(EnigGetString("revokeCertOK"));
-      }
+  EnigmailKeyManagement.genRevokeCert(window, keyId, outFile, "1", "").
+  then(resultObj => {
+    if (resultObj.returnCode !== 0) {
+      EnigAlert(EnigGetString("revokeCertFailed") + "\n\n" + resultObj.errorMsg);
+    }
+    else {
+      EnigAlert(EnigGetString("revokeCertOK"));
+    }
 
-      if (callbackFunc) callbackFunc(exitCode === 0);
-    });
+    if (callbackFunc) callbackFunc(resultObj.returnCode === 0);
+  });
   return 0;
 }
 
