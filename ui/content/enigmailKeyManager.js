@@ -720,10 +720,10 @@ function enigmailExportKeys() {
 
     defaultFileName = gKeyList[keyList[0]].userId.replace(/[<>]/g, "");
     if (exportSecretKey) {
-      defaultFileName = EnigmailLocale.getString("specificPubSecKeyFilename", defaultFileName, gKeyList[keyList[0]].keyId) + ".asc";
+      defaultFileName = EnigmailLocale.getString("specificPubSecKeyFilename", [defaultFileName, gKeyList[keyList[0]].keyId]) + ".asc";
     }
     else {
-      defaultFileName = EnigmailLocale.getString("specificPubKeyFilename", defaultFileName, gKeyList[keyList[0]].keyId) + ".asc";
+      defaultFileName = EnigmailLocale.getString("specificPubKeyFilename", [defaultFileName, gKeyList[keyList[0]].keyId]) + ".asc";
     }
   }
   else {
