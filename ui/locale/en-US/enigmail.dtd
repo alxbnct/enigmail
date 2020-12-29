@@ -1,5 +1,4 @@
 <!ENTITY enigmail.label                   "Enigmail">
-<!ENTITY enigmail.autocrypt.label         "Autocrypt">
 
 <!ENTITY enigmail.keyUserId.label         "Account / User ID">
 <!ENTITY enigmail.keygenTitle.label       "Generate OpenPGP Key">

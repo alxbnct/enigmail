@@ -220,37 +220,6 @@ var EnigmailDialog = {
   },
 
   /**
-   * Display an alert dialog together with the message "this dialog will be
-   * displayed |counter| more times".
-   * If |counter| is 0, the dialog is not displayed.
-   *
-   * @win:           nsIWindow - the parent window to hold the modal dialog
-   * @countPrefName: String    - the name of the Enigmail preference to read/store the
-   *                             the |counter| value
-   * @mesg:          String    - the localized message to display
-   *
-   */
-  alertCount: function(win, countPrefName, mesg) {
-    let alertCount = EnigmailPrefs.getPref(countPrefName);
-
-    if (alertCount <= 0)
-      return;
-
-    alertCount--;
-    EnigmailPrefs.setPref(countPrefName, alertCount);
-
-    if (alertCount > 0) {
-      mesg += EnigmailLocale.getString("repeatPrefix", [alertCount]) + " ";
-      mesg += (alertCount == 1) ? EnigmailLocale.getString("repeatSuffixSingular") : EnigmailLocale.getString("repeatSuffixPlural");
-    }
-    else {
-      mesg += EnigmailLocale.getString("noRepeat");
-    }
-
-    EnigmailDialog.alert(win, mesg);
-  },
-
-  /**
    * Display a confirmation dialog with OK / Cancel buttons (both customizable) and
    * a checkbox to remember the selected choice.
    *
