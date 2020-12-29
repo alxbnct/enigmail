@@ -55,6 +55,15 @@ var EnigmailTrust = {
   },
 
   /**
+   * Check if the trust level is at least as high as a reference value
+   * @param {String} inputValue: Trust level to test
+   * @param {String} referenceValue: reference level to compare against
+   */
+  isTrustLevelAtLeast(inputValue, referenceValue) {
+    return TRUSTLEVELS_SORTED.indexOf(inputValue) >= TRUSTLEVELS_SORTED.indexOf(referenceValue);
+  },
+
+  /**
    * return a merged value of trust level "key disabled"
    *
    * @keyObj - |object| containing the key data

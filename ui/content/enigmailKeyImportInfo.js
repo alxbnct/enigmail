@@ -15,6 +15,8 @@ var EnigmailDialog = ChromeUtils.import("chrome://enigmail/content/modules/dialo
 var EnigmailEvents = ChromeUtils.import("chrome://enigmail/content/modules/events.jsm").EnigmailEvents;
 var EnigmailData = ChromeUtils.import("chrome://enigmail/content/modules/data.jsm").EnigmailData;
 var EnigmailOS = ChromeUtils.import("chrome://enigmail/content/modules/os.jsm").EnigmailOS;
+var EnigmailTrust = ChromeUtils.import("chrome://enigmail/content/modules/trust.jsm").EnigmailTrust;
+var EnigmailCryptoAPI = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI.jsm").EnigmailCryptoAPI;
 
 function onLoad() {
   var dlg = document.getElementById("enigmailKeyImportInfo");
@@ -80,7 +82,8 @@ function onLoad() {
     keysGrid.appendChild(keysRows);
     keysGrid.appendChild(keysCols);
     keysInfoBox.appendChild(keysGrid);
-  } else {
+  }
+  else {
     EnigmailDialog.alert(window, EnigmailLocale.getString("importInfoNoKeys"));
     EnigmailEvents.dispatchEvent(window.close, 0);
     return;
@@ -152,7 +155,8 @@ function buildKeyGroupBox(keyObj) {
     if (i < keyObj.fpr.length / 2) {
       fprColumns.appendChild(document.createXULElement("column"));
       fprRow1.appendChild(label);
-    } else {
+    }
+    else {
       fprRow2.appendChild(label);
     }
   }
@@ -168,6 +172,14 @@ function buildKeyGroupBox(keyObj) {
   groupBox.appendChild(fprLabel);
   groupBox.appendChild(fprGrid);
 
+  if (keyObj.secretAvailable) {
+    let useSecKey = document.createXULElement("checkbox");
+    useSecKey.setAttribute("label", EnigmailLocale.getString("importInfoUseSecretKey"));
+    useSecKey.setAttribute("checked", "true");
+    useSecKey.setAttribute("applyOwnerTrust", "true");
+    useSecKey.setAttribute("key-fpr", keyObj.fpr);
+    groupBox.appendChild(useSecKey);
+  }
   return groupBox;
 }
 
@@ -207,9 +219,35 @@ function centerDialog() {
 }
 
 
+async function applyOwnerTrustForOwnKeys() {
+  let nodeList = document.querySelectorAll("[applyOwnerTrust=true]");
+
+  for (let node of nodeList) {
+    if (node.checked) {
+      try {
+        await applyOwnerTrust(node.getAttribute("key-fpr"));
+      }
+      catch (x) {}
+    }
+  }
+}
+
+async function applyOwnerTrust(fpr) {
+  let keyObj = EnigmailKeyRing.getKeyById(fpr);
+  const keyMan = EnigmailCryptoAPI().getKeyManagement();
+
+  if ("setKeyTrust" in keyMan) {
+    if (!EnigmailTrust.isTrustLevelAtLeast(keyObj.ownerTrust, "f")) {
+      await keyMan.setKeyTrust(window, fpr, "4");
+    }
+  }
+}
+
 function dlgClose(buttonNumber) {
-  window.arguments[1].value = buttonNumber;
-  window.close();
+  applyOwnerTrustForOwnKeys().then(() => {
+    window.arguments[1].value = buttonNumber;
+    window.close();
+  });
 }
 
 document.addEventListener("dialogaccept", function(event) {
