@@ -13,8 +13,8 @@
 /* global gActionListOrdered: false, checkActionsReorder: true */
 /* global nsMsgFilterAction: false, gFilterActionStrings: false, gFilterActionList: true */
 
-Components.utils.import("resource://enigmail/timer.jsm"); /*global EnigmailTimer: false */
-Components.utils.import("resource://enigmail/log.jsm"); /*global EnigmailLog: false */
+var EnigmailTimer = Components.utils.import("chrome://enigmail/content/modules/timer.jsm").EnigmailTimer;
+var EnigmailLog = Components.utils.import("chrome://enigmail/content/modules/log.jsm").EnigmailLog;
 
 
 var EnigmailFilterEditor = {
