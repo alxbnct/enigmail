@@ -18,7 +18,7 @@
     xmlns:html="http://www.w3.org/1999/xhtml"
     xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
-  <script type="application/x-javascript" src="chrome://enigmail/content/tbFilterEditorOverlay.js"/>
+  <script type="application/x-javascript" src="chrome://enigmail/content/ui/tb60FilterEditorOverlay.js"/>
 
   <dialog insertafter="statusbar" id="FilterEditor">
     <hbox id="enigmailInfobar" style="min-height: 1em !important;" hidden="true">
