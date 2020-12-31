@@ -660,6 +660,7 @@
 <!ENTITY enigmail.savelogfile.label                   "Save Log to File ...">
 
 <!ENTITY enigmail.filterEditor.moveError.label       "Actions that follow the 'Decrypt Permanently' action are not supported.">
+<!ENTITY enigmail.filterEditor.encryptToKey.label    "Key:">
 
 <!-- Export wizard -->
 <!ENTITY enigmail.exportWiz.title                    "Export your Enigmail Settings">

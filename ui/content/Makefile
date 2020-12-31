@@ -119,6 +119,7 @@ UIFILES = \
 	updateGnuPG.js \
 	setupWizard2.js \
 	setupWizard2.xul \
+	filterWidgets.xml \
 	tb60FilterEditorOverlay.js \
 	tb60FilterEditorOverlay.xul
 
@@ -129,6 +130,9 @@ $(GENDIR)/%.js: %.js
 
 $(GENDIR)/%.xul: %.xul
 	$(PERL) $(DEPTH)/util/plpp.pl -i $(INCLUDE) -o $@ $<
+
+$(GENDIR)/%.xml: %.xml
+	$(DEPTH)/util/install -m 644 $(DIST)/chrome/content/ui $<
 
 $(GENDIR)/%.htm: %.htm
 	$(DEPTH)/util/install -m 644 $(DIST)/chrome/content/ui $<

@@ -110,14 +110,26 @@ const filterActionEncrypt = {
     }
     EnigmailKeyRing.getAllKeys();
 
+    let keyId,
+      targetFolder = null;
+
+    try {
+      let o = JSON.parse(aActionValue);
+      keyId = o.keyId;
+      targetFolder = o.folder;
+    }
+    catch (x) {
+      keyId = aActionValue;
+    }
+
     EnigmailLog.DEBUG("filters.jsm: filterActionEncrypt: Encrypt to: " + aActionValue + "\n");
-    let keyObj = EnigmailKeyRing.getKeyById(aActionValue);
+    let keyObj = EnigmailKeyRing.getKeyById(keyId);
 
     if (keyObj === null) {
-      EnigmailLog.DEBUG("filters.jsm: failed to find key by id: " + aActionValue + "\n");
-      let keyId = EnigmailKeyRing.getValidKeyForRecipient(aActionValue);
-      if (keyId) {
-        keyObj = EnigmailKeyRing.getKeyById(keyId);
+      EnigmailLog.DEBUG("filters.jsm: failed to find key by id: " + keyId + "\n");
+      let rcptKeyId = EnigmailKeyRing.getValidKeyForRecipient(keyId);
+      if (rcptKeyId) {
+        keyObj = EnigmailKeyRing.getKeyById(rcptKeyId);
       }
     }
 
@@ -145,7 +157,7 @@ const filterActionEncrypt = {
     }
 
     if (msgHdrs.length) {
-      EnigmailPersistentCrypto.dispatchMessages(msgHdrs, null /* same folder */ , aListener,
+      EnigmailPersistentCrypto.dispatchMessages(msgHdrs, targetFolder , aListener,
         true /* move */ , keyObj /* target key */ );
     }
   },
@@ -165,18 +177,28 @@ const filterActionEncrypt = {
       return EnigmailLocale.getString("filter.keyRequired");
     }
 
-    let keyObj = EnigmailKeyRing.getKeyById(value);
+    let keyId;
+
+    try {
+      let o = JSON.parse(value);
+      keyId = o.keyId;
+    }
+    catch (ex) {
+      keyId = value;
+    }
+
+    let keyObj = EnigmailKeyRing.getKeyById(keyId);
 
     if (keyObj === null) {
       EnigmailLog.DEBUG("filters.jsm: failed to find key by id. Looking for uid.\n");
-      let keyId = EnigmailKeyRing.getValidKeyForRecipient(value);
-      if (keyId) {
+      let rcptKeyId = EnigmailKeyRing.getValidKeyForRecipient(keyId);
+      if (rcptKeyId) {
         keyObj = EnigmailKeyRing.getKeyById(keyId);
       }
     }
 
     if (keyObj === null) {
-      return EnigmailLocale.getString("filter.keyNotFound", [value]);
+      return EnigmailLocale.getString("filter.keyNotFound", [keyId]);
     }
 
     if (!keyObj.secretAvailable) {
@@ -184,7 +206,7 @@ const filterActionEncrypt = {
       // thunderbird + enigmail is used as a gateway filter with
       // the secret not available on one machine and the decryption
       // is intended to happen on different systems.
-      getDialog().alert(null, EnigmailLocale.getString("filter.warn.keyNotSecret", [value]));
+      getDialog().alert(null, EnigmailLocale.getString("filter.warn.keyNotSecret", [keyId]));
     }
 
     return null;
@@ -477,7 +499,7 @@ function getRequireMessageProcessing(aMsgHdr) {
 
   let u = EnigmailCompat.getUrlFromUriSpec(aMsgHdr.folder.getUriForMsg(aMsgHdr));
 
-  if (! u) {
+  if (!u) {
     return null;
   }
 

@@ -347,7 +347,8 @@ treechildren::-moz-tree-cell-text(STYLE) {}
 }
 
 .ruleactiontarget[type="enigmail@enigmail.net#filterActionEncrypt"] {
-  -moz-binding: url("chrome://messenger/content/searchWidgets.xml#ruleactiontarget-forwardto") !important;
+  -moz-binding: url("chrome://enigmail/content/ui/filterWidgets.xml#ruleactiontarget-enigmailEncryptTo") !important;
+  -moz-box-flex: 1;
 }
 
 .enigmailPassphraseQuality {
