@@ -3993,6 +3993,9 @@ Enigmail.msg = {
     if (gWindowLocked || this.processed)
       return;
 
+    // don't attempt to decrypt message if it's not from a reply/forward/etc.
+    if (!interactive && !Enigmail.msg.getMsgHdr()) return;
+
     var enigmailSvc = EnigmailCore.getService(window);
     if (!enigmailSvc)
       return;
@@ -4462,14 +4465,16 @@ Enigmail.msg = {
     if (subjElem) {
 
       let msgHdr = Enigmail.msg.getMsgHdr();
-      if (msgHdr.flags & Ci.nsMsgMessageFlags.HasRe) {
-        subjElem.value = "Re: " + subjElem.value;
-      }
+      if (msgHdr) {
+        if (msgHdr.flags & Ci.nsMsgMessageFlags.HasRe) {
+          subjElem.value = "Re: " + subjElem.value;
+        }
 
-      let r = subjElem.value.replace(/^(Re: )+/, "Re: ");
-      if (r !== subjElem.value) {
-        subjElem.value = r;
-        if (typeof subjElem.oninput === "function") subjElem.oninput();
+        let r = subjElem.value.replace(/^(Re: )+/, "Re: ");
+        if (r !== subjElem.value) {
+          subjElem.value = r;
+          if (typeof subjElem.oninput === "function") subjElem.oninput();
+        }
       }
     }
   },
