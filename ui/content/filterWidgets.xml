@@ -33,11 +33,10 @@
   <binding id="ruleactiontarget-enigmailEncryptTo" extends="chrome://messenger/content/searchWidgets.xml#ruleactiontarget-base">
     <content>
       <xul:vbox flex="1">
-        <xul:hbox flex="1">
-          <xul:vbox align="center">
-            <xul:label value="&enigmail.filterEditor.encryptToKey.label;"/>
-          </xul:vbox>
-          <xul:textbox onchange="this.parentNode.parentNode.parentNode.setCombinedValue()" size="16" flex="1"/>
+        <xul:hbox flex="1" align="center">
+          <xul:label value="&enigmail.filterEditor.encryptToKey.label;"/>
+          <xul:textbox readonly="true" size="12" flex="1"/>
+          <xul:button label="..." oncommand="this.parentNode.parentNode.parentNode.selectPrivateKey()" />
         </xul:hbox>
         <xul:hbox align="center">
           <xul:checkbox oncommand="this.parentNode.parentNode.parentNode.enableFolder()"/>
@@ -136,7 +135,28 @@
           ]]>
         </body>
       </method>
+      <method name="selectPrivateKey">
+        <body>
+          <![CDATA[
+            const EnigmailLocale = Components.utils.import("chrome://enigmail/content/modules/locale.jsm").EnigmailLocale;
 
+            let resultObj = {};
+            let inputObj = {};
+            inputObj.dialogHeader = EnigmailLocale.getString("encryptKeyHeader");
+            inputObj.options = "single,hidexpired,private,nosending,sendlabel=" + EnigmailLocale.getString("filterWidget.selectKey") + ",";
+
+            window.openDialog("chrome://enigmail/content/ui/enigmailKeySelection.xul", "", "dialog,modal,centerscreen,resizable", inputObj, resultObj);
+            try {
+              if (resultObj.cancelled) return;
+              this.textbox.value = resultObj.userList[0];
+              this.setCombinedValue();
+            }
+            catch (ex) {
+              // cancel pressed
+            }
+          ]]>
+        </body>
+      </method>
     </implementation>
   </binding>
 
