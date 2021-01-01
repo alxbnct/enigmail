@@ -5016,6 +5016,9 @@ Enigmail.msg = {
     if (!enigmailSvc)
       return;
 
+    // don't attempt to decrypt message if it's not from a reply/forward/etc.
+    if (!interactive && !Enigmail.msg.getMsgHdr()) return;
+
     const dce = Components.interfaces.nsIDocumentEncoder;
     var encoderFlags = dce.OutputFormatted | dce.OutputLFLineBreak;
 
