@@ -20,14 +20,15 @@ var EnigmailCompat = ChromeUtils.import("chrome://enigmail/content/modules/compa
 var EnigmailDialog = ChromeUtils.import("chrome://enigmail/content/modules/dialog.jsm").EnigmailDialog;
 var EnigmailLocale = ChromeUtils.import("chrome://enigmail/content/modules/locale.jsm").EnigmailLocale;
 var EnigmailWindows = ChromeUtils.import("chrome://enigmail/content/modules/windows.jsm").EnigmailWindows;
+var EnigmailFuncs = ChromeUtils.import("chrome://enigmail/content/modules/funcs.jsm").EnigmailFuncs;
 
 const INPUT = 0;
 const RESULT = 1;
 
 var gSearchInput = null;
 var gNumRows = null;
-var gAutocryptRules = [];
 var gTimeoutId = {};
+var gDisplayAcRules = false;
 
 function onLoadDialog() {
   var enigmailSvc = EnigmailCore.getService(window);
@@ -39,6 +40,8 @@ function onLoadDialog() {
     document.getElementById("pgpMime").setAttribute("collapsed", "true");
   }
 
+  EnigmailFuncs.collapseAdvanced(document.getElementById("displayAutocryptRules").parentNode, 'collapsed');
+
   var rulesListObj = {};
   if (EnigmailRules.getRulesData(rulesListObj)) {
     var treeChildren = document.getElementById("rulesTreeChildren");
@@ -49,6 +52,8 @@ function onLoadDialog() {
     }
     EnigmailLog.DEBUG("enigmailRulesEditor.js: dlgOnLoad: keys loaded\n");
     gNumRows = 0;
+
+    let autocryptRules = [];
     var node = rulesList.firstChild.firstChild;
     while (node) {
       if (node.tagName == "pgpRule") {
@@ -64,20 +69,27 @@ function onLoadDialog() {
           userObj.negate = node.getAttribute("negateRule");
         }
 
-        if (userObj.email.search(/^\{autocrypt:\/\/.{1,200}\}$/) === 0) {
-          gAutocryptRules.push(userObj);
+        if (userObj.email.indexOf("{autocrypt://") === 0) {
+          let treeItem = document.createXULElement("treeitem");
+          createRow(treeItem, userObj);
+          autocryptRules.push(treeItem);
         }
         else {
-          var treeItem = document.createXULElement("treeitem");
+          let treeItem = document.createXULElement("treeitem");
           createRow(treeItem, userObj);
           treeChildren.appendChild(treeItem);
         }
       }
       node = node.nextSibling;
     }
+
+    for (let row of autocryptRules) {
+      treeChildren.appendChild(row);
+    }
   }
   gSearchInput = document.getElementById("filterEmail");
   EnigmailSearchCallback.setup(gSearchInput, gTimeoutId, applyFilter, 200);
+  applyFilter();
   onSelectCallback();
 }
 
@@ -96,17 +108,6 @@ function onAcceptDialog() {
       node.getAttribute("negateRule")
     );
     node = node.nextSibling;
-  }
-
-  for (let i in gAutocryptRules) {
-    EnigmailRules.addRule(true,
-      gAutocryptRules[i].email,
-      gAutocryptRules[i].keyId,
-      gAutocryptRules[i].sign,
-      gAutocryptRules[i].encrypt,
-      gAutocryptRules[i].pgpMime,
-      "0"
-    );
   }
   EnigmailRules.saveRulesFile();
 
@@ -202,7 +203,7 @@ function onSelectCallback() {
 
   const singleSelectionElements = ["modifyRule", "moveUp", "moveDown"];
 
-  if (nodeList.length === 1) {
+  if (nodeList.length === 1 && nodeList[0].getAttribute("email").indexOf("{autocrypt://") < 0) {
     for (let e of singleSelectionElements) {
       document.getElementById(e).removeAttribute("disabled");
     }
@@ -322,7 +323,10 @@ function applySearchFilter() {
   searchTxt = searchTxt.toLowerCase();
   var node = getFirstNode();
   while (node) {
-    if (node.getAttribute("email").toLowerCase().indexOf(searchTxt) < 0) {
+    if ((!gDisplayAcRules) && (node.getAttribute("email").indexOf("{autocrypt://") === 0)) {
+      node.hidden = true;
+    }
+    else if (node.getAttribute("email").toLowerCase().indexOf(searchTxt) < 0) {
       node.hidden = true;
     }
     else {
@@ -336,7 +340,11 @@ function resetFilter() {
   document.getElementById("filterEmail").value = "";
   var node = getFirstNode();
   while (node) {
-    node.hidden = false;
+    if ((!gDisplayAcRules) && (node.getAttribute("email").indexOf("{autocrypt://") === 0)) {
+      node.hidden = true;
+    }
+    else
+      node.hidden = false;
     node = node.nextSibling;
   }
 }
@@ -348,6 +356,12 @@ function applyFilter() {
   }
 
   applySearchFilter();
+}
+
+
+function toggleAutocryptRules() {
+  gDisplayAcRules = document.getElementById("displayAutocryptRules").checked ? true : false;
+  applyFilter();
 }
 
 document.addEventListener("dialogaccept", function(event) {

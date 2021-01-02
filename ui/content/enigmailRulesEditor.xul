@@ -32,6 +32,12 @@
         <label value="&enigmail.searchRule.label;" control="filterEmail"/>
         <textbox id="filterEmail" type="search" size="30"/>
       </hbox>
+      <checkbox
+        id="displayAutocryptRules"
+        label="&enigmail.rules.displayAutocrypt.label;"
+        accesskey="&enigmail.rules.displayAutocrypt.accesskey;"
+        advanced="true"
+        oncommand="toggleAutocryptRules()"/>
       <hbox flex="1" >
         <tree id="rulesTree" flex="1"
               hidecolumnpicker="false"
