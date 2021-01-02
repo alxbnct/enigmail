@@ -135,7 +135,7 @@ function loadOpenPGPjsLib() {
     MessageChannel: appShellSvc.hiddenDOMWindow.MessageChannel
   };
 
-  // no idea why, but oenpgp.js won't load without this defined
+  // no idea why, but openpgp.js won't load without this defined
   g.self = g.window;
 
   Services.scriptloader.loadSubScript("chrome://enigmail/content/modules/stdlib/openpgp-lib.js", g, "UTF-8");
@@ -145,6 +145,7 @@ function loadOpenPGPjsLib() {
   cfg.show_comment = false;
   cfg.show_version = false;
   cfg.compression = openPGPLib.enums.compression.zlib;
+  cfg.tolerant = true;
   // cfg.debug = true;
 
   try {
