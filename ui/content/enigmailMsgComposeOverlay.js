@@ -107,6 +107,7 @@ Enigmail.msg = {
   trustAllKeys: false,
   protectHeaders: false,
   draftSubjectEncrypted: false,
+  encryptDraft: null,
   attachOwnKeyObj: {
     appendAttachment: false,
     attachedObj: null,
@@ -2293,6 +2294,17 @@ Enigmail.msg = {
           elem.setAttribute("disabled", "true");
         }
       }
+
+      elem = document.getElementById("enigmail_encrypt_draft");
+      if (elem) {
+        if (enigmailEnabled) {
+          elem.setAttribute("checked", this.getDraftEncryptionStatus() ? "true" : "false");
+          elem.removeAttribute("disabled");
+        }
+        else {
+          elem.setAttribute("disabled", "true");
+        }
+      }
     }
   },
 
@@ -2421,8 +2433,8 @@ Enigmail.msg = {
     }
   },
 
-  setDraftStatus: function(doEncrypt) {
-    EnigmailLog.DEBUG("enigmailMsgComposeOverlay.js: Enigmail.msg.setDraftStatus - enabling draft mode\n");
+  setMessageDraftHeader: function(doEncrypt) {
+    EnigmailLog.DEBUG("enigmailMsgComposeOverlay.js: Enigmail.msg.setMessageDraftHeader - enabling draft mode\n");
 
     // Draft Status:
     // N (for new style) plus String of 4 numbers:
@@ -3013,14 +3025,29 @@ Enigmail.msg = {
     };
   },
 
+  getDraftEncryptionStatus: function() {
+    if (this.isEnigmailEnabled()) {
+      if (this.encryptDraft === null) {
+        return this.identity.getBoolAttribute("autoEncryptDrafts");
+      }
+      else {
+        return this.encryptDraft;
+      }
+    }
+    else
+      return false;
+  },
+
+  toggleDraftEncryption: function() {
+    this.encryptDraft = (!this.getDraftEncryptionStatus());
+  },
 
   // Save draft message. We do not want most of the other processing for encrypted mails here...
   saveDraftMessage: function() {
     EnigmailLog.DEBUG("enigmailMsgComposeOverlay.js: saveDraftMessage()\n");
 
-    let doEncrypt = this.isEnigmailEnabled() && this.identity.getBoolAttribute("autoEncryptDrafts");
-
-    this.setDraftStatus(doEncrypt);
+    let doEncrypt = this.getDraftEncryptionStatus();
+    this.setMessageDraftHeader(doEncrypt);
 
     if (!doEncrypt) {
       EnigmailLog.DEBUG("enigmailMsgComposeOverlay.js: drafts disabled\n");

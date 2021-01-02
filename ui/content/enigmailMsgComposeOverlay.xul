@@ -101,6 +101,14 @@
                 type="radio"
                 oncommand="Enigmail.msg.setFinalSendMode('final-useSmime');"/>
 
+          <menuitem id="enigmail_encrypt_draft"
+                accesskey="&enigmail.encryptDraft.accesskey;"
+                label="&enigmail.encryptDraft.label;"
+                advanced="true"
+                checked="false"
+                type="checkbox"
+                oncommand="Enigmail.msg.toggleDraftEncryption();"/>
+
           <menuseparator/>
 
           <menuitem id="enigmail_trust_all_keys"

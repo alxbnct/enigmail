@@ -155,7 +155,7 @@ function setChecked_test() {
 
 }
 
-function setDraftStatus_test() {
+function setMessageDraftHeader_test() {
 
   Enigmail.msg.encryptForced = 1;
   Enigmail.msg.signForced = 2;
@@ -170,7 +170,7 @@ function setDraftStatus_test() {
     Assert.equal(draftStatus, "N12311");
   };
 
-  Enigmail.msg.setDraftStatus(1);
+  Enigmail.msg.setMessageDraftHeader(1);
 
 
   Enigmail.msg.pgpmimeForced = 0;
@@ -184,7 +184,7 @@ function setDraftStatus_test() {
     Assert.equal(draftStatus, "N12000");
   };
 
-  Enigmail.msg.setDraftStatus(0);
+  Enigmail.msg.setMessageDraftHeader(0);
 }
 
 function setFinalSendMode_test() {
@@ -742,7 +742,7 @@ test(function run_test() {
   sendAborted_test();
   setAdditionalHeader_test();
   setChecked_test();
-  setDraftStatus_test();
+  setMessageDraftHeader_test();
   setFinalSendMode_test();
   setIdentityCallback_test();
   setOwnKeyStatus_test();
