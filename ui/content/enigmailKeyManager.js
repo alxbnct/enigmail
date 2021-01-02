@@ -73,6 +73,13 @@ function enigmailKeyManagerLoad() {
       document.getElementById(i).style.visibility = "collapse";
     }
   }
+
+  if (!cApi.supportsFeature("smartcard")) {
+    for (let i of ["cardData"]) {
+      document.getElementById(i).style.visibility = "collapse";
+    }
+  }
+
   gOwnerTrustSupport = cApi.supportsFeature("ownertrust");
 
   gUserList = document.getElementById("pgpKeyList");

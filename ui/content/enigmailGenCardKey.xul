@@ -103,6 +103,7 @@
   <button label="&enigmail.generateKey.label;"
           class="dialog"
           tooltip="aTooltip"
+          id="generateKeyButton"
           tooltiptext="&enigmail.generateKey.tooltip;"
           oncommand="startKeyGen();" />
 

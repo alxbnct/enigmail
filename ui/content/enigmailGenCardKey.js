@@ -179,6 +179,8 @@ function startKeyGen() {
     consoleElement.firstChild.data = "";
   }
 
+  document.getElementById("generateKeyButton").setAttribute("disabled", "true");
+
   var generateObserver = new enigGenKeyObserver();
   EnigmailKeyManagement.genCardKey(window,
     userName,
