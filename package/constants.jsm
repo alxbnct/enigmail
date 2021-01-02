@@ -114,6 +114,9 @@ var EnigmailConstants = {
   SIG_CREATED: 0x40000000,
   END_ENCRYPTION: 0x80000000,
 
+  /* Flagas for msg Property "enigmail-subject" */
+  SUBJECT_ENCRYPTED: 0x0001,
+
   /*** key handling functions ***/
 
   EXTRACT_SECRET_KEY: 0x01,

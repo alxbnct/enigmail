@@ -793,6 +793,7 @@ MimeDecryptHandler.prototype = {
       try {
         let msgDbHdr = this.uri.QueryInterface(Ci.nsIMsgMessageUrl).messageHeader;
         msgDbHdr.subject = EnigmailData.convertFromUnicode(this.decryptedHeaders.subject, "utf-8");
+        msgDbHdr.setUint32Property("enigmail-subject", EnigmailConstants.SUBJECT_ENCRYPTED);
       }
       catch (x) {}
     }

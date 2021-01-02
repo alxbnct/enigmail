@@ -519,12 +519,19 @@ Enigmail.msg = {
         properties = msgHdr.getUint32Property("enigmail");
         try {
           EnigmailMime.getMimeTreeFromUrl(msgUrl.spec, false, function _cb(mimeMsg) {
+            // read property only after message has been processed
+            let protectedHeader = msgHdr.getUint32Property("enigmail-subject") & EnigmailConstants.SUBJECT_ENCRYPTED;
             if (draft) {
               self.setDraftOptions(mimeMsg);
               if (self.draftSubjectEncrypted) self.setOriginalSubject(msgHdr.subject, false);
             }
             else {
-              if (EnigmailURIs.isEncryptedUri(msgUri)) self.setOriginalSubject(msgHdr.subject, false);
+              if (EnigmailURIs.isEncryptedUri(msgUri)) {
+                self.setOriginalSubject(msgHdr.subject, false);
+
+                self.protectHeaders = (protectedHeader ? true : false);
+                self.displayProtectHeadersStatus();
+              }
             }
           });
         }
@@ -612,7 +619,7 @@ Enigmail.msg = {
     let subjElem = document.getElementById("msgSubject");
     let prefix = "";
 
-    if (!subjElem) return;
+    if (!subjElem) return false;
 
     switch (gMsgCompose.type) {
       case CT.ForwardInline:
@@ -645,12 +652,14 @@ Enigmail.msg = {
       subject = EnigmailData.convertToUnicode(subject, "UTF-8");
       subject = jsmime.headerparser.decodeRFC2047Words(subject, "utf-8");
 
-      if (subjElem.value == "Re: " + subject) return;
+      if (subjElem.value == "Re: " + subject) return false;
 
       gMsgCompose.compFields.subject = prefix + subject;
       subjElem.value = prefix + subject;
       if (typeof subjElem.oninput === "function") subjElem.oninput();
     }
+
+    return doSetSubject;
   },
 
   setupMenuAndToolbar: function() {
