@@ -887,9 +887,11 @@ CryptMessageIntoFolder.prototype = {
 
       const copySvc = Cc["@mozilla.org/messenger/messagecopyservice;1"].getService(Ci.nsIMsgCopyService);
 
+      let newKey;
       let copyListener = {
         QueryInterface: function(iid) {
-          if (iid.equals(Ci.nsIMsgCopyServiceListener) || iid.equals(Ci.nsISupports)) {
+          if (iid.equals(Ci.nsIMsgCopyServiceListener) ||
+            iid.equals(Ci.nsISupports)) {
             return this;
           }
           EnigmailLog.DEBUG("persistentCrypto.jsm: copyListener error\n");
@@ -902,6 +904,13 @@ CryptMessageIntoFolder.prototype = {
         },
         SetMessageKey: function(key) {
           EnigmailLog.DEBUG("persistentCrypto.jsm: copyListener: SetMessageKey(" + key + ")\n");
+          newKey = key;
+        },
+        applyFlags: function() {
+          let newHdr = self.destFolder.GetMessageHeader(newKey);
+          newHdr.markRead(self.hdr.isRead);
+          newHdr.markFlagged(self.hdr.isFlagged);
+          newHdr.subject = self.hdr.subject;
         },
         OnStopCopy: function(statusCode) {
           EnigmailLog.DEBUG("persistentCrypto.jsm: copyListener: OnStopCopy()\n");
@@ -922,6 +931,7 @@ CryptMessageIntoFolder.prototype = {
             return;
           }
           EnigmailLog.DEBUG("persistentCrypto.jsm: Copy complete\n");
+          this.applyFlags();
 
           if (self.move) {
             deleteOriginalMail(self.hdr);

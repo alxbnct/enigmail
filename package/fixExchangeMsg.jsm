@@ -378,7 +378,6 @@ var EnigmailFixExchangeMsg = {
     var fileSpec = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
     fileSpec.initWithPath(tempFile.path);
 
-
     var copyListener = {
       QueryInterface: function(iid) {
         if (iid.equals(Ci.nsIMsgCopyServiceListener) || iid.equals(Ci.nsISupports)) {
@@ -392,6 +391,12 @@ var EnigmailFixExchangeMsg = {
       OnStartCopy: function() {},
       SetMessageKey: function(key) {
         this.msgKey = key;
+      },
+      applyFlags: function() {
+        let newHdr = self.destFolder.GetMessageHeader(this.msgKey);
+        newHdr.markRead(self.hdr.isRead);
+        newHdr.markFlagged(self.hdr.isFlagged);
+        newHdr.subject = self.hdr.subject;
       },
       OnStopCopy: function(statusCode) {
         if (statusCode !== 0) {
