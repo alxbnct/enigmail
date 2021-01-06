@@ -139,6 +139,123 @@ var EnigmailPersistentCrypto = {
         return;
       }
     );
+  },
+
+  copyMessageToFolder(originalMsgHdr, targetFolderUri, deleteOrigMsg, content, selectNew, win = null) {
+    EnigmailLog.DEBUG("persistentCrypto.jsm: copyMessageToFolder()\n");
+    return new Promise((resolve, reject) => {
+
+      // Create the temporary file where the new message will be stored.
+      const tempFile = Cc["@mozilla.org/file/directory_service;1"].getService(Ci.nsIProperties).get("TmpD", Ci.nsIFile);
+      tempFile.append("message.eml");
+      tempFile.createUnique(0, 0o600);
+
+      const outputStream = Cc["@mozilla.org/network/file-output-stream;1"].createInstance(Ci.nsIFileOutputStream);
+      outputStream.init(tempFile, 2, 0x200, false); // open as "write only"
+      outputStream.write(content, content.length);
+      outputStream.close();
+
+      // Delete file on exit, because Windows locks the file
+      const extAppLauncher = Cc["@mozilla.org/uriloader/external-helper-app-service;1"].getService(Ci.nsPIExternalAppLauncher);
+      extAppLauncher.deleteTemporaryFileOnExit(tempFile);
+
+      const msgFolder = originalMsgHdr.folder;
+
+      // The following technique was copied from nsDelAttachListener in Thunderbird's
+      // nsMessenger.cpp. There is a "unified" listener which serves as copy and delete
+      // listener. In all cases, the `OnStopCopy()` of the delete listener selects the
+      // replacement message.
+      // The deletion happens in `OnStopCopy()` of the copy listener for local messages
+      // and in `OnStopRunningUrl()` for IMAP messages if the folder is displayed since
+      // otherwise `OnStopRunningUrl()` doesn't run.
+
+      let copyListener, newKey;
+      let statusCode = 0;
+      let deletedOld = false;
+      const destFolder = targetFolderUri ? EnigmailCompat.getExistingFolder(targetFolderUri) : msgFolder;
+
+      copyListener = {
+        QueryInterface(iid) {
+          if (iid.equals(Ci.nsIMsgCopyServiceListener) ||
+            iid.equals(Ci.nsIUrlListener) ||
+            iid.equals(Ci.nsISupports)) {
+            return this;
+          }
+          throw Cr.NS_NOINTERFACE;
+        },
+        GetMessageId(messageId) {
+          // Maybe enable this later. Most of the Thunderbird code does not supply this.
+          // messageId = { value: msgHdr.messageId };
+        },
+        SetMessageKey(key) {
+          EnigmailLog.DEBUG(`persistentCrypto.jsm: copyMessageToFolder: Result of CopyFileMessage() is new message with key ${key}\n`);
+          newKey = key;
+        },
+        applyFlags() {
+          let newHdr = destFolder.GetMessageHeader(newKey);
+          newHdr.markRead(originalMsgHdr.isRead);
+          newHdr.markFlagged(originalMsgHdr.isFlagged);
+          newHdr.subject = originalMsgHdr.subject;
+        },
+        deleteMsg() {
+          if ((!deleteOrigMsg) || deletedOld) {
+            resolve(true);
+            return;
+          }
+          try {
+            EnigmailLog.DEBUG(`persistentCrypto.jsm: copyMessageToFolder: Deleting old message with key ${originalMsgHdr.messageKey}\n`);
+            const msgArray = Cc["@mozilla.org/array;1"].createInstance(Ci.nsIMutableArray);
+            msgArray.appendElement(originalMsgHdr, false);
+            msgFolder.deleteMessages(msgArray, null, true, false, null, false);
+          }
+          catch (ex) {
+            EnigmailLog.ERROR(ex.toString());
+          }
+          deletedOld = true;
+          resolve(true);
+        },
+        OnStartRunningUrl() {},
+        OnStopRunningUrl() {
+          // This is not called for local and off-screen folders, hence we delete in `OnStopCopy()`.
+          if (statusCode !== 0) return;
+          EnigmailLog.DEBUG("persistentCrypto.jsm: copyMessageToFolder: Triggering deletion from OnStopRunningUrl()\n");
+          this.applyFlags();
+          this.deleteMsg();
+        },
+        OnStartCopy() {},
+        OnStopCopy(status) {
+          statusCode = status;
+          if (statusCode !== 0) {
+            EnigmailLog.ERROR(`persistentCrypto.jsm: ${statusCode} replacing message, folder="${msgFolder.name}", key=${originalMsgHdr.messageKey}/${newKey}\n`);
+            resolve(false);
+            return;
+          }
+
+          try {
+            tempFile.remove();
+          }
+          catch (ex) {}
+
+          if (msgFolder.folderURL.startsWith("mailbox:") ||
+            // IMAP's `OnStopRunningUrl()` does not run for off-screen folders.
+            (win && win.gDBView && win.gDBView.msgFolder != msgFolder) ||
+            // If we don't have a window or view, delete the message here
+            // since we don't know whether `OnStopRunningUrl()` will run.
+            !win || !win.gDBView) {
+            EnigmailLog.DEBUG("persistentCrypto.jsm: copyMessageToFolder: Triggering deletion from OnStopCopy()\n");
+            this.applyFlags();
+            this.deleteMsg();
+            return;
+          }
+          else {
+            EnigmailLog.DEBUG("persistentCrypto.jsm: copyMessageToFolder: Not triggering deletion from OnStopCopy()\n");
+          }
+          resolve(true);
+        }
+      };
+
+      EnigmailCompat.copyFileToMailFolder(tempFile, destFolder, originalMsgHdr.flags, "", copyListener, null);
+    });
   }
 };
 
@@ -847,101 +964,14 @@ CryptMessageIntoFolder.prototype = {
   },
 
   storeMessage: function(msg) {
-    let self = this;
-
-    return new Promise((resolve, reject) => {
-      //XXX Do we wanna use the tmp for this?
-      let tempFile = Cc["@mozilla.org/file/directory_service;1"].getService(Ci.nsIProperties).get("TmpD", Ci.nsIFile);
-      tempFile.append("message.eml");
-      tempFile.createUnique(0, 384); // == 0600, octal is deprecated
-
-      // ensure that file gets deleted on exit, if something goes wrong ...
-      let extAppLauncher = Cc["@mozilla.org/uriloader/external-helper-app-service;1"].getService(Ci.nsPIExternalAppLauncher);
-
-      let foStream = Cc["@mozilla.org/network/file-output-stream;1"].createInstance(Ci.nsIFileOutputStream);
-      foStream.init(tempFile, 2, 0x200, false); // open as "write only"
-      foStream.write(msg, msg.length);
-      foStream.close();
-
-      extAppLauncher.deleteTemporaryFileOnExit(tempFile);
-
-      //
-      //  This was taken from the HeaderToolsLite Example Addon "original by Frank DiLecce"
-      //
-      // this is interesting: nsIMsgFolder.copyFileMessage seems to have a bug on Windows, when
-      // the nsIFile has been already used by foStream (because of Windows lock system?), so we
-      // must initialize another nsIFile object, pointing to the temporary file
-      let fileSpec = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
-      fileSpec.initWithPath(tempFile.path);
-
-      let copyListener = {
-        QueryInterface: function(iid) {
-          if (iid.equals(Ci.nsIMsgCopyServiceListener) || iid.equals(Ci.nsISupports)) {
-            return this;
-          }
-          EnigmailLog.DEBUG("persistentCrypto.jsm: copyListener error\n");
-          throw Components.results.NS_NOINTERFACE;
-        },
-        GetMessageId: function(messageId) {},
-        OnProgress: function(progress, progressMax) {},
-        OnStartCopy: function() {
-          EnigmailLog.DEBUG("persistentCrypto.jsm: copyListener: OnStartCopy()\n");
-        },
-        SetMessageKey: function(key) {
-          EnigmailLog.DEBUG("persistentCrypto.jsm: copyListener: SetMessageKey(" + key + ")\n");
-        },
-        OnStopCopy: function(statusCode) {
-          EnigmailLog.DEBUG("persistentCrypto.jsm: copyListener: OnStopCopy()\n");
-          if (statusCode !== 0) {
-            EnigmailLog.DEBUG("persistentCrypto.jsm: Error copying message: " + statusCode + "\n");
-            try {
-              tempFile.remove(false);
-            }
-            catch (ex) {
-              try {
-                fileSpec.remove(false);
-              }
-              catch (e2) {
-                EnigmailLog.DEBUG("persistentCrypto.jsm: Could not delete temp file\n");
-              }
-            }
-            resolve(true);
-            return;
-          }
-          EnigmailLog.DEBUG("persistentCrypto.jsm: Copy complete\n");
-
-          if (self.move) {
-            deleteOriginalMail(self.hdr);
-          }
-
-          try {
-            tempFile.remove(false);
-          }
-          catch (ex) {
-            try {
-              fileSpec.remove(false);
-            }
-            catch (e2) {
-              EnigmailLog.DEBUG("persistentCrypto.jsm: Could not delete temp file\n");
-            }
-          }
-
-          EnigmailLog.DEBUG("persistentCrypto.jsm: Cave Johnson. We're done\n");
-          resolve(true);
-        }
-      };
-
-      EnigmailLog.DEBUG("persistentCrypto.jsm: copySvc ready for copy\n");
-      try {
-        if (self.mimeTree.headers.has("subject")) {
-          self.hdr.subject = self.mimeTree.headers.get("subject");
-        }
+    try {
+      if (this.mimeTree.headers.has("subject")) {
+        this.hdr.subject = self.mimeTree.headers.get("subject");
       }
-      catch (ex) {}
+    }
+    catch (ex) {}
 
-      EnigmailCompat.copyFileToMailFolder(fileSpec, EnigmailCompat.getExistingFolder(self.destFolder),
-        0, "", copyListener, null);
-    });
+    return EnigmailPersistentCrypto.copyMessageToFolder(this.hdr, this.destFolder, this.move, msg, false);
   },
 
   fixExchangeMessage: function(mimePart) {

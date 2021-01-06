@@ -62,6 +62,7 @@ test(withTestGpgHome(withEnigmail(function messageIsMovedToNewDir() {
   const move = true;
 
   copyListener.OnStopCopy = function(statusCode) {
+    Assert.equal(statusCode, 0);
     inspector.exitNestedEventLoop();
   };
   EnigmailPersistentCrypto.dispatchMessages([header], targetFolder.URI, copyListener, move);

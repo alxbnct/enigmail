@@ -1567,25 +1567,11 @@ Enigmail.msg = {
 
     let msg = gFolderDisplay.messageDisplay.displayedMessage;
 
-    let p = EnigmailFixExchangeMsg.fixExchangeMessage(msg, this.buggyMailType);
-    p.then(
-      function _success(msgKey) {
-        // display message with given msgKey
-
-        EnigmailLog.DEBUG("enigmailMessengerOverlay.js: fixBuggyExchangeMail: _success: msgKey=" + msgKey + "\n");
-
-        if (msgKey) {
-          let index = gFolderDisplay.view.dbView.findIndexFromKey(msgKey, true);
-          EnigmailLog.DEBUG("  ** index = " + index + "\n");
-
-          EnigmailTimer.setTimeout(function() {
-            gFolderDisplay.view.dbView.selectMsgByKey(msgKey);
-          }, 750);
-        }
-
-        hideAndResetExchangePane();
-      }
-    );
+    let p = EnigmailFixExchangeMsg.fixExchangeMessage(msg, this.buggyMailType, null, window);
+    p.then(() => {
+      EnigmailLog.DEBUG("enigmailMessengerOverlay.js: fixBuggyExchangeMail: success\n");
+      hideAndResetExchangePane();
+    });
     p.catch(function _rejected() {
       EnigmailDialog.alert(window, EnigmailLocale.getString("fixBrokenExchangeMsg.failed"));
       hideAndResetExchangePane();

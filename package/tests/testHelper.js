@@ -116,6 +116,9 @@ var TestHelper = {
 
     inspector.enterNestedEventLoop(0); // wait for async process to terminate
 
+    // let agentPath = TestHelper.isWindows() ?  `"${workingDirectory.path}"` : workingDirectory.path;
+    // TestEnigmailPrefs.setPref("agentAdditionalParam", `--homedir ${agentPath}`);
+
     var environment = Components.classes["@mozilla.org/process/environment;1"].getService(Components.interfaces.nsIEnvironment);
 
     environment.set("GNUPGHOME", workingDirectory.path);
