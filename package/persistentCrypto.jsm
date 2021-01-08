@@ -907,7 +907,7 @@ CryptMessageIntoFolder.prototype = {
           newKey = key;
         },
         applyFlags: function() {
-          let newHdr = self.destFolder.GetMessageHeader(newKey);
+          let newHdr = EnigmailCompat.getExistingFolder(self.destFolder).GetMessageHeader(newKey);
           newHdr.markRead(self.hdr.isRead);
           newHdr.markFlagged(self.hdr.isFlagged);
           newHdr.subject = self.hdr.subject;
