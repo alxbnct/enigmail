@@ -46,8 +46,7 @@
             <label value="&enigmail.keyserver.label;" control="selectedServer"/>
           </hbox>
           <vbox>
-            <textbox id="enteredServerName" value="" multiline="false" readOnly="false"/>
-            <menulist id="selectedServer" oncommand="onSelectServer(this);"/>
+            <menulist id="selectedServer" is="menulist-editable" editable="true"/>
           </vbox>
         </row>
       </rows>

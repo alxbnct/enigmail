@@ -535,7 +535,7 @@ MimeDecryptHandler.prototype = {
 
       EnigmailLog.DEBUG("mimeDecryp.jsm: starting decryption\n");
 
-      let keyserver = EnigmailPrefs.getPref("autoKeyRetrieve");
+      let keyserver = EnigmailPrefs.getAutoKeyRetrieveServer();
       let options = {
         keyserver: keyserver,
         keyserverProxy: EnigmailHttpProxy.getHttpProxy(keyserver),

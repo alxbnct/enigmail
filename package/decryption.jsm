@@ -198,7 +198,7 @@ var EnigmailDecryption = {
 
     // limit output to 100 times message size to avoid DoS attack
     var maxOutput = pgpBlock.length * 100;
-    let keyserver = EnigmailPrefs.getPref("autoKeyRetrieve");
+    let keyserver = EnigmailPrefs.getAutoKeyRetrieveServer();
     let options = {
       keyserver: keyserver,
       keyserverProxy: EnigmailHttpProxy.getHttpProxy(keyserver),

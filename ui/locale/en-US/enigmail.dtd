@@ -82,11 +82,6 @@
 
 <!ENTITY enigmail.keyserver.label         "Keyserver">
 <!ENTITY enigmail.keyserverDlg.label      "Select Keyserver">
-<!ENTITY enigmail.keyservers.label        "List of keyservers to choose from for search/upload/download:">
-<!ENTITY enigmail.keyservers.sample2      "Example: keys.openpgp.org, pool.sks-keyservers.net">
-<!ENTITY enigmail.autoKeyServerSelection.label     "Use first keyserver by default - do not display the keyserver selection dialog">
-
-
 <!ENTITY enigmail.searchForKey.example    "Example: 'Forename Surname &lt;user@example.com&gt;'">
 <!ENTITY enigmail.searchForKey.desc1	    "'Forename Surname' finds all keys that contain 'Forename' OR 'Surname'">
 <!ENTITY enigmail.searchForKey.desc2      "'Forename+Surname' finds all keys that contain both 'Forename' AND 'Surname'">
@@ -271,8 +266,10 @@
 <!ENTITY enigmail.assignKeysManuallyAlways.tooltip    "Always finally open the dialog to manually assign keys.">
 <!ENTITY enigmail.defineRules.label               "Edit Rules ...">
 
-<!ENTITY enigmail.autoKeyRetrieve.label           "Automatically download keys for signature verification">
-<!ENTITY enigmail.autoKeyRetrieve2.label          "from the following keyserver:">
+<!ENTITY enigmail.keyservers.label                "List of keyservers to choose from for search/upload/download:">
+<!ENTITY enigmail.keyservers.sample2              "Example: keys.openpgp.org, pool.sks-keyservers.net">
+<!ENTITY enigmail.autoKeyServerSelection.label    "Always use default keyserver (do not display the keyserver selection dialog)">
+<!ENTITY enigmail.autoKeyRetrieve.label           "Automatically download keys for signature verification from default server">
 <!ENTITY enigmail.resetRememberedValues.label     "Reset Warnings">
 <!ENTITY enigmail.resetRememberedValues.tooltip   "Re-display all warning dialogs and questions that you have hidden in the past.">
 

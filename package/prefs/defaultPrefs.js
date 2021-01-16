@@ -33,7 +33,7 @@ pref("extensions.enigmail.assignKeysManuallyIfMissing", true);
 pref("extensions.enigmail.assignKeysManuallyAlways", false);
 
 // automatically download missing keys from keyserver
-pref("extensions.enigmail.autoKeyRetrieve", "");
+pref("extensions.enigmail.autoKeyRetrieveFromServer", false);
 
 // enable automatically decrypt/verify
 pref("extensions.enigmail.autoDecrypt", true);
@@ -82,9 +82,12 @@ pref("extensions.enigmail.keyManShowAllKeys", true);
 
 
 // list of keyservers to use
-pref("extensions.enigmail.keyserver", "vks://keys.openpgp.org, hkps://hkps.pool.sks-keyservers.net, hkps://pgp.mit.edu");
+pref("extensions.enigmail.keyserver", "vks://keys.openpgp.org, hkps://keyserver.ubuntu.com, hkps://hkps.pool.sks-keyservers.net");
 
-// auto select the first keyserver in the key server list
+// default keyserver
+pref("extensions.enigmail.defaultKeyserver", "vks://keys.openpgp.org");
+
+// auto select the default keyserver instead of displaying the keyserver selection dialog
 pref("extensions.enigmail.autoKeyServerSelection", true);
 
 // keep passphrase for ... minutes

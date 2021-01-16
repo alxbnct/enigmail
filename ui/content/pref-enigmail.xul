@@ -326,11 +326,19 @@
       <vbox id="keyserver" flex="1"
             advanced="true">
           <vbox>
+            <label control="enigmail_defaultKeyserver"
+                  value="Default keyserver" />
+            <textbox id="enigmail_defaultKeyserver" size="35"/>
+
+            <separator/>
+
             <label control="enigmail_keyserver"
                   value="&enigmail.keyservers.label;" />
             <textbox id="enigmail_keyserver"/>
             <label value="&enigmail.keyservers.sample2;" style="font-style: italic;"/>
           </vbox>
+
+          <separator/>
 
           <checkbox id="enigmail_autoKeyServerSelection"
                     label="&enigmail.autoKeyServerSelection.label;"
@@ -338,12 +346,7 @@
 
           <separator/>
 
-          <vbox>
-            <label value="&enigmail.autoKeyRetrieve.label;" id="autoKeyRetrieveLabel1"/>
-            <label value="&enigmail.autoKeyRetrieve2.label;" id="autoKeyRetrieveLabel2"/>
-            <textbox id="enigmail_autoKeyRetrieve" size="35" aria-labelledby="autoKeyRetrieveLabel1 autoKeyRetrieveLabel2"/>
-          </vbox>
-
+          <checkbox id="enigmail_autoKeyRetrieveFromServer" label="&enigmail.autoKeyRetrieve.label;"/>
       </vbox>
 
       <!-- "OpenPGP Provider" Tab -->

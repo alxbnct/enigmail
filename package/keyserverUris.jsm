@@ -60,13 +60,12 @@ function buildUriOptionsFor(keyserver) {
 }
 
 function getDefaultKeyServer() {
-  let keyservers = EnigmailPrefs.getPref(KEYSERVER_PREF).split(/\s*[,;]\s*/g);
-  return keyservers[0];
+  return  EnigmailPrefs.getPref("defaultKeyserver");
 }
 
 function getUserDefinedKeyserverURIs() {
   const keyservers = EnigmailPrefs.getPref(KEYSERVER_PREF).split(/\s*[,;]\s*/g);
-  return EnigmailPrefs.getPref(AUTO_KEYSERVER_SELECTION_PREF) ? [keyservers[0]] : keyservers;
+  return EnigmailPrefs.getPref(AUTO_KEYSERVER_SELECTION_PREF) ? [getDefaultKeyServer()] : keyservers;
 }
 
 function combineIntoURI(protocol, domain, port) {
@@ -102,8 +101,8 @@ function buildKeyserverUris() {
 }
 
 /**
- * Checks if the keyservers specified are valid.
- * Key refreshes will not be attempted without valid keyservers.
+ * Checks if the default keyserver is specified and valid.
+ * Key refreshes will not be attempted without valid keyserver.
  * A valid keyserver is one that is non-empty and consists of
  * - the keyserverDomain
  * - may include a protocol from hkps, hkp or ldap
@@ -112,8 +111,8 @@ function buildKeyserverUris() {
  * @return true if keyservers exist and are valid, false otherwise.
  */
 function validKeyserversExist() {
-  const keyservers = EnigmailPrefs.getPref(KEYSERVER_PREF);
-  return keyservers !== undefined && keyservers.trim() !== "" && validProtocolsExist();
+  const keyserver = EnigmailPrefs.getPref("defaultKeyserver");
+  return keyserver !== undefined && keyserver.trim() !== "" && validProtocolsExist();
 }
 
 var EnigmailKeyserverURIs = {

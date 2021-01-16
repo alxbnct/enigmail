@@ -579,7 +579,7 @@ async function downloadMissingKeys(keyIds) {
   let foundKeys = [];
 
   try {
-    const keyserver = EnigmailPrefs.getPref("autoKeyRetrieve");
+    const keyserver = EnigmailPrefs.getAutoKeyRetrieveServer();
     if (keyserver && keyserver.length > 0) {
       const keyList = "0x" + keyIds.join(" 0x");
       const ret = await EnigmailKeyServer.download(keyList, keyserver);

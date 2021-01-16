@@ -163,7 +163,7 @@ MimeVerify.prototype = {
     contentTypeLine = contentTypeLine.replace(/[\r\n]/g, "");
     EnigmailLog.DEBUG("mimeVerify.jsm: parseContentType: " + contentTypeLine + "\n");
 
-    let safeProtoStr = this.protocol.replace(/[.*+\-?^${}()|[\]\\]/g, "\\$&"); 
+    let safeProtoStr = this.protocol.replace(/[.*+\-?^${}()|[\]\\]/g, "\\$&");
     let protoRx = RegExp("protocol\\s*=\\s*[\\'\\\"]" + safeProtoStr + "[\\\"\\']", "i");
 
     if (contentTypeLine.search(/multipart\/signed/i) >= 0 &&
@@ -481,7 +481,7 @@ MimeVerify.prototype = {
 
       if (!EnigmailDecryption.isReady(win)) return;
 
-      let keyserver = EnigmailPrefs.getPref("autoKeyRetrieve");
+      let keyserver = EnigmailPrefs.getAutoKeyRetrieveServer();
       let options = {
         keyserver: keyserver,
         keyserverProxy: EnigmailHttpProxy.getHttpProxy(keyserver),

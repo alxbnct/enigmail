@@ -10,12 +10,13 @@
 do_load_module("file://" + do_get_cwd().path + "/testHelper.js"); /*global TestHelper:false, resetting, withEnvironment, gKeyListObj: true, withPreferences: false */
 
 testing("keyserverUris.jsm");
-/*global isValidProtocol: false, validKeyserversExist: false, buildKeyserverUris: false, 
+/*global isValidProtocol: false, validKeyserversExist: false, buildKeyserverUris: false,
 EnigmailPrefs: false, EnigmailOS: false */
 
 function setupKeyserverPrefs(keyservers, autoOn) {
   EnigmailPrefs.setPref("keyserver", keyservers);
   EnigmailPrefs.setPref("autoKeyServerSelection", autoOn);
+  EnigmailPrefs.setPref("defaultKeyserver", keyservers.split(/\s*[,;]\s*/g)[0]);
 }
 
 test(withPreferences(function organizeProtocols_withOneHkpsServer() {

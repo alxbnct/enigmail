@@ -263,6 +263,7 @@ var EnigmailConfigure = {
   },
 
   upgradeTo30: function() {
+    upgradeKeyserverPrefs();
     setGnuPGDefault();
   },
 
@@ -308,4 +309,24 @@ function determineInstallType() {
       });
     }, 10000);
   });
+}
+
+
+function upgradeKeyserverPrefs() {
+  let keyservers = EnigmailPrefs.getPref("keyserver");
+  let autoKeyRetrieve = EnigmailPrefs.getPref("autoKeyRetrieve");
+
+  if (autoKeyRetrieve) {
+    EnigmailPrefs.setPref("autoKeyRetrieveFromServer", true);
+    EnigmailPrefs.setPref("defaultKeyserver", autoKeyRetrieve);
+  }
+  else {
+    let defaultServer = keyservers.split(/[ ,;\t]/)[0];
+    if (defaultServer) {
+      EnigmailPrefs.setPref("defaultKeyserver", defaultServer);
+    }
+  }
+
+  // unset old pref
+  EnigmailPrefs.getPref("autoKeyRetrieve", "");
 }

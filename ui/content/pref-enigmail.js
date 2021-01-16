@@ -428,9 +428,9 @@ function prefOnAccept() {
 
   EnigmailLog.DEBUG("pref-enigmail.js: prefOnAccept\n");
 
-  var autoKey = document.getElementById("enigmail_autoKeyRetrieve").value;
+  let defaultKeySrv = document.getElementById("enigmail_defaultKeyserver").value;
 
-  if (autoKey.search(/.[ ,;\t]./) >= 0) {
+  if (defaultKeySrv.search(/.[ ,;\t]+./) >= 0) {
     EnigmailDialog.info(window, EnigGetString("prefEnigmail.oneKeyserverOnly"));
     return false;
   }

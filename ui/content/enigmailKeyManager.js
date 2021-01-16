@@ -1019,7 +1019,7 @@ function enigmailDowloadContactKeysEngine() {
 
   var inputObj = {
     searchList: emails,
-    autoKeyServer: EnigmailPrefs.getPref("autoKeyServerSelection") ? EnigmailPrefs.getPref("keyserver").split(/[ ,;]/g)[0] : null
+    autoKeyServer: EnigmailPrefs.getPref("autoKeyServerSelection") ? EnigmailPrefs.getPref("defaultKeyserver") : null
   };
   var resultObj = {};
 
@@ -1220,7 +1220,7 @@ function accessKeyServer(accessType, callbackFunc) {
     }
   }
 
-  let keyServer = EnigmailPrefs.getPref("autoKeyServerSelection") ? EnigmailPrefs.getPref("keyserver").split(/[ ,;]/g)[0] : null;
+  let keyServer = EnigmailPrefs.getPref("autoKeyServerSelection") ? EnigmailPrefs.getPref("defaultKeyserver") : null;
   if (!keyServer) {
     switch (accessType) {
       case EnigmailConstants.REFRESH_KEY:

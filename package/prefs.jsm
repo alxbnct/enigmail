@@ -316,5 +316,18 @@ var EnigmailPrefs = {
     let branch = this.getPrefRoot();
 
     branch.removeObserver(ENIGMAIL_PREFS_ROOT, observer);
+  },
+
+  /***************************************** Functional preferences *******************/
+
+  /**
+   * Get the keyserver for automatic validation of signatures
+   */
+  getAutoKeyRetrieveServer: function() {
+    if (this.getPref("autoKeyRetrieveFromServer")) {
+      return this.getPref("defaultKeyserver");
+    }
+    else
+      return "";
   }
 };

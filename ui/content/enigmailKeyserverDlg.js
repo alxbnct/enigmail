@@ -22,10 +22,11 @@ function onLoad() {
   let keyText;
 
   if (typeof(window.arguments[0].keyId) == "string") {
-    var keyId = window.arguments[0].keyId;
+    let keyId = window.arguments[0].keyId;
     if (window.arguments[0].upload) {
       keyText = EnigmailLocale.getString("uploadKey", keyId);
-    } else {
+    }
+    else {
       keyText = EnigmailLocale.getString("importKey", keyId);
     }
 
@@ -34,29 +35,36 @@ function onLoad() {
     }
     keyIdText.firstChild.data = keyText;
     searchCollapser.setAttribute("collapsed", "true");
-  } else {
+  }
+  else {
     keyIdText.setAttribute("collapsed", "true");
   }
 
-  var keyservers = EnigmailPrefs.getPref("keyserver").split(/[ ,;]/g);
-  var menulist = document.getElementById("selectedServer");
+  let keyservers = EnigmailPrefs.getPref("keyserver").split(/[ ,;]/g);
+  let menulist = document.getElementById("selectedServer");
 
-  for (var i = 0; i < keyservers.length; i++) {
-    if (keyservers[i].length > 0 &&
-      (!window.arguments[0].upload ||
-        keyservers[i].slice(0, 10) !== "keybase://")) {
+  menulist.appendItem(EnigmailPrefs.getPref("defaultKeyserver"));
+
+  for (let i = 0; i < keyservers.length; i++) {
+    let skip = false;
+    for (let j in menulist.menupopup.children) {
+      if (menulist.menupopup.children[0].label.toLowerCase() === keyservers[i].toLowerCase()) {
+        skip = true;
+        break;
+      }
+    }
+
+    if (!skip && keyservers[i].length > 0 && (!window.arguments[0].upload || keyservers[i].slice(0, 10) !== "keybase://")) {
       menulist.appendItem(keyservers[i]);
     }
   }
 
   menulist.selectedIndex = 0;
-  onSelectServer(menulist);
 }
 
 function onAccept() {
-  let srvName = document.getElementById("enteredServerName");
   let menulist = document.getElementById("selectedServer");
-  let srv = srvName.value;
+  let srv = menulist.selectedItem ? menulist.selectedItem.label : menulist.inputField.value;
   window.arguments[1].value = srv;
   if (typeof(window.arguments[0].keyId) !== "string") {
     window.arguments[1].email = document.getElementById("email").value;
@@ -67,11 +75,11 @@ function onAccept() {
   }
 
   let servers = [srv];
-  let nodes = menulist.menupopup.getElementsByTagName('menuitem');
-  for (let i = 0, e = nodes.length; i < e; ++i) {
-    if (nodes[i].label == srv) {
-      continue;
-    }
+  let nodes = menulist.menupopup.children;
+  for (let i in nodes) {
+    if (!nodes[i].label) continue;
+    if (nodes[i].label == srv) continue;
+
     servers.push(nodes[i].label);
   }
   EnigmailPrefs.setPref("keyserver", servers.join(', '));
@@ -79,14 +87,6 @@ function onAccept() {
   return true;
 }
 
-
-function onSelectServer(menuList) {
-  let srv = menuList.selectedItem;
-  if (srv) {
-    let srvName = document.getElementById("enteredServerName");
-    srvName.value = srv.label;
-  }
-}
 
 document.addEventListener("dialogaccept", function(event) {
   if (!onAccept())
