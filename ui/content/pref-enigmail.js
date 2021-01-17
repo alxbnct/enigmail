@@ -495,6 +495,13 @@ function prefOnAccept() {
     }
   }
 
+  if (isRestartRequired()) {
+    if (EnigmailDialog.confirmDlg(window, EnigmailLocale.getString("pref.dialogRestartApp.desc"),
+    EnigmailLocale.getString("dlg.button.restartNow"), EnigmailLocale.getString("dlg.button.restartLater"))) {
+      restartApplication();
+    }
+  }
+
   // detect use of gpg-agent and warn if needed
   if (isGnuPGBackend()) {
     if (!EnigmailGpgAgent.isAgentTypeGpgAgent()) {
@@ -557,10 +564,14 @@ function enigSwitchAdvancedMode(expertUser) {
   EnigSetPref("advancedUser", origPref);
 }
 
-function displayRequireRestart() {
+function isRestartRequired() {
   let currValue = isGnuPGBackend() ? "1" : "2";
 
-  if (document.getElementById("enigmail_cryptoAPI").value !== currValue) {
+  return (document.getElementById("enigmail_cryptoAPI").value !== currValue);
+}
+
+function displayRequireRestart() {
+  if (isRestartRequired()) {
     document.getElementById("requireRestart").removeAttribute("hidden");
   }
   else {
@@ -610,6 +621,13 @@ function enigLocateGpg() {
     //     }
     document.getElementById("enigmail_agentPath").value = filePath.path;
   }
+}
+
+
+function restartApplication() {
+  let oAppStartup = Cc["@mozilla.org/toolkit/app-startup;1"].getService(Ci.nsIAppStartup);
+  if (!oAppStartup.eRestart) throw ("Restart is not supported");
+  oAppStartup.quit(oAppStartup.eAttemptQuit | oAppStartup.eRestart);
 }
 
 
