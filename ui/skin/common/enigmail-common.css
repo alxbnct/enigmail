@@ -286,6 +286,11 @@ treechildren::-moz-tree-cell-text(fixedWidthFont) {
   font-family: "Courier New", Courier, monospace;
 }
 
+.enigmailStatusColumnHeader {
+  list-style-image: url("chrome://enigmail/skin/enigEncOk.png");
+}
+
+
 .enigmailExpandViewButton {
   width: 9px;
   /* The image's width is 9 pixels */

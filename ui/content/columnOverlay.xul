@@ -19,6 +19,7 @@
     <treecol id="enigmailStatusCol" persist="hidden ordinal width"
              currentView="unthreaded" flex="2"
              closemenu="none"
+             class="treecol-image enigmailStatusColumnHeader"
              label="" tooltiptext="&enigmail.msgViewColumn.tooltip;" />
    </treecols>
   <!--/tree -->
