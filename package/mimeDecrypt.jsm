@@ -527,12 +527,6 @@ MimeDecryptHandler.prototype = {
 
       if (!EnigmailDecryption.isReady(win)) return;
 
-      // limit output to 100 times message size to avoid DoS attack
-      let maxOutput = this.outQueue.length * 100;
-      let statusFlagsObj = {};
-      let errorMsgObj = {};
-      let listener = this;
-
       EnigmailLog.DEBUG("mimeDecryp.jsm: starting decryption\n");
 
       let keyserver = EnigmailPrefs.getAutoKeyRetrieveServer();
@@ -540,7 +534,7 @@ MimeDecryptHandler.prototype = {
         keyserver: keyserver,
         keyserverProxy: EnigmailHttpProxy.getHttpProxy(keyserver),
         fromAddr: EnigmailDecryption.getFromAddr(win),
-        maxOutputLength: maxOutput
+        maxOutputLength: EnigmailPrefs.getPref("maxDecryptionLimit") * 1024 * 1024
       };
       const cApi = EnigmailCryptoAPI();
       this.returnStatus = cApi.sync(cApi.decryptMime(this.outQueue, options));

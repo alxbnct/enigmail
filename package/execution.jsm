@@ -287,6 +287,7 @@ var EnigmailExecution = {
    * @param {String}            input: data to pass to subprocess via stdin
    * @param {Object} subprocessHandle: handle to subprocess. The subprocess may be
    *                        killed via subprocessHandle.value.killProcess();
+   * @param {Number}          maxSize: maximum size of data to accept
    *
    * @return {Promise<Object>}: Object with:
    *        - {Number} exitCode
@@ -299,7 +300,7 @@ var EnigmailExecution = {
    *        - isKilled: 0
    */
 
-  execAsync: function(command, args, input, subprocessHandle = null) {
+  execAsync: function(command, args, input, subprocessHandle = null, maxSize = 0) {
     EnigmailLog.WRITE("execution.jsm: execAsync: command = '" + command.path + "'\n");
     return new Promise((resolve, reject) => {
 
@@ -315,8 +316,10 @@ var EnigmailExecution = {
         statusFlags: 0,
         statusMsg: "",
         blockSeparation: "",
+        totalStdoutLength: 0,
         isKilled: 0
       };
+
 
       EnigmailLog.CONSOLE("enigmail> " + EnigmailFiles.formatCmdLine(command, args) + "\n");
 
@@ -334,7 +337,14 @@ var EnigmailExecution = {
       );
       procBuilder.setStdout(
         function(data) {
-          outputData += data;
+          returnObj.totalStdoutLength += data.length;
+          if (!maxSize || (returnObj.totalStdoutLength < maxSize)) {
+            outputData += data;
+          }
+          else {
+            returnObj.statusFlags |= EnigmailConstants.OVERFLOWED;
+            outputData = "";
+          }
         }
       );
       procBuilder.setStderr(
@@ -368,9 +378,10 @@ var EnigmailExecution = {
           returnObj.stdoutData = outputData;
           returnObj.stderrData = errOutput;
           returnObj.errorMsg = errorMsg;
-          returnObj.statusFlags = statusFlagsObj.value;
+          returnObj.statusFlags += statusFlagsObj.value;
           returnObj.statusMsg = retStatusObj.statusMsg;
           returnObj.blockSeparation = retStatusObj.blockSeparation;
+          returnObj.plaintextSize = retStatusObj.plaintextSize;
 
           resolve(returnObj);
         }

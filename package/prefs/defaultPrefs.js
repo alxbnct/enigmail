@@ -97,6 +97,9 @@ pref("extensions.enigmail.maxIdleMinutes", 5);
 // (requests aboved the threshold are ignored)
 pref("extensions.enigmail.maxNumProcesses", 3);
 
+// maximum size in MB to decrypt before getting permission from user
+pref("extensions.enigmail.maxDecryptionLimit", 40);
+
 // GnuPG hash algorithm
 // 0: automatic seletion (i.e. let GnuPG choose)
 // 1: SHA1, 2: RIPEMD160, 3: SHA256, 4: SHA384, 5: SHA512, 6: SHA224

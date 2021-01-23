@@ -491,31 +491,48 @@ class GnuPGCryptoAPI extends CryptoAPI {
     EnigmailLog.DEBUG(`gnupg.js: decrypt()\n`);
     const EnigmailDialog = ChromeUtils.import("chrome://enigmail/content/modules/dialog.jsm").EnigmailDialog;
 
-    options.logFile = EnigmailErrorHandling.getTempLogFile();
-    const args = GnuPGDecryption.getDecryptionArgs(options);
-    let res = await EnigmailExecution.execAsync(EnigmailGpg.agentPath, args, encrypted);
-    EnigmailErrorHandling.appendLogFileToDebug(options.logFile);
+    let retry = true,
+      result = {};
 
-    if (res.statusFlags & EnigmailConstants.BAD_PASSPHRASE) {
-      EnigmailLog.ERROR("gnupg.js: decrypt: Error - bad passphrase\n");
-      EnigmailDialog.alert(null, EnigmailLocale.getString("failedDecryptVerify") + "\n\n" + EnigmailLocale.getString("badPhrase"));
-      throw {
-        errorMsg: EnigmailLocale.getString("badPhrase")
-      };
-    }
-    if (res.statusFlags & EnigmailConstants.MISSING_PASSPHRASE) {
-      EnigmailLog.ERROR("gnupg.js: decrypt: Error - no passphrase supplied\n");
-      EnigmailDialog.alert(null, EnigmailLocale.getString("failedDecryptVerify") + "\n\n" + EnigmailLocale.getString("noPassphrase"));
-      throw {
-        errorMsg: EnigmailLocale.getString("noPassphrase")
-      };
-    }
+    while (retry) {
+      options.logFile = EnigmailErrorHandling.getTempLogFile();
+      const args = GnuPGDecryption.getDecryptionArgs(options);
+      let res = await EnigmailExecution.execAsync(EnigmailGpg.agentPath, args, encrypted, null, options.maxOutputLength);
+      EnigmailErrorHandling.appendLogFileToDebug(options.logFile);
 
-    const result = {
-      exitCode: res.exitCode,
-      decryptedData: res.stdoutData
-    };
-    GnuPGDecryption.decryptMessageEnd(res.stderrData, res.exitCode, res.stdoutData.length, options.verifyOnly, options.noOutput, options.uiFlags, result);
+      if (res.statusFlags & EnigmailConstants.OVERFLOWED) {
+        EnigmailLog.ERROR("gnupg.js: decrypt: Warning - message exceeds maximum size\n");
+        if (EnigmailDialog.confirmDlg(null, EnigmailLocale.getString("veryLargeMessage.warning"), EnigmailLocale.getString("dlg.button.continue"))) {
+          options.maxOutputLength = 0;
+          continue;
+        }
+        throw {
+          errorMsg: "Message size exceeded"
+        };
+      }
+
+      if (res.statusFlags & EnigmailConstants.BAD_PASSPHRASE) {
+        EnigmailLog.ERROR("gnupg.js: decrypt: Error - bad passphrase\n");
+        EnigmailDialog.alert(null, EnigmailLocale.getString("failedDecryptVerify") + "\n\n" + EnigmailLocale.getString("badPhrase"));
+        throw {
+          errorMsg: EnigmailLocale.getString("badPhrase")
+        };
+      }
+      if (res.statusFlags & EnigmailConstants.MISSING_PASSPHRASE) {
+        EnigmailLog.ERROR("gnupg.js: decrypt: Error - no passphrase supplied\n");
+        EnigmailDialog.alert(null, EnigmailLocale.getString("failedDecryptVerify") + "\n\n" + EnigmailLocale.getString("noPassphrase"));
+        throw {
+          errorMsg: EnigmailLocale.getString("noPassphrase")
+        };
+      }
+
+      result = {
+        exitCode: res.exitCode,
+        decryptedData: res.stdoutData
+      };
+      retry = false;
+      GnuPGDecryption.decryptMessageEnd(res.stderrData, res.exitCode, res.stdoutData.length, options.verifyOnly, options.noOutput, options.uiFlags, result);
+    }
 
     return result;
   }

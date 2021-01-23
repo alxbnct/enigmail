@@ -72,10 +72,10 @@ var GnuPGDecryption = {
       }
     }
     else {
-      if (options.maxOutputLength) {
-        args.push("--max-output");
-        args.push(String(options.maxOutputLength));
-      }
+      // if (options.maxOutputLength) {
+      //   args.push("--max-output");
+      //   args.push(String(options.maxOutputLength));
+      // }
 
       args.push("--decrypt");
     }
