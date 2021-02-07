@@ -11,7 +11,7 @@
 /* global GetEnigmailSvc: false, EnigAlert: false, EnigConvertGpgToUnicode: false */
 /* global EnigCleanGuiList: false, EnigGetTrustLabel: false, EnigShowPhoto: false, EnigSignKey: false */
 /* global EnigEditKeyExpiry: false, EnigEditKeyTrust: false, EnigChangeKeyPwd: false, EnigRevokeKey: false */
-/* global EnigCreateRevokeCert: false, EnigmailTimer: false, EnigmailCryptoAPI: false */
+/* global EnigCreateRevokeCert: false, EnigmailTimer: false, EnigmailCryptoAPI: false, EnigmailClipboard: false */
 
 // from enigmailKeyManager.js:
 /* global keyMgrAddPhoto: false, EnigmailCompat: false */
@@ -34,6 +34,9 @@ function onLoad() {
 
   let accept = document.getElementById("enigmailKeyDetailsDlg").getButton("accept");
   accept.focus();
+  document.getElementById("copyFprToClipboard").addEventListener("click", () => {
+    copyFpr();
+  }, true);
 
   reloadData();
 }
@@ -149,6 +152,14 @@ function createUidData(listNode, keyDetails) {
         item.setAttribute("class", "enigmailDisabled");
       }
     }
+  }
+}
+
+function copyFpr() {
+  const keyObj = EnigmailKeyRing.getKeyById(gKeyId);
+  if (keyObj) {
+    const fpr = "0x" + keyObj.fpr;
+    EnigmailClipboard.setClipboardContent(fpr);
   }
 }
 

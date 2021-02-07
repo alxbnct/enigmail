@@ -29,6 +29,7 @@ SKIN_POSTBOX = \
 	images/twisty-open.png \
 	images/twisty-clsd.png \
 	images/spinning-wheel.png \
+	images/copy-icon.svg \
 	tb-mac/images/col-encrypted-signed.png \
 	tb-windows/images/enigSignActiveNone.png \
 	tb-windows/images/enigSignActivePlus.png \
@@ -73,6 +74,7 @@ SKIN_INTERLINK = \
 	images/enigmail-about.svg \
 	images/enigmail-logo.png \
 	images/ok-sign.svg \
+	images/copy-icon.svg \
 	classic-seamonkey/images/enigEncInactive.png \
 	classic-seamonkey/images/enigEncNotOk.png \
 	classic-seamonkey/images/enigEncOk.png \
@@ -153,6 +155,7 @@ SKIN_PHOTONIC = \
 	images/twisty-open.png \
 	images/twisty-clsd.png \
 	images/spinning-wheel.png \
+	images/copy-icon.svg \
 	classic-seamonkey/images/col-encrypted-signed.png \
 	tb-windows/images/enigSignActiveNone.png \
 	tb-windows/images/enigSignActivePlus.png \

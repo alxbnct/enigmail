@@ -55,8 +55,11 @@
           </row>
           <row>
             <label value="&enigmail.keyDetails.fingerprint.label;" control="fingerprint"/>
-            <textbox id="fingerprint" class="plain" style="white-space: pre;"
-              readonly="true" value="?" multiline="false" size="60"/>
+            <hbox>
+              <textbox id="fingerprint" class="plain" style="white-space: pre;"
+                readonly="true" value="?" multiline="false" size="60"/>
+              <image class="enigmailCopyIcon" tooltiptext="&enigmail.keyDetails.copyFpr.tooltip;" id="copyFprToClipboard"/>
+            </hbox>
           </row>
         </rows>
       </grid>

@@ -375,6 +375,10 @@ treechildren::-moz-tree-cell-text(STYLE) {}
   background-color: #1A9C2A;
 }
 
+/***************************************************
+ * Generic icons and images
+ ***************************************************/
+
 /* a spinning wheel circle */
 .enigmailWheel {
   list-style-image: url("chrome://enigmail/skin/spinning-wheel.png");
@@ -395,6 +399,16 @@ treechildren::-moz-tree-cell-text(STYLE) {}
   100% {
     transform: rotate(360deg);
   }
+}
+
+/* a Copy icon (for copy to clipboard) */
+.enigmailCopyIcon {
+  list-style-image: url("chrome://enigmail/skin/copy-icon.svg");
+  display: block;
+  height: auto;
+  width: auto;
+  max-width: 30px;
+  max-height: 30px;
 }
 
 /***************************************************

@@ -578,6 +578,7 @@
 <!ENTITY enigmail.keyDetails.trustStatus.label       "You rely on certifications">
 <!ENTITY enigmail.keyDetails.keyValidity.label       "Validity">
 <!ENTITY enigmail.keyDetails.alsoKnown.label         "Also known as">
+<!ENTITY enigmail.keyDetails.copyFpr.tooltip         "Copy Fingerprint to clipboard">
 
 <!ENTITY enigmail.cardDetails.title                  "OpenPGP SmartCard Details">
 <!ENTITY enigmail.cardDetails.cardMenu.label         "SmartCard">
