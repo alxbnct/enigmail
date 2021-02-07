@@ -40,7 +40,10 @@ function onLoadDialog() {
     document.getElementById("pgpMime").setAttribute("collapsed", "true");
   }
 
-  EnigmailFuncs.collapseAdvanced(document.getElementById("displayAutocryptRules").parentNode, 'collapsed');
+  let acRules = document.getElementById("displayAutocryptRules");
+  if (acRules) {
+    EnigmailFuncs.collapseAdvanced(acRules.parentNode, 'collapsed');
+  }
 
   var rulesListObj = {};
   if (EnigmailRules.getRulesData(rulesListObj)) {

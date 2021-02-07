@@ -8,7 +8,7 @@
 /* global EnigInitCommon: false, EnigGetString: false */
 
 // uses enigmailRulesEditor.js:
-/* global enigmailDlgOnAccept: false, createRow: false, getCurrentNode: false, enigmailDlgOnLoad: false */
+/* global onAcceptDialog: false, createRow: false, getSelectedNodes: false, onLoadDialog: false */
 
 "use strict";
 
@@ -22,25 +22,27 @@ var EnigmailKeyRing = ChromeUtils.import("chrome://enigmail/content/modules/keyR
 var EnigmailFuncs = ChromeUtils.import("chrome://enigmail/content/modules/funcs.jsm").EnigmailFuncs;
 
 function addKeyToRule() {
-  var node = getCurrentNode();
+  let nodes = getSelectedNodes();
 
-  var keyId = node.getAttribute("keyId").split(/[ ,]+/);
-  keyId.push("0x" + window.arguments[0].keyId);
+  if (nodes.length > 0) {
+    let node = nodes[0];
+    let keyId = node.getAttribute("keyId").split(/[ ,]+/);
+    keyId.push("0x" + window.arguments[0].keyId);
 
-  var inputObj = {
-    email: node.getAttribute("email"),
-    keyId: keyId.join(", "),
-    sign: Number(node.getAttribute("sign")),
-    encrypt: Number(node.getAttribute("encrypt")),
-    pgpMime: Number(node.getAttribute("pgpMime")),
-    negate: Number(node.getAttribute("negateRule"))
-  };
+    let inputObj = {
+      email: node.getAttribute("email"),
+      keyId: keyId.join(", "),
+      sign: Number(node.getAttribute("sign")),
+      encrypt: Number(node.getAttribute("encrypt")),
+      pgpMime: Number(node.getAttribute("pgpMime")),
+      negate: Number(node.getAttribute("negateRule"))
+    };
 
-  createRow(node, inputObj);
+    createRow(node, inputObj);
 
-  enigmailDlgOnAccept();
-  window.close();
-
+    onAcceptDialog();
+    window.close();
+  }
 }
 
 
@@ -65,16 +67,17 @@ function createNewRuleWithKey() {
     var treeChildren = document.getElementById("rulesTreeChildren");
     if (treeChildren.firstChild) {
       treeChildren.insertBefore(treeItem, treeChildren.firstChild);
-    } else {
+    }
+    else {
       treeChildren.appendChild(treeItem);
     }
 
-    enigmailDlgOnAccept();
+    onAcceptDialog();
   }
   window.close();
 }
 
 function editDlgOnLoad() {
-  enigmailDlgOnLoad();
+  onLoadDialog();
   document.getElementById("editDialogTitle").setAttribute("value", EnigGetString("addKeyToRule", window.arguments[0].userId, "0x" + window.arguments[0].keyId));
 }
