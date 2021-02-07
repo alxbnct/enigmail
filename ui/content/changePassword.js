@@ -13,12 +13,14 @@ var EnigmailLocale = ChromeUtils.import("chrome://enigmail/content/modules/local
 var EnigmailDialog = ChromeUtils.import("chrome://enigmail/content/modules/dialog.jsm").EnigmailDialog;
 var EnigmailPasswordCheck = ChromeUtils.import("chrome://enigmail/content/modules/passwordCheck.jsm").EnigmailPasswordCheck;
 var EnigmailCryptoAPI = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI.jsm").EnigmailCryptoAPI;
+var EnigmailKeyRing = ChromeUtils.import("chrome://enigmail/content/modules/keyRing.jsm").EnigmailKeyRing;
 
 
 var gPasswdDontMatch, gAcceptButton, gNewPasswd, gRepeatPasswd, gQualityMeter;
 
 function onLoad() {
-  let uid = window.window.arguments[0].userId + " - 0x" + window.arguments[0].keyId.substr(-16, 16);
+  let keyObj = EnigmailKeyRing.getKeyById(window.arguments[0].keyId);
+  let uid = window.window.arguments[0].userId + " - " + keyObj.fprFormatted;
   document.getElementById("keyInfo").value = uid;
 
   const dlg = document.getElementById("enigmailChangePwdDlg");

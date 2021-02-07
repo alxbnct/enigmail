@@ -410,8 +410,8 @@
                   style="width: 50px"
                   persist="width ordinal hidden"/>
           <splitter class="tree-splitter"/>
-          <treecol id="keyCol" style="width:90px"
-                   label="&enigmail.keyId.label;"
+          <treecol id="fprCol" style="width:70px"
+                   label="&enigmail.keyMan.fingerprint.label;"
                    flex="1"
                    class="sortDirectionIndicator"
                    onclick="sortTree(this)"
@@ -433,24 +433,8 @@
                    hidden="true"
                    persist="width ordinal hidden"/>
           <splitter class="tree-splitter"/>
-          <!-- treecol id="trustCol" style="width:70px"
-                   label="&enigmail.keyMan.ownerTrust.label;"
-                   flex="1"
-                   class="sortDirectionIndicator"
-                   onclick="sortTree(this)"
-                   hidden="true"
-                   persist="width ordinal hidden"/>
-          <splitter class="tree-splitter"/ -->
           <treecol id="expCol" style="width:70px"
                    label="&enigmail.keyExpiry.label;"
-                   flex="1"
-                   class="sortDirectionIndicator"
-                   onclick="sortTree(this)"
-                   hidden="true"
-                   persist="width ordinal hidden"/>
-          <splitter class="tree-splitter"/>
-          <treecol id="fprCol" style="width:70px"
-                   label="&enigmail.keyMan.fingerprint.label;"
                    flex="1"
                    class="sortDirectionIndicator"
                    onclick="sortTree(this)"

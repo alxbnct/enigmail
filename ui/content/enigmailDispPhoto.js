@@ -44,7 +44,7 @@ function onLoad() {
       appendUid(su.userId);
     }
   }
-  document.getElementById("keyId").setAttribute("value", EnigmailLocale.getString("keyId") + ": 0x" + gKeyId);
+  document.getElementById("keyId").setAttribute("value", EnigmailLocale.getString("keyFpr", [key.fprFormatted]));
   document.getElementById("keyValidity").setAttribute("value", EnigmailTrust.getTrustLabel(key.keyTrust));
 }
 

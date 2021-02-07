@@ -49,7 +49,7 @@ function onLoad() {
   var menulist = document.getElementById("signWithKey");
 
   for (key of keys) {
-    menulist.appendItem(key.userId + " - 0x" + key.keyId, key.keyId);
+    menulist.appendItem(key.userId + " - " + key.fprFormatted, key.fprFormatted);
   }
   if (menulist.selectedIndex == -1) {
     menulist.selectedIndex = 0;
@@ -60,14 +60,10 @@ function onLoad() {
     gExportableSignatureList = [];
     var sigType = null;
     gUidCount = [];
-    var keyId = null;
 
     var keyObj = EnigmailKeyRing.getKeyById(window.arguments[0].keyId);
 
     if (keyObj) {
-      let sig = keyObj.signatures;
-      var currKey = null;
-      var currUID = null;
       gUidCount[keyObj.keyId] = 1;
 
       for (i in keyObj.signatures) {
