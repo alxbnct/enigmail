@@ -85,7 +85,7 @@
                    persist="width,hidden"/>
           <splitter class="tree-splitter"/>
           <treecol id="keyCol" style="width:90px"
-                   label="&enigmail.keyId.label;"
+                   label="&enigmail.keyDetails.fingerprint.label;"
                    persist="width,hidden"/>
         </treecols>
 

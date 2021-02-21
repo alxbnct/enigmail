@@ -30,13 +30,13 @@ const INPUT = 0;
 const RESULT = 1;
 
 // field ID's of key list (as described in the doc/DETAILS file in the GnuPG distribution)
-const KEY_TRUST = 1;
-const KEY_ID = 4;
-const CREATED = 5;
-const EXPIRY = 6;
-const USER_ID = 9;
-const KEY_USE_FOR = 11;
-const FPR = 9;
+// const KEY_TRUST = 1;
+// const KEY_ID = 4;
+// const CREATED = 5;
+// const EXPIRY = 6;
+// const USER_ID = 9;
+// const KEY_USE_FOR = 11;
+// const FPR = 9;
 
 // key trust values for field 1 (as described in the doc/DETAILS file in the GnuPG distribution)
 const KEY_EXPIRED = "e";
@@ -45,9 +45,6 @@ const KEY_INVALID = "i";
 const KEY_DISABLED = "d";
 const KEY_NOT_VALID = KEY_EXPIRED + KEY_REVOKED + KEY_INVALID + KEY_DISABLED;
 const KEY_IS_GROUP = "g";
-
-// HKP related stuff
-const ENIG_DEFAULT_HKP_PORT = "11371";
 
 const TRUSTLEVELS_SORTED = EnigmailTrust.trustLevelsSorted();
 
@@ -533,16 +530,16 @@ function buildTreeView(aUserList, hideExpired, secretOnly) {
     if (!hideExpired || aUserList[i].activeState < 2) {
       // do not show if expired keys are hidden
       if (secretOnly) {
-        treeItem = enigUserSelCreateRow(aUserList[i], aUserList[i].activeState, aUserList[i].userId, aUserList[i].keyId, aUserList[i].created, "", true);
+        treeItem = createListRow(aUserList[i], aUserList[i].activeState, aUserList[i].userId, aUserList[i].fpr, aUserList[i].created, "", true);
       }
       else {
-        treeItem = enigUserSelCreateRow(aUserList[i], aUserList[i].activeState, aUserList[i].userId, aUserList[i].keyId, aUserList[i].expiry, aUserList[i].keyTrust, aUserList[i].uidValid);
+        treeItem = createListRow(aUserList[i], aUserList[i].activeState, aUserList[i].userId, aUserList[i].fpr, aUserList[i].expiry, aUserList[i].keyTrust, aUserList[i].uidValid);
       }
       if (aUserList[i].hasSubUserIds()) {
         var subChildren = document.createXULElement("treechildren");
         for (let user = 1; user < aUserList[i].userIds.length; user++) {
           if (KEY_NOT_VALID.indexOf(aUserList[i].userIds[user].keyTrust) < 0) {
-            var subItem = enigUserSelCreateRow(aUserList[i], -1, aUserList[i].userIds[user].userId, "", "", aUserList[i].userIds[user].keyTrust, true);
+            var subItem = createListRow(aUserList[i], -1, aUserList[i].userIds[user].userId, "", "", aUserList[i].userIds[user].keyTrust, true);
             subChildren.appendChild(subItem);
           }
         }
@@ -606,7 +603,7 @@ function buildNotFoundKeys(aUserList, aValidUsers, toAddrList, toKeys) {
 }
 
 // create a (sub) row for the user tree
-function enigUserSelCreateRow(userObj, activeState, userId, keyValue, dateField, uidValidityStatus, uidValid) {
+function createListRow(userObj, activeState, userId, keyFpr, dateField, uidValidityStatus, uidValid) {
   var selectCol = document.createXULElement("treecell");
   selectCol.setAttribute("id", "indicator");
   var uidValidityCol = document.createXULElement("treecell");
@@ -622,7 +619,7 @@ function enigUserSelCreateRow(userObj, activeState, userId, keyValue, dateField,
 
   var keyCol = document.createXULElement("treecell");
   if (userObj.keyTrust != KEY_IS_GROUP) {
-    keyCol.setAttribute("label", "0x" + keyValue);
+    keyCol.setAttribute("label", "0x" + keyFpr);
   }
   else {
     keyCol.setAttribute("label", EnigGetString("keyTrust.group"));
