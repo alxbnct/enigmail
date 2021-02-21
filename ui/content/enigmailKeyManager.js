@@ -321,7 +321,7 @@ function enigmailSelectAllKeys() {
 function enigmailKeyDetails() {
   var keyList = getSelectedKeys();
   if (keyList.length > 0) {
-    if (EnigmailWindows.openKeyDetails(window, gKeyList[keyList[0]].keyId, false)) {
+    if (EnigmailWindows.openKeyDetails(window, gKeyList[keyList[0]].fpr, false)) {
       refreshKeys();
     }
   }
@@ -648,7 +648,7 @@ function enigEditKeyExpiry() {
   var keyIds = [];
   for (var i = 0; i < keyList.length; i++) {
     userIdList.push(gKeyList[keyList[i]].userId);
-    keyIds.push(gKeyList[keyList[i]].keyId);
+    keyIds.push(gKeyList[keyList[i]].fpr);
   }
 
   if (EnigEditKeyExpiry(userIdList, keyIds)) {
@@ -663,14 +663,14 @@ function enigSignKey() {
     EnigmailDialog.info(window, EnigmailLocale.getString("noKeySelected"));
     return;
   }
-  if (EnigSignKey(gKeyList[keyList[0]].userId, gKeyList[keyList[0]].keyId, null)) {
+  if (EnigSignKey(gKeyList[keyList[0]].userId, gKeyList[keyList[0]].fpr, null)) {
     refreshKeys();
   }
 }
 
 function enigmailRevokeKey() {
   var keyList = getSelectedKeys();
-  EnigRevokeKey(gKeyList[keyList[0]].keyId, gKeyList[keyList[0]].userId, function _revokeKeyCb(success) {
+  EnigRevokeKey(gKeyList[keyList[0]].fpr, gKeyList[keyList[0]].userId, function _revokeKeyCb(success) {
     if (success) refreshKeys();
   });
 }
@@ -678,7 +678,7 @@ function enigmailRevokeKey() {
 function enigCreateRevokeCert() {
   var keyList = getSelectedKeys();
 
-  EnigCreateRevokeCert(gKeyList[keyList[0]].keyId, gKeyList[keyList[0]].userId);
+  EnigCreateRevokeCert(gKeyList[keyList[0]].fpr, gKeyList[keyList[0]].userId);
 }
 
 

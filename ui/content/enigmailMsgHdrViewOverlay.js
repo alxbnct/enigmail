@@ -1048,7 +1048,7 @@ Enigmail.hdrView = {
     let enigmailSvc = EnigmailCore.getService();
     let key = EnigmailKeyRing.getKeyById(Enigmail.msg.securityInfo.keyId);
 
-    EnigmailWindows.showPhoto(window, key.keyId, Enigmail.msg.securityInfo.userId);
+    EnigmailWindows.showPhoto(window, key.fpr, Enigmail.msg.securityInfo.userId);
   },
 
 
@@ -1058,7 +1058,7 @@ Enigmail.hdrView = {
     let enigmailSvc = EnigmailCore.getService();
     let key = EnigmailKeyRing.getKeyById(Enigmail.msg.securityInfo.keyId);
 
-    EnigmailWindows.openKeyDetails(window, key.keyId, false);
+    EnigmailWindows.openKeyDetails(window, key.fpr, false);
   },
 
   createRuleFromAddress: function(emailAddressNode) {
