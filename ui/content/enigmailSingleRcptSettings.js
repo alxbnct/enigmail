@@ -260,7 +260,7 @@ function enigSetKeys(keyList) {
       else {
         let keyObj = EnigmailKeyRing.getKeyById(keyList[i]);
         if (keyObj) {
-          encryptionList.appendItem("0x" + keyObj.keyId + " (" + keyObj.userId + ")", keyList[i]);
+          encryptionList.appendItem("0x" + keyObj.fpr + " (" + keyObj.userId + ")", keyList[i]);
         }
         else {
           encryptionList.appendItem(keyList[i], keyList[i]);
