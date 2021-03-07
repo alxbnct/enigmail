@@ -140,7 +140,6 @@ function MimeDecryptHandler() {
   this.decryptedHeaders = {};
   this.mimePartNumber = "";
   this.dataIsBase64 = null;
-  this.passthroughMode = false;
   this.base64Cache = "";
 
   if (EnigmailCompat.isMessageUriInPgpMime()) {
@@ -187,10 +186,6 @@ MimeDecryptHandler.prototype = {
       if (uri) {
         this.uri = uri.QueryInterface(Ci.nsIURI);
         EnigmailLog.DEBUG("mimeDecrypt.jsm: onStartRequest: uri='" + this.uri.spec + "'\n");
-      }
-
-      if (this.uri.spec.search(/[&?]filename=/) >= 0 && this.uri.spec.search(/[&?]type=application\/x-message-display/) < 0) {
-       this.passthroughMode = true;
       }
     }
     this.pipe = null;
@@ -277,11 +272,6 @@ MimeDecryptHandler.prototype = {
 
     if (count > 0) {
       let data = this.inStream.read(count);
-      if (this.passthroughMode) {
-        this.outQueue += data;
-        return;
-      }
-
       if (this.mimePartCount == 0 && this.dataIsBase64 === null) {
         // try to determine if this could be a base64 encoded message part
         this.dataIsBase64 = this.isBase64Encoding(data);
@@ -316,11 +306,6 @@ MimeDecryptHandler.prototype = {
 
     if (count > 0) {
       let data = this.inStream.read(count);
-      if (this.passthroughMode) {
-        this.outQueue += data;
-        return;
-      }
-
 
       if (this.mimePartCount == 0 && this.dataIsBase64 === null) {
         // try to determine if this could be a base64 encoded message part
@@ -430,11 +415,6 @@ MimeDecryptHandler.prototype = {
     LOCAL_DEBUG("mimeDecrypt.jsm: onStopRequest\n");
     --gNumProc;
     if (!this.initOk) return;
-
-    if (this.passthroughMode) {
-      this.returnData(this.outQueue);
-      return;
-    }
 
     if (this.dataIsBase64) {
       this.processBase64Message();
