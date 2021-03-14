@@ -586,7 +586,7 @@ var EnigmailKeyEditor = {
   },
 
 
-  revokeUid: function(parent, keyId, idNumber, callbackFunc) {
+  revokeUid: function(parent, keyId, idNumber) {
     EnigmailLog.DEBUG("gnupg-keyEditor.jsm: revokeUid: keyId=" + keyId + ", idNumber=" + idNumber + "\n");
 
     return new Promise((resolve, reject) => {

@@ -525,15 +525,174 @@ class CryptoAPI {
     return false;
   }
 
+
+  /**
+   *
+   * @param {String} trustCode
+   * @return {String}   Localized label
+   */
+  getTrustLabel(trustCode) {
+    return trustCode;
+  }
+
   /**
    * Return the key management functions (sub-API)
    */
   getKeyManagement() {
-    return null;
-  }
 
-  getTrustLabel(trustCode) {
-    return trustCode;
+    function createError() {
+      return {
+        returnCode: 1,
+        errorMsg: "Not implemented"
+      };
+    }
+
+    return {
+      /**
+       * Generate a revocation certificate and save it as a file
+       *
+       * @param {nsIWindow} parent       parent window for displaying (modal) messages
+       * @param {String}    keyId        fingerprint of the key to modify
+       * @param {nsIFile}   outFile      handle file for saving the revocation certificate
+       * @param {String}    reasonCode   revocation reason code as used by GnuPG "ask_revocation_reason.code"
+       * @param {String}    reasonText   explanation for revocation reason
+       * @return  {Promise<Object>}
+       *               - retunCode {Number}   0 = success / other values = error
+       *               - errorMsg  {String}   error message in case of error
+       */
+      genRevokeCert: async function(parent, keyId, outFile, reasonCode, reasonText) {
+        return createError();
+      },
+
+
+      /**
+       * set the expiration date of the chosen key and subkeys
+       *
+       * @param {nsIWindow} parent        parent window for displaying (modal) messages
+       * @param {String}    keyId         fingerprint of the key to modify
+       * @param {Array}     subKeys       List of Integer values, e.g. [0,1,3]
+       *                                  "0" reflects the primary key and should always be set.
+       * @param {Integer}   expiryValue   A number between 1 and 100
+       * @param {Integer}   timeScale     1 or 30 or 365 meaning days, months, years
+       * @param {Boolean}   noExpiry      True: never expire. False: use expiryLength.
+       * @return {Promise<Object>}
+       *               - retunCode {Number}   0 = success / other values = error
+       *               - errorMsg  {String}   error message in case of error
+       */
+      setKeyExpiration: async function(parent, keyId, subKeys, expiryValue, timeScale, noExpiry) {
+        return createError();
+      },
+
+
+      /**
+       * Enable or disable a key
+       *
+       * @param {nsIWindow} parent        parent window for displaying (modal) messages
+       * @param {String}    keyId         fingerprint of the key to modify
+       * @param {Boolean}   disableKey    True: disable key / false: enable key
+       * @return {Promise<Object>}
+       *               - retunCode {Number}   0 = success / other values = error
+       *               - errorMsg  {String}   error message in case of error
+       */
+      enableDisableKey: async function(parent, keyId, disableKey) {
+        return createError();
+      },
+
+
+      /**
+       * Initate the process (indlucing a dialog) to change the password of a key
+       *
+       * @param {nsIWindow} parent        parent window for displaying (modal) messages
+       * @param {String}    keyId         fingerprint of the key to modify
+       * @return {Promise<Object>}
+       *               - retunCode {Number}   0 = success / other values = error
+       *               - errorMsg  {String}   error message in case of error
+       */
+      initiateChangePassphrase: async function(parent, keyId) {
+        return createError();
+      },
+
+
+      /**
+       * Sign a key with another key
+       *
+       * @param {nsIWindow}     parent        parent window for displaying (modal) messages
+       * @param {String}        signingKeyId  fingerprint of the key used for signing
+       * @param {String}        keyIdToSign   fingerprint of the key to be signed
+       * @param {Array<String>} signUids      userIDs to sign (must match 1:1)
+       * @param {Boolean}       signLocally   true: create non-exportable signature / false: create exportable signature
+       * @param {Number}        trustLevel    Signture Trust level as in GnuPG "sign_uid.class"
+       * @return {Promise<Object>}
+       *               - retunCode {Number}   0 = success / other values = error
+       *               - errorMsg  {String}   error message in case of error
+       */
+      signKey: async function(parent, signingKeyId, keyIdToSign, signUids, signLocally, trustLevel) {
+        return createError();
+      },
+
+
+      /**
+       * Add a userID to a key
+       *
+       * @param {nsIWindow} parent        parent window for displaying (modal) messages
+       * @param {String}    keyId         fingerprint of the key to modify
+       * @param {String}    name          Display name of the UID (e.g. Bob Dylan)
+       * @param {String}    email         Email address of the UID (e.g. bob.dylan@domain.invalid)
+       * @param {String}    commment      Comment to be added in brackets
+       * @return {Promise<Object>}
+       *               - retunCode {Number}   0 = success / other values = error
+       *               - errorMsg  {String}   error message in case of error
+       */
+      addUid: function(parent, keyId, name, email, comment) {
+        return createError();
+      },
+
+
+      /**
+       * Set the primary UID on the key
+       *
+       * @param {nsIWindow} parent        parent window for displaying (modal) messages
+       * @param {String}    keyId         fingerprint of the key to modify
+       * @param {Number}    idNumber      the number of the UID to be set to primary, starting with 1
+       * @return {Promise<Object>}
+       *               - retunCode {Number}   0 = success / other values = error
+       *               - errorMsg  {String}   error message in case of error
+       */
+      setPrimaryUid: function(parent, keyId, idNumber) {
+        return createError();
+      },
+
+
+      /**
+       * Revoke a UID on a key
+       *
+       * @param {nsIWindow} parent        parent window for displaying (modal) messages
+       * @param {String}    keyId         fingerprint of the key to modify
+       * @param {Number}    idNumber      the number of the UID to be revoked, starting with 1
+       * @return {Promise<Object>}
+       *               - retunCode {Number}   0 = success / other values = error
+       *               - errorMsg  {String}   error message in case of error
+       */
+      revokeUid: function(parent, keyId, idNumber) {
+        return createError();
+      },
+
+
+      /**
+       * Add a UAT to a key containing a JPEG picture
+       *
+       * @param {nsIWindow} parent     parent window for displaying (modal) messages
+       * @param {String}    keyId      fingerprint of the key to modify
+       * @param {nsIFile}   photoFile  File containing JPEG data
+       * @return {Promise<Object>}
+       *               - retunCode {Number}   0 = success / other values = error
+       *               - errorMsg  {String}   error message in case of error
+       */
+      addPhoto: function(parent, keyId, photoFile) {
+        return createError();
+      }
+    };
+
   }
 
   /**
