@@ -21,20 +21,23 @@
 <!ENTITY enigmail.send.label                        "ارسال">
 <!ENTITY enigmail.perRecipientsOption.label         "ایجاد قانون(های) هر-گیرنده">
 <!ENTITY enigmail.keyMan.filter.label               "جستجو برای کلیدها">
-<!ENTITY enigmail.messenger.menulabel               "">
+<!ENTITY enigmail.messenger.menulabel               "جابجایی تنظیمات Enigmail">
 
-<!ENTITY enigmail.setupWiz.title                     "">
-<!ENTITY enigmail.setupWiz.pgIntro.desc              "">
-<!ENTITY enigmail.setupWiz.manyKeys.desc             "">
-<!ENTITY enigmail.setupWiz.manyKeys.selectButton     "">
-<!ENTITY enigmail.setupWiz.startMigration.desc1      "">
-<!ENTITY enigmail.setupWiz.startMigration.desc2      "">
-<!ENTITY enigmail.setupWiz.startMigration.button     "">
+<!ENTITY enigmail.setupWiz.title                     "جابجا کردن تنظیمات Enigmail به Thunderbird">
+<!ENTITY enigmail.setupWiz.pgIntro.desc              "این ویزارد کلیدها و تنظیمات شما را از Enigmail و GnuPG برون‌بری کرده و آن‌ها را وارد قسمت کلید Thunderbird می کند.">
+<!ENTITY enigmail.setupWiz.manyKeys.desc             "شما چندین کلید خصوصی در GnuPG دارید. اگر مایل نیستید همه آن‌ها را وارد
+Thunderbird کنید، روی دکمه 'انتخاب کلید‌های خصوصی' برای انتخاب کلیدهایی که نیاز دارید کلیک کنید.">
+<!ENTITY enigmail.setupWiz.manyKeys.selectButton     "انتخاب کلید‌های خصوصی ...">
+<!ENTITY enigmail.setupWiz.startMigration.desc1      "لطفاً دکمه &quot;شروع جابجایی&quot; را برای آغاز جابجایی کلیک کنید.">
+<!ENTITY enigmail.setupWiz.startMigration.desc2      "روند جابجایی کلیدهای خصوصی شما را از GnuPG برون‌بری کرده و آن‌ها را وارد Thunderbird می کند.
+اگر کلیدهای شما توسط یک گذرواژه محافظت می شوند، شما باید برای هر کلید آن را وارد کنید -
+یک‌بار در هنگام برون‌بری از GnuPG و بار دیگر برای وارد کردن داخل Thunderbird.">
+<!ENTITY enigmail.setupWiz.startMigration.button     "آغاز جابجایی">
 
-<!ENTITY enigmail.setupWiz.exportingKeys             "">
-<!ENTITY enigmail.setupWiz.importingKeys             "">
-<!ENTITY enigmail.setupWiz.applyingSettings          "">
-<!ENTITY enigmail.setupWiz.migrationComplete         "">
-<!ENTITY enigmail.setupWiz.restartNeeded             "">
+<!ENTITY enigmail.setupWiz.exportingKeys             "برون‌بری کلیدها از GnuPG ...">
+<!ENTITY enigmail.setupWiz.importingKeys             "درون‌بری کلید‌ها به Thunderbird ...">
+<!ENTITY enigmail.setupWiz.applyingSettings          "پیاده‌سازی تنظیمات حساب کاربری شما ...">
+<!ENTITY enigmail.setupWiz.migrationComplete         "پایان یافت! دیگر نیازی به Enigmail نیست و می‌توان آن را حذف کرد.">
+<!ENTITY enigmail.setupWiz.restartNeeded             "برای پایان نصب، Thunderbird الان مجدداً‌ راه اندازی خواهد شد.">
 
-<!ENTITY enigmail.copyCmd.label                      "">
+<!ENTITY enigmail.copyCmd.label                      "کپی">

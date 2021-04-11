@@ -21,10 +21,11 @@
 <!ENTITY enigmail.send.label                        "Küldés">
 <!ENTITY enigmail.perRecipientsOption.label         "Címzettenkénti szabályok létrehozása">
 <!ENTITY enigmail.keyMan.filter.label               "Kulcsok keresése">
-<!ENTITY enigmail.messenger.menulabel               "">
+<!ENTITY enigmail.messenger.menulabel               "Enigmail beállításainak átvitele">
 
-<!ENTITY enigmail.setupWiz.title                     "">
-<!ENTITY enigmail.setupWiz.pgIntro.desc              "">
+<!ENTITY enigmail.setupWiz.title                     "Enigmail beállításainak átvitele Thunderbirdbe">
+<!ENTITY enigmail.setupWiz.pgIntro.desc              "Ez a varázsló exportálni fogja a kulcsokat és beállításokat az Enigmailból és GnuPG-ből,
+                                                      majd importálja azokat a Thunderbird kulcstárolójába.">
 <!ENTITY enigmail.setupWiz.manyKeys.desc             "">
 <!ENTITY enigmail.setupWiz.manyKeys.selectButton     "">
 <!ENTITY enigmail.setupWiz.startMigration.desc1      "">

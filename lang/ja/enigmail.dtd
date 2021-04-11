@@ -24,9 +24,8 @@
 <!ENTITY enigmail.messenger.menulabel               "Enigmail の設定の移行">
 
 <!ENTITY enigmail.setupWiz.title                     "Enigmail セットアップ">
-<!ENTITY enigmail.setupWiz.pgIntro.desc              "このコンピューターで初めて Enigmail をお使いのようです。
-                                                      Enigmail を利用するためには、適切に設定を行う必要があります。
-                                                      このウィザードでは、Enigmail の設定を支援します。">
+<!ENTITY enigmail.setupWiz.pgIntro.desc              "このウィザードでは、Enigmail および GnuPG からあなたの鍵と設定をエクスポートし、
+Thunderbird にインポートします。">
 <!ENTITY enigmail.setupWiz.manyKeys.desc             "GnuPG に複数の秘密鍵が保存されています。すべての秘密鍵をインポートする必要がない場合には
 「秘密鍵を選択」ボタンをクリックしてインポートする秘密鍵を選択してください。">
 <!ENTITY enigmail.setupWiz.manyKeys.selectButton     "秘密鍵を選択...">

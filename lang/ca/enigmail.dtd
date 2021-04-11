@@ -5,12 +5,12 @@
 <!ENTITY enigmail.userSelectionList.label           "Selecció de la clau Enigmail">
 <!ENTITY enigmail.usersNotFound.label               "Els destinataris no són vàlids, no són confiables o no s'han trobat">
 <!ENTITY enigmail.keyExpiry.label                   "Caducitat">
-<!ENTITY enigmail.uidValidity.label                 "">
+<!ENTITY enigmail.uidValidity.label                 "Validesa">
 <!ENTITY enigmail.keySelection.label                "Selecció">
 <!ENTITY enigmail.keyId.label                       "Identificador de clau">
-<!ENTITY enigmail.userSelSendSigned.label           "">
+<!ENTITY enigmail.userSelSendSigned.label           "Envia signat">
 <!ENTITY enigmail.userSelSendSigned.accesskey       "T">
-<!ENTITY enigmail.userSelSendEncrypted.label        "">
+<!ENTITY enigmail.userSelSendEncrypted.label        "Envia xifrat">
 <!ENTITY enigmail.userSelSendEncrypted.accesskey    "E">
 <!ENTITY enigmail.displayNoLonger.label             "No mostris aquest diàleg una altra vegada si no és possible xifrar">
 <!ENTITY enigmail.importMissingKeys.label           "Baixa les claus que manquen">
@@ -18,23 +18,27 @@
 <!ENTITY enigmail.importMissingKeys.tooltip         "Intenta importar les claus que manquen des d'un servidor de claus">
 <!ENTITY enigmail.refreshKeys.label                 "Refresca la llista de claus">
 <!ENTITY enigmail.refreshKeys.accesskey             "R">
-<!ENTITY enigmail.send.label                        "">
-<!ENTITY enigmail.perRecipientsOption.label         "Crea regla/s per destinatari">
-<!ENTITY enigmail.keyMan.filter.label               "">
-<!ENTITY enigmail.messenger.menulabel               "">
+<!ENTITY enigmail.send.label                        "Envia">
+<!ENTITY enigmail.perRecipientsOption.label         "Crea regles per destinatari">
+<!ENTITY enigmail.keyMan.filter.label               "Cerca claus">
+<!ENTITY enigmail.messenger.menulabel               "Migra la configuració de l'Enigmail">
 
-<!ENTITY enigmail.setupWiz.title                     "">
-<!ENTITY enigmail.setupWiz.pgIntro.desc              "">
-<!ENTITY enigmail.setupWiz.manyKeys.desc             "">
-<!ENTITY enigmail.setupWiz.manyKeys.selectButton     "">
-<!ENTITY enigmail.setupWiz.startMigration.desc1      "">
-<!ENTITY enigmail.setupWiz.startMigration.desc2      "">
-<!ENTITY enigmail.setupWiz.startMigration.button     "">
+<!ENTITY enigmail.setupWiz.title                     "Transfereix la configuració de l'Enigmail al Thunderbird">
+<!ENTITY enigmail.setupWiz.pgIntro.desc              "Aquest assistent exportarà les vostres claus i configuració de l'Enigmail i GnuPG, i
+les importarà al clauer del Thunderbird.">
+<!ENTITY enigmail.setupWiz.manyKeys.desc             "Teniu diverses claus privades al GnuPG. Si no voleu importar-les totes al
+Thunderbird, feu clic al botó &quot;Tria claus privades&quot; i seleccioneu les que necessiteu.">
+<!ENTITY enigmail.setupWiz.manyKeys.selectButton     "Tria claus privades...">
+<!ENTITY enigmail.setupWiz.startMigration.desc1      "Feu clic al botó &quot;Inicia la migració&quot; per a començar.">
+<!ENTITY enigmail.setupWiz.startMigration.desc2      "El procés de migració exportarà les vostres claus privades del GnuPG i les importarà al Thunderbird.
+Si les vostres claus estan protegides per contrasenya, se us demanarà que la introduïu per a cadascuna,
+una vegada quan s'exporti del GnuPG i una altra quan s'importi al Thunderbird.">
+<!ENTITY enigmail.setupWiz.startMigration.button     "Inicia la migració">
 
-<!ENTITY enigmail.setupWiz.exportingKeys             "">
-<!ENTITY enigmail.setupWiz.importingKeys             "">
-<!ENTITY enigmail.setupWiz.applyingSettings          "">
-<!ENTITY enigmail.setupWiz.migrationComplete         "">
-<!ENTITY enigmail.setupWiz.restartNeeded             "">
+<!ENTITY enigmail.setupWiz.exportingKeys             "S'estan exportant les claus de GnuPG...">
+<!ENTITY enigmail.setupWiz.importingKeys             "S'estan important les claus al Thunderbird...">
+<!ENTITY enigmail.setupWiz.applyingSettings          "S'està aplicant la configuració del compte...">
+<!ENTITY enigmail.setupWiz.migrationComplete         "Tot fet! Ja no és necessari l'Enigmail i el podeu desinstal·lar.">
+<!ENTITY enigmail.setupWiz.restartNeeded             "Per a completar la instal·lació, el Thunderbird es reiniciarà.">
 
-<!ENTITY enigmail.copyCmd.label                      "">
+<!ENTITY enigmail.copyCmd.label                      "Copia">
