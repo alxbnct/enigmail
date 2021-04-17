@@ -638,7 +638,7 @@
 
 <!ENTITY enigmail.setupWiz.insepctingEnv             "Inspecting your environment…">
 <!ENTITY enigmail.setupWiz.usingGnuPG                "Found a usable configuration of GnuPG">
-<!ENTITY enigmail.setupWiz.usingOpenpgpJS            "Will use the Enigmall built-in crypto-engine">
+<!ENTITY enigmail.setupWiz.usingOpenpgpJS            "Will use the Enigmail built-in crypto-engine">
 <!ENTITY enigmail.setupWiz.checkingSetup             "Checking your existing setup…">
 <!ENTITY enigmail.setupWiz.startSetupButton          "Start Setup">
 <!ENTITY enigmail.setupWiz.existingEncryptedMsg      "We found that you have encrypted messages in your mail folders. We recommend that you export your keys on your existing device, and import them here. (Hint: you may use the 'Import Keys' multiple times, for example to import public and secret keys).">
