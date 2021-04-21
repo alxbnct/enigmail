@@ -431,7 +431,7 @@ function prefOnAccept() {
   let defaultKeySrv = document.getElementById("enigmail_defaultKeyserver").value;
 
   if (defaultKeySrv.search(/.[ ,;\t]+./) >= 0) {
-    EnigmailDialog.info(window, EnigGetString("prefEnigmail.oneKeyserverOnly"));
+    EnigmailDialog.info(window, EnigGetString("prefEnigmail.oneKeyserverOnly2"));
     return false;
   }
 
