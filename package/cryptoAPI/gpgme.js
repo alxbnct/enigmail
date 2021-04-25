@@ -26,8 +26,7 @@ const EnigmailOS = ChromeUtils.import("chrome://enigmail/content/modules/os.jsm"
 
 const pgpjs_keys = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/pgpjs-keys.jsm").pgpjs_keys;
 
-const DEFAULT_FILE_PERMS = 0o600;
-var nsIWindowsRegKey = Ci.nsIWindowsRegKey;
+const nsIWindowsRegKey = Ci.nsIWindowsRegKey;
 
 const VALIDITY_SYMBOL = {
   ultimate: "u",
@@ -852,14 +851,15 @@ function createKeyObj(keyData) {
     expiryTime: 0,
     created: "",
     keyCreated: 0,
-    keyUseFor: (keyData.can_sign ? "S" : "") + (keyData.can_encrypt ? "E" : "") + (keyData.can_certify ? "C" : ""),
-    ownerTrust: keyData.owner_trust,
+    keyUseFor: (keyData.can_sign ? "s" : "") + (keyData.can_encrypt ? "e" : "") + (keyData.can_certify ? "c" : "") + (keyData.can_authenticate ? "a" : ""),
+    ownerTrust: VALIDITY_SYMBOL[keyData.owner_trust],
     keySize: 0,
     secretAvailable: keyData.secret,
     userIds: [],
     subKeys: [],
     fpr: keyData.fingerprint,
     photoAvailable: false,
+    type: "pub",
     keyTrust: keyData.disabled ? "d" : keyData.revoked ? "r" : keyData.expired ? "e" : keyData.invalid ? "i" : VALIDITY_SYMBOL[keyData.owner_trust]
   };
 
@@ -870,19 +870,19 @@ function createKeyObj(keyData) {
     keyObj.algoSym = keyData.subkeys[0].pubkey_algo_name;
     keyObj.keySize = keyData.subkeys[0].length;
 
-    for (let i = 0; i < keyData.subkeys.length; i++) {
+    for (let i = 1; i < keyData.subkeys.length; i++) {
       let s = keyData.subkeys[i];
       keyObj.subKeys.push({
         keyId: s.keyid,
         expiry: EnigmailTime.getDateTime(s.expires, true, false),
         expiryTime: s.expires,
         keyTrust: s.revoked ? "r" : s.expired ? "e" : s.disabled ? "d" : s.invalid ? "i" : "f",
-        keyUseFor: (s.can_sign ? "s" : "") + (s.can_encrypt ? "e" : "") + (s.can_certify ? "c" : ""),
+        keyUseFor: (s.can_sign ? "s" : "") + (s.can_encrypt ? "e" : "") + (s.can_certify ? "c" : "") + (s.can_authenticate ? "a" : ""),
         keySize: s.length,
         algoSym: s.pubkey_algo_name,
         created: EnigmailTime.getDateTime(s.timestamp, true, false),
         keyCreated: s.timestamp,
-        type: (i > 0) ? "sub" : "pub"
+        type: "sub"
       });
     }
   }
