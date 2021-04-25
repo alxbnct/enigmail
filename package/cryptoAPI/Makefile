@@ -18,6 +18,7 @@ MODFILES = \
 	gnupg-keylist.jsm \
 	gnupg-key.jsm \
 	gnupg-keyEditor.jsm \
+	gpgme.js \
 	openpgp-js.js \
 	pgpjs-encrypt.jsm \
 	pgpjs-decrypt.jsm \

@@ -28,6 +28,9 @@ function EnigmailCryptoAPI(reset = false) {
       case 1:
         loadGnuPGApi();
         break;
+      case 3:
+        loadGpgMEApi();
+        break;
     }
   }
 
@@ -44,4 +47,10 @@ function loadOpenPGPjsApi() {
   const getOpenPGPjsAPI = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/openpgp-js.js").getOpenPGPjsAPI;
 
   gCurrentApi = getOpenPGPjsAPI();
+}
+
+function loadGpgMEApi() {
+  const getGpgMEApi = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/gpgme.js").getGpgMEApi;
+
+  gCurrentApi = getGpgMEApi();
 }
