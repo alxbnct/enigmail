@@ -967,7 +967,7 @@ function createKeyObj(keyData) {
     for (let u of keyData.userids) {
       keyObj.userIds.push({
         userId: u.uid,
-        keyTrust: u.validity,
+        keyTrust: VALIDITY_SYMBOL[u.validity],
         uidFpr: "0",
         type: "uid"
       });
