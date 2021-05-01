@@ -172,23 +172,22 @@ function withTestGpgHome(f) {
   return function() {
     const homedir = initalizeGpgHome();
     try {
-      f();
+      f(homedir);
     } finally {
       removeGpgHome(homedir);
     }
   };
 }
-
 /**
  * Execute an async function (or a function returning a Promise) and wait for it to complete
  *
  * @param {function} f: the async function to execute
  */
 function asyncTest(f) {
-  return function() {
+  return function(...args) {
     let inspector = Cc["@mozilla.org/jsinspector;1"].createInstance(Ci.nsIJSInspector);
 
-    f().then(x => {
+    f(...args).then(x => {
       inspector.exitNestedEventLoop(0);
     }).catch(x => {
       inspector.exitNestedEventLoop(0);
@@ -347,12 +346,17 @@ function setupTestAccount(accountName, incomingServerUserName, primaryEmail = nu
 }
 
 function withEnigmail(f) {
-  return function() {
+  return function(homedir) {
     try {
       const enigmail = TestEnigmailCore.createInstance();
       const window = JSUnit.createStubWindow();
       enigmail.initialize(window, "");
-      return f(TestEnigmailCore.getEnigmailService(), window);
+      const svc = TestEnigmailCore.getEnigmailService();
+      if (homedir) {
+        svc.environment.set("GNUPGHOME", TestHelper.gpgHome);
+        TestEnigmailCore.setEnvVariable("GNUPGHOME", homedir);
+      }
+      return f(svc, window);
     } finally {
       shutdownGpgAgent();
       TestEnigmailCore.setEnigmailService(null);
