@@ -23,7 +23,7 @@ test:
   before_script:
     - export TBPROFILE="$(pwd)/tb-test-profile"
     - apt update -y -qq
-    - apt install thunderbird gnupg zip unzip curl libgtk-3-0 libasound2 xvfb libgpgme11 libassuan-dev libgpg-error-dev -y -qq
+    - apt install thunderbird gnupg zip unzip curl libgtk-3-0 libasound2 xvfb libgpgme11 libassuan-dev -y -qq
     - mkdir -p $TBPROFILE/extensions tmp
     - printf '%s/build-il/dist/' "$(pwd)" > "$TBPROFILE/extensions/{847b3a00-7ab1-11d4-8f02-006008948af5}"
     - printf 'user_pref("extensions.autoDisableScopes", 14);\n' > "$TBPROFILE/prefs.js"
@@ -47,6 +47,10 @@ test:
     - printf 'user_pref("mail.server.server1.name", "Local Folders");\n' >> "$TBPROFILE/prefs.js"
     - printf '{%s "main.js"}\n' '"mainFile":' > "$TBPROFILE/jsunit.json"
     #- export TBDOWNLOAD=$(curl -s 'https://download.mozilla.org/?product=thunderbird-beta-latest&os=linux64&lang=en-US' | sed -E 's/(.*href=")([^"]+)(".*)/\2/')
+    - export LIBGPGERR=1.42
+    - curl -s -o libgpg-error.tar.bz2 https://gnupg.org/ftp/gcrypt/libgpg-error/libgpg-error-1.42.tar.bz2
+    - tar jxf libgpg-error.tar.bz2
+    - (cd libgpg-error-${LIBGPGERR} && ./configure && make && make install)
     - export GPGMEVERSION=1.15.1
     - curl -s -o gpgme.tar.bz2 https://enigmail.net/unit-testing/gpgme-${GPGMEVERSION}.tar.bz2
     - tar jxf gpgme.tar.bz2
