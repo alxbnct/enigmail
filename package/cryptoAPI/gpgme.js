@@ -11,8 +11,10 @@ var EXPORTED_SYMBOLS = ["getGpgMEApi"];
 
 var Services = Components.utils.import("resource://gre/modules/Services.jsm").Services;
 
-Services.scriptloader.loadSubScript("chrome://enigmail/content/modules/cryptoAPI/interface.js",
-  null, "UTF-8"); /* global CryptoAPI */
+if (typeof CryptoAPI === "undefined") {
+  Services.scriptloader.loadSubScript("chrome://enigmail/content/modules/cryptoAPI/interface.js",
+    null, "UTF-8"); /* global CryptoAPI */
+}
 
 const EnigmailLog = ChromeUtils.import("chrome://enigmail/content/modules/log.jsm").EnigmailLog;
 const EnigmailExecution = ChromeUtils.import("chrome://enigmail/content/modules/execution.jsm").EnigmailExecution;
@@ -23,8 +25,9 @@ const EnigmailData = ChromeUtils.import("chrome://enigmail/content/modules/data.
 const EnigmailLocale = ChromeUtils.import("chrome://enigmail/content/modules/locale.jsm").EnigmailLocale;
 const EnigmailPassword = ChromeUtils.import("chrome://enigmail/content/modules/passwords.jsm").EnigmailPassword;
 const EnigmailOS = ChromeUtils.import("chrome://enigmail/content/modules/os.jsm").EnigmailOS;
+const EnigmailCore = ChromeUtils.import("chrome://enigmail/content/modules/core.jsm").EnigmailCore;
 
-const pgpjs_keys = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/pgpjs-keys.jsm").pgpjs_keys;
+//const pgpjs_keys = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/pgpjs-keys.jsm").pgpjs_keys;
 
 const nsIWindowsRegKey = Ci.nsIWindowsRegKey;
 
@@ -160,7 +163,48 @@ class GpgMECryptoAPI extends CryptoAPI {
    * @return {Array of KeyObject} with type = "grp"
    */
   getGroupList() {
-    return [];
+    let cfg = this.sync(this.execJsonCmd({
+      op: "config",
+      component: "gpg"
+    }));
+    let groups = null;
+    for (let o of cfg.components[0].options) {
+      if (o.name === "group") {
+        groups = o.value;
+        break;
+      }
+    }
+
+    if (!groups) return [];
+
+    let groupList = [];
+    for (let g of groups) {
+      let parts = g.string.match(/^([^=]+)=(.+)$/);
+      if (parts && parts.length > 2) {
+
+        let grpObj = {
+          type: "grp",
+          keyUseFor: "G",
+          userIds: [],
+          subKeys: [],
+          keyTrust: "g",
+          userId: parts[1],
+          keyId: parts[1]
+        };
+
+        let aliases = parts[2].split(/[,; ]+/);
+        for (let a of aliases) {
+          grpObj.userIds.push({
+            userId: a,
+            keyTrust: "q"
+          });
+        }
+
+        groupList.push(grpObj);
+      }
+    }
+
+    return groupList;
   }
 
   /**
@@ -188,7 +232,10 @@ class GpgMECryptoAPI extends CryptoAPI {
    */
 
   async importKeyFromFile(inputFile) {
-    return null;
+    const EnigmailFiles = ChromeUtils.import("chrome://enigmail/content/modules/files.jsm").EnigmailFiles;
+
+    let fileData = EnigmailFiles.readBinaryFile(inputFile);
+    return this.importKeyData(fileData, false, null);
   }
 
   /**
@@ -206,6 +253,29 @@ class GpgMECryptoAPI extends CryptoAPI {
    */
 
   async importKeyData(keyData, minimizeKey, limitedUids) {
+    let res = await this.execJsonCmd({
+      op: "import",
+      data: keyData,
+      protocol: "openpgp",
+      base64: false
+    });
+
+    if ("result" in res) {
+      EnigmailLog.DEBUG(`gpgme.js: importKeys: ${JSON.stringify(res)}`);
+      let r = {
+        exitCode: 0,
+        importSum: res.result.considered,
+        importedKeys: [],
+        importUnchanged: res.result.unchanged
+      };
+
+      for (let k of res.result.imports) {
+        r.importedKeys.push(k.fingerprint);
+      }
+
+      return r;
+    }
+
     return null;
   }
 
@@ -749,12 +819,16 @@ class GpgMECryptoAPI extends CryptoAPI {
     return null;
   }
 
+
   async execJsonCmd(paramsObj) {
-    let result = await EnigmailExecution.execAsync(this._gpgmePath, ["-s"], JSON.stringify(paramsObj) + "\n");
+    let jsonStr = JSON.stringify(paramsObj);
+    let n = jsonStr.length;
+    EnigmailLog.DEBUG(`gpgHome: ${EnigmailCore.getEnvList().join(", ")}\n`);
+    let result = await EnigmailExecution.execAsync(this._gpgmePath, [], convertNativeNumber(n) + jsonStr);
 
     try {
       if (!result.stdoutData) throw "no data";
-      let retObj = JSON.parse(result.stdoutData);
+      let retObj = JSON.parse(result.stdoutData.substr(4));
       return retObj;
     }
     catch (ex) {
@@ -901,4 +975,10 @@ function createKeyObj(keyData) {
   }
 
   return keyObj;
+}
+
+
+function convertNativeNumber(num) {
+  let s = String.fromCharCode(num & 0xFF) + String.fromCharCode((num >> 8) & 0xFF) + String.fromCharCode((num >> 16) & 0xFF) + String.fromCharCode((num >> 24) & 0xFF);
+  return s;
 }

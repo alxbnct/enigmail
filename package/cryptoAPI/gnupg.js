@@ -11,8 +11,10 @@ var EXPORTED_SYMBOLS = ["getGnuPGAPI"];
 
 var Services = Components.utils.import("resource://gre/modules/Services.jsm").Services;
 
-Services.scriptloader.loadSubScript("chrome://enigmail/content/modules/cryptoAPI/interface.js",
-  null, "UTF-8"); /* global CryptoAPI */
+if (typeof CryptoAPI === "undefined") {
+  Services.scriptloader.loadSubScript("chrome://enigmail/content/modules/cryptoAPI/interface.js",
+    null, "UTF-8"); /* global CryptoAPI */
+}
 
 const EnigmailLog = ChromeUtils.import("chrome://enigmail/content/modules/log.jsm").EnigmailLog;
 const EnigmailGpg = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/gnupg-core.jsm").EnigmailGpg;

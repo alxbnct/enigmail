@@ -23,9 +23,10 @@ const EnigmailConstants = ChromeUtils.import("chrome://enigmail/content/modules/
 const getKeyRing = EnigmailLazy.loader("enigmail/keyRing.jsm", "EnigmailKeyRing");
 
 // Load generic API
-Services.scriptloader.loadSubScript("chrome://enigmail/content/modules/cryptoAPI/interface.js",
-  null, "UTF-8"); /* global CryptoAPI */
-
+if (typeof CryptoAPI === "undefined") {
+  Services.scriptloader.loadSubScript("chrome://enigmail/content/modules/cryptoAPI/interface.js",
+    null, "UTF-8"); /* global CryptoAPI */
+}
 
 /**
  * OpenPGP.js implementation of CryptoAPI
@@ -303,7 +304,7 @@ class OpenPGPjsCryptoAPI extends CryptoAPI {
    *
    * @return {nsIFile} object or null in case no data / error.
    */
-   async getPhotoFile(keyId, photoNumber) {
+  async getPhotoFile(keyId, photoNumber) {
     let keys = await pgpjs_keyStore.getKeysForKeyIds(false, [keyId]);
     if (keys.length > 0) {
       return pgpjs_keys.getPhotoForKey(keys[0], photoNumber);
