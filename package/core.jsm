@@ -211,9 +211,10 @@ var EnigmailCore = {
     for (let i = 0; i < gEnvList.length; i++) {
       if (gEnvList[i].startsWith(varname + "=")) {
         gEnvList[i] = varname + "=" + value;
-        break;
+        return;
       }
     }
+    this.addToEnvList(`${varname}=${value}`);
   }
 };
 
