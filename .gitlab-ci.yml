@@ -1,4 +1,4 @@
-image: node:13-buster
+image: ubuntu:focal
 
 build:
   script:
@@ -9,6 +9,8 @@ build:
 
 lint:
   before_script:
+    - apt update -y -qq
+    - apt install npm -y -qq
     - npm install -g eslint
   script:
     - ./configure
