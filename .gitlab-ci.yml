@@ -47,6 +47,10 @@ test:
     - printf 'user_pref("mail.server.server1.name", "Local Folders");\n' >> "$TBPROFILE/prefs.js"
     - printf '{%s "main.js"}\n' '"mainFile":' > "$TBPROFILE/jsunit.json"
     #- export TBDOWNLOAD=$(curl -s 'https://download.mozilla.org/?product=thunderbird-beta-latest&os=linux64&lang=en-US' | sed -E 's/(.*href=")([^"]+)(".*)/\2/')
+    - export GPGMEVERSION=1.15.1
+    - curl -s -o gpgme.tar.bz2 https://enigmail.net/unit-testing/gpgme-${GPGMEVERSION}.tar.bz2
+    - tar jxf gpgme.tar.bz2
+    - (cd gpgme-${GPGMEVERSION} && ./configure && make && make install)
     - export TBDOWNLOAD=https://repository.binaryoutcast.com/projects/interlink/releases/7463/interlink-52.9.7463.linux-x86_64-gtk3.tar.xz
     - curl -s -o interlink.tar.xz $TBDOWNLOAD
     - tar -xJvf interlink.tar.xz
