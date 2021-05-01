@@ -1,4 +1,4 @@
-image: ubuntu:focal
+image: node:16-buster
 
 build:
   script:
@@ -9,8 +9,6 @@ build:
 
 lint:
   before_script:
-    - apt update -y -qq
-    - apt install npm -y -qq
     - npm install -g eslint
   script:
     - ./configure
@@ -25,7 +23,7 @@ test:
   before_script:
     - export TBPROFILE="$(pwd)/tb-test-profile"
     - apt update -y -qq
-    - apt install thunderbird gnupg zip unzip curl libgtk-3-0 libasound2 xvfb -y -qq
+    - apt install thunderbird gnupg zip unzip curl libgtk-3-0 libasound2 xvfb gpgme -y -qq
     - mkdir -p $TBPROFILE/extensions tmp
     - printf '%s/build-il/dist/' "$(pwd)" > "$TBPROFILE/extensions/{847b3a00-7ab1-11d4-8f02-006008948af5}"
     - printf 'user_pref("extensions.autoDisableScopes", 14);\n' > "$TBPROFILE/prefs.js"
