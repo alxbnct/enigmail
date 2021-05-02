@@ -29,6 +29,9 @@ user_pref("extensions.autoDisableScopes", 14);
 user_pref("browser.dom.window.dump.enabled", true);
 user_pref("extensions.enigmail.logDirectory", "C:\\Enigmail\\test-profile");
 user_pref("extensions.enigmail.juniorMode", 0);
+user_pref("extensions.enigmail.pEpAutoDownload", false);
+user_pref("extensions.enigmail.configuredVersion", "99.0");
+user_pref("extensions.enigmail.keyRefreshOn", false);
 user_pref("devtools.debugger.prompt-connection", false);
 user_pref("mail.account.account1.identities", "id1");
 user_pref("mail.account.account1.server", "server2");
@@ -67,6 +70,7 @@ user_pref("mail.server.server2.type", "pop3");
 user_pref("mail.server.server2.userName", "dummy");
 user_pref("mail.server.server2.login_at_startup", false);
 user_pref("extensions.enigmail.configuredVersion", "99.0");
+user_pref("extensions.enigmail.keyRefreshOn", false);
 user_pref("mail.shell.checkDefaultClient", false);
 EOT
 
