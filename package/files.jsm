@@ -169,7 +169,6 @@ var EnigmailFiles = {
     }
     catch(ex) {
       lazyLog().ERROR(`files.jsm: initPath: invalid path: '${pathStr}' Stack\n:${ex.stack}\n`);
-      throw ex;
     }
   },
 
