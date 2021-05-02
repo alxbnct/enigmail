@@ -64,6 +64,12 @@ class GpgMECryptoAPI extends CryptoAPI {
    * @param {String } preferredPath: try to use specific path to locate tool (gpg)
    */
   initialize(parentWindow, esvc, preferredPath) {
+    if (!esvc) {
+      esvc = {
+        environment: Cc["@mozilla.org/process/environment;1"].getService(Ci.nsIEnvironment)
+      };
+    }
+
     this._gpgmePath = resolvePath(esvc.environment);
   }
 
@@ -875,10 +881,10 @@ function resolvePath(env) {
       for (let i = 0; i < installDir.length && !toolPath; i++) {
         let gpgPath = EnigmailOS.getWinRegistryString(installDir[i], "Install Directory", nsIWindowsRegKey.ROOT_KEY_LOCAL_MACHINE);
 
-        toolPath = EnigmailFiles.resolvePath(toolName, gpgPath, EnigmailOS.isDosLike());
+        toolPath = EnigmailFiles.resolvePath(toolName, gpgPath, EnigmailOS.isDosLike);
         if (!toolPath) {
           gpgPath += "\\bin";
-          toolPath = EnigmailFiles.resolvePath(toolName, gpgPath, EnigmailOS.isDosLike());
+          toolPath = EnigmailFiles.resolvePath(toolName, gpgPath, EnigmailOS.isDosLike);
         }
       }
     }
