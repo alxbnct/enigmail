@@ -160,10 +160,16 @@ var EnigmailFiles = {
   // uses persistentDescriptor in case that initWithPath fails
   // (seems to happen frequently with UTF-8 characters in path names)
   initPath: function(localFileObj, pathStr) {
-    localFileObj.initWithPath(pathStr);
+    try {
+      localFileObj.initWithPath(pathStr);
 
-    if (!localFileObj.exists()) {
-      localFileObj.persistentDescriptor = pathStr;
+      if (!localFileObj.exists()) {
+        localFileObj.persistentDescriptor = pathStr;
+      }
+    }
+    catch(ex) {
+      lazyLog().ERROR(`files.jsm: initPath: invalid path: '${pathStr}'\n`);
+      throw ex;
     }
   },
 
