@@ -107,6 +107,8 @@ test(withTestGpgHome(withEnigmail(asyncTest(function shouldGetSecretKeys() {
         Assert.equal(result[0].created, expectedKey[0].created);
         Assert.equal(result[0].keyTrust, expectedKey[0].keyTrust);
         resolve(1);
+      }).catch(err => {
+        resolve(0);
       });
   });
 }))));
