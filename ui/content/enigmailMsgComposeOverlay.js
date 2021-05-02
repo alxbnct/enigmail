@@ -4524,7 +4524,7 @@ Enigmail.msg = {
 
       this.searchKeysTimeout = EnigmailTimer.setTimeout(function _f() {
           self.searchKeysTimeout = null;
-          Enigmail.msg.findMissingKeys();
+          return Enigmail.msg.findMissingKeys();
         },
         5000); // 5 Seconds
     }

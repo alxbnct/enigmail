@@ -190,7 +190,11 @@ function asyncTest(f) {
     f(...args).then(x => {
       inspector.exitNestedEventLoop(0);
     }).catch(x => {
-      Assert.ok(false, "Runtime exception: " + x);
+      if ((typeof x === "object") && "stack" in x) {
+        Assert.ok(false, "Runtime error: " + x + "\n" + x.stack);
+      }
+      else
+        Assert.ok(false, "Runtime exception: " + x);
       inspector.exitNestedEventLoop(0);
     });
     inspector.enterNestedEventLoop(0);

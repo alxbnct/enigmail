@@ -290,6 +290,7 @@ function checkProtectHeaders_test() {
   Assert.equal(ret, true);
   Assert.equal(Enigmail.msg.protectHeaders, false);
 
+  EnigmailPrefs.setPref = function() {}
 }
 
 function compileFromAndTo_test() {

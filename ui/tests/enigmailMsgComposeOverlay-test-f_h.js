@@ -32,7 +32,21 @@ var EnigmailPrefs = {
   getPref: (prop) => {
     return 1;
   },
-  setPref: function() {}
+  setPref: function() {},
+  getPrefRoot: function() {
+    return {
+      getPrefType: function() {
+        return true;
+      },
+      getBoolPref: function(str) {
+        return true;
+      },
+      getCharPref: function(str) {
+        return "";
+      },
+      PREF_BOOL: true
+    };
+  }
 };
 
 var EnigmailTimer = {
@@ -79,12 +93,9 @@ function fireSearchKeys_test() {
     };
 
     EnigmailTimer.setTimeout = function(callback, time) {
-      Assert.ok(true);
       Assert.equal(time, 5000);
-      callback().then(r => {
-        Assert.equal(Enigmail.msg.searchKeysTimeout, null);
-        resolve(true);
-      });
+      callback();
+      resolve(true);
       return false;
     };
 
@@ -104,10 +115,9 @@ function fireSendFlags_test() {
     };
 
     EnigmailTimer.setTimeout = function(callback, time) {
-      callback().then(r => {
-        Assert.ok(true);
-        resolve(true);
-      });
+      callback();
+      Assert.ok(true);
+      resolve(true);
       return null;
     };
 
@@ -130,7 +140,14 @@ function fixMessageSubject_test() {
     };
   };
 
+  let h = Enigmail.msg.getMsgHdr;
+  Enigmail.msg.getMsgHdr = function() {
+    return {
+      flags: Ci.nsMsgMessageFlags.HasRe
+    };
+  };
   Enigmail.msg.fixMessageSubject();
+  Enigmail.msg.getMsgHdr = h;
 }
 
 function focusChange_test() {
@@ -386,6 +403,7 @@ function getForceRecipientDlg_test() {
 }
 
 function getMailPref_test() {
+  let h = EnigmailPrefs.getPrefRoot;
   EnigmailPrefs.getPrefRoot = function() {
     return {
       getPrefType: function() {
@@ -422,7 +440,6 @@ function getMailPref_test() {
         return true;
       },
       getCharPref: function(str) {
-        Assert.ok(true);
         Assert.equal(str, 'xyz');
       },
       PREF_STRING: 'str'
@@ -430,7 +447,7 @@ function getMailPref_test() {
   };
 
   Enigmail.msg.getMailPref('xyz');
-
+  EnigmailPrefs.getPrefRoot = h;
 }
 
 function getMsgHdr_test() {

@@ -46,9 +46,8 @@ test:
     - printf 'user_pref("mail.server.server1.hostname", "Local Folders");\n' >> "$TBPROFILE/prefs.js"
     - printf 'user_pref("mail.server.server1.name", "Local Folders");\n' >> "$TBPROFILE/prefs.js"
     - printf '{%s "main.js"}\n' '"mainFile":' > "$TBPROFILE/jsunit.json"
-    #- export TBDOWNLOAD=$(curl -s 'https://download.mozilla.org/?product=thunderbird-beta-latest&os=linux64&lang=en-US' | sed -E 's/(.*href=")([^"]+)(".*)/\2/')
     - export LIBGPGERR=1.42
-    - curl -s -o libgpg-error.tar.bz2 https://gnupg.org/ftp/gcrypt/libgpg-error/libgpg-error-1.42.tar.bz2
+    - curl -s -o libgpg-error.tar.bz2 https://gnupg.org/ftp/gcrypt/libgpg-error/libgpg-error-${LIBGPGERR}.tar.bz2
     - tar jxf libgpg-error.tar.bz2
     - (cd libgpg-error-${LIBGPGERR} && ./configure && make && make install)
     - export GPGMEVERSION=1.15.1
@@ -82,14 +81,11 @@ postbox_test:
     - dpkg --add-architecture i386
     - apt update -y -qq
     - apt install thunderbird wine wine32 perl p7zip-full zip unzip curl xvfb libgtk-3-0 -y -qq
-    - export POSTBOXDL=https://enigmail.net/unit-testing/Postbox-7.0.15.zip
-    - curl -s -o postbox.zip $POSTBOXDL
+    - curl -s -o postbox.zip https://enigmail.net/unit-testing/Postbox-7.0.15.zip
     - unzip postbox.zip
-    - export PERLDL=https://enigmail.net/unit-testing/MiniPerl-5.30.zip
-    - curl -o perl.zip $PERLDL
+    - curl -o perl.zip https://enigmail.net/unit-testing/MiniPerl-5.30.zip
     - unzip perl.zip
-    - export GPGDL=https://enigmail.net/unit-testing/gnupg-portable-win32-2.2.17-3.7z
-    - curl -o gnupg-inst.7z $GPGDL
+    - curl -o gnupg-inst.7z https://enigmail.net/unit-testing/gnupg-portable-win32-2.2.27-10.7z
     - 7z x -y gnupg-inst.7z
     - provisioning/wine-setup.sh
 
