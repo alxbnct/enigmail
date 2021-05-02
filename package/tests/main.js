@@ -16,8 +16,13 @@ function execTest(filename) {
 
   if (testcases && testcases.length > 0) {
     if (testcases.search(filename) >= 0) do_subtest(filename);
-  } else
-    do_subtest(filename);
+  }
+  else {
+    try {
+      do_subtest(filename);
+    }
+    catch (x) {}
+  }
 }
 
 execTest("initialize.js");
