@@ -712,8 +712,9 @@ var EnigmailGpgAgent = {
 
       if (!homeDir) homeDir = "C:\\gnupg";
     }
-
-    if (!homeDir) homeDir = esvc.environment.get("HOME") + "/.gnupg";
+    else {
+      if (!homeDir) homeDir = esvc.environment.get("HOME") + "/.gnupg";
+    }
 
     return homeDir;
   },
