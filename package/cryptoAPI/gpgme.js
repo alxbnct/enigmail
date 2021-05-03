@@ -163,22 +163,19 @@ class GpgMECryptoAPI extends CryptoAPI {
   }
 
   /**
-   * Get groups defined in gpg.conf in the same structure as KeyObject
-   * [synchronous]
+   * Return an array containing the aliases and the email addresses
    *
-   * @return {Array of KeyObject} with type = "grp"
+   * @return {Array<{alias,keylist}>} <{String,String}>
    */
-  getGroupList() {
+  getGroups() {
     let cfg = this.sync(this.execJsonCmd({
-      op: "config",
-      component: "gpg"
+      op: "config_opt",
+      component: "gpg",
+      option: "group"
     }));
     let groups = null;
-    for (let o of cfg.components[0].options) {
-      if (o.name === "group") {
-        groups = o.value;
-        break;
-      }
+    if ("option" in cfg) {
+      groups = cfg.option.value;
     }
 
     if (!groups) return [];
@@ -187,30 +184,58 @@ class GpgMECryptoAPI extends CryptoAPI {
     for (let g of groups) {
       let parts = g.string.match(/^([^=]+)=(.+)$/);
       if (parts && parts.length > 2) {
-
-        let grpObj = {
-          type: "grp",
-          keyUseFor: "G",
-          userIds: [],
-          subKeys: [],
-          keyTrust: "g",
-          userId: parts[1],
-          keyId: parts[1]
-        };
-
-        let aliases = parts[2].split(/[,; ]+/);
-        for (let a of aliases) {
-          grpObj.userIds.push({
-            userId: a,
-            keyTrust: "q"
-          });
+        if (parts[1] in groupList) {
+          groupList[parts[1]] += ` ${parts[2]}`;
         }
-
-        groupList.push(grpObj);
+        else
+          groupList[parts[1]] = parts[2];
       }
     }
 
-    return groupList;
+    let ret = [];
+    for (let g in groupList) {
+      ret.push({
+        alias: g,
+        keylist: groupList[g]
+      });
+    }
+
+    return ret;
+  }
+
+  /**
+   * Get groups defined in gpg.conf in the same structure as KeyObject
+   * [synchronous]
+   *
+   * @return {Array of KeyObject} with type = "grp"
+   */
+  getGroupList() {
+    let groupList = this.getGroups();
+    let retList = [];
+    for (let grp of groupList) {
+
+      let grpObj = {
+        type: "grp",
+        keyUseFor: "G",
+        userIds: [],
+        subKeys: [],
+        keyTrust: "g",
+        userId: grp.alias,
+        keyId: grp.alias
+      };
+
+      let rcpt = grp.keylist.split(/[,; ]+/);
+      for (let r of rcpt) {
+        grpObj.userIds.push({
+          userId: r,
+          keyTrust: "q"
+        });
+      }
+
+      retList.push(grpObj);
+    }
+
+    return retList;
   }
 
   /**
@@ -573,15 +598,6 @@ class GpgMECryptoAPI extends CryptoAPI {
     return null;
   }
 
-  /**
-   * Return an array containing the aliases and the email addresses
-   *
-   * @return {Array<{Alias,KeyList}>} <{String,String}>
-   */
-  getGroups() {
-    return [];
-  }
-
   /***
    * Determine if a specific feature is available by the used toolset
    *
@@ -825,7 +841,7 @@ class GpgMECryptoAPI extends CryptoAPI {
     return null;
   }
 
-
+  // TODO: use gpgme-json as a daemon running as long as the mail app.
   async execJsonCmd(paramsObj) {
     let jsonStr = JSON.stringify(paramsObj);
     let n = jsonStr.length;
