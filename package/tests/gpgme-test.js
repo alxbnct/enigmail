@@ -1,5 +1,5 @@
 /*global do_load_module: false, do_get_file: false, do_get_cwd: false, testing: false, test: false, Assert: false, resetting: false */
-/*global do_test_pending: false, do_test_finished: false, withTestGpgHome: false, asyncTest: false, withEnigmail: false */
+/*global do_test_pending: false, do_test_finished: false, withTestGpgHome: false, asyncTest: false, withEnigmail: false, withOverwriteFuncs: false */
 
 /*
  * This Source Code Form is subject to the terms of the Mozilla Public
@@ -13,6 +13,43 @@ do_load_module("file://" + do_get_cwd().path + "/testHelper.js");
 /* global TestHelper: false */
 
 testing("cryptoAPI/gpgme.js"); /*global getGpgMEApi: false */
+
+
+test(
+  function testGroups() {
+    const cApi = getGpgMEApi();
+
+    cApi.execJsonCmd = async function(input) {
+      Assert.equal(input.op, "config_opt");
+      Assert.equal(input.component, "gpg");
+      Assert.equal(input.option, "group");
+
+      return {
+        "option": {
+          "name": "group",
+          "description": "set up email aliases",
+          "argname": "SPEC",
+          "flags": 4,
+          "level": 1,
+          "type": 37,
+          "alt_type": 1,
+          "value": [{
+            "string": "Testgroup1=someone@domain1.invalid next@domain.invalid",
+            "is_none": false
+          }, {
+            "string": "testGroup2=strike@enigmail.net",
+            "is_none": false
+          }, {
+            "string": "testgroup1=onemore@enigmail.net",
+            "is_none": false
+          }]
+        }
+      };
+    };
+
+    let res = cApi.getGroups();
+    Assert.equal(res.length, 2);
+  });
 
 test(withTestGpgHome(withEnigmail(asyncTest(async (esvc, window) => {
   // Test key importing and key listing

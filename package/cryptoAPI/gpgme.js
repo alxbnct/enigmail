@@ -184,6 +184,7 @@ class GpgMECryptoAPI extends CryptoAPI {
     for (let g of groups) {
       let parts = g.string.match(/^([^=]+)=(.+)$/);
       if (parts && parts.length > 2) {
+        parts[1] = parts[1].toLowerCase();
         if (parts[1] in groupList) {
           groupList[parts[1]] += ` ${parts[2]}`;
         }
