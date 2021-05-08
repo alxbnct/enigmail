@@ -374,16 +374,16 @@ var pgpjs_decrypt = {
 
           if (currentStatus >= signatureStatus) {
             /*  VALIDSIG args are (separated by space):
-                - <fingerprint_in_hex>
-                - <sig_creation_date>
-                - <sig-timestamp>
-                - <expire-timestamp>
-                - <sig-version>
-                - <reserved>
-                - <pubkey-algo>
-                - <hash-algo>
-                - <sig-class>
-                - [ <primary-key-fpr> ]
+                - <fingerprint_in_hex> 4F9F89F5505AC1D1A260631CDB1187B9DD5F693B
+                - <sig_creation_date> 2020-03-21
+                - <sig-timestamp> 1584805187
+                - <expire-timestamp> 0
+                - <sig-version> 4
+                - <reserved> 0
+                - <pubkey-algo> 1
+                - <hash-algo> 8
+                - <sig-class> 00
+                - [ <primary-key-fpr> ] 4F9F89F5505AC1D1A260631CDB1187B9DD5F693B
             */
             const pkt = (await sig.signature).packets[0];
             result.keyId = currentKey.getFingerprint().toUpperCase();

@@ -353,9 +353,9 @@ class CryptoAPI {
    *     - {String} blockSeparation
    *     - {String} userId: signature user Id
    *     - {String} keyId: signature key ID
+   *     - {String} encryptedFileName
    *     - {String} sigDetails: as printed by GnuPG for VALIDSIG pattern
-    retStatusObj.encToDetails = encToDetails;
-*
+   *     - {String} encToDetails: \n  keyId1 (userId1),\n  keyId1 (userId2),\n  ...
    *
    * Use Promise.catch to handle failed decryption.
    * retObj.errorMsg will be an error message in this case.
