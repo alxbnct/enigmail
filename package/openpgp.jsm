@@ -141,6 +141,10 @@ var EnigmailOpenPGP = {
 
   signingAlgIdToString: function(id) {
     // RFC 4880 Sec. 9.1, RFC 6637 Sec. 5 and draft-koch-eddsa-for-openpgp-03 Sec. 8
+    if (typeof id === "string") {
+      return id;
+    }
+
     let EnigmailLocale;
     switch (parseInt(id, 10)) {
       case 1:
@@ -167,6 +171,10 @@ var EnigmailOpenPGP = {
 
   hashAlgIdToString: function(id) {
     // RFC 4880 Sec. 9.4
+    if (typeof id === "string") {
+      return id;
+    }
+
     let EnigmailLocale;
     switch (parseInt(id, 10)) {
       case 1:

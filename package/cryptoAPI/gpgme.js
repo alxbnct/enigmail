@@ -10,11 +10,15 @@
 var EXPORTED_SYMBOLS = ["getGpgMEApi"];
 
 var Services = Components.utils.import("resource://gre/modules/Services.jsm").Services;
+const XPCOMUtils = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm").XPCOMUtils;
 
 if (typeof CryptoAPI === "undefined") {
   Services.scriptloader.loadSubScript("chrome://enigmail/content/modules/cryptoAPI/interface.js",
     null, "UTF-8"); /* global CryptoAPI */
 }
+
+/* eslint no-invalid-this: 0 */
+XPCOMUtils.defineLazyModuleGetter(this, "EnigmailKeyRing", "chrome://enigmail/content/modules/keyRing.jsm", "EnigmailKeyRing"); /* global EnigmailKeyRing: false */
 
 const EnigmailLog = ChromeUtils.import("chrome://enigmail/content/modules/log.jsm").EnigmailLog;
 const EnigmailExecution = ChromeUtils.import("chrome://enigmail/content/modules/execution.jsm").EnigmailExecution;
@@ -23,9 +27,8 @@ const EnigmailConstants = ChromeUtils.import("chrome://enigmail/content/modules/
 const EnigmailTime = ChromeUtils.import("chrome://enigmail/content/modules/time.jsm").EnigmailTime;
 const EnigmailData = ChromeUtils.import("chrome://enigmail/content/modules/data.jsm").EnigmailData;
 const EnigmailLocale = ChromeUtils.import("chrome://enigmail/content/modules/locale.jsm").EnigmailLocale;
-const EnigmailPassword = ChromeUtils.import("chrome://enigmail/content/modules/passwords.jsm").EnigmailPassword;
 const EnigmailOS = ChromeUtils.import("chrome://enigmail/content/modules/os.jsm").EnigmailOS;
-const EnigmailCore = ChromeUtils.import("chrome://enigmail/content/modules/core.jsm").EnigmailCore;
+const EnigmailVersioning = ChromeUtils.import("chrome://enigmail/content/modules/versioning.jsm").EnigmailVersioning;
 
 //const pgpjs_keys = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/pgpjs-keys.jsm").pgpjs_keys;
 
@@ -64,6 +67,7 @@ class GpgMECryptoAPI extends CryptoAPI {
    * @param {String } preferredPath: try to use specific path to locate tool (gpg)
    */
   initialize(parentWindow, esvc, preferredPath) {
+    EnigmailLog.DEBUG(`gpgme.js: initialize()\n`);
     if (!esvc) {
       esvc = {
         environment: Cc["@mozilla.org/process/environment;1"].getService(Ci.nsIEnvironment)
@@ -71,12 +75,37 @@ class GpgMECryptoAPI extends CryptoAPI {
     }
 
     this._gpgmePath = resolvePath(esvc.environment);
+    this._gpgPath = null;
+    try {
+      let opts = this.sync(this.execJsonCmd({
+        op: "config"
+      }));
+
+      for (let o of opts.components) {
+        if (o.name === "gpg") {
+          this._gpgPath = o.program_name;
+          break;
+        }
+      }
+
+      if (! this._gpgPath) throw "GnuPG not available";
+
+      let r = this.sync(determineGpgVersion(this._gpgPath));
+      this._gpgPath = r.gpgPath;
+      this._gpgVersion = r.gpgVersion;
+    }
+    catch(ex) {
+      EnigmailLog.DEBUG(`gpgme.js: initialize: error: ${ex.toString()}\n`);
+      this._gpgmePath = null;
+      throw ex;
+    }
   }
 
   /**
    * Close/shutdown anything related to the functionality
    */
   finalize() {
+    // TODO: terminate running gpgme-json instance
     return null;
   }
 
@@ -147,10 +176,16 @@ class GpgMECryptoAPI extends CryptoAPI {
    * @return {Promise<Array of Object>}
    */
   async getKeys(onlyKeys = null) {
-    let keysObj = await this.execJsonCmd({
+    EnigmailLog.DEBUG(`gpgme.js: getKeys(${onlyKeys})\n`);
+    let cmdObj = {
       "op": "keylist",
       "with-secret": true
-    });
+    };
+
+    if (onlyKeys) {
+      cmdObj.keys = onlyKeys.split(/[, ]+/);
+    }
+    let keysObj = await this.execJsonCmd(cmdObj);
 
     let keyArr = [];
     if ("keys" in keysObj) {
@@ -168,6 +203,7 @@ class GpgMECryptoAPI extends CryptoAPI {
    * @return {Array<{alias,keylist}>} <{String,String}>
    */
   getGroups() {
+    EnigmailLog.DEBUG(`gpgme.js: getGroups()\n`);
     let cfg = this.sync(this.execJsonCmd({
       op: "config_opt",
       component: "gpg",
@@ -211,6 +247,8 @@ class GpgMECryptoAPI extends CryptoAPI {
    * @return {Array of KeyObject} with type = "grp"
    */
   getGroupList() {
+    EnigmailLog.DEBUG(`gpgme.js: getGroupList()\n`);
+
     let groupList = this.getGroups();
     let retList = [];
     for (let grp of groupList) {
@@ -264,10 +302,12 @@ class GpgMECryptoAPI extends CryptoAPI {
    */
 
   async importKeyFromFile(inputFile) {
+    EnigmailLog.DEBUG(`gpgme.js: importKeyFromFile(${inputFile.path})\n`);
+
     const EnigmailFiles = ChromeUtils.import("chrome://enigmail/content/modules/files.jsm").EnigmailFiles;
 
     let fileData = EnigmailFiles.readBinaryFile(inputFile);
-    return this.importKeyData(fileData, false, null);
+    return this.importKeyData(fileData, false);
   }
 
   /**
@@ -284,31 +324,58 @@ class GpgMECryptoAPI extends CryptoAPI {
    *   - {Number}          importUnchanged: number of unchanged keys
    */
 
-  async importKeyData(keyData, minimizeKey, limitedUids) {
-    let res = await this.execJsonCmd({
-      op: "import",
-      data: keyData,
-      protocol: "openpgp",
-      base64: false
-    });
-
-    if ("result" in res) {
-      EnigmailLog.DEBUG(`gpgme.js: importKeys: ${JSON.stringify(res)}`);
-      let r = {
-        exitCode: 0,
-        importSum: res.result.considered,
-        importedKeys: [],
-        importUnchanged: res.result.unchanged
-      };
-
-      for (let k of res.result.imports) {
-        r.importedKeys.push(k.fingerprint);
-      }
-
-      return r;
+   async importKeyData(keyData, minimizeKey = false, limitedUids = []) {
+    let args = ["--no-verbose", "--status-fd", "2"];
+    if (minimizeKey) {
+      args = args.concat(["--import-options", "import-minimal"]);
     }
 
-    return null;
+    if (limitedUids && limitedUids.length > 0 && this.supportsFeature("export-specific-uid")) {
+      let filter = limitedUids.map(i => {
+        return `mbox =~ ${i}`;
+      }).join(" || ");
+
+      args.push("--import-filter");
+      args.push(`keep-uid=${filter}`);
+    }
+    args = args.concat(["--no-auto-check-trustdb", "--import"]);
+
+    const res = await EnigmailExecution.execAsync(this._gpgPath, args, keyData);
+
+    let importedKeys = [];
+    let importSum = 0;
+    let importUnchanged = 0;
+    let secCount = 0;
+    let secImported = 0;
+    let secDups = 0;
+
+    if (res.statusMsg) {
+      let r = parseImportResult(res.statusMsg);
+      if (r.exitCode !== -1) {
+        res.exitCode = r.exitCode;
+      }
+      if (r.errorMsg !== "") {
+        res.errorMsg = r.errorMsg;
+      }
+
+      importedKeys = r.importedKeys;
+      importSum = r.importSum;
+      importUnchanged = r.importUnchanged;
+      secCount = r.secCount;
+      secImported = r.secImported;
+      secDups = r.secDups;
+    }
+
+    return {
+      exitCode: res.exitCode,
+      errorMsg: res.errorMsg,
+      importedKeys: importedKeys,
+      importSum: importSum,
+      importUnchanged: importUnchanged,
+      secCount: secCount,
+      secImported: secImported,
+      secDups: secDups
+    };
   }
 
   /**
@@ -430,22 +497,6 @@ class GpgMECryptoAPI extends CryptoAPI {
    * Generic function to decrypt and/or verify an OpenPGP message.
    *
    * @param {String} encrypted     The encrypted data
-   * @param {Object} options       Decryption options
-   *
-   * @return {Promise<Object>} - Return object with decryptedData and
-   * status information
-   *
-   * Use Promise.catch to handle failed decryption.
-   * retObj.errorMsg will be an error message in this case.
-   */
-
-  async decrypt(encrypted, options) {
-    return null;
-  }
-
-  /**
-   * Decrypt a PGP/MIME-encrypted message
-   *
    * @param {String} encrypted     The encrypted data
    * @param {Object} options       Decryption options
    *      - logFile (the actual file)
@@ -467,15 +518,103 @@ class GpgMECryptoAPI extends CryptoAPI {
    *     - {String} userId: signature user Id
    *     - {String} keyId: signature key ID
    *     - {String} sigDetails: as printed by GnuPG for VALIDSIG pattern
-    retStatusObj.encToDetails = encToDetails;
-  *
+   *     - {String} encToDetails: \n  keyId1 (userId1),\n  keyId1 (userId2),\n  ...
+   *     - {String} encryptedFileName
+   *
+   * Use Promise.catch to handle failed decryption.
+   * retObj.errorMsg will be an error message in this case.
+   */
+
+  async decrypt(encrypted, options) {
+    EnigmailLog.DEBUG(`gpgme.js: decrypt()\n`);
+
+    let result = await this.execJsonCmd({
+      op: options.verifyOnly ? "verify" : "decrypt",
+      data: btoa(encrypted),
+      base64: true
+    });
+
+    EnigmailLog.DEBUG(`gpgme.js: decrypt: result: ${JSON.stringify(result)}\n`);
+    let ret = {
+      decryptedData: "",
+      exitCode: 1,
+      statusFlags: 0,
+      errorMsg: "err",
+      blockSeparation: "",
+      userId: "",
+      keyId: "",
+      sigDetails: "",
+      encToDetails: ""
+    };
+
+    if (result.type === "plaintext") {
+      ret.errorMsg = "";
+      ret.decryptedData = result.base64 ? atob(result.data) : result.data;
+      if (options.uiFlags & EnigmailConstants.UI_PGP_MIME) {
+        ret.statusFlags |= EnigmailConstants.PGP_MIME_ENCRYPTED;
+      }
+
+      if ("dec_info" in result) {
+        if (!result.dec_info.wrong_key_usage && result.dec_info.symkey_algo.length > 0) {
+          ret.statusFlags += EnigmailConstants.DECRYPTION_OKAY;
+          if (result.dec_info.legacy_cipher_nomdc) ret.statusFlags += EnigmailConstants.MISSING_MDC;
+        }
+
+        if (result.dec_info.file_name) ret.encryptedFileName = result.dec_info.file_name;
+
+        if ("recipients" in result.dec_info) {
+          let encToArr = [];
+          for (let r of result.dec_info.recipients) {
+            // except for ID 00000000, which signals hidden keys
+            if (r.keyid.search(/^0+$/) < 0) {
+              let localKey = EnigmailKeyRing.getKeyById(`0x${r.keyid}`);
+              encToArr.push(r.keyid + (localKey ? ` (${localKey.userId})` : ""));
+            }
+            else {
+              encToArr.push(EnigmailLocale.getString("hiddenKey"));
+            }
+          }
+          ret.encToDetails = "\n  " + encToArr.join(",\n  ") + "\n";
+        }
+      }
+
+      if ("info" in result) {
+        await this._interpetSignatureData(result, ret);
+      }
+      ret.exitCode = 0;
+    }
+    else {
+      EnigmailLog.DEBUG(`gpgme.js: decrypt: result= ${JSON.stringify(result)}\n`);
+
+      ret.errorMsg = result.msg;
+      ret.statusFlags = EnigmailConstants.DECRYPTION_FAILED;
+      if (result.code === 117440529) {
+        ret.statusFlags |= EnigmailConstants.NO_SECKEY;
+      }
+    }
+
+    return ret;
+  }
+
+  /**
+   * Decrypt a PGP/MIME-encrypted message
+   *
+   * @param {String} encrypted     The encrypted data
+   * @param {Object} options       Decryption options (see decrypt() for details)
+   *
+   * @return {Promise<Object>} - Return object with decryptedData and status information
+   *                             (see decrypt() for details)
    *
    * Use Promise.catch to handle failed decryption.
    * retObj.errorMsg will be an error message in this case.
    */
 
   async decryptMime(encrypted, options) {
-    return null;
+    options.noOutput = false;
+    options.verifyOnly = false;
+    options.uiFlags = EnigmailConstants.UI_PGP_MIME;
+
+    return this.decrypt(encrypted, options);
   }
 
   /**
@@ -486,14 +625,113 @@ class GpgMECryptoAPI extends CryptoAPI {
    * @param {Object} options       Decryption options
    *
    * @return {Promise<Object>} - Return object with decryptedData and
-   * status information
+   *                             status information
    *
    * Use Promise.catch to handle failed decryption.
    * retObj.errorMsg will be an error message in this case.
    */
 
   async verifyMime(signedData, signature, options) {
-    return null;
+    EnigmailLog.DEBUG(`gpgme.js: verifyMime()\n`);
+    let result = await this.execJsonCmd({
+      op: "verify",
+      data: btoa(signedData),
+      signature: btoa(signature),
+      base64: true
+    });
+
+    let ret = {};
+
+    if ("info" in result) {
+      await this._interpetSignatureData(result, ret);
+    }
+    else {
+      EnigmailLog.DEBUG(`gpgme.js: verifyMime: result= ${JSON.stringify(result)}\n`);
+      ret.errorMsg = result.msg;
+      ret.statusFlags = EnigmailConstants.DECRYPTION_FAILED;
+    }
+
+    return ret;
+  }
+
+  /**
+   * private function to resd/intperet the signature data returned by gpgme
+   */
+  async _interpetSignatureData(resultData, retObj) {
+    if (!retObj) return;
+    if (!("info" in resultData)) return;
+    if (resultData.info.signatures.length < 1) return;
+
+    const
+      undetermined = 0,
+      none = 1,
+      keyMissing = 2,
+      red = 3,
+      green = 4,
+      valid = 99;
+
+    let overallSigStatus = undetermined,
+      iSig = null;
+
+    // determine "best" signature
+    for (let sig of resultData.info.signatures) {
+      let s = sig.summary;
+      let sigStatus = s.valid ? valid : s.green ? green : s.red ? red : s["key-misssing"] ? keyMissing : none;
+      if (sigStatus > overallSigStatus) {
+        overallSigStatus = sigStatus;
+        iSig = sig;
+      }
+    }
+
+    // interpret the "best" signature
+    if (iSig) {
+      if (iSig.summary.red) {
+        retObj.statusFlags |= EnigmailConstants.BAD_SIGNATURE;
+      }
+      else if (iSig.summary["key-missing"]) {
+        retObj.statusFlags |= (EnigmailConstants.UNVERIFIED_SIGNATURE | EnigmailConstants.NO_PUBKEY);
+      }
+      else {
+        retObj.statusFlags |= EnigmailConstants.GOOD_SIGNATURE;
+        if (iSig.summary.valid) retObj.statusFlags |= EnigmailConstants.TRUSTED_IDENTITY;
+        if (iSig.summary.revoked) retObj.statusFlags |= EnigmailConstants.REVOKED_KEY;
+        if (iSig.summary["key-expired"]) retObj.statusFlags |= (EnigmailConstants.EXPIRED_KEY | EnigmailConstants.EXPIRED_KEY_SIGNATURE);
+        if (iSig.summary["sig-expired"]) retObj.statusFlags |= EnigmailConstants.EXPIRED_SIGNATURE;
+      }
+
+      if (iSig.fingerprint) {
+        retObj.keyId = iSig.fingerprint;
+        // use gpgme to find key, as fpr may not be available via API
+        let keys = await this.getKeys(`0x${iSig.fingerprint}`);
+        if (keys && keys.length > 0) {
+          if (retObj.statusFlags & EnigmailConstants.GOOD_SIGNATURE) {
+            retObj.errorMsg = EnigmailLocale.getString("prefGood", [keys[0].userId]);
+          }
+          else if (retObj.statusFlags & EnigmailConstants.BAD_SIGNATURE) {
+            retObj.errorMsg = EnigmailLocale.getString("prefBad", [keys[0].userId]);
+          }
+          retObj.userId = keys[0].userId;
+        }
+        else {
+          keys = null;
+        }
+
+        let sigDate = new Date(iSig.timestamp * 1000).toISOString().substr(0, 10);
+        /*  VALIDSIG args are (separated by space):
+            - <fingerprint_in_hex> 4F9F89F5505AC1D1A260631CDB1187B9DD5F693B
+            - <sig_creation_date> 2020-03-21
+            - <sig-timestamp> 1584805187
+            - <expire-timestamp> 0
+            - <sig-version> 4
+            - <reserved> 0
+            - <pubkey-algo> 1
+            - <hash-algo> 8
+            - <sig-class> 00
+            - [ <primary-key-fpr> ] 4F9F89F5505AC1D1A260631CDB1187B9DD5F693B
+        */
+        retObj.sigDetails = `${iSig.fingerprint} ${sigDate} ${iSig.timestamp} ${iSig.exp_timestamp} 4 0 ${iSig.pubkey_algo_name} ${iSig.hash_algo_name} 00 ${keys ? keys[0].fpr : ""}`;
+      }
+    }
   }
 
   /**
@@ -626,7 +864,60 @@ class GpgMECryptoAPI extends CryptoAPI {
    *   If the feature cannot be found, undefined is returned
    */
   supportsFeature(featureName) {
-    return false;
+    let gpgVersion = this._gpgVersion;
+
+    if (!gpgVersion || typeof(gpgVersion) != "string" || gpgVersion.length === 0) {
+      return undefined;
+    }
+
+    gpgVersion = gpgVersion.replace(/-.*$/, "");
+    if (gpgVersion.search(/^\d+\.\d+/) < 0) {
+      // not a valid version number
+      return undefined;
+    }
+
+    switch (featureName) {
+      case "supports-gpg-agent":
+        return EnigmailVersioning.greaterThanOrEqual(gpgVersion, "2.0.16");
+      case "keygen-passphrase":
+        return EnigmailVersioning.lessThan(gpgVersion, "2.1") || EnigmailVersioning.greaterThanOrEqual(gpgVersion, "2.1.2");
+      case "genkey-no-protection":
+        return EnigmailVersioning.greaterThan(gpgVersion, "2.1");
+      case "windows-photoid-bug":
+        return EnigmailVersioning.lessThan(gpgVersion, "2.0.16");
+      case "supports-dirmngr":
+        return EnigmailVersioning.greaterThan(gpgVersion, "2.1");
+      case "supports-ecc-keys":
+        return EnigmailVersioning.greaterThan(gpgVersion, "2.1");
+      case "socks-on-windows":
+        return EnigmailVersioning.greaterThanOrEqual(gpgVersion, "2.0.20");
+      case "search-keys-cmd":
+        // returns a string
+        if (EnigmailVersioning.greaterThan(gpgVersion, "2.1")) {
+          return "save";
+        } else
+          return "quit";
+      case "supports-sender":
+        return EnigmailVersioning.greaterThanOrEqual(gpgVersion, "2.1.15");
+      case "export-result":
+        return EnigmailVersioning.greaterThanOrEqual(gpgVersion, "2.1.10");
+      case "decryption-info":
+        return EnigmailVersioning.greaterThanOrEqual(gpgVersion, "2.0.19");
+      case "supports-wkd":
+        return EnigmailVersioning.greaterThanOrEqual(gpgVersion, "2.1.19");
+      case "export-specific-uid":
+        return EnigmailVersioning.greaterThanOrEqual(gpgVersion, "2.2.9");
+      case "supports-show-only":
+        return EnigmailVersioning.greaterThanOrEqual(gpgVersion, "2.1.14");
+      case "handles-huge-keys":
+        return EnigmailVersioning.greaterThanOrEqual(gpgVersion, "2.2.17");
+      case "smartcard":
+      case "uid-management":
+      case "ownertrust":
+        return true;
+    }
+
+    return undefined;
   }
 
 
@@ -845,8 +1136,8 @@ class GpgMECryptoAPI extends CryptoAPI {
   // TODO: use gpgme-json as a daemon running as long as the mail app.
   async execJsonCmd(paramsObj) {
     let jsonStr = JSON.stringify(paramsObj);
+    EnigmailLog.DEBUG(`gpgme.js: execJsonCmd(${jsonStr.substr(0, 40)})\n`);
     let n = jsonStr.length;
-    EnigmailLog.DEBUG(`gpgHome: ${EnigmailCore.getEnvList().join(", ")}\n`);
     let result = await EnigmailExecution.execAsync(this._gpgmePath, [], convertNativeNumber(n) + jsonStr);
 
     try {
@@ -1004,4 +1295,94 @@ function createKeyObj(keyData) {
 function convertNativeNumber(num) {
   let s = String.fromCharCode(num & 0xFF) + String.fromCharCode((num >> 8) & 0xFF) + String.fromCharCode((num >> 16) & 0xFF) + String.fromCharCode((num >> 24) & 0xFF);
   return s;
+}
+
+/**
+ * Parse GnuPG status output
+ *
+ * @param statusMsg
+ */
+ function parseImportResult(statusMsg) {
+  // IMPORT_RES <count> <no_user_id> <imported> 0 <unchanged>
+  //    <n_uids> <n_subk> <n_sigs> <n_revoc> <sec_read> <sec_imported> <sec_dups> <not_imported>
+
+  let import_res = statusMsg.match(/^IMPORT_RES ([0-9]+) ([0-9]+) ([0-9]+) 0 ([0-9]+) ([0-9]+) ([0-9]+) ([0-9]+) ([0-9]+) ([0-9]+) ([0-9]+) ([0-9]+) ([0-9]+)/m);
+
+  let keyList = [];
+  let res = {
+    errorMsg: "",
+    exitCode: -1,
+    importedKeys: [],
+    importSum: 0,
+    importUnchanged: 0
+  };
+
+  if (import_res !== null) {
+    let secCount = parseInt(import_res[9], 10); // number of secret keys found
+    let secImported = parseInt(import_res[10], 10); // number of secret keys imported
+    let secDups = parseInt(import_res[11], 10); // number of secret keys already on the keyring
+
+    if (secCount !== secImported + secDups) {
+      res.errorMsg = EnigmailLocale.getString("import.secretKeyImportError");
+      res.exitCode = 1;
+    }
+    else {
+      res.importSum = parseInt(import_res[1], 10);
+      res.importUnchanged = parseInt(import_res[4], 10);
+      res.secCount = parseInt(import_res[9], 10); // number of secret keys found
+      res.secImported = parseInt(import_res[10], 10); // number of secret keys imported
+      res.secDups = parseInt(import_res[11], 10); // number of secret keys already on the keyring
+
+      res.exitCode = 0;
+      var statusLines = statusMsg.split(/\r?\n/);
+
+      for (let j = 0; j < statusLines.length; j++) {
+        var matches = statusLines[j].match(/IMPORT_OK ([0-9]+) (\w+)/);
+        if (matches && (matches.length > 2)) {
+          if (typeof(keyList[matches[2]]) !== "undefined") {
+            keyList[matches[2]] |= Number(matches[1]);
+          }
+          else
+            keyList[matches[2]] = Number(matches[1]);
+
+          res.importedKeys.push(matches[2]);
+          EnigmailLog.DEBUG("gpgme.js: parseImportResult: imported " + matches[2] + ":" + matches[1] + "\n");
+        }
+      }
+    }
+  }
+
+  return res;
+}
+
+async function determineGpgVersion(gpgPath) {
+  const args = ["--batch", "--no-tty", "--charset", "utf-8", "--display-charset", "utf-8", "--version", "--version"];
+
+  const res = await EnigmailExecution.execAsync(gpgPath, args);
+
+  if (res.exitCode !== 0) {
+    EnigmailLog.ERROR(`gpgme.js: setAgentPath: gpg failed with exitCode ${res.exitCode} msg='${res.stdoutData} ${res.stderrData}'\n`);
+    throw Components.results.NS_ERROR_FAILURE;
+  }
+
+  // detection for Gpg4Win wrapper
+  if (res.stdoutData.search(/^gpgwrap.*;/) === 0) {
+    const outLines = res.stdoutData.split(/[\n\r]+/);
+    const firstLine = outLines[0];
+    outLines.splice(0, 1);
+    res.stdoutData = outLines.join("\n");
+    gpgPath = firstLine.replace(/^.*;[ \t]*/, "");
+
+    EnigmailLog.CONSOLE(`gpg4win-gpgwrapper detected; GnuPG path=${gpgPath}\n\n`);
+  }
+
+  const versionParts = res.stdoutData.replace(/[\r\n].*/g, "").replace(/ *\(gpg4win.*\)/i, "").split(/ /);
+  const gpgVersion = versionParts[versionParts.length - 1];
+
+  EnigmailLog.DEBUG(`gpgme.js: detected GnuPG version '${gpgVersion}'\n`);
+
+  return {
+    gpgVersion: gpgVersion,
+    gpgPath: gpgPath
+  };
 }
