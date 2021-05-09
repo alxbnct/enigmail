@@ -83,18 +83,18 @@ class GpgMECryptoAPI extends CryptoAPI {
 
       for (let o of opts.components) {
         if (o.name === "gpg") {
-          this._gpgPath = o.program_name;
+          this._gpgPath = gpgUnescape(o.program_name);
           break;
         }
       }
 
-      if (! this._gpgPath) throw "GnuPG not available";
+      if (!this._gpgPath) throw "GnuPG not available";
 
       let r = this.sync(determineGpgVersion(this._gpgPath));
       this._gpgPath = r.gpgPath;
       this._gpgVersion = r.gpgVersion;
     }
-    catch(ex) {
+    catch (ex) {
       EnigmailLog.DEBUG(`gpgme.js: initialize: error: ${ex.toString()}\n`);
       this._gpgmePath = null;
       throw ex;
@@ -324,7 +324,7 @@ class GpgMECryptoAPI extends CryptoAPI {
    *   - {Number}          importUnchanged: number of unchanged keys
    */
 
-   async importKeyData(keyData, minimizeKey = false, limitedUids = []) {
+  async importKeyData(keyData, minimizeKey = false, limitedUids = []) {
     let args = ["--no-verbose", "--status-fd", "2"];
     if (minimizeKey) {
       args = args.concat(["--import-options", "import-minimal"]);
@@ -895,7 +895,8 @@ class GpgMECryptoAPI extends CryptoAPI {
         // returns a string
         if (EnigmailVersioning.greaterThan(gpgVersion, "2.1")) {
           return "save";
-        } else
+        }
+        else
           return "quit";
       case "supports-sender":
         return EnigmailVersioning.greaterThanOrEqual(gpgVersion, "2.1.15");
@@ -1302,7 +1303,7 @@ function convertNativeNumber(num) {
  *
  * @param statusMsg
  */
- function parseImportResult(statusMsg) {
+function parseImportResult(statusMsg) {
   // IMPORT_RES <count> <no_user_id> <imported> 0 <unchanged>
   //    <n_uids> <n_subk> <n_sigs> <n_revoc> <sec_read> <sec_imported> <sec_dups> <not_imported>
 
@@ -1385,4 +1386,14 @@ async function determineGpgVersion(gpgPath) {
     gpgVersion: gpgVersion,
     gpgPath: gpgPath
   };
+}
+
+function gpgUnescape(str) {
+  let i = str.search(/%../);
+  while (i >= 0) {
+    let s = str.substr(i, 3);
+    str = str.replace(s, unescape(s));
+    i = str.search(/%../);
+  }
+  return str;
 }
