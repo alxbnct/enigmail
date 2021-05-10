@@ -87,7 +87,7 @@ postbox_test:
     - unzip perl.zip
     - curl -o gpg4win.exe https://files.gpg4win.org/gpg4win-3.1.15.exe
     - provisioning/wine-setup.sh
-    - wine gpg4win.exe /S
+    - /usr/bin/wine gpg4win.exe /S
 
   script:
     - mkdir tmp
