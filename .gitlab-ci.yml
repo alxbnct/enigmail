@@ -85,9 +85,9 @@ postbox_test:
     - unzip postbox.zip
     - curl -o perl.zip https://enigmail.net/unit-testing/MiniPerl-5.30.zip
     - unzip perl.zip
-    - curl -o gnupg-inst.7z https://enigmail.net/unit-testing/gnupg-portable-win32-2.2.17-4.7z
-    - 7z x -y gnupg-inst.7z
+    - curl -o gpg4win.exe https://files.gpg4win.org/gpg4win-3.1.15.exe
     - provisioning/wine-setup.sh
+    - wine gpg4win.exe /S
 
   script:
     - mkdir tmp

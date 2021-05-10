@@ -17,7 +17,7 @@ mkdir -p $PARENTDIR/test-profile/extensions
 ln -s $(pwd) $PARENTDIR/enigmail-src
 ln -s $(pwd)/Postbox $PARENTDIR/Postbox
 ln -s $(pwd)/Perl $PARENTDIR/Perl
-ln -s $(pwd)/app/bin $HOME/.wine/drive_c/gnupg
+#ln -s $(pwd)/app/bin $HOME/.wine/drive_c/gnupg
 
 echo "C:\\\\Enigmail\\\\enigmail-src\\\\build-pbx\\\\dist\\\\" > "$PARENTDIR/test-profile/extensions/{847b3a00-7ab1-11d4-8f02-006008948af5}"
 cat << EOT > "$PARENTDIR/test-profile/prefs.js"
