@@ -321,3 +321,21 @@ iD8DBQE+yUcu4mZch0nhy8kRAuh/AKDM1Xc49BKVfJIFg/btWGfbF/pgcwCgw0Zk
   result = await gpgmeApi.verifyMime(fileData, sigData);
   Assert.equal(result.statusFlags, EnigmailConstants.GOOD_SIGNATURE);
 }))));
+
+
+test(withTestGpgHome(withEnigmail(asyncTest(async function testDeleteKey(esvc, window) {
+  const gpgmeApi = getGpgMEApi();
+  gpgmeApi.initialize(null, esvc, null);
+
+  const secKeyFile = do_get_file("resources/dev-strike.sec", false);
+  let r = await gpgmeApi.importKeyFromFile(secKeyFile, false, null);
+  Assert.equal(r.importSum, 1);
+
+  // delete some unknown key
+  r = await gpgmeApi.deleteKeys(["0x347562ABCD34234DD34234B3456E3546C2456EEE"], false);
+  Assert.ok(r.exitCode !== 0, "deletion not possible");
+
+  // delete private key
+  r = await gpgmeApi.deleteKeys(["0x65537E212DC19025AD38EDB2781617319CE311C4"], true);
+  Assert.equal(r.exitCode, 0, "deletion of secret key");
+}))));

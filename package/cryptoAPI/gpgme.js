@@ -325,6 +325,38 @@ class GpgMECryptoAPI extends CryptoAPI {
    */
 
   async importKeyData(keyData, minimizeKey = false, limitedUids = []) {
+    EnigmailLog.DEBUG(`gpgme.js: importKeyData(${keyData.length}, ${minimizeKey})\n`);
+
+    /*
+    // Using gpgme-json doesn't work with importing private keys, therefore using
+    // gpg directly
+
+    let res = await this.execJsonCmd({
+      op: "import",
+      data: keyData,
+      protocol: "openpgp",
+      base64: false
+    });
+
+    if ("result" in res) {
+      EnigmailLog.DEBUG(`gpgme.js: importKeys: ${JSON.stringify(res)}`);
+      let r = {
+        exitCode: 0,
+        importSum: res.result.considered,
+        importedKeys: [],
+        importUnchanged: res.result.unchanged
+      };
+
+      for (let k of res.result.imports) {
+        r.importedKeys.push(k.fingerprint);
+      }
+
+      return r;
+    }
+
+    return null;
+*/
+
     let args = ["--no-verbose", "--status-fd", "2"];
     if (minimizeKey) {
       args = args.concat(["--import-options", "import-minimal"]);
@@ -390,7 +422,33 @@ class GpgMECryptoAPI extends CryptoAPI {
    *      - {String} errorMsg: error message if deletion not successful
    */
   async deleteKeys(fpr, deleteSecretKey, parentWindow) {
-    return null;
+    EnigmailLog.DEBUG(`gpgme.js: deleteKeys(${fpr.join("+")}, ${deleteSecretKey})\n`);
+    let args = ["--no-verbose", "--status-fd", "2", "--batch", "--yes"];
+
+    if (deleteSecretKey) {
+      args.push("--delete-secret-and-public-key");
+    }
+    else {
+      args.push("--delete-keys");
+    }
+
+    args = args.concat(fpr);
+    const res = await EnigmailExecution.execAsync(this._gpgPath, args, "");
+    const deletedKeys = [];
+
+    let lines = res.statusMsg.split(/[\r\n]+/);
+    for (let l of lines) {
+      if (l.search(/^KEY_CONSIDERED /) === 0) {
+        deletedKeys.push(l.split(/ /)[1]);
+      }
+    }
+
+    let exitCode = (deletedKeys.length >= fpr.length) ? 0 : 1;
+
+    return {
+      exitCode: exitCode,
+      errorMsg: exitCode !== 0 ? res.errorMsg : ""
+    };
   }
 
   /**
