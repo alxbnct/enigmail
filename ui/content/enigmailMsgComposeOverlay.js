@@ -454,7 +454,7 @@ Enigmail.msg = {
 
     if (this.getSmimeSigningEnabled()) {
       this.sendMode |= SIGN;
-      this.reasonSigned = EnigmailLocale.getString("reasonEnabledByDefault");
+      this.reasonSigned = EnigmailLocale.getString("signReasonEnabledByDefault");
     }
 
     if (!this.isEnigmailEnabled()) {
@@ -463,11 +463,11 @@ Enigmail.msg = {
 
     if (this.getAccDefault("encrypt")) {
       this.sendMode |= ENCRYPT;
-      this.reasonEncrypted = EnigmailLocale.getString("reasonEnabledByDefault");
+      this.reasonEncrypted = EnigmailLocale.getString("encryptReasonEnabledByDefault");
     }
     if (this.getAccDefault("sign")) {
       this.sendMode |= SIGN;
-      this.reasonSigned = EnigmailLocale.getString("reasonEnabledByDefault");
+      this.reasonSigned = EnigmailLocale.getString("signReasonEnabledByDefault");
     }
 
     this.sendPgpMime = true;
@@ -1523,22 +1523,22 @@ Enigmail.msg = {
     // process resulting encrypt mode
     if (this.encryptForced == EnigmailConstants.ENIG_NEVER) { // force not to encrypt?
       encFinally = EnigmailConstants.ENIG_FINAL_FORCENO;
-      encReason = EnigmailLocale.getString("reasonManuallyForced");
+      encReason = EnigmailLocale.getString("encryptReasonManuallyForced");
     }
     else if (this.encryptForced == EnigmailConstants.ENIG_ALWAYS) { // force to encrypt?
       encFinally = EnigmailConstants.ENIG_FINAL_FORCEYES;
-      encReason = EnigmailLocale.getString("reasonManuallyForced");
+      encReason = EnigmailLocale.getString("encryptReasonManuallyForced");
     }
     else switch (this.encryptByRules) {
       case EnigmailConstants.ENIG_NEVER:
         encFinally = EnigmailConstants.ENIG_FINAL_NO;
-        encReason = EnigmailLocale.getString("reasonByRecipientRules");
+        encReason = EnigmailLocale.getString("encryptReasonByRecipientRules");
         break;
       case EnigmailConstants.ENIG_UNDEF:
         if (this.sendMode & ENCRYPT) {
           encFinally = EnigmailConstants.ENIG_FINAL_YES;
           if (pgpEnabled && this.getAccDefault("encrypt")) {
-            encReason = EnigmailLocale.getString("reasonEnabledByDefault");
+            encReason = EnigmailLocale.getString("encryptReasonEnabledByDefault");
           }
         }
         else {
@@ -1547,15 +1547,15 @@ Enigmail.msg = {
         break;
       case EnigmailConstants.ENIG_ALWAYS:
         encFinally = EnigmailConstants.ENIG_FINAL_YES;
-        encReason = EnigmailLocale.getString("reasonByRecipientRules");
+        encReason = EnigmailLocale.getString("encryptReasonByRecipientRules");
         break;
       case EnigmailConstants.ENIG_AUTO_ALWAYS:
         encFinally = EnigmailConstants.ENIG_FINAL_YES;
-        encReason = EnigmailLocale.getString("reasonByAutoEncryption");
+        encReason = EnigmailLocale.getString("encryptReasonByAutoEncryption");
         break;
       case EnigmailConstants.ENIG_CONFLICT:
         encFinally = EnigmailConstants.ENIG_FINAL_CONFLICT;
-        encReason = EnigmailLocale.getString("reasonByConflict");
+        encReason = EnigmailLocale.getString("encryptReasonByConflict");
         break;
     }
     EnigmailLog.DEBUG("enigmailMsgComposeOverlay.js:   encrypt=" + ((this.sendMode & ENCRYPT) !== 0) + " encryptByRules=" + this.encryptByRules + " encFinally=" + encFinally + "\n");
@@ -1564,22 +1564,22 @@ Enigmail.msg = {
     // process resulting sign mode
     if (this.signForced == EnigmailConstants.ENIG_NEVER) { // force not to sign?
       signFinally = EnigmailConstants.ENIG_FINAL_FORCENO;
-      signReason = EnigmailLocale.getString("reasonManuallyForced");
+      signReason = EnigmailLocale.getString("signReasonManuallyForced");
     }
     else if (this.signForced == EnigmailConstants.ENIG_ALWAYS) { // force to sign?
       signFinally = EnigmailConstants.ENIG_FINAL_FORCEYES;
-      signReason = EnigmailLocale.getString("reasonManuallyForced");
+      signReason = EnigmailLocale.getString("signReasonManuallyForced");
     }
     else switch (this.signByRules) {
       case EnigmailConstants.ENIG_NEVER:
         signFinally = EnigmailConstants.ENIG_FINAL_NO;
-        signReason = EnigmailLocale.getString("reasonByRecipientRules");
+        signReason = EnigmailLocale.getString("signReasonByRecipientRules");
         break;
       case EnigmailConstants.ENIG_UNDEF:
         if (this.sendMode & SIGN) {
           signFinally = EnigmailConstants.ENIG_FINAL_YES;
           if (pgpEnabled && this.getAccDefault("sign-pgp")) {
-            signReason = EnigmailLocale.getString("reasonEnabledByDefault");
+            signReason = EnigmailLocale.getString("signReasonEnabledByDefault");
           }
         }
         else {
@@ -1588,11 +1588,11 @@ Enigmail.msg = {
         break;
       case EnigmailConstants.ENIG_ALWAYS:
         signFinally = EnigmailConstants.ENIG_FINAL_YES;
-        signReason = EnigmailLocale.getString("reasonByRecipientRules");
+        signReason = EnigmailLocale.getString("signReasonByRecipientRules");
         break;
       case EnigmailConstants.ENIG_CONFLICT:
         signFinally = EnigmailConstants.ENIG_FINAL_CONFLICT;
-        signReason = EnigmailLocale.getString("reasonByConflict");
+        signReason = EnigmailLocale.getString("signReasonByConflict");
         break;
     }
     EnigmailLog.DEBUG("enigmailMsgComposeOverlay.js:   signed=" + ((this.sendMode & SIGN) !== 0) + " signByRules=" + this.signByRules + " signFinally=" + signFinally + "\n");
@@ -1609,20 +1609,20 @@ Enigmail.msg = {
           case EnigmailConstants.ENIG_FINAL_FORCEYES:
             if (this.getAccDefault("signIfEnc")) {
               signFinally = EnigmailConstants.ENIG_FINAL_YES;
-              signReason = EnigmailLocale.getString("reasonByEncryptionMode");
+              signReason = EnigmailLocale.getString("signReasonByEncryptionMode");
             }
             break;
           case EnigmailConstants.ENIG_FINAL_NO:
           case EnigmailConstants.ENIG_FINAL_FORCENO:
             if (this.getAccDefault("signIfNotEnc")) {
               signFinally = EnigmailConstants.ENIG_FINAL_YES;
-              signReason = EnigmailLocale.getString("reasonByEncryptionMode");
+              signReason = EnigmailLocale.getString("signReasonByEncryptionMode");
             }
             break;
           case EnigmailConstants.ENIG_FINAL_CONFLICT:
             if (this.getAccDefault("signIfEnc") && this.getAccDefault("signIfNotEnc")) {
               signFinally = EnigmailConstants.ENIG_FINAL_YES;
-              signReason = EnigmailLocale.getString("reasonByEncryptionMode");
+              signReason = EnigmailLocale.getString("signReasonByEncryptionMode");
             }
             else {
               signFinally = EnigmailConstants.ENIG_FINAL_CONFLICT;

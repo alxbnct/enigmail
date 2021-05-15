@@ -663,7 +663,7 @@ function processAccountSpecificDefaultOptions_test() {
   Enigmail.msg.processAccountSpecificDefaultOptions();
 
   Assert.equal(Enigmail.msg.sendMode, 1);
-  Assert.equal(Enigmail.msg.reasonSigned, EnigmailLocale.getString("reasonEnabledByDefault"));
+  Assert.equal(Enigmail.msg.reasonSigned, EnigmailLocale.getString("signReasonEnabledByDefault"));
   Assert.equal(Enigmail.msg.sendPgpMime, "");
 
   Enigmail.msg.isEnigmailEnabled = function() {
@@ -683,8 +683,8 @@ function processAccountSpecificDefaultOptions_test() {
   Enigmail.msg.processAccountSpecificDefaultOptions();
 
   Assert.equal(Enigmail.msg.sendMode, 3);
-  Assert.equal(Enigmail.msg.reasonSigned, EnigmailLocale.getString("reasonEnabledByDefault"));
-  Assert.equal(Enigmail.msg.reasonEncrypted, EnigmailLocale.getString("reasonEnabledByDefault"));
+  Assert.equal(Enigmail.msg.reasonSigned, EnigmailLocale.getString("signReasonEnabledByDefault"));
+  Assert.equal(Enigmail.msg.reasonEncrypted, EnigmailLocale.getString("encryptReasonEnabledByDefault"));
   Assert.equal(Enigmail.msg.sendPgpMime, true);
   Assert.equal(Enigmail.msg.attachOwnKeyObj.appendAttachment, true);
   Assert.equal(Enigmail.msg.attachOwnKeyObj.attachedObj, null);
@@ -699,7 +699,7 @@ function processAccountSpecificDefaultOptions_test() {
   Enigmail.msg.processAccountSpecificDefaultOptions();
 
   Assert.equal(Enigmail.msg.sendMode, 1);
-  Assert.equal(Enigmail.msg.reasonSigned, EnigmailLocale.getString("reasonEnabledByDefault"));
+  Assert.equal(Enigmail.msg.reasonSigned, EnigmailLocale.getString("signReasonEnabledByDefault"));
   Assert.equal(Enigmail.msg.sendPgpMime, false);
   Assert.equal(Enigmail.msg.attachOwnKeyObj.appendAttachment, false);
   Assert.equal(Enigmail.msg.attachOwnKeyObj.attachedObj, null);
@@ -714,7 +714,7 @@ function processAccountSpecificDefaultOptions_test() {
   Enigmail.msg.processAccountSpecificDefaultOptions();
 
   Assert.equal(Enigmail.msg.sendMode, 0);
-  Assert.equal(Enigmail.msg.reasonSigned, EnigmailLocale.getString("reasonEnabledByDefault"));
+  Assert.equal(Enigmail.msg.reasonSigned, EnigmailLocale.getString("signReasonEnabledByDefault"));
   Assert.equal(Enigmail.msg.sendPgpMime, false);
   Assert.equal(Enigmail.msg.attachOwnKeyObj.appendAttachment, false);
   Assert.equal(Enigmail.msg.attachOwnKeyObj.attachedObj, null);
@@ -737,7 +737,7 @@ function processAccountSpecificDefaultOptions_test() {
 
   Assert.equal(Enigmail.msg.sendMode, 2);
   Assert.equal(Enigmail.msg.reasonSigned, "");
-  Assert.equal(Enigmail.msg.reasonEncrypted, EnigmailLocale.getString("reasonEnabledByDefault"));
+  Assert.equal(Enigmail.msg.reasonEncrypted, EnigmailLocale.getString("encryptReasonEnabledByDefault"));
   Assert.equal(Enigmail.msg.sendPgpMime, true);
   Assert.equal(Enigmail.msg.attachOwnKeyObj.appendAttachment, true);
   Assert.equal(Enigmail.msg.attachOwnKeyObj.attachedObj, null);
@@ -775,20 +775,20 @@ function processFinalState_test() {
   Enigmail.msg.encryptForced = EnigmailConstants.ENIG_NEVER;
   Enigmail.msg.processFinalState();
   Assert.equal(Enigmail.msg.statusEncrypted, EnigmailConstants.ENIG_FINAL_FORCENO);
-  Assert.equal(Enigmail.msg.reasonEncrypted, EnigmailLocale.getString("reasonManuallyForced"));
+  Assert.equal(Enigmail.msg.reasonEncrypted, EnigmailLocale.getString("encryptReasonManuallyForced"));
 
   //Encryption reasonManuallyForced
   Enigmail.msg.encryptForced = EnigmailConstants.ENIG_ALWAYS;
   Enigmail.msg.processFinalState();
   Assert.equal(Enigmail.msg.statusEncrypted, EnigmailConstants.ENIG_FINAL_FORCEYES);
-  Assert.equal(Enigmail.msg.reasonEncrypted, EnigmailLocale.getString("reasonManuallyForced"));
+  Assert.equal(Enigmail.msg.reasonEncrypted, EnigmailLocale.getString("encryptReasonManuallyForced"));
 
   //Encryption reasonByRecipientRules
   Enigmail.msg.encryptForced = null;
   Enigmail.msg.encryptByRules = EnigmailConstants.ENIG_NEVER;
   Enigmail.msg.processFinalState();
   Assert.equal(Enigmail.msg.statusEncrypted, EnigmailConstants.ENIG_FINAL_NO);
-  Assert.equal(Enigmail.msg.reasonEncrypted, EnigmailLocale.getString("reasonByRecipientRules"));
+  Assert.equal(Enigmail.msg.reasonEncrypted, EnigmailLocale.getString("encryptReasonByRecipientRules"));
 
   //Encryption reasonEnabledByDefault
   Enigmail.msg.encryptByRules = EnigmailConstants.ENIG_UNDEF;
@@ -799,7 +799,7 @@ function processFinalState_test() {
   };
   Enigmail.msg.processFinalState();
   Assert.equal(Enigmail.msg.statusEncrypted, EnigmailConstants.ENIG_FINAL_YES);
-  Assert.equal(Enigmail.msg.reasonEncrypted, EnigmailLocale.getString("reasonEnabledByDefault"));
+  Assert.equal(Enigmail.msg.reasonEncrypted, EnigmailLocale.getString("encryptReasonEnabledByDefault"));
 
   //Encryption reasonEmpty
   Enigmail.msg.encryptByRules = EnigmailConstants.ENIG_UNDEF;
@@ -812,19 +812,19 @@ function processFinalState_test() {
   Enigmail.msg.encryptByRules = EnigmailConstants.ENIG_ALWAYS;
   Enigmail.msg.processFinalState();
   Assert.equal(Enigmail.msg.statusEncrypted, EnigmailConstants.ENIG_FINAL_YES);
-  Assert.equal(Enigmail.msg.reasonEncrypted, EnigmailLocale.getString("reasonByRecipientRules"));
+  Assert.equal(Enigmail.msg.reasonEncrypted, EnigmailLocale.getString("encryptReasonByRecipientRules"));
 
   //Encryption reasonByAutoEncryption
   Enigmail.msg.encryptByRules = EnigmailConstants.ENIG_AUTO_ALWAYS;
   Enigmail.msg.processFinalState();
   Assert.equal(Enigmail.msg.statusEncrypted, EnigmailConstants.ENIG_FINAL_YES);
-  Assert.equal(Enigmail.msg.reasonEncrypted, EnigmailLocale.getString("reasonByAutoEncryption"));
+  Assert.equal(Enigmail.msg.reasonEncrypted, EnigmailLocale.getString("encryptReasonByAutoEncryption"));
 
   //Encryption reasonByConflict
   Enigmail.msg.encryptByRules = EnigmailConstants.ENIG_CONFLICT;
   Enigmail.msg.processFinalState();
   Assert.equal(Enigmail.msg.statusEncrypted, EnigmailConstants.ENIG_FINAL_CONFLICT);
-  Assert.equal(Enigmail.msg.reasonEncrypted, EnigmailLocale.getString("reasonByConflict"));
+  Assert.equal(Enigmail.msg.reasonEncrypted, EnigmailLocale.getString("encryptReasonByConflict"));
 
   //Signing of Key
 
@@ -832,20 +832,20 @@ function processFinalState_test() {
   Enigmail.msg.signForced = EnigmailConstants.ENIG_NEVER;
   Enigmail.msg.processFinalState();
   Assert.equal(Enigmail.msg.statusSigned, EnigmailConstants.ENIG_FINAL_FORCENO);
-  Assert.equal(Enigmail.msg.reasonSigned, EnigmailLocale.getString("reasonManuallyForced"));
+  Assert.equal(Enigmail.msg.reasonSigned, EnigmailLocale.getString("signReasonManuallyForced"));
 
   //Signing reasonManuallyForced
   Enigmail.msg.signForced = EnigmailConstants.ENIG_ALWAYS;
   Enigmail.msg.processFinalState();
   Assert.equal(Enigmail.msg.statusSigned, EnigmailConstants.ENIG_FINAL_FORCEYES);
-  Assert.equal(Enigmail.msg.reasonSigned, EnigmailLocale.getString("reasonManuallyForced"));
+  Assert.equal(Enigmail.msg.reasonSigned, EnigmailLocale.getString("signReasonManuallyForced"));
 
   //Signing reasonByRecipientRules
   Enigmail.msg.signForced = null;
   Enigmail.msg.signByRules = EnigmailConstants.ENIG_NEVER;
   Enigmail.msg.processFinalState();
   Assert.equal(Enigmail.msg.statusSigned, EnigmailConstants.ENIG_FINAL_NO);
-  Assert.equal(Enigmail.msg.reasonSigned, EnigmailLocale.getString("reasonByRecipientRules"));
+  Assert.equal(Enigmail.msg.reasonSigned, EnigmailLocale.getString("signReasonByRecipientRules"));
 
   //Signing reasonEnabledByDefault
   Enigmail.msg.signByRules = EnigmailConstants.ENIG_UNDEF;
@@ -861,7 +861,7 @@ function processFinalState_test() {
   };
   Enigmail.msg.processFinalState();
   Assert.equal(Enigmail.msg.statusSigned, EnigmailConstants.ENIG_FINAL_YES);
-  Assert.equal(Enigmail.msg.reasonSigned, EnigmailLocale.getString("reasonEnabledByDefault"));
+  Assert.equal(Enigmail.msg.reasonSigned, EnigmailLocale.getString("signReasonEnabledByDefault"));
 
   //Signing reasonEmpty
   Enigmail.msg.signByRules = EnigmailConstants.ENIG_UNDEF;
@@ -874,13 +874,13 @@ function processFinalState_test() {
   Enigmail.msg.signByRules = EnigmailConstants.ENIG_ALWAYS;
   Enigmail.msg.processFinalState();
   Assert.equal(Enigmail.msg.statusSigned, EnigmailConstants.ENIG_FINAL_YES);
-  Assert.equal(Enigmail.msg.reasonSigned, EnigmailLocale.getString("reasonByRecipientRules"));
+  Assert.equal(Enigmail.msg.reasonSigned, EnigmailLocale.getString("signReasonByRecipientRules"));
 
   //Signing reasonByConflict
   Enigmail.msg.signByRules = EnigmailConstants.ENIG_CONFLICT;
   Enigmail.msg.processFinalState();
   Assert.equal(Enigmail.msg.statusSigned, EnigmailConstants.ENIG_FINAL_CONFLICT);
-  Assert.equal(Enigmail.msg.reasonSigned, EnigmailLocale.getString("reasonByConflict"));
+  Assert.equal(Enigmail.msg.reasonSigned, EnigmailLocale.getString("signReasonByConflict"));
 
   //finalSignDependsOnEncrypt Cases
 
@@ -893,20 +893,20 @@ function processFinalState_test() {
   Enigmail.msg.finalSignDependsOnEncrypt = true;
   Enigmail.msg.processFinalState();
   Assert.equal(Enigmail.msg.statusSigned, EnigmailConstants.ENIG_FINAL_YES);
-  Assert.equal(Enigmail.msg.reasonSigned, EnigmailLocale.getString("reasonByEncryptionMode"));
+  Assert.equal(Enigmail.msg.reasonSigned, EnigmailLocale.getString("signReasonByEncryptionMode"));
 
   //Encryption ENIG_NEVER
   Enigmail.msg.encryptForced = EnigmailConstants.ENIG_NEVER;
   Enigmail.msg.processFinalState();
   Assert.equal(Enigmail.msg.statusSigned, EnigmailConstants.ENIG_FINAL_YES);
-  Assert.equal(Enigmail.msg.reasonSigned, EnigmailLocale.getString("reasonByEncryptionMode"));
+  Assert.equal(Enigmail.msg.reasonSigned, EnigmailLocale.getString("signReasonByEncryptionMode"));
 
   //Encryption encFinally = EnigmailConstants;
   Enigmail.msg.encryptForced = null;
   Enigmail.msg.encryptByRules = EnigmailConstants.ENIG_CONFLICT;
   Enigmail.msg.processFinalState();
   Assert.equal(Enigmail.msg.statusSigned, EnigmailConstants.ENIG_FINAL_YES);
-  Assert.equal(Enigmail.msg.reasonSigned, EnigmailLocale.getString("reasonByEncryptionMode"));
+  Assert.equal(Enigmail.msg.reasonSigned, EnigmailLocale.getString("signReasonByEncryptionMode"));
 
   //Encryption ENIG_CONFLICT
   Enigmail.msg.getAccDefault = (prop) => {
