@@ -631,7 +631,10 @@ class GpgMECryptoAPI extends CryptoAPI {
    */
 
   async decryptAttachment(encrypted) {
-    return null;
+    let r = await this.decrypt(encrypted, {});
+    r.stdoutData = r.decryptedData;
+    delete r.decryptedData;
+    return r;
   }
 
   /**
@@ -887,8 +890,77 @@ class GpgMECryptoAPI extends CryptoAPI {
    */
 
   async getKeyListFromKeyBlock(keyBlockStr) {
-    return null;
+    EnigmailLog.DEBUG(`gpgme.js: getKeyListFromKeyBlock()\n`);
+
+    const args = ["--no-tty", "--batch", "--no-verbose", "--with-fingerprint", "--with-colons", "--import-options", "import-show", "--dry-run", "--import"];
+    const ENTRY_ID = 0;
+    const KEY_ID = 4;
+    const CREATED_ID = 5;
+    const USERID_ID = 9;
+
+
+    let res = await EnigmailExecution.execAsync(this._gpgPath, args, keyBlockStr);
+    let lines = res.stdoutData.split(/\n/);
+
+    let key = {};
+    let keyId = "";
+    let keyList = [];
+
+    for (let i = 0; i < lines.length; i++) {
+      const lineTokens = lines[i].split(/:/);
+
+      switch (lineTokens[ENTRY_ID]) {
+        case "pub":
+        case "sec":
+          key = {
+            id: lineTokens[KEY_ID],
+            fpr: null,
+            name: null,
+            isSecret: false,
+            created: EnigmailTime.getDateTime(lineTokens[CREATED_ID], true, false),
+            uids: []
+          };
+
+          if (!(key.id in keyList)) {
+            keyList[key.id] = key;
+          }
+
+          if (lineTokens[ENTRY_ID] === "sec") {
+            keyList[key.id].isSecret = true;
+          }
+          break;
+        case "fpr":
+          if (!key.fpr) {
+            key.fpr = lineTokens[USERID_ID];
+          }
+          break;
+        case "uid":
+          if (!key.name) {
+            key.name = lineTokens[USERID_ID];
+          }
+          else {
+            key.uids.push(lineTokens[USERID_ID]);
+          }
+          break;
+        case "rvs":
+        case "rvk":
+          keyId = lineTokens[KEY_ID];
+          if (keyId in keyList) {
+            keyList[keyId].revoke = true;
+          }
+          else {
+            keyList[keyId] = {
+              revoke: true,
+              id: keyId
+            };
+          }
+          break;
+      }
+    }
+
+    return keyList;
   }
+
 
   /**
    * Export the ownertrust database
