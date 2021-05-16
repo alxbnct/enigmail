@@ -19,6 +19,7 @@ if (typeof CryptoAPI === "undefined") {
 
 /* eslint no-invalid-this: 0 */
 XPCOMUtils.defineLazyModuleGetter(this, "EnigmailKeyRing", "chrome://enigmail/content/modules/keyRing.jsm", "EnigmailKeyRing"); /* global EnigmailKeyRing: false */
+XPCOMUtils.defineLazyModuleGetter(this, "EnigmailDialog", "chrome://enigmail/content/modules/dialog.jsm", "EnigmailDialog"); /* global EnigmailDialog: false */
 
 const EnigmailLog = ChromeUtils.import("chrome://enigmail/content/modules/log.jsm").EnigmailLog;
 const EnigmailExecution = ChromeUtils.import("chrome://enigmail/content/modules/execution.jsm").EnigmailExecution;
@@ -65,7 +66,7 @@ class GpgMECryptoAPI extends CryptoAPI {
    *
    * @param {nsIWindow} parentWindow: parent window, may be NULL
    * @param {Object} esvc: Enigmail service object
-   * @param {String } preferredPath: try to use specific path to locate tool (gpg)
+   * @param {String } preferredPath: try to use specific path to locate tool (not used for gpgme)
    */
   initialize(parentWindow, esvc, preferredPath) {
     EnigmailLog.DEBUG(`gpgme.js: initialize()\n`);
@@ -94,9 +95,10 @@ class GpgMECryptoAPI extends CryptoAPI {
       let r = this.sync(determineGpgVersion(this._gpgPath));
 
       if (EnigmailVersioning.lessThan(r.gpgVersion, MINIMUM_GPG_VERSION)) {
-        EnigmailLog.ERROR(`gpgme.js: found GnuPG version ${r.gpgVersion} does not meet minimum required version ${MINIMUM_GPG_VERSION}\n`);
+        EnigmailLog.ERROR(`gpgme.js: found GnuPG version ${r.gpgVersion} older than minimum version ${MINIMUM_GPG_VERSION}\n`);
 
-        throw new Error("GnuPG does not fulfil minimum required version");
+        EnigmailDialog.alert(parentWindow, EnigmailLocale.getString("oldGpgVersion20", [r.gpgVersion, MINIMUM_GPG_VERSION]));
+        throw Components.results.NS_ERROR_FAILURE;
       }
 
       this._gpgPath = r.gpgPath;
