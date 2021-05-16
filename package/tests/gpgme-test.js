@@ -395,7 +395,6 @@ test(withTestGpgHome(withEnigmail(asyncTest(async function testSignatures(esvc, 
   const gpgmeApi = getGpgMEApi();
   gpgmeApi.initialize(null, esvc, null);
 
-  gpgmeApi.initialize();
   let keyFile = do_get_file("resources/multi-uid.asc", false);
   let r = await gpgmeApi.importKeyFromFile(keyFile);
 
@@ -408,7 +407,7 @@ test(withTestGpgHome(withEnigmail(asyncTest(async function testSignatures(esvc, 
   Assert.equal(signedUids.length, 4);
   Assert.equal(signedUids[0].userId, "Unit Test <alice@example.invalid>");
   Assert.equal(signedUids[0].sigList.length, 2);
-  Assert.equal(signedUids[0].sigList[0].signerKeyId, "7F1568CB8997F7BA" );
+  Assert.equal(signedUids[0].sigList[0].signerKeyId, "7F1568CB8997F7BA");
   Assert.equal(signedUids[0].sigList[0].sigType, "x");
   Assert.equal(signedUids[0].sigList[0].createdTime, 1536940615);
   Assert.ok(signedUids[0].sigList[0].sigKnown);
@@ -416,6 +415,35 @@ test(withTestGpgHome(withEnigmail(asyncTest(async function testSignatures(esvc, 
   Assert.equal(signedUids[0].sigList[1].signerKeyId, "781617319CE311C4");
   Assert.equal(signedUids[0].sigList[1].sigKnown, false);
   Assert.equal(signedUids[0].sigList[1].createdTime, 1536940295);
+}))));
+
+test(withTestGpgHome(withEnigmail(asyncTest(async function testAttachment(esvc, window) {
+  const gpgmeApi = getGpgMEApi();
+  gpgmeApi.initialize(null, esvc, null);
+
+  const attachment = do_get_file("resources/attachment.txt", false);
+  const signature = do_get_file("resources/attachment.txt.asc", false);
+
+  try {
+    await gpgmeApi.verifyAttachment(attachment.path, signature.path);
+    Assert.ok(false, "Should not obtain a valid verification");
+  }
+  catch (err) {
+    Assert.assertContains(err, "Unverified signature - signed with unknown key");
+  }
+
+  let keyFile = do_get_file("resources/dev-strike.asc", false);
+  let r = await gpgmeApi.importKeyFromFile(keyFile);
+  Assert.equal(r.exitCode, 0);
+
+  try {
+    let result = await gpgmeApi.verifyAttachment(attachment.path, signature.path);
+    Assert.assertContains(result, 'Good signature from anonymous strike');
+    Assert.assertContains(result, 'Key ID: 0x65537E212DC19025AD38EDB2781617319CE311C');
+  }
+  catch (err) {
+    Assert.equal(err, "exception in verifyAttachment");
+  }
 }))));
 
 

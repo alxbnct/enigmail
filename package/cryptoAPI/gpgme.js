@@ -569,6 +569,13 @@ class GpgMECryptoAPI extends CryptoAPI {
    */
 
   async getFileName(byteData) {
+    let r = await this.decrypt(byteData, {
+      noOutput: true
+    });
+
+    if (r.exitCode === 0) {
+      return r.encryptedFileName;
+    }
     return null;
   }
 
@@ -586,7 +593,29 @@ class GpgMECryptoAPI extends CryptoAPI {
    */
 
   async verifyAttachment(filePath, sigPath) {
-    return null;
+    let dataFile = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
+    let sigFile = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
+    EnigmailFiles.initPath(dataFile, filePath);
+    EnigmailFiles.initPath(sigFile, sigPath);
+
+    if (!dataFile.exists()) {
+      throw new Error(`Data file ${filePath} does not exist`);
+    }
+    if (!sigFile.exists()) {
+      throw new Error(`Signature file ${sigPath} does not exist`);
+    }
+
+    let data = EnigmailFiles.readBinaryFile(dataFile);
+    let sig = EnigmailFiles.readBinaryFile(sigFile);
+
+    let r = await this.verifyMime(data, sig, null);
+    if (r.statusFlags & (EnigmailConstants.BAD_SIGNATURE | EnigmailConstants.UNVERIFIED_SIGNATURE)) {
+      throw r.errorMsg ? r.errorMsg : EnigmailLocale.getString("unverifiedSig") + " - " + EnigmailLocale.getString("msgSignedUnkownKey");
+    }
+
+    const detailArr = r.sigDetails.split(/ /);
+    const dateTime = EnigmailTime.getDateTime(detailArr[2], true, true);
+    return r.errorMsg + "\n" + EnigmailLocale.getString("keyAndSigDate", [r.keyId, dateTime]);
   }
 
   /**
