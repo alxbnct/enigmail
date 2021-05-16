@@ -163,7 +163,6 @@ class OpenPGPjsCryptoAPI extends CryptoAPI {
    * Export public key(s) as ASCII armored data
    *
    * @param {String}  fpr         Fingerprint(s), separate mutliple keys with spaces
-   * @param {Boolean} minimalKey  if true, reduce key(s) to minimum required
    *
    * @return {Object}:
    *   - {Number} exitCode:  result code (0: OK)
@@ -227,13 +226,15 @@ class OpenPGPjsCryptoAPI extends CryptoAPI {
    * @param {String} fpr  : a single FPR
    * @param {String} email: [optional] the email address of the desired user ID.
    *                        If the desired user ID cannot be found or is not valid, use the primary UID instead
+   * @param {Array<Number>} subkeyDates: [optional] remove subkeys that don't match sepcific creation Dates
    *
    * @return {Promise<Object>}:
    *    - exitCode (0 = success)
    *    - errorMsg (if exitCode != 0)
    *    - keyData: BASE64-encded string of key data
    */
-  async getMinimalPubKey(fpr, email) {
+  async getMinimalPubKey(fpr, email, subkeyDates) {
+    // subkeyDates are not needed/supported for OpenPGP.js
     return pgpjs_keyStore.readMinimalPubKey(fpr, email);
   }
 

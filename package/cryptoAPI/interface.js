@@ -103,33 +103,19 @@ class CryptoAPI {
    * @param {String} fpr  : a single FPR
    * @param {String} email: [optional] the email address of the desired user ID.
    *                        If the desired user ID cannot be found or is not valid, use the primary UID instead
+   * @param {Array<Number>} subkeyDates: [optional] remove subkeys that don't match sepcific creation Dates
    *
    * @return {Promise<Object>}:
    *    - exitCode (0 = success)
    *    - errorMsg (if exitCode != 0)
    *    - keyData: BASE64-encded string of key data
    */
-  async getMinimalPubKey(fpr, email) {
+  async getMinimalPubKey(fpr, email, subkeyDates) {
     return {
       exitCode: -1,
       errorMsg: "",
       keyData: ""
     };
-  }
-
-  /**
-   * Get a minimal stripped key containing only:
-   * - The public key
-   * - the primary UID + its self-signature
-   * - the newest valild encryption key + its signature packet
-   *
-   * @param {String} armoredKey: Key data (in OpenPGP armored format)
-   *
-   * @return {Promise<Uint8Array, or null>}
-   */
-
-  async getStrippedKey(armoredKey) {
-    return null;
   }
 
   /**
@@ -233,7 +219,6 @@ class CryptoAPI {
    * Export public key(s) as ASCII armored data
    *
    * @param {String}  keyId       Specification by fingerprint or keyID, separate mutliple keys with spaces
-   * @param {Boolean} minimalKey  if true, reduce key to minimum required
    *
    * @return {Object}:
    *   - {Number} exitCode:  result code (0: OK)

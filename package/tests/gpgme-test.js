@@ -12,7 +12,7 @@
 do_load_module("file://" + do_get_cwd().path + "/testHelper.js");
 /* global TestHelper: false */
 
-testing("cryptoAPI/gpgme.js"); /*global getGpgMEApi: false, EnigmailFiles: false, EnigmailConstants: false */
+testing("cryptoAPI/gpgme.js"); /*global getGpgMEApi: false, EnigmailFiles: false, EnigmailConstants: false, EnigmailExecution: false */
 const EnigmailArmor = ChromeUtils.import("chrome://enigmail/content/modules/armor.jsm").EnigmailArmor;
 
 test(function testGroups() {
@@ -339,3 +339,62 @@ test(withTestGpgHome(withEnigmail(asyncTest(async function testDeleteKey(esvc, w
   r = await gpgmeApi.deleteKeys(["0x65537E212DC19025AD38EDB2781617319CE311C4"], true);
   Assert.equal(r.exitCode, 0, "deletion of secret key");
 }))));
+
+
+test(withTestGpgHome(withEnigmail(asyncTest(async function testExportKey(esvc, window) {
+  const gpgmeApi = getGpgMEApi();
+  gpgmeApi.initialize(null, esvc, null);
+
+  const secKeyFile = do_get_file("resources/multi-uid.sec", false);
+  let r = await gpgmeApi.importKeyFromFile(secKeyFile, false, null);
+  Assert.equal(r.importSum, 1);
+
+  let keyData = (await gpgmeApi.extractPublicKey("0xADC49530CB6B132412D856107F1568CB8997F7BA")).keyData;
+  Assert.equal(keyData.substr(0, 36), "-----BEGIN PGP PUBLIC KEY BLOCK-----");
+
+  r = await testGpgKeyData(gpgmeApi, keyData);
+  Assert.equal(r.split(/[\r\n]+/).length, 18);
+  Assert.ok(r.includes("uid:-::::1536940615::680F6B5FD4CA9FDAB29407FAFBFA15339AB8A5A6::Unit Test <alice@example.invalid>"));
+  Assert.ok(r.includes("uid:-::::1536939111::A692D45B4B173E4E7E05BA8E17A2D7EDBD85DB76::test.bob@somewhere.invalid"));
+  Assert.ok(r.includes("uid:r::::::D707F090C6B85B86AE9A5168732CAEF3CA7D27FA::Error <revoked@example.org>"));
+  Assert.ok(r.includes("uat:-::::1536939071::A3549B6F0E55083DCC5B5E5890E2CD2A4D4143EB"));
+  Assert.ok(r.includes("sub:-:3072:1:BDB2B2394A9DDBFF:1536938954::::::e"));
+  Assert.ok(r.includes("sub:r:3072:1:8B20932A70419EA6:1536939152::::::s"));
+  Assert.ok(r.includes("sub:r:3072:1:0B24E9A73D088034:1536939191::::::e"));
+  Assert.ok(r.includes("sub:-:3072:1:2462FC183074D416:1537000928::::::s"));
+  Assert.ok(r.includes("sub:-:3072:1:BF99A9839B499171:1537000944::::::e"));
+
+  keyData = (await gpgmeApi.extractSecretKey("0xADC49530CB6B132412D856107F1568CB8997F7BA", true)).keyData;
+  Assert.equal(keyData.substr(0, 37), "-----BEGIN PGP PRIVATE KEY BLOCK-----");
+
+  r = await testGpgKeyData(gpgmeApi, keyData);
+  Assert.equal(r.split(/[\r\n]+/).length, 20);
+
+  Assert.ok(r.includes("sec:-:3072:1:7F1568CB8997F7BA:1536938954:::-:::scESC"));
+  Assert.ok(r.includes("uid:-::::1536940615::680F6B5FD4CA9FDAB29407FAFBFA15339AB8A5A6::Unit Test <alice@example.invalid>"));
+  Assert.ok(r.includes("uid:r::::::D707F090C6B85B86AE9A5168732CAEF3CA7D27FA::Error <revoked@example.org>") === false);
+  Assert.ok(r.includes("uat:-::::1536939071::A3549B6F0E55083DCC5B5E5890E2CD2A4D4143EB") === false);
+  Assert.ok(r.includes("ssb:-:3072:1:BDB2B2394A9DDBFF:1536938954::::::e"));
+  Assert.ok(r.includes("ssb:r:3072:1:8B20932A70419EA6:1536939152::::::s"));
+  Assert.ok(r.includes("ssb:r:3072:1:0B24E9A73D088034:1536939191::::::e"));
+  Assert.ok(r.includes("ssb:-:3072:1:2462FC183074D416:1537000928::::::s"));
+  Assert.ok(r.includes("ssb:-:3072:1:BF99A9839B499171:1537000944::::::e"));
+
+  keyData = (await gpgmeApi.getMinimalPubKey("0xADC49530CB6B132412D856107F1568CB8997F7BA", "test.bob@somewhere.invalid", [1536939152, 1536939191])).keyData;
+  Assert.equal(keyData.substr(0, 36), "mQGNBFub08oBDACmb04i4u8xUV1ADbnbN5l8");
+
+  r = await testGpgKeyData(gpgmeApi, atob(keyData));
+  Assert.equal(r.split(/[\r\n]+/).length, 8);
+  Assert.ok(r.includes("uid:-::::1536939111::A692D45B4B173E4E7E05BA8E17A2D7EDBD85DB76::test.bob@somewhere.invalid"));
+  Assert.ok(r.includes("uid:-::::1536940615::680F6B5FD4CA9FDAB29407FAFBFA15339AB8A5A6::Unit Test <alice@example.invalid>") === false);
+  Assert.ok(r.includes("sub:r:3072:1:8B20932A70419EA6:1536939152::::::s"));
+  Assert.ok(r.includes("sub:-:3072:1:2462FC183074D416:1537000928::::::s") === false);
+}))));
+
+
+async function testGpgKeyData(gpgmeApi, keyData) {
+  const importArgs = ["--no-default-keyring", "--no-tty", "--batch", "--no-verbose", "--with-fingerprint", "--with-colons", "--import-options", "import-show", "--dry-run", "--import"];
+  let r = await EnigmailExecution.execAsync(gpgmeApi._gpgPath, importArgs, keyData);
+
+  return r.stdoutData;
+}

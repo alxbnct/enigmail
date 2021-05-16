@@ -33,6 +33,7 @@ const EnigmailVersioning = ChromeUtils.import("chrome://enigmail/content/modules
 //const pgpjs_keys = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/pgpjs-keys.jsm").pgpjs_keys;
 
 const nsIWindowsRegKey = Ci.nsIWindowsRegKey;
+const MINIMUM_GPG_VERSION = "2.2.10";
 
 const VALIDITY_SYMBOL = {
   ultimate: "u",
@@ -91,6 +92,13 @@ class GpgMECryptoAPI extends CryptoAPI {
       if (!this._gpgPath) throw "GnuPG not available";
 
       let r = this.sync(determineGpgVersion(this._gpgPath));
+
+      if (EnigmailVersioning.lessThan(r.gpgVersion, MINIMUM_GPG_VERSION)) {
+        EnigmailLog.ERROR(`gpgme.js: found GnuPG version ${r.gpgVersion} does not meet minimum required version ${MINIMUM_GPG_VERSION}\n`);
+
+        throw new Error("GnuPG does not fulfil minimum required version");
+      }
+
       this._gpgPath = r.gpgPath;
       this._gpgVersion = r.gpgVersion;
     }
@@ -130,42 +138,6 @@ class GpgMECryptoAPI extends CryptoAPI {
    *            - {Boolean} sigKnown
    */
   async getKeySignatures(fpr, ignoreUnknownUid = false) {
-    return null;
-  }
-
-  /**
-   * Export the minimum key for the public key object:
-   * public key, user ID, newest encryption subkey
-   *
-   * @param {String} fpr  : a single FPR
-   * @param {String} email: [optional] the email address of the desired user ID.
-   *                        If the desired user ID cannot be found or is not valid, use the primary UID instead
-   *
-   * @return {Promise<Object>}:
-   *    - exitCode (0 = success)
-   *    - errorMsg (if exitCode != 0)
-   *    - keyData: BASE64-encded string of key data
-   */
-  async getMinimalPubKey(fpr, email) {
-    return {
-      exitCode: -1,
-      errorMsg: "",
-      keyData: ""
-    };
-  }
-
-  /**
-   * Get a minimal stripped key containing only:
-   * - The public key
-   * - the primary UID + its self-signature
-   * - the newest valild encryption key + its signature packet
-   *
-   * @param {String} armoredKey: Key data (in OpenPGP armored format)
-   *
-   * @return {Promise<Uint8Array, or null>}
-   */
-
-  async getStrippedKey(armoredKey) {
     return null;
   }
 
@@ -452,6 +424,24 @@ class GpgMECryptoAPI extends CryptoAPI {
   }
 
   /**
+   * Export the minimum key for the public key object:
+   * public key, user ID, newest encryption subkey
+   *
+   * @param {String} fpr  : a single FPR
+   * @param {String} email: [optional] the email address of the desired user ID.
+   *                        If the desired user ID cannot be found or is not valid, use the primary UID instead
+   * @param {Array<Number>} subkeyDates: [optional] remove subkeys with sepcific creation Dates
+   *
+   * @return {Promise<Object>}:
+   *    - exitCode (0 = success)
+   *    - errorMsg (if exitCode != 0)
+   *    - keyData: BASE64-encded string of key data
+   */
+  async getMinimalPubKey(fpr, email, subkeyDates) {
+    return exportKeyFromGnuPG(this._gpgPath, fpr, false, false, true, email, subkeyDates);
+  }
+
+  /**
    * Export secret key(s) as ASCII armored data
    *
    * @param {String}  keyId       Specification by fingerprint or keyID, separate mutliple keys with spaces
@@ -463,15 +453,14 @@ class GpgMECryptoAPI extends CryptoAPI {
    *   - {String} errorMsg:  error message in case exitCode !== 0
    */
 
-  async extractSecretKey(keyId, minimalKey) {
-    return null;
+  async extractSecretKey(keyId, minimalKey = false) {
+    return exportKeyFromGnuPG(this._gpgPath, keyId, true, true, minimalKey);
   }
 
   /**
    * Export public key(s) as ASCII armored data
    *
    * @param {String}  keyId       Specification by fingerprint or keyID, separate mutliple keys with spaces
-   * @param {Boolean} minimalKey  if true, reduce key to minimum required
    *
    * @return {Object}:
    *   - {Number} exitCode:  result code (0: OK)
@@ -480,7 +469,7 @@ class GpgMECryptoAPI extends CryptoAPI {
    */
 
   async extractPublicKey(keyId) {
-    return null;
+    return exportKeyFromGnuPG(this._gpgPath, keyId, false, true, false);
   }
 
   /**
@@ -1454,4 +1443,84 @@ function gpgUnescape(str) {
     i = str.search(/%../);
   }
   return str;
+}
+
+
+/**
+ * Export Keys from GnuPG
+ * @param {Object<nsIFile>} gpgPath: path to gpg executable
+ * @param {String} keyId: list of keys separated by space
+ * @param {Boolean} secretKey: if true, export secret key; if false export public key
+ * @param {Boolean} minimalKey: if true, export a minimal key
+ * @param {Boolean} asciiArmor: if true, export as ASCII armored data, otherwise as BASE64 binary data
+ * @param {String} email: [optional] if set, only consider UIDs that match the given email address
+ * @param {Array<Number>} subkeyDates: [optional] remove subkeys that don't match sepcific creation Dates
+ *
+ * @returns {Object}:
+ *   - {Number} exitCode:  result code (0: OK)
+ *   - {String} keyData:   ASCII armored key data material
+ *   - {String} errorMsg:  error message in case exitCode !== 0
+ */
+async function exportKeyFromGnuPG(gpgPath, keyId, secretKey = false, asciiArmor = true, minimalKey = false, email, subkeyDates) {
+  EnigmailLog.DEBUG(`gpgme.js: exportKeyFromGnuPG(${gpgPath}, ${keyId}, ${secretKey}, ${minimalKey})\n`);
+
+  let args = ["--no-verbose", "--status-fd", "2", "--batch", "--yes"],
+    exitCode = -1,
+    errorMsg = "";
+
+  if (asciiArmor) {
+    args.push("-a");
+  }
+
+  if (minimalKey) {
+    args.push("--export-options");
+    args.push("export-minimal,no-export-attributes");
+    args.push("--export-filter");
+    args.push("keep-uid=" + (email ? "mbox=" + email : "primary=1"));
+
+    // filter for specific subkeys
+    let dropSubkeyFilter = "usage!~e && usage!~s";
+
+    if (subkeyDates && subkeyDates.length > 0) {
+      dropSubkeyFilter = subkeyDates.map(x => `key_created!=${x}`).join(" && ");
+    }
+    args = args.concat([
+      "--export-filter", "drop-subkey=" + dropSubkeyFilter
+    ]);
+  }
+
+  if (secretKey) {
+    args.push("--export-secret-keys");
+  }
+  else {
+    args.push("--export");
+  }
+
+  if (keyId) {
+    args = args.concat(keyId.split(/[ ,\t]+/));
+  }
+
+  let res = await EnigmailExecution.execAsync(gpgPath, args, "");
+  exitCode = res.exitCode;
+
+  if (res.stdoutData) {
+    exitCode = 0;
+  }
+
+  if (exitCode !== 0) {
+    if (res.errorMsg) {
+      errorMsg = EnigmailFiles.formatCmdLine(gpgPath, args);
+      errorMsg += "\n" + res.errorMsg;
+    }
+  }
+
+  if (!asciiArmor) {
+    res.stdoutData = btoa(res.stdoutData);
+  }
+
+  return {
+    keyData: res.stdoutData,
+    exitCode: exitCode,
+    errorMsg: errorMsg
+  };
 }
