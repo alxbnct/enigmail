@@ -20,6 +20,7 @@ if (typeof CryptoAPI === "undefined") {
 /* eslint no-invalid-this: 0 */
 XPCOMUtils.defineLazyModuleGetter(this, "EnigmailKeyRing", "chrome://enigmail/content/modules/keyRing.jsm", "EnigmailKeyRing"); /* global EnigmailKeyRing: false */
 XPCOMUtils.defineLazyModuleGetter(this, "EnigmailDialog", "chrome://enigmail/content/modules/dialog.jsm", "EnigmailDialog"); /* global EnigmailDialog: false */
+XPCOMUtils.defineLazyModuleGetter(this, "EnigmailData", "chrome://enigmail/content/modules/data.jsm", "EnigmailData"); /* global EnigmailData: false */
 
 const EnigmailLog = ChromeUtils.import("chrome://enigmail/content/modules/log.jsm").EnigmailLog;
 const EnigmailExecution = ChromeUtils.import("chrome://enigmail/content/modules/execution.jsm").EnigmailExecution;
@@ -123,7 +124,7 @@ class GpgMECryptoAPI extends CryptoAPI {
   /**
    * Obtain signatures for a given set of key IDs.
    *
-   * @param {String}  fpr:            key fingerprint
+   * @param {String}  fpr:            key fingerprint. Separate multiple keys by spaces.
    * @param {Boolean} ignoreUnknownUid: if true, filter out unknown signer's UIDs
    *
    * @return {Promise<Array of Object>}
@@ -135,12 +136,74 @@ class GpgMECryptoAPI extends CryptoAPI {
    *     - {Array} sigList:
    *            - {String} userId
    *            - {String} created
+   *            - {Number} createdTime
    *            - {String} signerKeyId
    *            - {String} sigType
    *            - {Boolean} sigKnown
    */
   async getKeySignatures(fpr, ignoreUnknownUid = false) {
-    return null;
+    EnigmailLog.DEBUG(`gpgme.js: getKeySignatures(${fpr}, ${ignoreUnknownUid})\n`);
+    let cmdObj = {
+      "op": "keylist",
+      "sigs": true,
+      "keys": fpr.split(/[ ,]+/)
+    };
+
+    let keysObj = await this.execJsonCmd(cmdObj);
+    let signatureList = [];
+
+    if ("keys" in keysObj && keysObj.keys.length > 0) {
+      for (let key of keysObj.keys) {
+        for (let uid of key.userids) {
+          const sig = {
+            userId: EnigmailData.convertGpgToUnicode(uid.uid),
+            rawUserId: EnigmailData.convertGpgToUnicode(uid.uid),
+            keyId: key.subkeys[0].keyid,
+            fpr: key.fingerprint,
+            created: EnigmailTime.getDateTime(key.subkeys[0].timestamp, true, false),
+            sigList: []
+          };
+
+          for (let s of uid.signatures) {
+            let uid = s.name ? s.name : "";
+            let sigKnown = s.status === "Success";
+            if (sigKnown) {
+              if (s.email) {
+                if (uid.length > 0) {
+                  uid += " <" + s.email + ">";
+                }
+                else {
+                  uid = s.email;
+                }
+              }
+
+              if (s.comment.length > 0) {
+                if (uid.length > 0) {
+                  uid += "(" + s.comment + ")";
+                }
+                else {
+                  uid = s.comment;
+                }
+              }
+            }
+
+            if (sigKnown || ignoreUnknownUid) {
+              sig.sigList.push({
+                userId: EnigmailData.convertGpgToUnicode(uid),
+                created: EnigmailTime.getDateTime(s.timestamp, true, false),
+                createdTime: s.timestamp,
+                signerKeyId: s.keyid,
+                sigType: s.exportable ? "x" : "l",
+                sigKnown: sigKnown
+              });
+            }
+          }
+          signatureList.push(sig);
+        }
+      }
+    }
+
+    return signatureList;
   }
 
   /**
@@ -240,7 +303,7 @@ class GpgMECryptoAPI extends CryptoAPI {
       let rcpt = grp.keylist.split(/[,; ]+/);
       for (let r of rcpt) {
         grpObj.userIds.push({
-          userId: r,
+          userId: EnigmailData.convertGpgToUnicode(r),
           keyTrust: "q"
         });
       }
@@ -1326,11 +1389,11 @@ function createKeyObj(keyData) {
   }
 
   if (keyData.userids.length > 0) {
-    keyObj.userId = keyData.userids[0].uid;
+    keyObj.userId = EnigmailData.convertGpgToUnicode(keyData.userids[0].uid);
 
     for (let u of keyData.userids) {
       keyObj.userIds.push({
-        userId: u.uid,
+        userId: EnigmailData.convertGpgToUnicode(u.uid),
         keyTrust: VALIDITY_SYMBOL[u.validity],
         uidFpr: "0",
         type: "uid"

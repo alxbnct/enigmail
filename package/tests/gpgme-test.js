@@ -391,7 +391,37 @@ test(withTestGpgHome(withEnigmail(asyncTest(async function testExportKey(esvc, w
   Assert.ok(r.includes("sub:-:3072:1:2462FC183074D416:1537000928::::::s") === false);
 }))));
 
+test(withTestGpgHome(withEnigmail(asyncTest(async function testSignatures(esvc, window) {
+  const gpgmeApi = getGpgMEApi();
+  gpgmeApi.initialize(null, esvc, null);
 
+  gpgmeApi.initialize();
+  let keyFile = do_get_file("resources/multi-uid.asc", false);
+  let r = await gpgmeApi.importKeyFromFile(keyFile);
+
+  Assert.equal(r.exitCode, 0);
+  Assert.equal(r.importSum, 1);
+  Assert.equal(r.importedKeys[0], "ADC49530CB6B132412D856107F1568CB8997F7BA");
+
+  let signedUids = await gpgmeApi.getKeySignatures("ADC49530CB6B132412D856107F1568CB8997F7BA", true);
+
+  Assert.equal(signedUids.length, 4);
+  Assert.equal(signedUids[0].userId, "Unit Test <alice@example.invalid>");
+  Assert.equal(signedUids[0].sigList.length, 2);
+  Assert.equal(signedUids[0].sigList[0].signerKeyId, "7F1568CB8997F7BA" );
+  Assert.equal(signedUids[0].sigList[0].sigType, "x");
+  Assert.equal(signedUids[0].sigList[0].createdTime, 1536940615);
+  Assert.ok(signedUids[0].sigList[0].sigKnown);
+
+  Assert.equal(signedUids[0].sigList[1].signerKeyId, "781617319CE311C4");
+  Assert.equal(signedUids[0].sigList[1].sigKnown, false);
+  Assert.equal(signedUids[0].sigList[1].createdTime, 1536940295);
+}))));
+
+
+////////////////////////////////////////////////////////
+// Helper Functions
+////////////////////////////////////////////////////////
 async function testGpgKeyData(gpgmeApi, keyData) {
   const importArgs = ["--no-default-keyring", "--no-tty", "--batch", "--no-verbose", "--with-fingerprint", "--with-colons", "--import-options", "import-show", "--dry-run", "--import"];
   let r = await EnigmailExecution.execAsync(gpgmeApi._gpgPath, importArgs, keyData);

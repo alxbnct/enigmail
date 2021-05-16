@@ -76,7 +76,7 @@ class CryptoAPI {
   /**
    * Obtain signatures for a given set of key IDs.
    *
-   * @param {String}  fpr:            key fingerprint
+   * @param {String}  fpr:            key fingerprint. Separate multiple keys by spaces.
    * @param {Boolean} ignoreUnknownUid: if true, filter out unknown signer's UIDs
    *
    * @return {Promise<Array of Object>}

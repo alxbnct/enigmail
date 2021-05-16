@@ -344,7 +344,7 @@ async function getPhotoFileFromGnuPG(keyId, photoNumber) {
 /**
  * Return signatures for a given key list
  *
- * @param {String} gpgKeyList         Output from gpg such as produced by getKeySig()
+ * @param {String} gpgKeyList         Output from gpg such as produced by getKeySignatures()
  *                                    Only the first public key is processed!
  * @param {Boolean} ignoreUnknownUid  true if unknown signer's UIDs should be filtered out
  *
