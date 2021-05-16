@@ -459,7 +459,15 @@ var pgpjs_decrypt = {
       sig = msg.armor();
     }
 
-    return this.verifyDetached(data, sig, false);
+    let ret = await this.verifyDetached(data, sig, false);
+
+    if (ret.statusFlags & (EnigmailConstants.BAD_SIGNATURE | EnigmailConstants.UNVERIFIED_SIGNATURE)) {
+      throw ret.errorMsg ? ret.errorMsg : EnigmailLocale.getString("unverifiedSig") + " - " + EnigmailLocale.getString("msgSignedUnkownKey");
+    }
+
+    const detailArr = ret.sigDetails.split(/ /);
+    const dateTime = EnigmailTime.getDateTime(detailArr[2], true, true);
+    return ret.errorMsg + "\n" + EnigmailLocale.getString("keyAndSigDate", [ret.keyId, dateTime]);
   }
 };
 

@@ -196,14 +196,33 @@ iD8DBQE+yUcu4mZch0nhy8kRAuh/AKDM1Xc49BKVfJIFg/btWGfbF/pgcwCgw0Zk
     Assert.equal(result.statusFlags, EnigmailConstants.UNVERIFIED_SIGNATURE);
     Assert.equal(result.exitCode, 1);
     Assert.equal(result.decryptedData, "");
-
-
-    const attachmentFile = do_get_file("resources/attachment.txt", false);
-    const attachmentSig = do_get_file("resources/attachment.txt.asc", false);
-    result = await pgpjs_decrypt.verifyFile(attachmentFile.path, attachmentSig.path);
-    Assert.equal(result.statusFlags, EnigmailConstants.GOOD_SIGNATURE | EnigmailConstants.TRUSTED_IDENTITY);
   }
   catch (ex) {
     Assert.ok(false, "exception: " + ex.toString());
   }
+})));
+
+
+test(withTestGpgHome(asyncTest(async function testVerifyFile() {
+  await pgpjs_keyStore.init();
+
+  const attachmentFile = do_get_file("resources/attachment.txt", false);
+  const signatureFile = do_get_file("resources/attachment.txt.asc", false);
+  const pubKeyFile = do_get_file("resources/dev-strike.asc", false);
+
+  try {
+    await pgpjs_decrypt.verifyFile(attachmentFile.path, signatureFile.path);
+    Assert.ok(false, "Should not obtain a valid verification");
+  }
+  catch (err) {
+    Assert.assertContains(err, "Unverified signature - signed with unknown key");
+  }
+
+  let keyData = EnigmailFiles.readBinaryFile(pubKeyFile);
+  let result = await pgpjs_keyStore.writeKey(keyData);
+  Assert.equal(result.length, 1);
+
+  result = await pgpjs_decrypt.verifyFile(attachmentFile.path, signatureFile.path);
+  Assert.assertContains(result, 'Good signature from anonymous strike');
+  Assert.assertContains(result, 'Key ID: 0x65537E212DC19025AD38EDB2781617319CE311C');
 })));
