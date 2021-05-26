@@ -1,6 +1,4 @@
 <!ENTITY enigmail.label                   "Enigmail">
-<!ENTITY enigmail.pEp.label               "Enigmail/p≡p">
-<!ENTITY enigmail.autocrypt.label         "Autocrypt">
 
 <!ENTITY enigmail.keyUserId.label         "ID konta/użytkownika">
 <!ENTITY enigmail.keygenTitle.label       "Tworzenie klucza OpenPGP">
@@ -41,10 +39,6 @@
 
 <!ENTITY enigmail.protectHeadersPrefs.label    "Domyślnie zaszyfruj temat (tylko zaszyfrowana wiadomość PGP/MIME)">
 <!ENTITY enigmail.protectHeadersPrefs.tooltip  "Usuń temat i inne wrażliwe nagłówki z zaszyfrowanych wiadomości.">
-<!ENTITY enigmail.protectedSubjectText.label    "Tekst tematu dla ochrony zaszyfrowanych wiadomości">
-<!ENTITY enigmail.protectedSubjectText.tooltip  "Określ temat, który będzie widoczny publicznie zamiast prawdziwego tematu podczas wysyłania zaszyfrowanych wiadomości">
-<!ENTITY enigmail.protectedSubjectText.placeholder "Zaszyfrowana wiadomość">
-
 
 
 <!ENTITY enigmail.mime_parts_on_demand.label  "Pobieraj załączniki tylko po otwarciu (tylko IMAP)">
@@ -65,6 +59,11 @@
 
 <!ENTITY enigmail.pref.acSetupMessage.button "Rozpocznij konfigurację Autocrypt">
 
+<!ENTITY enigmail.pref.cryptoProvider.label  "Dostawca szyfrowania">
+<!ENTITY enigmail.pref.openpgpjs.label       "OpenPGP.js (część Enigmail, nie wymaga dodatkowego oprogramowania)">
+<!ENTITY enigmail.pref.gnupg.label           "GnuPG (wymaga ręcznej instalacji i konfiguracji)">
+<!ENTITY enigmail.pref.restartRequired.label "Zmiany zaczną działać po ponownym uruchomieniu aplikacji.">
+
 <!ENTITY enigmail.backupRestore.desc       "Eksportuj (kopia zapasowa) i przywróć swoje ustawienia Enigmail oraz swoje klucze OpenPGP.">
 
 <!ENTITY enigmail.basic.label            "Podstawowe">
@@ -83,25 +82,19 @@
 
 <!ENTITY enigmail.keyserver.label         "Serwer kluczy">
 <!ENTITY enigmail.keyserverDlg.label      "Wybierz serwer kluczy">
-<!ENTITY enigmail.keyservers.label        "Określ swoje serwery kluczy:">
-<!ENTITY enigmail.keyservers.sample2      "Przykład: pool.sks-keyservers.net, pgp.mit.edu">
-
-<!ENTITY enigmail.searchForKey.example    "Przykład: „Imię Nazwisko <uzytkownik@przyklad.com>”">
+<!ENTITY enigmail.searchForKey.example    "Przykład: „Imię Nazwisko &lt;uzytkownik@przyklad.com&gt;”">
 <!ENTITY enigmail.searchForKey.desc1	    "'Imię Nazwisko' wyszukuje wszystkie klucze zawierające 'Imię' LUB 'Nazwisko'">
 <!ENTITY enigmail.searchForKey.desc2      "'Imię+Nazwisko' wyszukuje wszystkie klucze zawierające 'Imię' ORAZ 'Nazwisko'">
 <!ENTITY enigmail.searchForKey.desc3      "'example.com' wyszukuje wszystkie klucze zawierające 'example.com', takie jak 'example@example.com'">
 <!ENTITY enigmail.searchForKey.label      "Szukaj klucza">
 
 <!ENTITY enigmail.doubleDashSeparator.label "Znaki „--” są separatorem podpisu">
-<!ENTITY enigmail.noHushMailSupport.label   "Oznaczaj adres e-mail znakami „<” i „>”">
+<!ENTITY enigmail.noHushMailSupport.label   "Oznaczaj adres e-mail znakami „&lt;” i „&gt;”">
 
 <!ENTITY enigmail.doubleDashSeparator.tooltip  "Dwa myślniki w linii oznaczają blok podpisu">
-<!ENTITY enigmail.noHushMailSupport.tooltip    "Używaj znaków „<” i „>” do oznaczania adresów e-mail dla GnuPG. Wyłącz tę funkcję, jeżeli adresaci posiadają stare klucze Hushmail.">
+<!ENTITY enigmail.noHushMailSupport.tooltip    "Używaj znaków „&lt;” i „&gt;” do oznaczania adresów e-mail dla GnuPG. Wyłącz tę funkcję, jeżeli adresaci posiadają stare klucze Hushmail.">
 <!ENTITY enigmail.mime_parts_on_demand.tooltip "Tę funkcję należy WYŁĄCZYĆ, jeżeli odbierasz wiadomości PGP/MIME z katalogów IMAP.">
 <!ENTITY enigmail.disableSMIMEui.tooltip       "Przycisk S/MIME nie będzie wyświetlany na pasku narzędzi okna tworzenia wiadomości">
-
-<!ENTITY enigmail.autoKeyServerSelection.label     "Zawsze używaj pierwszego serwera kluczy">
-<!ENTITY enigmail.autoKeyServerSelection.tooltip   "Ustaw pierwszy z listy serwer kluczy jako domyślny">
 
 <!ENTITY enigmail.decryptbutton.label     "Rozszyfruj">
 <!ENTITY enigmail.decryptbutton.tip       "Rozszyfrowuje lub weryfikuje wiadomość, używając Enigmail">
@@ -121,6 +114,8 @@
 
 <!ENTITY enigmail.decryptToFolder.label     "Rozszyfruj do katalogu">
 <!ENTITY enigmail.decryptToFolder.accesskey "y">
+
+<!ENTITY enigmail.browseButton.label              "Przeglądaj…">
 
 <!-- "recent" label for Folder selection submenu -->
 <!ENTITY enigmail.recent.label              "Ostatni">
@@ -167,21 +162,19 @@
 <!ENTITY enigmail.signedsend.label            "Podpisz wiadomość">
 <!ENTITY enigmail.encryptedsend.label         "Szyfruj wiadomość">
 
-<!ENTITY enigmail.pepEnableProtection.label         "Włącz ochronę">
-<!ENTITY enigmail.pepEnableProtection.accesskey     "E">
-
 <!ENTITY enigmail.pgpAccountSettings.label     "Opcje podpisu/szyfrowania…">
 <!ENTITY enigmail.sendOptionsMenu.label        "Opcje wysyłania…">
 <!ENTITY enigmail.defaultKeySelOpts.label      "Opcje wyboru kluczy…">
 <!ENTITY enigmail.usePgpMime.label             "Protokół: PGP/MIME">
-<!ENTITY enigmail.useInline.label              "Protokół: Inline PGP">
 <!ENTITY enigmail.useSmime.label               "Protokół: S/MIME">
 
 <!ENTITY enigmail.tempTrustAllKeys.label       "Ufaj kluczom wszystkich adresatów">
 <!ENTITY enigmail.undoencryption.label         "Cofnij szyfrowanie">
-<!ENTITY enigmail.attachkey.label              "Załącz klucz publiczny…">
+<!ENTITY enigmail.attachkey.label              "Załącz klucz publiczny...">
 <!ENTITY enigmail.attachmykey.label            "Załącz mój klucz publiczny">
+<!ENTITY enigmail.attachmykey.short.label      "Załącz klucz">
 <!ENTITY enigmail.protectHeaders.label         "Chroń temat">
+<!ENTITY enigmail.encryptDraft.label           "Zaszyfruj szkice">
 
 <!ENTITY enigmail.composemenu.accesskey        "g">
 
@@ -194,8 +187,8 @@
 <!ENTITY enigmail.defaultKeySelOpts.accesskey  "K">
 <!ENTITY enigmail.pgpAccountSettings.accesskey "E">
 <!ENTITY enigmail.usePgpMime.accesskey         "G">
-<!ENTITY enigmail.useInline.accesskey          "I">
 <!ENTITY enigmail.useSmime.accesskey           "S">
+<!ENTITY enigmail.encryptDraft.accesskey       "W">
 
 <!ENTITY enigmail.tempTrustAllKeys.accesskey   "T">
 <!ENTITY enigmail.undoencryption.accesskey     "c">
@@ -206,23 +199,28 @@
 
 <!-- account specific options -->
 <!ENTITY enigmail.defaultSigning.label            "Domyślnie podpisuj wiadomości">
+<!ENTITY enigmail.defaultSigning.accesskey        "G">
 <!ENTITY enigmail.defaultEncryption.label         "Domyślnie szyfruj wiadomości">
-<!ENTITY enigmail.usePGPMimeAlways.label          "Domyślnie używaj PGP/MIME">
+<!ENTITY enigmail.defaultEncryption.accesskey     "E">
 
 <!ENTITY enigmail.afterDefaultsAndRules.label     "Po zastosowaniu ustawień domyślnych i reguł:">
 <!ENTITY enigmail.finallySignEncrypted.label      "Podpisuj zaszyfrowane wiadomości">
+<!ENTITY enigmail.finallySignEncrypted.accesskey  "M">
 <!ENTITY enigmail.finallySignNotEncrypted.label   "Podpisuj niezaszyfrowane wiadomości">
+<!ENTITY enigmail.finallySignNotEncrypted.accesskey "N">
 
 <!ENTITY enigmail.autoEncryptDrafts.label         "Szyfruj szkice wiadomości przy zapisywaniu">
+<!ENTITY enigmail.autoEncryptDrafts.accesskey     "W">
 
 <!ENTITY enigmail.advancedPrefsButton.label       "Zaawansowane...">
 <!ENTITY enigmail.openpgpPrefsButton.label        "Ustawienia Enigmail...">
+<!ENTITY enigmail.openpgpPrefsButton.accesskey    "R">
 
 
 <!-- Sending Preferences -->
 
 <!ENTITY enigmail.SendingPrefs.label              "Ogólne ustawienia wysyłania">
-<!ENTITY enigmail.seeAccountSettings.label        "Zobacz również ustawienia Enigmail dla konta (Narzędzia -> Konfiguracja kont -> OpenPGP).">
+<!ENTITY enigmail.seeAccountSettings.label        "Zobacz również ustawienia Enigmail dla konta (Narzędzia -&gt; Konfiguracja kont -&gt; OpenPGP).">
 
 <!ENTITY enigmail.encryptionModelConvenient.label "Użyj domyślnych ustawień szyfrowania">
 <!ENTITY enigmail.encryptionModelManually.label   "Ręcznie skonfiguruj ustawienia szyfrowania">
@@ -268,15 +266,14 @@
 <!ENTITY enigmail.assignKeysManuallyAlways.tooltip    "Zawsze umożliwiaj ręczne przypisywanie kluczy.">
 <!ENTITY enigmail.defineRules.label               "Edytuj reguły…">
 
-
-<!ENTITY enigmail.wrapHtmlBeforeSend.label        "Zawijaj ponownie podpisany tekst HTML przed wysłaniem">
-<!ENTITY enigmail.wrapHtmlBeforeSend.tooltip      "Zmień układ tekstu, aby podpis pozostał nienaruszony.">
+<!ENTITY enigmail.keyservers.label                "Określ swoje serwery kluczy:">
+<!ENTITY enigmail.keyservers.sample2              "Przykład: pool.sks-keyservers.net, pgp.mit.edu">
+<!ENTITY enigmail.autoKeyServerSelection.label    "Zawsze używaj pierwszego serwera kluczy">
 <!ENTITY enigmail.autoKeyRetrieve.label           "Automatycznie pobieraj klucze do weryfikacji podpisów">
-<!ENTITY enigmail.autoKeyRetrieve2.label          "z następujących serwerów kluczy:">
 <!ENTITY enigmail.resetRememberedValues.label     "Przywróć ostrzeżenia">
 <!ENTITY enigmail.resetRememberedValues.tooltip   "Włącza ponownie wyświetlanie wszystkich wcześniej wyłączonych okien z ostrzeżeniami i pytaniami">
 
-<!ENTITY enigmail.keygen.desc "<a class='enigmailStrong'>Uwaga! Tworzenie klucza może potrwać kilka minut.</a> Nie zamykaj programu w trakcie działania generatora. Aktywne używanie przeglądarki lub wykonywanie intensywnych operacji dyskowych podczas tworzenia klucza przyspieszy proces. Koniec procesu zostanie zasygnalizowany odpowiednim komunikatem.">
+<!ENTITY enigmail.keygen.desc "&lt;a class='enigmailStrong'&gt;Uwaga! Tworzenie klucza może potrwać kilka minut.&lt;/a&gt; Nie zamykaj programu w trakcie działania generatora. Aktywne używanie przeglądarki lub wykonywanie intensywnych operacji dyskowych podczas tworzenia klucza przyspieszy proces. Koniec procesu zostanie zasygnalizowany odpowiednim komunikatem.">
 
 <!ENTITY enigmail.userSelectionList.label           "Lista kluczy Enigmail">
 <!ENTITY enigmail.usersNotFound.label               "Adresaci nieprawidłowi, niezaufani lub nie istnieją">
@@ -295,27 +292,9 @@
 <!ENTITY enigmail.refreshKeys.label                 "Odśwież listę kluczy">
 <!ENTITY enigmail.refreshKeys.accesskey             "O">
 <!ENTITY enigmail.send.label                        "Wyślij">
+<!ENTITY enigmail.send.accesskey                    "N">
 <!ENTITY enigmail.perRecipientsOption.label         "Utwórz reguły dla adresata">
-
-<!ENTITY enigmail.enigmailAttachDesc.label          "Ta wiadomość zawiera załączniki. W jaki sposób chcesz zaszyfrować/podpisać załączone pliki?">
-<!ENTITY enigmail.enigEncryptAttachNone.label           "Szyfruj/podpisz tylko tekst wiadomości, ale nie załączniki">
-<!ENTITY enigmail.enigAttachNoneSign.label              "Podpisz treść wiadomości, ale nie załączniki">
-<!ENTITY enigmail.enigAttachNoneEncrypt.label           "Zaszyfruj treść wiadomości, ale nie załączniki">
-<!ENTITY enigmail.enigAttachNoneEncryptAndSign.label    "Zaszyfruj i podpisz treść wiadomości, ale nie załączniki">
-<!ENTITY enigmail.enigEncryptAttachInline.label         "Szyfruj/podpisz każdy załącznik oddzielnie i wyślij wiadomość, używając PGP/Inline">
-<!ENTITY enigmail.enigAttachInlineSign.label            "Podpisz każdy załącznik oddzielnie i wyślij używając inline PGP">
-<!ENTITY enigmail.enigAttachInlineEncrypt.label         "Szyfruj każdy załącznik oddzielnie i wyślij, używając PGP/Inline">
-<!ENTITY enigmail.enigAttachInlineEncryptAndSign.label  "Szyfruj i podpisz każdy załącznik oddzielnie i wyślij, używając inline PGP">
-<!ENTITY enigmail.enigEncryptAttachPgpMime.label        "Szyfruj/podpisz wiadomość jako całość i wyślij, używając PGP/MIME">
-<!ENTITY enigmail.enigAttachPgpMimeSign.label           "Podpisz tą wiadomość i wyślij używając PGP/MIME">
-<!ENTITY enigmail.enigAttachPgpMimeEncrypt.label        "Zaszyfruj tą wiadomość i wyślij, używając PGP/MIME">
-<!ENTITY enigmail.enigAttachPgpMimeEncryptAndSign.label "Zaszyfruj i podpisz tą wiadomość, i wyślij używając PGP/MIME">
-<!ENTITY enigmail.enigEncryptAttachDontEncryptMsg.label        "Nie szyfruj/podpisuj tej wiadomości">
-<!ENTITY enigmail.enigAttachDontEncryptMsgSign.label           "Nie podpisuj tej wiadomości">
-<!ENTITY enigmail.enigAttachDontEncryptMsgEncrypt.label        "Nie szyfruj tej wiadomości">
-<!ENTITY enigmail.enigAttachDontEncryptMsgEncryptAndSign.label "Nie szyfruj i nie podpisuj tej wiadomości">
-<!ENTITY enigmail.encryptAttachSkipDlg.label        "Używaj wybranej metody dla wszystkich przyszłych załączników">
-
+<!ENTITY enigmail.perRecipientsOption.accesskey     "U">
 
 <!ENTITY enigmail.ctxDecryptOpen.label              "Rozszyfruj i otwórz">
 <!ENTITY enigmail.ctxDecryptSave.label              "Rozszyfruj i zapisz jako…">
@@ -336,11 +315,18 @@
 <!ENTITY enigmail.amPrefTitle.label                 "Opcje podpisu/szyfrowania…">
 <!ENTITY enigmail.amPrefDesc.label                  "Szyfrowanie i podpisywanie wiadomości za pomocą protokołu OpenPGP (RFC 2440). Do poprawnego działania wymagane jest zainstalowanie programu GnuPG (gpg).">
 <!ENTITY enigmail.amPrefEnablePgp.label             "Włącz obsługę OpenPGP dla tej tożsamości">
+<!ENTITY enigmail.amPrefEnablePgp.accesskey         "O">
 <!ENTITY enigmail.amPrefUseFromAddr.label           "Użyj adresu e-mail tej tożsamości do identyfikacji klucza OpenPGP">
+<!ENTITY enigmail.amPrefUseFromAddr.accesskey       "A">
 <!ENTITY enigmail.amPrefUseKeyId.label              "Wybierz ID klucza OpenPGP dla tej tożsamości (np. 0x1234ABCD):">
+<!ENTITY enigmail.amPrefUseKeyId.accesskey          "U">
 <!ENTITY enigmail.amPrefSelectKey.label             "Wybierz klucz">
+<!ENTITY enigmail.amPrefSelectKey.accesskey         "S">
 <!ENTITY enigmail.amPrefMsgComp.label               "Tworzenie wiadomości">
+<!ENTITY enigmail.amPrefMsgComp.accesskey           "U">
 <!ENTITY enigmail.amPrefDefaultEncrypt.label        "Domyślne ustawienia dla tworzonych wiadomości">
+<!ENTITY enigmail.amPrefAutocrypt.label             "Autocrypt">
+<!ENTITY enigmail.amPrefAutocrypt.accesskey         "Y">
 <!ENTITY enigmail.encryptionDlg.label               "Enigmail – Ustawienia szyfrowania i podpisu">
 <!ENTITY enigmail.encDlgProtocol.label              "Standard szyfrowania/podpisywania">
 <!ENTITY enigmail.encDlgEncrypt.label               "Szyfruj wiadomość">
@@ -355,18 +341,17 @@
 <!ENTITY enigmail.encDlgSMime.accesskey             "D">
 <!ENTITY enigmail.encDlgReset.label                 "Przywróć domyślne">
 <!ENTITY enigmail.encDlgReset.accesskey             "R">
-<!ENTITY enigmail.amPrefPgpHeader.label             "Dodawaj nagłówek „OpenPGP” do wysyłanych wiadomości">
-<!ENTITY enigmail.amPrefPgpHeader.id.label          "Wstaw ID klucza OpenPGP">
-<!ENTITY enigmail.amPrefPgpHeader.url.label         "Wstaw URL do pobierania klucza:">
 <!ENTITY enigmail.amPrefMimePreferProto.label       "Jeśli możliwe jest szyfrowanie zarówno za pomocą Enigmail, jak i S/MIME, wtedy:">
 <!ENTITY enigmail.amPrefMimePreferEnigmail.label    "Preferuj Enigmail (OpenPGP)">
+<!ENTITY enigmail.amPrefMimePreferEnigmail.accesskey "P">
 <!ENTITY enigmail.amPrefMimePreferSMime.label       "Preferuj S/MIME">
+<!ENTITY enigmail.amPrefMimePreferSMime.accesskey   "I">
 
 <!ENTITY enigmail.progressText.label               "Postęp:">
 
 <!ENTITY enigmail.openPgpSecurity.label            "OpenPGP">
 
-<!ENTITY enigmail.pgpSecurityInfo.label            "Informacje Enigmail…">
+<!ENTITY enigmail.pgpSecurityInfo.label            "Informacja Enigmail...">
 <!ENTITY enigmail.copySecurityInfo.label           "Kopiuj informacje Enigmail">
 <!ENTITY enigmail.showPhoto.label                  "Wyświetl identyfikator zdjęcia">
 <!ENTITY enigmail.photoViewer.title                "Przeglądarka zdjęć">
@@ -381,21 +366,13 @@
 
 <!ENTITY enigmail.singleRcptSettings.label          "Enigmail – Ustawienia adresata">
 
-<!ENTITY enigmail.compose.excesslength.label        "W twojej wiadomości e-mail są bardzo długie wiersze. To może doprowadzić do nieprawidłowych podpisów.">
-<!ENTITY enigmail.compose.excesslength_action.label "Wybierz czynność">
-<!ENTITY enigmail.wrapSelectionList.label           "Wybierz zawijanie">
-<!ENTITY enigmail.compose.wrap_radio.label          "Zawijaj automatycznie (dobry podpis, ale może źle wyglądać)">
-<!ENTITY enigmail.compose.sendasis_radio.label      "Wyślij jak jest (z ryzykiem błędnego podpisu)">
-<!ENTITY enigmail.compose.use_mime_radio.label      "Używaj PGP/MIME (dobry podpis, ale niektórzy odbiorcy nie będą w stanie odszyfrować)">
-<!ENTITY enigmail.compose.editmanually.label        "Edytuj ręcznie">
-
-<!ENTITY enigmail.selKeysButton.label               "Wybierz klucze…">
+<!ENTITY enigmail.selKeysButton.label               "Wybierz klucz(e)…">
 <!ENTITY enigmail.action.label                      "Czynność">
 <!ENTITY enigmail.nextRule.label                    "Przejdź do następnej reguły pasującej do adresu">
 <!ENTITY enigmail.nextAddress.label                 "Nie sprawdzaj kolejnych reguł pasujących do adresu">
 <!ENTITY enigmail.useKeys.label                     "Użyj następujących kluczy OpenPGP:">
 <!ENTITY enigmail.selKeysButton.accesskey           "W">
-<!ENTITY enigmail.setDefaultsFor.label              "Wysyłając wiadomości włącz…">
+<!ENTITY enigmail.setDefaultsFor.label              "Domyślne dla...">
 <!ENTITY enigmail.encryption.label                  "Szyfrowanie">
 <!ENTITY enigmail.signing.label                     "Podpisywanie">
 <!ENTITY enigmail.never.label                       "Nigdy">
@@ -403,7 +380,7 @@
 <!ENTITY enigmail.maybe.label                       "Tak, jeśli zaznaczono taką opcję tworzenia wiadomości">
 <!ENTITY enigmail.singleRcptSettings.desc           "(Uwaga: w przypadku konfliktów, „Nigdy” ma pierwszeństwo przed „Zawsze”)">
 <!ENTITY enigmail.ruleEmail.label                   "Określ reguły Enigmail dla">
-<!ENTITY enigmail.ruleEmail.tooltip                 "Należy wpisać tylko sam adres e-mail, bez nazwy adresata Np. wpis „Jan Kowalski <jakis.adres@poczta.pl>” jest nieprawidłowy">
+<!ENTITY enigmail.ruleEmail.tooltip                 "Należy wpisać tylko sam adres e-mail, bez nazwy adresata Np. wpis „Jan Kowalski &lt;jakis.adres@poczta.pl&gt;” jest nieprawidłowy">
 <!ENTITY enigmail.sepratationDesc.label             "(Przy wpisywaniu kilku adresów, należy oddzielić je spacjami)">
 <!ENTITY enigmail.matchDescStart.label              "Zastosuj regułę, gdy adresat">
 <!ENTITY enigmail.matchDescEnd.label                "jeden z powyższych adresów">
@@ -429,6 +406,8 @@
 <!ENTITY enigmail.moveDown.label                    "Przesuń niżej">
 <!ENTITY enigmail.moveDown.accesskey                "N">
 <!ENTITY enigmail.searchRule.label                  "Pokaż reguły, których adres e-mail zawiera:">
+<!ENTITY enigmail.rules.displayAutocrypt.label      "Pokaż reguły utworzone przez Autocrypt">
+<!ENTITY enigmail.rules.displayAutocrypt.accesskey  "S">
 <!ENTITY enigmail.clearSearch.label                 "Wyczyść">
 <!ENTITY enigmail.clearSearch.accesskey             "c">
 
@@ -444,13 +423,8 @@
 <!ENTITY enigmail.sKeyDlg.signKey.label            "Klucz do podpisu:">
 <!ENTITY enigmail.sKeyDlg.fingerprint.label        "Odcisk klucza:">
 <!ENTITY enigmail.sKeyDlg.signWithKey.label        "Klucz podpisujący:">
+<!ENTITY enigmail.sKeyDlg.signUids.label           "Podpisz następujący identyfikator użytkownika:">
 <!ENTITY enigmail.sKeyDlg.ownKeyTrust.label        "Uwaga: twoje własne klucze wyświetlą się tutaj, jeśli ustawisz zaufanie do właściciela kluczy na absolutne.">
-<!ENTITY enigmail.sKeyDlg.checked.label            "Jak dokładnie sprawdzono, czy klucz który chcesz podpisać należy do osoby wymienionej powyżej?">
-<!ENTITY enigmail.sKeyDlg.noAnswer.label           "Nie odpowiem na to pytanie">
-<!ENTITY enigmail.sKeyDlg.notChecked.label         "Nie sprawdzono w ogóle">
-<!ENTITY enigmail.sKeyDlg.casualCheck.label        "Sprawdzono pobieżnie">
-<!ENTITY enigmail.sKeyDlg.carefulCheck.label       "Sprawdzono bardzo dokładnie">
-<!ENTITY enigmail.sKeyDlg.createLocal.label        "Podpis prywatny (nieeksportowalny)">
 
 <!ENTITY enigmail.addUidDlg.title                  "Enigmail – Dodawanie ID użytkownika">
 <!ENTITY enigmail.addUidDlg.name.label             "Nazwa">
@@ -459,7 +433,6 @@
 <!ENTITY enigmail.keyTrust.title                   "Enigmail – Ustawianie poziomu zaufania do właściciela">
 <!ENTITY enigmail.keyTrust.trustKey.label          "Wybrany klucz:">
 <!ENTITY enigmail.keyTrust.trustLevel.label        "Jak bardzo ufasz temu użytkownikowi?">
-<!ENTITY enigmail.keyTrust.trustLevel.tooltip      "Aby uzyskać więcej informacji o poziomach zaufania kluczy, odwiedź: https://gpgtools.tenderapp.com/kb/faq/what-is-ownertrust-trust-levels-explained">
 <!ENTITY enigmail.keyTrust.dontKnow.label          "Nieznane (jeszcze nie podano)">
 <!ENTITY enigmail.keyTrust.noTrust.label           "Niegodny zaufania (Niegodny zaufania do poprawnego podpisywania kluczy)">
 <!ENTITY enigmail.keyTrust.marginalTrust.label     "Mam ograniczone zaufanie">
@@ -527,7 +500,6 @@
 <!ENTITY enigmail.keyMan.calcTrust.label           "Ważność klucza">
 <!ENTITY enigmail.keyMan.ownerTrust.label          "Zaufanie właściciela">
 <!ENTITY enigmail.keyMan.fingerprint.label         "Odcisk klucza">
-<!ENTITY enigmail.keyMan.pEpBlacklisted.label      "Czarna lista">
 <!ENTITY enigmail.keyMan.selectAll.label           "Zaznacz wszystkie klucze">
 <!ENTITY enigmail.keyMan.addToPRRule.label         "Dodaj do reguły dla adresata">
 <!ENTITY enigmail.keyMan.emptyTree.tooltip         "Wprowadź wzorzec wyszukiwania w polu powyżej">
@@ -535,6 +507,7 @@
 <!ENTITY enigmail.keyMan.pleaseWait.tooltip        "Proszę czekać. Trwa wczytywanie kluczy…">
 
 <!ENTITY enigmail.keyMan.filter.label              "Wyszukaj klucze">
+<!ENTITY enigmail.keyMan.filter.accesskey          "S">
 
 <!ENTITY enigmail.keyMan.close.accesskey             "Z">
 <!ENTITY enigmail.keyMan.generate.accesskey          "N">
@@ -605,6 +578,7 @@
 <!ENTITY enigmail.keyDetails.trustStatus.label       "Ufasz certyfikatom">
 <!ENTITY enigmail.keyDetails.keyValidity.label       "Ważność">
 <!ENTITY enigmail.keyDetails.alsoKnown.label         "Także znany jako">
+<!ENTITY enigmail.keyDetails.copyFpr.tooltip         "Kopiuj odcisk klucza do schowka">
 
 <!ENTITY enigmail.cardDetails.title                  "Szczegóły karty SmartCard">
 <!ENTITY enigmail.cardDetails.cardMenu.label         "SmartCard">
@@ -642,7 +616,7 @@
 
 <!ENTITY enigmail.genCardKey.title                   "Tworzenie klucza OpenPGP">
 <!ENTITY enigmail.genCardKey.backupKey.label         "Zapisz kopię klucza poza kartą">
-<!ENTITY enigmail.genCardKey.desc                    "<a class='enigmailStrong'>Uwaga! Tworzenie klucza może potrwać kilka minut.</a> Nie zamykaj programu w trakcie działania generatora. Koniec procesu zostanie zasygnalizowany odpowiednim komunikatem.">
+<!ENTITY enigmail.genCardKey.desc                    "&lt;a class='enigmailStrong'&gt;Uwaga! Tworzenie klucza może potrwać kilka minut.&lt;/a&gt; Nie zamykaj programu w trakcie działania generatora. Koniec procesu zostanie zasygnalizowany odpowiednim komunikatem.">
 
 <!ENTITY enigmail.cardPin.title                      "Zmień PIN karty SmartCard">
 <!ENTITY enigmail.cardPin.action.label               "Wybierz czynność">
@@ -661,32 +635,20 @@
 <!ENTITY enigmail.setupWiz.pgIntro.desc              "Wygląda na to, że Enigmail został uruchomiony przez Ciebie po raz pierwszy na tym komputerze.
                                                       Aby móc używać Enigmail, musisz najpierw odpowiednio go skonfigurować.
                                                       Ten asystent przeprowadzi Cię przez proces konfiguracji.">
-<!-- wizard: install GnuPG step -->
-<!ENTITY enigmail.setupWiz.pgInstall.desc            "Aby używać Enigmail, wymagane jest GnuPG jako dodatkowy komponent służący działaniom kryptograficznym. Niestety asystent nie znalazł pliku wykonywalnego GnuPG.">
-<!ENTITY enigmail.setupWiz.pgInstall.installDesc1    "Enigmail może pobrać GnuPG oraz uruchomić instalator.
-Jeśli wyrażasz zgodę, kliknij przycisk „Zainstaluj GnuPG”, aby pobrać i zainstalować GnuPG.">
-<!ENTITY enigmail.setupWiz.pgInstall.installDesc2    "Jeśli już zainstalowano GnuPG, użyj przycisku „Przeglądaj”, aby ręcznie ustawić ścieżkę do GnuPG.">
 
-<!ENTITY enigmail.setupWiz.pgInstall.locateDesc      "Zlokalizuj GnuPG, naciskając przycisk Przeglądaj…">
-<!ENTITY enigmail.setupWiz.pgInstall.installButton   "Zainstaluj GnuPG…">
-<!ENTITY enigmail.setupWiz.pgInstall.locateButton    "Przeglądaj…">
-<!ENTITY enigmail.setupWiz.pgInstall.downloadLabel   "Pobieranie GnuPG…">
-<!ENTITY enigmail.setupWiz.pgInstall.installLabel    "Uruchamianie instalatora. Wykonuj czynności sugerowane przez asystenta instalacji GnuPG.">
-
-<!ENTITY enigmail.setupWiz.searchingGnuPG            "Wyszukiwanie GnuPG…">
+<!ENTITY enigmail.setupWiz.insepctingEnv             "Sprawdzanie twojego środowiska...">
+<!ENTITY enigmail.setupWiz.usingGnuPG                "Znaleziono użyteczną konfigurację GnuPG">
+<!ENTITY enigmail.setupWiz.usingOpenpgpJS            "Użyje wbudowanego silnika szyfrowania Enigmail">
 <!ENTITY enigmail.setupWiz.checkingSetup             "Sprawdzanie twojej obecnej konfiguracji...">
 <!ENTITY enigmail.setupWiz.startSetupButton          "Rozpocznij konfigurację">
-<!ENTITY enigmail.setupWiz.usingPepMode              "Wygląda na to, że używasz Pretty Easy Privacy (p≡p).">
-<!ENTITY enigmail.setupWiz.synchronizeWithPep        "">
-<!ENTITY enigmail.setupWiz.useImportKeys             "">
 <!ENTITY enigmail.setupWiz.existingEncryptedMsg      "">
 <!ENTITY enigmail.setupWiz.existingKeysFound         "">
 <!ENTITY enigmail.setupWiz.applyExistingKeysBtn      "Zastosuj moje klucze">
 <!ENTITY enigmail.setupWiz.rescanInboxBtn            "Przeskanuj ponownie skrzynkę odbiorczą">
 <!ENTITY enigmail.setupWiz.importKeysBtn             "Importuj klucze">
 
-<!ENTITY enigmail.advancedIdentityDlg.title          "Zaawansowane ustawienia tożsamości Enigmail">
 <!ENTITY enigmail.amPrefPgp.sendKeyWithMsg.label     "Dołącz mój klucz publiczny do wiadomości">
+<!ENTITY enigmail.amPrefPgp.sendKeyWithMsg.accesskey "K">
 
 <!ENTITY enigmail.addPhoto.question.label            "Czy chcesz dodać poniższy obrazek do tego klucza?">
 <!ENTITY enigmail.addPhoto.title                     "Dodaj zdjęcie do klucza">
@@ -700,6 +662,7 @@ Jeśli wyrażasz zgodę, kliknij przycisk „Zainstaluj GnuPG”, aby pobrać i 
 <!ENTITY enigmail.savelogfile.label                   "Zapisz plik dziennika...">
 
 <!ENTITY enigmail.filterEditor.moveError.label       "">
+<!ENTITY enigmail.filterEditor.encryptToKey.label    "Klucz:">
 
 <!-- Export wizard -->
 <!ENTITY enigmail.exportWiz.title                    "Eksportuj swoje ustawienia Enigmail">
@@ -716,52 +679,10 @@ na nowy komputer. Odbywa się to w dwóch krokach:">
                                                       Thunderbirda i wywołaj Asystenta konfiguracji z menu Enigmail.">
 <!ENTITY enigmail.exportWiz.pgExport.failed          "Podczas eksportowania pojawił się błąd. Ustawienia nie mogły zostać wyeksportowane.">
 
-<!ENTITY enigmail.privacyPprefPane.juniorMode         "Tryb Junior w Enigmail">
-<!ENTITY enigmail.privacyPprefPane.juniorModeAuto     "Zadecyduj automatycznie czy używać Trybu Junior.">
-<!ENTITY enigmail.privacyPprefPane.juniorModeForceOff "Wymuś używanie S/MIME i Enigmail">
-<!ENTITY enigmail.privacyPprefPane.juniorModeForceOn  "Wymuś używanie p≡p (Pretty Easy Privacy)">
-
-<!ENTITY enigmail.pEp.verifyTrustwords.label          "Handshake p≡p">
-<!ENTITY enigmail.pEp.verifyTrustwords.accesskey      "o">
-<!ENTITY enigmail.pEp.revokeTrust.label               "Anuluj Zaufanie p≡p">
-<!ENTITY enigmail.messeneger.pEpIcon.tootlip          "Ta wiadomość została zaszyfrowana przez p≡p. Kliknij na ikonkę, aby zobaczyć szczegóły.">
-
-<!ENTITY enigmail.pEp.trustWordsDlg.title             "Zweryfikuj Słowa Zaufane p≡p">
-<!ENTITY enigmail.pEp.trustWordsDlg.overallDesc       "Poproś swojego korespondenta o przeczytanie swoich Słów Zaufanych osobiście lub przez telefon. Powinny być takie same jak poniżej.">
-<!ENTITY enigmail.pEp.trustWordsDlg.keySyncDesc       "Zaraz dodasz urządzenie do grupy urządzeń p≡p. Potwierdź weryfikując następujące Słowa Zaufane.">
-<!ENTITY enigmail.pEp.trustWordsDlg.myFingerprint     "Odcisk mojego klucza:">
-<!ENTITY enigmail.pEp.trustWordsDlg.trustwordsShort   "Słowa Zaufane">
-<!ENTITY enigmail.pEp.trustWordsDlg.trustwordsLong    "Długie Słowa Zaufane">
-<!ENTITY enigmail.pEp.trustWordsDlg.fingerprint       "Odcisk">
-
-<!ENTITY enigmail.pEp.trustWordsDlg.btnVerified       "Potwierdź Słowa Zaufane">
-<!ENTITY enigmail.pEp.trustWordsDlg.btnMistrust       "Błędne Słowa Zaufane/Klucz nie godny zaufania">
-<!ENTITY enigmail.pEp.privacyStatus.label             "Status prywatności:">
-<!ENTITY enigmail.pEp.composestatus.label             "Nieznany">
-
-<!ENTITY enigmail.pepHandshake.SuggestionTitle       "Sugestia p≡p">
-<!ENTITY enigmail.pepHandshake.explanation           "Wyjaśnienie">
-
-<!ENTITY enigmail.pepPrepHandshake.desc              "Wczytywanie danych, proszę czekać...">
-
-<!ENTITY enigmail.pepPref.window.title               "Ustawienia Enigmail/p≡p">
-<!ENTITY enigmail.pepPref.accountTab.label           "Konto">
-<!ENTITY enigmail.pepPref.compatTab.label            "Zgodność">
-<!ENTITY enigmail.pepPref.aboutTab.label             "Informacje">
-<!ENTITY enigmail.pepPref.accountSecurity.desc       "Bezpieczeństwo konta">
-<!ENTITY enigmail.pepPref.storeSecurely.title        "Zapisz wiadomości bezpiecznie dla tych kont">
-<!ENTITY enigmail.pepPref.storeSecurely.label        "Bezpieczne zapisywanie wiadomości">
-<!ENTITY enigmail.pepPref.enableEncryption.label     "Włącz ochronę prywatności">
-<!ENTITY enigmail.pepPref.passiveMode.label          "Dołącz mój klucz do wysyłanych wiadomości">
-<!ENTITY enigmail.pepPref.protectedSubject.label     "Włącz ochronę tematów wiadomości">
-<!ENTITY enigmail.pepPref.warnReducedSecurity.label  "Pokazuj ostrzeżenie, jeśli wiadomość straciła zabezpieczenie w wyniku odpowiedzi lub przekazania jej dalej.">
-<!ENTITY enigmail.pepPref.openpgpCompatibility.label "Zgodność OpenPGP">
-<!ENTITY enigmail.pepPref.autoKeyLookup.label        "Automatycznie wyszukuj klucze na serwerze">
-<!ENTITY enigmail.pepPref.credits.label              "Zasługi">
-<!ENTITY enigmail.pepPref.thanksTo.label             "Podziękowania dla">
-
 <!ENTITY enigmail.acPreferEncrypt.label              "Preferuj zaszyfrowane e-maile od osób, z którymi wymieniasz pocztę elektroniczną">
+<!ENTITY enigmail.acPreferEncrypt.accesskey          "P">
 <!ENTITY enigmail.enableAutocrypt.label              "Włącz Autocrypt">
+<!ENTITY enigmail.enableAutocrypt.accesskey          "E">
 
 <!ENTITY enigmail.acSetupPasswd.dlgTitle             "Kod konfiguracyjny Autocrypt">
 <!ENTITY enigmail.acSetupPasswd.password             "Kod konfiguracyjny:">
@@ -781,6 +702,13 @@ na nowy komputer. Odbywa się to w dwóch krokach:">
 <!ENTITY enigmail.importSetup.topDesc                "Za pomocą tego kreatora możesz przywrócić swoje ustawienia i klucze z (innej) istniejącej instalacji Enigmail. Aby utworzyć kopię zapasową twoich ustawień i kluczy, użyj zakładki „Przenieś ustawienia” w ustawieniach Enigmail.">
 <!ENTITY enigmail.importSetup.specifyImportFile      "Wybierz plik zawierający twoje zapisane dane do przywrócenia twoich ustawień i kluczy:">
 <!ENTITY enigmail.importSetup.startRestoreLabel      "Rozpocznij przywracanie">
-<!ENTITY enigmail.importSetup.importingKeys          "Importowanie kluczy w GnuPG. To może chwilę potrwać...">
-<!ENTITY enigmail.importSetup.restoringGnupgSettings "Przywracanie ustawień GnuPG...">
+<!ENTITY enigmail.importSetup.importingKeys          "Importowanie kluczy. To może chwilę potrwać...">
+<!ENTITY enigmail.importSetup.restoringGnupgSettings "Przywracanie ustawień szyfrowania...">
 <!ENTITY enigmail.importSetup.restoringEnigmail      "Przywracanie ustawień Enigmail...">
+
+<!ENTITY enigmail.changePasswd.title                 "Zmiana hasła twojego klucza OpenPGP">
+<!ENTITY enigmail.changePasswd.currPasswd.label      "Obecne hasło">
+<!ENTITY enigmail.changePasswd.newPasswd.label       "Nowe hasło">
+<!ENTITY enigmail.changePasswd.repeatPasswd.label    "Powtórz hasło">
+<!ENTITY enigmail.changePasswd.qualityMeter.label    "Jakość hasła">
+<!ENTITY enigmail.changePasswd.passwdDontMatch.label "Hasło się nie zgadza">

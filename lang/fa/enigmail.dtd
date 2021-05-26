@@ -1,6 +1,4 @@
 <!ENTITY enigmail.label                   "Enigmail">
-<!ENTITY enigmail.pEp.label               "Enigmail/p≡p">
-<!ENTITY enigmail.autocrypt.label         "Autocrypt">
 
 <!ENTITY enigmail.keyUserId.label         "حساب کاربری / آیدی کاربر">
 <!ENTITY enigmail.keygenTitle.label       "تولید کلید OpenPGP">
@@ -41,10 +39,6 @@
 
 <!ENTITY enigmail.protectHeadersPrefs.label    "رمزنگاری موضوع به صورت پیش فرض (فقط پیام رمزنگاری شده PGP/MIME)">
 <!ENTITY enigmail.protectHeadersPrefs.tooltip  "حذف موضوع و دیگر هدر های حساس از پیام های رمزنگاری شده.">
-<!ENTITY enigmail.protectedSubjectText.label    "قرار دادن متن برای محافظت پیام های رمزنگاری شده">
-<!ENTITY enigmail.protectedSubjectText.tooltip  "مشخص سازی موضوع که به صورت قابل مشاهده می باشد به جای موضوع واقعی که در هنگام ارسال پیام های رمزنگاری شده استفاده می شود">
-<!ENTITY enigmail.protectedSubjectText.placeholder "پیام رمزنگاری شده">
-
 
 
 <!ENTITY enigmail.mime_parts_on_demand.label  "دانلود ضمیمه ها تنها زمانی که باز شده اند (فقط IMAP)">
@@ -65,6 +59,11 @@
 
 <!ENTITY enigmail.pref.acSetupMessage.button "آغاز نصب Autocrypt">
 
+<!ENTITY enigmail.pref.cryptoProvider.label  "">
+<!ENTITY enigmail.pref.openpgpjs.label       "">
+<!ENTITY enigmail.pref.gnupg.label           "">
+<!ENTITY enigmail.pref.restartRequired.label "">
+
 <!ENTITY enigmail.backupRestore.desc       "خروجی گرفتن (پشتیبان) و بازیابی تنظیمات Enigmail شما هم چنین کلید های OpenPGP شما.">
 
 <!ENTITY enigmail.basic.label            "ساده">
@@ -83,25 +82,19 @@
 
 <!ENTITY enigmail.keyserver.label         "سرور کلید">
 <!ENTITY enigmail.keyserverDlg.label      "انتخاب سرور کلید">
-<!ENTITY enigmail.keyservers.label        "مشخص سازی سرور کلید(های) شما:">
-<!ENTITY enigmail.keyservers.sample2      "مثال: pool.sks-keyservers.net, pgp.mit.edu">
-
-<!ENTITY enigmail.searchForKey.example    "نمونه: 'نام نام خانوادگی <user@example.com>'">
+<!ENTITY enigmail.searchForKey.example    "نمونه: 'نام نام خانوادگی &lt;user@example.com&gt;'">
 <!ENTITY enigmail.searchForKey.desc1	    "'نام نام خانوادگی' تمام کلید هایی که شامل 'نام' یا 'نام خانوادگی' می باشند را پیدا می کند">
 <!ENTITY enigmail.searchForKey.desc2      "'نام+نام خانوادگی' تمام کلید هایی که شامل 'نام' و 'نام خانوادگی' می باشد را پیدا می کند">
 <!ENTITY enigmail.searchForKey.desc3      "'example.com' تمام کلید هایی که شامل 'example.com' می باشد را پیدا میکند، مثل 'example@example.com'">
 <!ENTITY enigmail.searchForKey.label      "جستجو برای کلید">
 
 <!ENTITY enigmail.doubleDashSeparator.label "'--' جدا کننده امضاء می باشد">
-<!ENTITY enigmail.noHushMailSupport.label   "برای مشخص کردن آدرس های ایمیل از '<' و '>' استفاده کنید">
+<!ENTITY enigmail.noHushMailSupport.label   "برای مشخص کردن آدرس های ایمیل از '&lt;' و '&gt;' استفاده کنید">
 
 <!ENTITY enigmail.doubleDashSeparator.tooltip  "دو خط تیره در یک خط یک قطعه امضا را مشخص می کنند">
-<!ENTITY enigmail.noHushMailSupport.tooltip    "استفاده از کاراکتر های '<' و '>' برای مشخص سازی آدرس های ایمیل برای GnuPG. اگر گیرندگان دارای کلید های Hushmail قدیمی می باشند غیرفعال کنید.">
+<!ENTITY enigmail.noHushMailSupport.tooltip    "استفاده از کاراکتر های '&lt;' و '&gt;' برای مشخص سازی آدرس های ایمیل برای GnuPG. اگر گیرندگان دارای کلید های Hushmail قدیمی می باشند غیرفعال کنید.">
 <!ENTITY enigmail.mime_parts_on_demand.tooltip "شما باید این گزینه را روی خاموش بگذارید اگر پیام های PGP/MIME را در پوشه های IMAP دریافت می کنید. ">
 <!ENTITY enigmail.disableSMIMEui.tooltip       "حذف دکمه S/MIME از نوار ابزار پنجره پیام نویسی">
-
-<!ENTITY enigmail.autoKeyServerSelection.label     "همیشه از اولین کلید سرور  استفاده کن">
-<!ENTITY enigmail.autoKeyServerSelection.tooltip   "انتخاب اولین سرور کلید از لیست به عنوان پیش فرض">
 
 <!ENTITY enigmail.decryptbutton.label     "رمزگشایی">
 <!ENTITY enigmail.decryptbutton.tip       "رمزگشایی یا تایید پیام با ِEnigmail">
@@ -122,6 +115,8 @@
 <!ENTITY enigmail.decryptToFolder.label     "رمزگشایی بر روی پوشه">
 <!ENTITY enigmail.decryptToFolder.accesskey "y">
 
+<!ENTITY enigmail.browseButton.label              "">
+
 <!-- "recent" label for Folder selection submenu -->
 <!ENTITY enigmail.recent.label              "جدید">
 <!ENTITY enigmail.recent.accesskey          "R">
@@ -136,9 +131,9 @@
 <!ENTITY enigmail.help.label               "راهنما">
 <!ENTITY enigmail.about.label              "درباره Enigmail">
 <!ENTITY enigmail.reload.label             "بارگذاری مجدد پیام">
-<!ENTITY enigmail.browse.label             "مرور...">
+<!ENTITY enigmail.browse.label             "">
 <!ENTITY enigmail.sendersKeyMenu.label     "کلید ارسال کننده">
-<!ENTITY enigmail.adminSmartCard.label     "مدیریت اسمارت کارت ...">
+<!ENTITY enigmail.adminSmartCard.label     "">
 <!ENTITY enigmail.setupWiz.label           "ویزارد نصب">
 
 <!ENTITY enigmail.decryptverify.accesskey   "D">
@@ -167,21 +162,19 @@
 <!ENTITY enigmail.signedsend.label            "امضاء پیام">
 <!ENTITY enigmail.encryptedsend.label         "رمزنگاری پیام">
 
-<!ENTITY enigmail.pepEnableProtection.label         "فعال سازی محافظت">
-<!ENTITY enigmail.pepEnableProtection.accesskey     "E">
-
-<!ENTITY enigmail.pgpAccountSettings.label     "گزینه های امضاء/رمزنگاری">
-<!ENTITY enigmail.sendOptionsMenu.label        "تنظیمات ارسال...">
-<!ENTITY enigmail.defaultKeySelOpts.label      "گزینه های انتخاب کلید...">
+<!ENTITY enigmail.pgpAccountSettings.label     "">
+<!ENTITY enigmail.sendOptionsMenu.label        "">
+<!ENTITY enigmail.defaultKeySelOpts.label      "">
 <!ENTITY enigmail.usePgpMime.label             "پروتکل: PGP/MIME">
-<!ENTITY enigmail.useInline.label              "پروتکل: Inline PGP">
 <!ENTITY enigmail.useSmime.label               "پروتکل: S/MIME">
 
 <!ENTITY enigmail.tempTrustAllKeys.label       "اعتماد به کلید همه گیرندگان">
 <!ENTITY enigmail.undoencryption.label         "واگرد رمزنگاری">
-<!ENTITY enigmail.attachkey.label              "ضمیمه کلید عمومی ...">
+<!ENTITY enigmail.attachkey.label              "">
 <!ENTITY enigmail.attachmykey.label            "کلید عمومی من را ضمیمه کن">
+<!ENTITY enigmail.attachmykey.short.label      "">
 <!ENTITY enigmail.protectHeaders.label         "محافظت از موضوع">
+<!ENTITY enigmail.encryptDraft.label           "">
 
 <!ENTITY enigmail.composemenu.accesskey        "n">
 
@@ -194,8 +187,8 @@
 <!ENTITY enigmail.defaultKeySelOpts.accesskey  "K">
 <!ENTITY enigmail.pgpAccountSettings.accesskey "E">
 <!ENTITY enigmail.usePgpMime.accesskey         "G">
-<!ENTITY enigmail.useInline.accesskey          "I">
 <!ENTITY enigmail.useSmime.accesskey           "S">
+<!ENTITY enigmail.encryptDraft.accesskey       "D">
 
 <!ENTITY enigmail.tempTrustAllKeys.accesskey   "T">
 <!ENTITY enigmail.undoencryption.accesskey     "U">
@@ -206,23 +199,28 @@
 
 <!-- account specific options -->
 <!ENTITY enigmail.defaultSigning.label            "امضاء پیام ها به صورت پیش فرض">
+<!ENTITY enigmail.defaultSigning.accesskey        "G">
 <!ENTITY enigmail.defaultEncryption.label         "رمزنگاری پیام ها به صورت پیش فرض">
-<!ENTITY enigmail.usePGPMimeAlways.label          "استفاده از PGP/MIME به صورت پیش فرض">
+<!ENTITY enigmail.defaultEncryption.accesskey     "E">
 
 <!ENTITY enigmail.afterDefaultsAndRules.label     "بعد از اعمال پیش فرض ها و قوانین:">
 <!ENTITY enigmail.finallySignEncrypted.label      "امضا پیام های رمزنگاری شده">
+<!ENTITY enigmail.finallySignEncrypted.accesskey  "M">
 <!ENTITY enigmail.finallySignNotEncrypted.label   "امضا پیام های رمزنگاری نشده">
+<!ENTITY enigmail.finallySignNotEncrypted.accesskey "N">
 
 <!ENTITY enigmail.autoEncryptDrafts.label         "رمزنگاری پیام های پیش نویس در هنگام ذخیره">
+<!ENTITY enigmail.autoEncryptDrafts.accesskey     "D">
 
-<!ENTITY enigmail.advancedPrefsButton.label       "پیشرفته...">
-<!ENTITY enigmail.openpgpPrefsButton.label        "ترجیحات Enigmail...">
+<!ENTITY enigmail.advancedPrefsButton.label       "">
+<!ENTITY enigmail.openpgpPrefsButton.label        "">
+<!ENTITY enigmail.openpgpPrefsButton.accesskey    "R">
 
 
 <!-- Sending Preferences -->
 
 <!ENTITY enigmail.SendingPrefs.label              "ترجیحات کلی برای ارسال">
-<!ENTITY enigmail.seeAccountSettings.label        "دیدن تنظیمات Enigmail یک حساب کاربری مشخص ( تنظیمات حساب کاربری -> امنیت OpenPGP را ببینید)">
+<!ENTITY enigmail.seeAccountSettings.label        "دیدن تنظیمات Enigmail یک حساب کاربری مشخص ( تنظیمات حساب کاربری -&gt; امنیت OpenPGP را ببینید)">
 
 <!ENTITY enigmail.encryptionModelConvenient.label "استفاده از تنظیمات رمزنگاری پیش فرض">
 <!ENTITY enigmail.encryptionModelManually.label   "پیکربندی تنظیمات رمزنگاری به صورت دستی">
@@ -266,17 +264,16 @@
 <!ENTITY enigmail.assignKeysManuallyIfMissing.tooltip "باز کردن دیالوگ برای تخصیص کلید ها به صورت دستی در صورت نبودن آنها.">
 <!ENTITY enigmail.assignKeysManuallyAlways.label      "همیشه ( همچنین ) به صورت دستی">
 <!ENTITY enigmail.assignKeysManuallyAlways.tooltip    "همیشه در پایان دیالوگ را برای تخصیص کلید ها باز کن.">
-<!ENTITY enigmail.defineRules.label               "ویرایش قوانین ...">
+<!ENTITY enigmail.defineRules.label               "">
 
-
-<!ENTITY enigmail.wrapHtmlBeforeSend.label        "بسته بندی مجدد متن HTML امضا شده قبل از ارسال">
-<!ENTITY enigmail.wrapHtmlBeforeSend.tooltip      "نظم دهی مجدد به متن برای مطمئن شدن از اینکه امضا دست نخورده باقی می ماند.">
+<!ENTITY enigmail.keyservers.label                "مشخص سازی سرور کلید(های) شما:">
+<!ENTITY enigmail.keyservers.sample2              "مثال: pool.sks-keyservers.net, pgp.mit.edu">
+<!ENTITY enigmail.autoKeyServerSelection.label    "همیشه از اولین کلید سرور  استفاده کن">
 <!ENTITY enigmail.autoKeyRetrieve.label           "دانلود کلید ها برای تایید امضا به صورت خودکار">
-<!ENTITY enigmail.autoKeyRetrieve2.label          "از سرور کلید های زیر:">
 <!ENTITY enigmail.resetRememberedValues.label     "ریست هشدارها">
 <!ENTITY enigmail.resetRememberedValues.tooltip   "نمایش مجدد تمام دیالوگ های هشدار و سوالات که در گذشته پنهان کرده اید.">
 
-<!ENTITY enigmail.keygen.desc "<a class='enigmailStrong'>توجه: تولید کلید ممکن است چندین دقیقه بگیرد تا تکمیل شود.</a>زمانی که تولید کلید در حال انجام است از برنامه خارج نشوید. گشت و گذار به صورت فعال  و انجام عملیات های سنگین دیسک در طول تولید کلید باعث تقویت 'مخزن تصادفی بودن' شده و این رویه را سرعت می بخشد. زمانیکه تکمیل شد شما آگاه خواهید شد.">
+<!ENTITY enigmail.keygen.desc "&lt;a class='enigmailStrong'&gt;توجه: تولید کلید ممکن است چندین دقیقه بگیرد تا تکمیل شود.&lt;/a&gt;زمانی که تولید کلید در حال انجام است از برنامه خارج نشوید. گشت و گذار به صورت فعال  و انجام عملیات های سنگین دیسک در طول تولید کلید باعث تقویت 'مخزن تصادفی بودن' شده و این رویه را سرعت می بخشد. زمانیکه تکمیل شد شما آگاه خواهید شد.">
 
 <!ENTITY enigmail.userSelectionList.label           "انتخاب کلید Enigmail">
 <!ENTITY enigmail.usersNotFound.label               "گیرندگان موجود نمی باشند، موجود نیست یا به آن اعتمادی نیست">
@@ -295,30 +292,12 @@
 <!ENTITY enigmail.refreshKeys.label                 "رفرش لیست کلید ها">
 <!ENTITY enigmail.refreshKeys.accesskey             "R">
 <!ENTITY enigmail.send.label                        "ارسال">
+<!ENTITY enigmail.send.accesskey                    "N">
 <!ENTITY enigmail.perRecipientsOption.label         "ایجاد قانون(های) هر-گیرنده">
-
-<!ENTITY enigmail.enigmailAttachDesc.label          "این پیام دربردارنده پیوست هایی می باشد. چطور میخواهید آنها را رمزنگاری/امضاء کنید؟">
-<!ENTITY enigmail.enigEncryptAttachNone.label           "فقط متن پیام را امضاء/رمزتگاری کن، اما پیوست ها را نکن">
-<!ENTITY enigmail.enigAttachNoneSign.label              "متن پیام را امضاء کن، اما پیوست ها را نکن">
-<!ENTITY enigmail.enigAttachNoneEncrypt.label           "متن پیام را رمزنگاری کن، اما پیوست ها را نکن">
-<!ENTITY enigmail.enigAttachNoneEncryptAndSign.label    "متن پیام را امضاء و رمزنگاری کن، اما پیوست ها را نکن">
-<!ENTITY enigmail.enigEncryptAttachInline.label         "هر پیوست را به صورت جداگانه امضاء/رمزنگاری کن و پیام را با استفاده از inline PGP ارسال کن">
-<!ENTITY enigmail.enigAttachInlineSign.label            "امضا هر ضمیمه به صورت جداگانه و ارسال پیام با استفاده از PGP inline">
-<!ENTITY enigmail.enigAttachInlineEncrypt.label         "رمزنگاری هر ضمیمه به صورت جداگانه و ارسال پیام با استفاده از PGP inline">
-<!ENTITY enigmail.enigAttachInlineEncryptAndSign.label  "رمزنگاری و امضا هر ضمیمه به صورت جداگانه و ارسال پیام با استفاده از PGP inline">
-<!ENTITY enigmail.enigEncryptAttachPgpMime.label        "رمزنگاری/امضا پیام به صورت کل و ارسال آن با استفاده از PGP/MIME">
-<!ENTITY enigmail.enigAttachPgpMimeSign.label           "امضا پیام به صورت کل و ارسال آن با استفاده از PGP/MIME">
-<!ENTITY enigmail.enigAttachPgpMimeEncrypt.label        "رمزنگاری پیام به صورت کل و ارسال آن از طریق PGP/MIME">
-<!ENTITY enigmail.enigAttachPgpMimeEncryptAndSign.label "رمزنگاری و امضا پیام به صورت کل و ارسال آن با استفاده از PGP/MIME">
-<!ENTITY enigmail.enigEncryptAttachDontEncryptMsg.label        "رمزنگاری نکردن/امضا نکردن پیام">
-<!ENTITY enigmail.enigAttachDontEncryptMsgSign.label           "پیام را امضاء نکن">
-<!ENTITY enigmail.enigAttachDontEncryptMsgEncrypt.label        "پیام را رمزنگاری نکن">
-<!ENTITY enigmail.enigAttachDontEncryptMsgEncryptAndSign.label "پام را رمزنگاری و امضاء نکن">
-<!ENTITY enigmail.encryptAttachSkipDlg.label        "استفاده از متد انتخاب شده برای تمام ضمیمه های آتی">
-
+<!ENTITY enigmail.perRecipientsOption.accesskey     "C">
 
 <!ENTITY enigmail.ctxDecryptOpen.label              "رمزگشایی و باز کردن">
-<!ENTITY enigmail.ctxDecryptSave.label              "رمزگشایی و ذخیره به عنوان...">
+<!ENTITY enigmail.ctxDecryptSave.label              "">
 <!ENTITY enigmail.ctxImportKey.label                "ایمپورت کلید OpenPGP">
 <!ENTITY enigmail.ctxVerifyAtt.label                "تایید امضاء">
 <!ENTITY enigmail.ctxDecryptOpen.accesskey          "D">
@@ -331,16 +310,23 @@
 
 <!ENTITY enigmail.exchangeGarbage.desc              "این یک پیام ناقص PGP/MIME از MS-Exchange می باشد. اگر نمی توانید به پیوست ها دسترسی داشته باشید یا مشکلی با پاسخ دادن یا ارسال دارید،  روی دکمه 'اصلاح پیام' برای اصلاح پیام کلیک کنید">
 <!ENTITY enigmail.exchangeGarbage.fixButton.label   "اصلاح پیام">
-<!ENTITY enigmail.exchangeGarbage.waitMessage       "لطفاً صبر کنید ...">
+<!ENTITY enigmail.exchangeGarbage.waitMessage       "">
 
-<!ENTITY enigmail.amPrefTitle.label                 "گزینه های امضاء/رمزنگاری">
+<!ENTITY enigmail.amPrefTitle.label                 "">
 <!ENTITY enigmail.amPrefDesc.label                  "پشتیبانی برای رمزنگاری OpenPGP و امضا پیام ها توسط Enigmail فراهم شده است. GnuPG (gpg) باید روی سیستم شما نصب باشد تا از این ویژگی استفاده کنید.">
 <!ENTITY enigmail.amPrefEnablePgp.label             "فعال سازی پشتیبانی OpenPGP (Enigmail) برای این هویت">
+<!ENTITY enigmail.amPrefEnablePgp.accesskey         "O">
 <!ENTITY enigmail.amPrefUseFromAddr.label           "استفاده از آدرس ایمیل این هویت برای تشخیص هویت کلید OpenPGP">
+<!ENTITY enigmail.amPrefUseFromAddr.accesskey       "A">
 <!ENTITY enigmail.amPrefUseKeyId.label              "استفاده از آیدی کلید OpenPGP مشخص:">
+<!ENTITY enigmail.amPrefUseKeyId.accesskey          "U">
 <!ENTITY enigmail.amPrefSelectKey.label             "انتخاب کلید">
+<!ENTITY enigmail.amPrefSelectKey.accesskey         "S">
 <!ENTITY enigmail.amPrefMsgComp.label               "نوشتن ‍پیام">
+<!ENTITY enigmail.amPrefMsgComp.accesskey           "C">
 <!ENTITY enigmail.amPrefDefaultEncrypt.label        "تنظیمات پیش فرض نوشتن پیام">
+<!ENTITY enigmail.amPrefAutocrypt.label             "Autocrypt">
+<!ENTITY enigmail.amPrefAutocrypt.accesskey         "">
 <!ENTITY enigmail.encryptionDlg.label               "تنظیمات امضاء و رمزنگاری Enigmail">
 <!ENTITY enigmail.encDlgProtocol.label              "استاندارد رمزنگاری/امضاء">
 <!ENTITY enigmail.encDlgEncrypt.label               "رمزنگاری پیام">
@@ -355,47 +341,38 @@
 <!ENTITY enigmail.encDlgSMime.accesskey             "M">
 <!ENTITY enigmail.encDlgReset.label                 "ریست به ‍پیش فرض ها">
 <!ENTITY enigmail.encDlgReset.accesskey             "R">
-<!ENTITY enigmail.amPrefPgpHeader.label             "ارسال سربرگ 'OpenPGP'">
-<!ENTITY enigmail.amPrefPgpHeader.id.label          "ارسال آیدی کلید OpenPGP">
-<!ENTITY enigmail.amPrefPgpHeader.url.label         "ارسال URL برای بازیابی کلید:">
 <!ENTITY enigmail.amPrefMimePreferProto.label       "در صورتی که امکان هر دو رمزنگاری Enigmail و S/MIME وجود دارد، در اینصورت:">
 <!ENTITY enigmail.amPrefMimePreferEnigmail.label    "ترجیح Enigmail (OpenPGP)">
+<!ENTITY enigmail.amPrefMimePreferEnigmail.accesskey "P">
 <!ENTITY enigmail.amPrefMimePreferSMime.label       "ترجیح S/MIME">
+<!ENTITY enigmail.amPrefMimePreferSMime.accesskey   "I">
 
 <!ENTITY enigmail.progressText.label               "پیشرفت:">
 
 <!ENTITY enigmail.openPgpSecurity.label            "امنیت OpenPGP">
 
-<!ENTITY enigmail.pgpSecurityInfo.label            "اطلاعات امنیتی Enigmail ...">
+<!ENTITY enigmail.pgpSecurityInfo.label            "">
 <!ENTITY enigmail.copySecurityInfo.label           "ک‍پی اطلاعات امنیتی Enigmail ">
 <!ENTITY enigmail.showPhoto.label                  "دیدن آیدی تصویر OpenPGP">
 <!ENTITY enigmail.photoViewer.title                "نمایشگر عکس OpenPGP">
 <!ENTITY enigmail.displayKeyProperties.label       "دیدن ویژگی های کلید">
-<!ENTITY enigmail.signSenderKey.label              "امضا کلید ...">
-<!ENTITY enigmail.trustSenderKey.label             "تنظیم اعتماد مالک ...">
-<!ENTITY enigmail.signSenderKeyPopup.label         "امضاء کلید ارسال کننده ...">
-<!ENTITY enigmail.trustSenderKeyPopup.label        "تنظیم اعتماد مالک کلید ارسال کننده...">
-<!ENTITY enigmail.createRuleFromAddr.label         "ایجاد قانون Enigmail از آدرس...">
+<!ENTITY enigmail.signSenderKey.label              "">
+<!ENTITY enigmail.trustSenderKey.label             "">
+<!ENTITY enigmail.signSenderKeyPopup.label         "">
+<!ENTITY enigmail.trustSenderKeyPopup.label        "">
+<!ENTITY enigmail.createRuleFromAddr.label         "">
 <!ENTITY enigmail.keyManWindow.label               "مدیریت کلید">
 <!ENTITY enigmail.keyManWindow.accesskey           "y">
 
 <!ENTITY enigmail.singleRcptSettings.label          "Enigmail - تنظیمات گیرنده">
 
-<!ENTITY enigmail.compose.excesslength.label        "شما در ایمیل خود خط های طولانی دارید. آن ها باید به صورت متفاوت کنترل شوند تا از امضا های بد جلوگیری کنند.">
-<!ENTITY enigmail.compose.excesslength_action.label "به چه شکل مایل هستید ادامه دهید؟">
-<!ENTITY enigmail.wrapSelectionList.label           "انتخاب بسته بندی">
-<!ENTITY enigmail.compose.wrap_radio.label          "بسته بندی خودکار ( امضا خوب، اما ممکن است خوب به نظر نیاید)">
-<!ENTITY enigmail.compose.sendasis_radio.label      "ارسال به همان شکل (ریسک امضا بد)">
-<!ENTITY enigmail.compose.use_mime_radio.label      "استفاده از PGP/MIME (امضا خوب، اما بعضی گیرندگان قادر نخواهند بود آن را رمزگشایی کنند)">
-<!ENTITY enigmail.compose.editmanually.label        "ویرایش به صورت دستی">
-
-<!ENTITY enigmail.selKeysButton.label               "انتخاب کلید(ها)...">
+<!ENTITY enigmail.selKeysButton.label               "">
 <!ENTITY enigmail.action.label                      "عمل">
 <!ENTITY enigmail.nextRule.label                    "ادامه با قانون بعدی برای آدرس مطابق">
 <!ENTITY enigmail.nextAddress.label                 "بررسی نکردن قوانین بیشتر برای آدرس مطابق">
 <!ENTITY enigmail.useKeys.label                     "استفاده با کلید های OpenPGP زیر:">
 <!ENTITY enigmail.selKeysButton.accesskey           "S">
-<!ENTITY enigmail.setDefaultsFor.label              "پیش فرض برای ...">
+<!ENTITY enigmail.setDefaultsFor.label              "">
 <!ENTITY enigmail.encryption.label                  "رمزنگاری">
 <!ENTITY enigmail.signing.label                     "امضاء">
 <!ENTITY enigmail.never.label                       "هیچ وقت">
@@ -403,7 +380,7 @@
 <!ENTITY enigmail.maybe.label                       "بله، در صورت اینکه در نوشتن پیام انتخاب شده بود">
 <!ENTITY enigmail.singleRcptSettings.desc           "(توجه: در صورت تضاد، 'هیچوقت' بر 'همیشه' مسلط خواهد شد.)">
 <!ENTITY enigmail.ruleEmail.label                   "تنظیم قوانین ِEnigmail برای">
-<!ENTITY enigmail.ruleEmail.tooltip                 "فقط آدرس های ایمیل را پر کنید، نام گیرندگان را قرار ندهیدn\ مثلا 'یک نام <some.name@address.net>' نامعتبر می باشد">
+<!ENTITY enigmail.ruleEmail.tooltip                 "فقط آدرس های ایمیل را پر کنید، نام گیرندگان را قرار ندهیدn\ مثلا 'یک نام &lt;some.name@address.net&gt;' نامعتبر می باشد">
 <!ENTITY enigmail.sepratationDesc.label             "(آدرس های ایمیل مختلف را با فاصله جدا کنید)">
 <!ENTITY enigmail.matchDescStart.label              "اعمال قانون اگر گیرنده">
 <!ENTITY enigmail.matchDescEnd.label                "یکی از آدرس های بالا">
@@ -429,6 +406,8 @@
 <!ENTITY enigmail.moveDown.label                    "حرکت به پایین">
 <!ENTITY enigmail.moveDown.accesskey                "D">
 <!ENTITY enigmail.searchRule.label                  "دیدن قوانین با آدرس های ایمیل دربردارنده:">
+<!ENTITY enigmail.rules.displayAutocrypt.label      "">
+<!ENTITY enigmail.rules.displayAutocrypt.accesskey  "S">
 <!ENTITY enigmail.clearSearch.label                 "پاکسازی">
 <!ENTITY enigmail.clearSearch.accesskey             "C">
 
@@ -444,13 +423,8 @@
 <!ENTITY enigmail.sKeyDlg.signKey.label            "کلید برای امضا:">
 <!ENTITY enigmail.sKeyDlg.fingerprint.label        "اثرانگشت">
 <!ENTITY enigmail.sKeyDlg.signWithKey.label        "کلید برای امضا:">
+<!ENTITY enigmail.sKeyDlg.signUids.label           "">
 <!ENTITY enigmail.sKeyDlg.ownKeyTrust.label        "توجه: شما باید اعتماد مالک را برای کلید های روی حالت نهایی قرار دهید تا در اینجا نمایش داده شوند.">
-<!ENTITY enigmail.sKeyDlg.checked.label            "با چه دقتی تایید کرده اید که کلیدی که میخواهید امضا کنید متعلق به شخص(های) بالا می باشد؟">
-<!ENTITY enigmail.sKeyDlg.noAnswer.label           "جواب نخواهم داد">
-<!ENTITY enigmail.sKeyDlg.notChecked.label         "اصلا چک نکرده ام">
-<!ENTITY enigmail.sKeyDlg.casualCheck.label        "یک بررسی سریع انجام دادم">
-<!ENTITY enigmail.sKeyDlg.carefulCheck.label       "با دقت بررسی کرده ام">
-<!ENTITY enigmail.sKeyDlg.createLocal.label        "امضا محلی (قابل خروجی گرفتن نمی باشد)">
 
 <!ENTITY enigmail.addUidDlg.title                  "Enigmail - افزودن آیدی کاربر">
 <!ENTITY enigmail.addUidDlg.name.label             "نام">
@@ -459,7 +433,6 @@
 <!ENTITY enigmail.keyTrust.title                   "Enigmail - تنظیم اعتماد مالک">
 <!ENTITY enigmail.keyTrust.trustKey.label          "کلید برای اعتماد:">
 <!ENTITY enigmail.keyTrust.trustLevel.label        "تا چه میزان به صاحب کلید اعتماد دارید تا به درستی کلید های دیگر را امضا کند؟">
-<!ENTITY enigmail.keyTrust.trustLevel.tooltip      "برای اطلاعات بیشتر درباره سطوح اعتماد کلید به اینجا مراجعه کنید:https://gpgtools.tenderapp.com/kb/faq/what-is-ownertrust-trust-levels-explained">
 <!ENTITY enigmail.keyTrust.dontKnow.label          "ناشناخته ( هنوز مشخص نشده )">
 <!ENTITY enigmail.keyTrust.noTrust.label           "غیرقابل اعتماد (عدم اعتماد برای امضا کلید ها به درستی)">
 <!ENTITY enigmail.keyTrust.marginalTrust.label     "مرزی (تا حدودی مورد اعتماد برای امضا کلید ها به درستی)">
@@ -527,14 +500,14 @@
 <!ENTITY enigmail.keyMan.calcTrust.label           "اعتبار کلید">
 <!ENTITY enigmail.keyMan.ownerTrust.label          "اعتماد مالک">
 <!ENTITY enigmail.keyMan.fingerprint.label         "اثر انگشت">
-<!ENTITY enigmail.keyMan.pEpBlacklisted.label      "لیست سیاه">
 <!ENTITY enigmail.keyMan.selectAll.label           "انتخاب تمام کلید ها">
 <!ENTITY enigmail.keyMan.addToPRRule.label         "افزودن به قانون هر-گیرنده">
 <!ENTITY enigmail.keyMan.emptyTree.tooltip         "عبارت های جستجو را در جعبه بالا وارد کنید">
 <!ENTITY enigmail.keyMan.nothingFound.tooltip      "هیچ کلیدی مطابق عبارت جستجو شده شما نمی باشد">
-<!ENTITY enigmail.keyMan.pleaseWait.tooltip        "کلید ها در حال بارگذاری می باشند، لطفا صبر کنید ...">
+<!ENTITY enigmail.keyMan.pleaseWait.tooltip        "">
 
 <!ENTITY enigmail.keyMan.filter.label              "جستجو برای کلیدها">
+<!ENTITY enigmail.keyMan.filter.accesskey          "S">
 
 <!ENTITY enigmail.keyMan.close.accesskey             "C">
 <!ENTITY enigmail.keyMan.generate.accesskey          "K">
@@ -598,13 +571,14 @@
 <!ENTITY enigmail.keyDetails.expiry.label            "انقضاء">
 <!ENTITY enigmail.keyDetails.usage.label             "استفاده">
 <!ENTITY enigmail.keyDetails.fingerprint.label       "اثرانگشت">
-<!ENTITY enigmail.keyDetails.selAction.label         "انتخاب عملیات ...">
+<!ENTITY enigmail.keyDetails.selAction.label         "">
 <!ENTITY enigmail.keyDetails.selAction.accesskey     "S">
 <!ENTITY enigmail.keyDetails.change.label            "تغییر">
 <!ENTITY enigmail.keyDetails.signKey.label           "تصدیق">
 <!ENTITY enigmail.keyDetails.trustStatus.label       "شما متکی به گواهی ها می باشید">
 <!ENTITY enigmail.keyDetails.keyValidity.label       "اعتبار">
 <!ENTITY enigmail.keyDetails.alsoKnown.label         "همچنین شناخته شده با عنوان">
+<!ENTITY enigmail.keyDetails.copyFpr.tooltip         "">
 
 <!ENTITY enigmail.cardDetails.title                  "جزییات اسمارت کارت OpenPGP">
 <!ENTITY enigmail.cardDetails.cardMenu.label         "اسمارت کارت">
@@ -642,10 +616,10 @@
 
 <!ENTITY enigmail.genCardKey.title                   "تولید کلید OpenPGP">
 <!ENTITY enigmail.genCardKey.backupKey.label         "ذخیره پشتیبان کلید خارج از کارت">
-<!ENTITY enigmail.genCardKey.desc                    "<a class='enigmailStrong'>توجه: تولید کلید ممکن است چندین دقیقه طول بکشد تا کامل شود.</a> زمانیکه تولید کلید در حال انجام است از برنامه خارج نشوید. زمانیکه تولید کلید کامل شد شما آگاه خواهید شد.">
+<!ENTITY enigmail.genCardKey.desc                    "&lt;a class='enigmailStrong'&gt;توجه: تولید کلید ممکن است چندین دقیقه طول بکشد تا کامل شود.&lt;/a&gt; زمانیکه تولید کلید در حال انجام است از برنامه خارج نشوید. زمانیکه تولید کلید کامل شد شما آگاه خواهید شد.">
 
 <!ENTITY enigmail.cardPin.title                      "تغییر پین اسمارت کارت">
-<!ENTITY enigmail.cardPin.action.label               "چه کاری میخواهید انجام دهید">
+<!ENTITY enigmail.cardPin.action.label               "">
 <!ENTITY enigmail.cardPin.changePin.label            "تغییر پین">
 <!ENTITY enigmail.cardPin.changeAdmPin.label         "تغییر پین ادمین">
 <!ENTITY enigmail.cardPin.unblockPin.label           "آنبلاک ‍پین">
@@ -661,34 +635,20 @@
 <!ENTITY enigmail.setupWiz.pgIntro.desc              "به نظر می آید که Enigmail را برای اولین بار روی این کامپیوتر آغاز کرده اید.
 برای استفاده از Enigmail، شما می بایستی آن را در ابتدا به درستی برپا کنید.
 دستیار شما را در طول مرحله نصب راهنمایی خواهد کرد.">
-<!-- wizard: install GnuPG step -->
-<!ENTITY enigmail.setupWiz.pgInstall.desc            "Enigmail برای انجام کارهای رمزنگاری نیاز به GnuPG دارد.
-ویزارد تلاش کرد تا فایل قابل اجرا GnuPG را پیدا کند، اما چیزی پیدا نشد.">
-<!ENTITY enigmail.setupWiz.pgInstall.installDesc1    "Enigmail میتواند GnuPG را دانلود کرده و نصب کننده را برای شما راه اندازی کند.
-اگر مایل به انجام آن می باشید، روی دکمه 'نصب GnuPG' کلیک کرده تا GnuPG را دانلود و نصب کنید.">
-<!ENTITY enigmail.setupWiz.pgInstall.installDesc2    "از سوی دیگر، اگر GnuPG روی کامپیوتر شما نصب می باشد، از دکمه 'جستجو' استفاده کنید تا مسیر GnuPG را به صورت دستی مشخص کنید.">
 
-<!ENTITY enigmail.setupWiz.pgInstall.locateDesc      "لطفا GnuPG را با استفاده از دکمه جستجو پیدا کنید.">
-<!ENTITY enigmail.setupWiz.pgInstall.installButton   "نصب GnuPG ...">
-<!ENTITY enigmail.setupWiz.pgInstall.locateButton    "مرور ...">
-<!ENTITY enigmail.setupWiz.pgInstall.downloadLabel   "دانلود GnuPG ...">
-<!ENTITY enigmail.setupWiz.pgInstall.installLabel    "در حال شروع نصب کننده. لطفا قدم های ویزارد نصب کننده GnuPG را دنبال کنید.">
-
-<!ENTITY enigmail.setupWiz.searchingGnuPG            "جستجو برای GnuPG ...">
-<!ENTITY enigmail.setupWiz.checkingSetup             "بررسی نصب موجود شما ...">
+<!ENTITY enigmail.setupWiz.insepctingEnv             "">
+<!ENTITY enigmail.setupWiz.usingGnuPG                "">
+<!ENTITY enigmail.setupWiz.usingOpenpgpJS            "">
+<!ENTITY enigmail.setupWiz.checkingSetup             "">
 <!ENTITY enigmail.setupWiz.startSetupButton          "شروع نصب">
-<!ENTITY enigmail.setupWiz.usingPepMode              "ما مشخص کردیم که شما در حال استفاده از Pretty Easy Privacy (p≡p) می باشید.">
-<!ENTITY enigmail.setupWiz.synchronizeWithPep        "اگر دستگاه دیگری دارید که در حال اجرا p≡p می باشد، توصیه ما به شما این است که به سایر دستگاه اجازه دهید تا همگام
-با کامپیوتر شما شوند. در این مورد، فقط ویزارد را ببندید، و منتظر بمانید تا همگام سازی صورت بگیرد.">
-<!ENTITY enigmail.setupWiz.useImportKeys             "از سوی دیگر، می توانید کلید های خود را با استفاده از دکمه 'وارد کردن کلیدها' آمده در زیر وارد کنید.">
 <!ENTITY enigmail.setupWiz.existingEncryptedMsg      "ما متوجه شدیم که شما پیام های رمزنگاری شده در پوشه ایمیل خود دارید. ما به شما توصیه می کنیم که از کلید های خود را روی همین دستگاه خروجی بگیرید، و آن را در اینجا وارد کنید. (راهنما: ممکن است شما از  'وارد کردن کلید ها' چندین بار استفاده کنید، برای مثال برای وارد کردن کلید های عمومی و خصوصی).">
 <!ENTITY enigmail.setupWiz.existingKeysFound         "ما متوجه شدیم که شما همین الان هم کلید های OpenPGP دارید. ما توصیه می کنیم که برای شما Enigmail را برپا کنیم تا بتوانید با همین کلید ها کار کنید.">
 <!ENTITY enigmail.setupWiz.applyExistingKeysBtn      "اعمال کلید های من">
 <!ENTITY enigmail.setupWiz.rescanInboxBtn            "اسکن دوباره ورودی">
 <!ENTITY enigmail.setupWiz.importKeysBtn             "وارد کردن کلید ها">
 
-<!ENTITY enigmail.advancedIdentityDlg.title          "تنظیمات پیشرفته هویت Enigmail">
 <!ENTITY enigmail.amPrefPgp.sendKeyWithMsg.label     "ضمیمه سازی کلید عمومی من به پیام ها">
+<!ENTITY enigmail.amPrefPgp.sendKeyWithMsg.accesskey "K">
 
 <!ENTITY enigmail.addPhoto.question.label            "آیا میخواهید تا تصویر زیر را به کلید اضافه کنید؟">
 <!ENTITY enigmail.addPhoto.title                     "افزودن تصویر به کلید">
@@ -699,9 +659,10 @@
 <!ENTITY enigmail.addToRule.newRuleButton.label      "ایجاد قانون جدید">
 <!ENTITY enigmail.addToRule.newRuleButton.accesskey  "N">
 
-<!ENTITY enigmail.savelogfile.label                   "ذخیره لاگ بر فایل ...">
+<!ENTITY enigmail.savelogfile.label                   "">
 
 <!ENTITY enigmail.filterEditor.moveError.label       "عملیات هایی که بعد از عمل 'حذف دائمی' رخ می دهد پشتیبانی نمی شوند.">
+<!ENTITY enigmail.filterEditor.encryptToKey.label    "">
 
 <!-- Export wizard -->
 <!ENTITY enigmail.exportWiz.title                    "خروجی گرفتن از تنظیمات Enigmail">
@@ -718,52 +679,10 @@ OpenPGP را به یک کامپیوتر جدید انتقال دهید. این �
 Thunderbird را آغاز کنید و ویزارد نصب را از منو Enigmail شروع کنید.">
 <!ENTITY enigmail.exportWiz.pgExport.failed          "خطایی در هنگام خروجی گرفتن رخ داد. از تنظیمات نمی توان خروجی گرفت.">
 
-<!ENTITY enigmail.privacyPprefPane.juniorMode         "حالت جونیور Enigmail">
-<!ENTITY enigmail.privacyPprefPane.juniorModeAuto     "به صورت خودکار تصمیم بگیر که آیا حالت جونیور بهتر است استفاده شود یا نه">
-<!ENTITY enigmail.privacyPprefPane.juniorModeForceOff "تحمیل استفاده از S/MIME و Enigmail">
-<!ENTITY enigmail.privacyPprefPane.juniorModeForceOn  "تحمیل استفاده از p≡p (Pretty Easy Privacy)">
-
-<!ENTITY enigmail.pEp.verifyTrustwords.label          "هندشیک p≡p">
-<!ENTITY enigmail.pEp.verifyTrustwords.accesskey      "H">
-<!ENTITY enigmail.pEp.revokeTrust.label               "لغو اعتماد p≡p">
-<!ENTITY enigmail.messeneger.pEpIcon.tootlip          "این پیام با p≡p رمزنگاری شده است. برای اطلاعات بیشتر روی آیکون کلیک کنید.">
-
-<!ENTITY enigmail.pEp.trustWordsDlg.title             "تایید کلمات اعتماد  p≡p">
-<!ENTITY enigmail.pEp.trustWordsDlg.overallDesc       "از مخاطب خود بخواهید تا کلمات اعتماد خود را به صورت حضوری یا از طریق تلفن به شما بگوید. باید با کلمات اعتماد زیر مطابقت داشته باشند.">
-<!ENTITY enigmail.pEp.trustWordsDlg.keySyncDesc       "شما در حال افزودن یک دستگاه به گروه دستگاه p≡p خود می باشید. با تایید کلمات اعتماد زیر آن را تایید کنید.">
-<!ENTITY enigmail.pEp.trustWordsDlg.myFingerprint     "اثرانگشت برای کلید من:">
-<!ENTITY enigmail.pEp.trustWordsDlg.trustwordsShort   "کلمه اعتماد">
-<!ENTITY enigmail.pEp.trustWordsDlg.trustwordsLong    "کلمه اعتماد طولانی">
-<!ENTITY enigmail.pEp.trustWordsDlg.fingerprint       "اثرانگشت">
-
-<!ENTITY enigmail.pEp.trustWordsDlg.btnVerified       "تایید کلمه اعتماد">
-<!ENTITY enigmail.pEp.trustWordsDlg.btnMistrust       "کلمه اعتماد نادرست/بی اعتمادی به کلید">
-<!ENTITY enigmail.pEp.privacyStatus.label             "وضعیت حریم خصوصی:">
-<!ENTITY enigmail.pEp.composestatus.label             "ناشناخته">
-
-<!ENTITY enigmail.pepHandshake.SuggestionTitle       "پیشنهاد p≡p ">
-<!ENTITY enigmail.pepHandshake.explanation           "توضیح">
-
-<!ENTITY enigmail.pepPrepHandshake.desc              "در حال بارگذاری داده، لطفا صبر کنید ...">
-
-<!ENTITY enigmail.pepPref.window.title               "ترجیحات Enigmail/p≡p">
-<!ENTITY enigmail.pepPref.accountTab.label           "حساب">
-<!ENTITY enigmail.pepPref.compatTab.label            "سازگاری">
-<!ENTITY enigmail.pepPref.aboutTab.label             "درباره">
-<!ENTITY enigmail.pepPref.accountSecurity.desc       "امنیت حساب">
-<!ENTITY enigmail.pepPref.storeSecurely.title        "ذخیره پیام ها به صورت امن برای این حساب های کاربری">
-<!ENTITY enigmail.pepPref.storeSecurely.label        "زخیره سازی پیام ها به صورت امن">
-<!ENTITY enigmail.pepPref.enableEncryption.label     "فعال سازی محافظت از حریم خصوصی">
-<!ENTITY enigmail.pepPref.passiveMode.label          "ضمیمه کردن کلید من به پیام های خروجی">
-<!ENTITY enigmail.pepPref.protectedSubject.label     "فعال سازی موضوعات پیام های محافظت شده">
-<!ENTITY enigmail.pepPref.warnReducedSecurity.label  "نمایش یک هشدار زمانی که یک پیام امنیتش را از طریق پاسخ یا ارسال از دست می دهد">
-<!ENTITY enigmail.pepPref.openpgpCompatibility.label "سازگاری OpenPGP">
-<!ENTITY enigmail.pepPref.autoKeyLookup.label        "جستجو کلید ها روی سرور به صورت خودکار">
-<!ENTITY enigmail.pepPref.credits.label              "اعتبارات">
-<!ENTITY enigmail.pepPref.thanksTo.label             "ممنون از">
-
 <!ENTITY enigmail.acPreferEncrypt.label              "ترجیح ایمیل های رمزنگاری شده از کسانی که با آن ها تبادل ایمیل دارید">
+<!ENTITY enigmail.acPreferEncrypt.accesskey          "P">
 <!ENTITY enigmail.enableAutocrypt.label              "فعال سازی Autocrypt">
+<!ENTITY enigmail.enableAutocrypt.accesskey          "E">
 
 <!ENTITY enigmail.acSetupPasswd.dlgTitle             "کد نصب Autocrypt">
 <!ENTITY enigmail.acSetupPasswd.password             "کد نصب:">
@@ -785,6 +704,13 @@ Thunderbird را آغاز کنید و ویزارد نصب را از منو Enigm
 <!ENTITY enigmail.importSetup.topDesc                "با استفاده از این دیالوگ، شما میتوانید تنظیمات خود و کلید های خود را از یک نصب موجود Enigmail بازیابی کنید. برای ایجاد یک پشتیبان از تنظیمات خود و کلیدها، از زبانه 'تنظیمات انتقال' در ترجیحات Enigmail استفاده کنید.">
 <!ENTITY enigmail.importSetup.specifyImportFile      "لطفا فایل پشتیبان برای استفاده را مشخص کنید تا تنظیمات و کلید های خود را بازیابی کنید:">
 <!ENTITY enigmail.importSetup.startRestoreLabel      "شروع بازیابی">
-<!ENTITY enigmail.importSetup.importingKeys          "در حال وارد کردن کلید ها در GnuPG. این ممکن است کمی وقت بگیرد ...">
-<!ENTITY enigmail.importSetup.restoringGnupgSettings "بازیابی تنظیمات GnuPG ...">
-<!ENTITY enigmail.importSetup.restoringEnigmail      "بازیابی تنظیمات Enigmail ...">
+<!ENTITY enigmail.importSetup.importingKeys          "">
+<!ENTITY enigmail.importSetup.restoringGnupgSettings "">
+<!ENTITY enigmail.importSetup.restoringEnigmail      "">
+
+<!ENTITY enigmail.changePasswd.title                 "">
+<!ENTITY enigmail.changePasswd.currPasswd.label      "">
+<!ENTITY enigmail.changePasswd.newPasswd.label       "">
+<!ENTITY enigmail.changePasswd.repeatPasswd.label    "">
+<!ENTITY enigmail.changePasswd.qualityMeter.label    "">
+<!ENTITY enigmail.changePasswd.passwdDontMatch.label "">

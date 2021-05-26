@@ -1,6 +1,4 @@
 <!ENTITY enigmail.label                   "Enigmail">
-<!ENTITY enigmail.pEp.label               "Enigmail/p≡p">
-<!ENTITY enigmail.autocrypt.label         "Autokrypter">
 
 <!ENTITY enigmail.keyUserId.label         "Konto / Bruger ID">
 <!ENTITY enigmail.keygenTitle.label       "Generer OpenPGP Nøgle">
@@ -41,10 +39,6 @@
 
 <!ENTITY enigmail.protectHeadersPrefs.label    "Krypter emne som standard (kun PGP / MIME krypteret meddelelse)">
 <!ENTITY enigmail.protectHeadersPrefs.tooltip  "Fjern emne og andre følsomme headers / overskrifter fra krypterede meddelelser.">
-<!ENTITY enigmail.protectedSubjectText.label    "Emne tekst til beskyttelse af krypterede meddelelser">
-<!ENTITY enigmail.protectedSubjectText.tooltip  "Angiv det emne, der bliver offentligt synligt i stedet for det virkelige emne, når der sendes krypterede meddelelser">
-<!ENTITY enigmail.protectedSubjectText.placeholder "">
-
 
 
 <!ENTITY enigmail.mime_parts_on_demand.label  "Hent kun vedhæftede filer, når de åbnes (kun IMAP)">
@@ -65,6 +59,11 @@
 
 <!ENTITY enigmail.pref.acSetupMessage.button "">
 
+<!ENTITY enigmail.pref.cryptoProvider.label  "">
+<!ENTITY enigmail.pref.openpgpjs.label       "">
+<!ENTITY enigmail.pref.gnupg.label           "">
+<!ENTITY enigmail.pref.restartRequired.label "">
+
 <!ENTITY enigmail.backupRestore.desc       "">
 
 <!ENTITY enigmail.basic.label            "">
@@ -83,9 +82,6 @@
 
 <!ENTITY enigmail.keyserver.label         "">
 <!ENTITY enigmail.keyserverDlg.label      "">
-<!ENTITY enigmail.keyservers.label        "">
-<!ENTITY enigmail.keyservers.sample2      "">
-
 <!ENTITY enigmail.searchForKey.example    "">
 <!ENTITY enigmail.searchForKey.desc1	    "">
 <!ENTITY enigmail.searchForKey.desc2      "">
@@ -100,13 +96,10 @@
 <!ENTITY enigmail.mime_parts_on_demand.tooltip "">
 <!ENTITY enigmail.disableSMIMEui.tooltip       "">
 
-<!ENTITY enigmail.autoKeyServerSelection.label     "">
-<!ENTITY enigmail.autoKeyServerSelection.tooltip   "">
-
 <!ENTITY enigmail.decryptbutton.label     "">
 <!ENTITY enigmail.decryptbutton.tip       "">
 
-<!ENTITY enigmail.doneButton.label        "">
+<!ENTITY enigmail.doneButton.label        "Færdig">
 <!ENTITY enigmail.doneButton.accesskey    "D">
 
 <!ENTITY enigmail.messengermenu.accesskey "">
@@ -122,6 +115,8 @@
 <!ENTITY enigmail.decryptToFolder.label     "">
 <!ENTITY enigmail.decryptToFolder.accesskey "">
 
+<!ENTITY enigmail.browseButton.label              "">
+
 <!-- "recent" label for Folder selection submenu -->
 <!ENTITY enigmail.recent.label              "">
 <!ENTITY enigmail.recent.accesskey          "R">
@@ -134,7 +129,7 @@
 
 <!ENTITY enigmail.generateKey.label        "">
 <!ENTITY enigmail.help.label               "">
-<!ENTITY enigmail.about.label              "">
+<!ENTITY enigmail.about.label              "Om Enigmail">
 <!ENTITY enigmail.reload.label             "">
 <!ENTITY enigmail.browse.label             "">
 <!ENTITY enigmail.sendersKeyMenu.label     "">
@@ -167,21 +162,19 @@
 <!ENTITY enigmail.signedsend.label            "">
 <!ENTITY enigmail.encryptedsend.label         "">
 
-<!ENTITY enigmail.pepEnableProtection.label         "">
-<!ENTITY enigmail.pepEnableProtection.accesskey     "E">
-
 <!ENTITY enigmail.pgpAccountSettings.label     "">
 <!ENTITY enigmail.sendOptionsMenu.label        "">
 <!ENTITY enigmail.defaultKeySelOpts.label      "">
 <!ENTITY enigmail.usePgpMime.label             "">
-<!ENTITY enigmail.useInline.label              "">
 <!ENTITY enigmail.useSmime.label               "">
 
 <!ENTITY enigmail.tempTrustAllKeys.label       "">
 <!ENTITY enigmail.undoencryption.label         "">
 <!ENTITY enigmail.attachkey.label              "">
 <!ENTITY enigmail.attachmykey.label            "">
+<!ENTITY enigmail.attachmykey.short.label      "">
 <!ENTITY enigmail.protectHeaders.label         "">
+<!ENTITY enigmail.encryptDraft.label           "">
 
 <!ENTITY enigmail.composemenu.accesskey        "">
 
@@ -194,8 +187,8 @@
 <!ENTITY enigmail.defaultKeySelOpts.accesskey  "">
 <!ENTITY enigmail.pgpAccountSettings.accesskey "E">
 <!ENTITY enigmail.usePgpMime.accesskey         "">
-<!ENTITY enigmail.useInline.accesskey          "I">
 <!ENTITY enigmail.useSmime.accesskey           "V">
+<!ENTITY enigmail.encryptDraft.accesskey       "D">
 
 <!ENTITY enigmail.tempTrustAllKeys.accesskey   "T">
 <!ENTITY enigmail.undoencryption.accesskey     "U">
@@ -206,17 +199,22 @@
 
 <!-- account specific options -->
 <!ENTITY enigmail.defaultSigning.label            "">
+<!ENTITY enigmail.defaultSigning.accesskey        "">
 <!ENTITY enigmail.defaultEncryption.label         "">
-<!ENTITY enigmail.usePGPMimeAlways.label          "">
+<!ENTITY enigmail.defaultEncryption.accesskey     "E">
 
 <!ENTITY enigmail.afterDefaultsAndRules.label     "">
 <!ENTITY enigmail.finallySignEncrypted.label      "">
+<!ENTITY enigmail.finallySignEncrypted.accesskey  "M">
 <!ENTITY enigmail.finallySignNotEncrypted.label   "">
+<!ENTITY enigmail.finallySignNotEncrypted.accesskey "">
 
 <!ENTITY enigmail.autoEncryptDrafts.label         "">
+<!ENTITY enigmail.autoEncryptDrafts.accesskey     "D">
 
 <!ENTITY enigmail.advancedPrefsButton.label       "">
-<!ENTITY enigmail.openpgpPrefsButton.label        "Enigmail præferencer…">
+<!ENTITY enigmail.openpgpPrefsButton.label        "">
+<!ENTITY enigmail.openpgpPrefsButton.accesskey    "T">
 
 
 <!-- Sending Preferences -->
@@ -268,54 +266,35 @@
 <!ENTITY enigmail.assignKeysManuallyAlways.tooltip    "">
 <!ENTITY enigmail.defineRules.label               "">
 
-
-<!ENTITY enigmail.wrapHtmlBeforeSend.label        "">
-<!ENTITY enigmail.wrapHtmlBeforeSend.tooltip      "">
+<!ENTITY enigmail.keyservers.label                "">
+<!ENTITY enigmail.keyservers.sample2              "">
+<!ENTITY enigmail.autoKeyServerSelection.label    "">
 <!ENTITY enigmail.autoKeyRetrieve.label           "">
-<!ENTITY enigmail.autoKeyRetrieve2.label          "">
 <!ENTITY enigmail.resetRememberedValues.label     "">
 <!ENTITY enigmail.resetRememberedValues.tooltip   "">
 
 <!ENTITY enigmail.keygen.desc "">
 
-<!ENTITY enigmail.userSelectionList.label           "">
-<!ENTITY enigmail.usersNotFound.label               "">
-<!ENTITY enigmail.keyExpiry.label                   "">
-<!ENTITY enigmail.uidValidity.label                 "">
-<!ENTITY enigmail.keySelection.label                "">
-<!ENTITY enigmail.keyId.label                       "">
+<!ENTITY enigmail.userSelectionList.label           "Enigmail nøglevalg">
+<!ENTITY enigmail.usersNotFound.label               "Modtagere ugyldige, utroværdige eller ikke fundet">
+<!ENTITY enigmail.keyExpiry.label                   "Udløb">
+<!ENTITY enigmail.uidValidity.label                 "Validitet">
+<!ENTITY enigmail.keySelection.label                "Valg">
+<!ENTITY enigmail.keyId.label                       "NøgleID">
 <!ENTITY enigmail.userSelSendSigned.label           "">
 <!ENTITY enigmail.userSelSendSigned.accesskey       "V">
 <!ENTITY enigmail.userSelSendEncrypted.label        "">
 <!ENTITY enigmail.userSelSendEncrypted.accesskey    "E">
-<!ENTITY enigmail.displayNoLonger.label             "">
-<!ENTITY enigmail.importMissingKeys.label           "">
+<!ENTITY enigmail.displayNoLonger.label             "Vis ikke denne meddelelse igen hvis kryptering ikke er mulig">
+<!ENTITY enigmail.importMissingKeys.label           "Hent manglende nøgler">
 <!ENTITY enigmail.importMissingKeys.accesskey       "D">
-<!ENTITY enigmail.importMissingKeys.tooltip         "">
-<!ENTITY enigmail.refreshKeys.label                 "">
+<!ENTITY enigmail.importMissingKeys.tooltip         "Forsøg at importere de manglende nøgler fra en nøgleserver">
+<!ENTITY enigmail.refreshKeys.label                 "Opdater nøgleliste">
 <!ENTITY enigmail.refreshKeys.accesskey             "R">
-<!ENTITY enigmail.send.label                        "">
-<!ENTITY enigmail.perRecipientsOption.label         "">
-
-<!ENTITY enigmail.enigmailAttachDesc.label          "">
-<!ENTITY enigmail.enigEncryptAttachNone.label           "">
-<!ENTITY enigmail.enigAttachNoneSign.label              "">
-<!ENTITY enigmail.enigAttachNoneEncrypt.label           "">
-<!ENTITY enigmail.enigAttachNoneEncryptAndSign.label    "">
-<!ENTITY enigmail.enigEncryptAttachInline.label         "">
-<!ENTITY enigmail.enigAttachInlineSign.label            "">
-<!ENTITY enigmail.enigAttachInlineEncrypt.label         "">
-<!ENTITY enigmail.enigAttachInlineEncryptAndSign.label  "">
-<!ENTITY enigmail.enigEncryptAttachPgpMime.label        "">
-<!ENTITY enigmail.enigAttachPgpMimeSign.label           "">
-<!ENTITY enigmail.enigAttachPgpMimeEncrypt.label        "">
-<!ENTITY enigmail.enigAttachPgpMimeEncryptAndSign.label "">
-<!ENTITY enigmail.enigEncryptAttachDontEncryptMsg.label        "">
-<!ENTITY enigmail.enigAttachDontEncryptMsgSign.label           "">
-<!ENTITY enigmail.enigAttachDontEncryptMsgEncrypt.label        "">
-<!ENTITY enigmail.enigAttachDontEncryptMsgEncryptAndSign.label "">
-<!ENTITY enigmail.encryptAttachSkipDlg.label        "">
-
+<!ENTITY enigmail.send.label                        "Send">
+<!ENTITY enigmail.send.accesskey                    "">
+<!ENTITY enigmail.perRecipientsOption.label         "Definér regler pr. modtager(e)">
+<!ENTITY enigmail.perRecipientsOption.accesskey     "">
 
 <!ENTITY enigmail.ctxDecryptOpen.label              "">
 <!ENTITY enigmail.ctxDecryptSave.label              "">
@@ -336,11 +315,18 @@
 <!ENTITY enigmail.amPrefTitle.label                 "">
 <!ENTITY enigmail.amPrefDesc.label                  "">
 <!ENTITY enigmail.amPrefEnablePgp.label             "">
+<!ENTITY enigmail.amPrefEnablePgp.accesskey         "I">
 <!ENTITY enigmail.amPrefUseFromAddr.label           "">
+<!ENTITY enigmail.amPrefUseFromAddr.accesskey       "T">
 <!ENTITY enigmail.amPrefUseKeyId.label              "">
+<!ENTITY enigmail.amPrefUseKeyId.accesskey          "U">
 <!ENTITY enigmail.amPrefSelectKey.label             "">
+<!ENTITY enigmail.amPrefSelectKey.accesskey         "S">
 <!ENTITY enigmail.amPrefMsgComp.label               "">
+<!ENTITY enigmail.amPrefMsgComp.accesskey           "">
 <!ENTITY enigmail.amPrefDefaultEncrypt.label        "">
+<!ENTITY enigmail.amPrefAutocrypt.label             "Autokrypter">
+<!ENTITY enigmail.amPrefAutocrypt.accesskey         "">
 <!ENTITY enigmail.encryptionDlg.label               "">
 <!ENTITY enigmail.encDlgProtocol.label              "">
 <!ENTITY enigmail.encDlgEncrypt.label               "">
@@ -355,12 +341,11 @@
 <!ENTITY enigmail.encDlgSMime.accesskey             "M">
 <!ENTITY enigmail.encDlgReset.label                 "">
 <!ENTITY enigmail.encDlgReset.accesskey             "R">
-<!ENTITY enigmail.amPrefPgpHeader.label             "">
-<!ENTITY enigmail.amPrefPgpHeader.id.label          "">
-<!ENTITY enigmail.amPrefPgpHeader.url.label         "">
 <!ENTITY enigmail.amPrefMimePreferProto.label       "">
 <!ENTITY enigmail.amPrefMimePreferEnigmail.label    "">
+<!ENTITY enigmail.amPrefMimePreferEnigmail.accesskey "">
 <!ENTITY enigmail.amPrefMimePreferSMime.label       "">
+<!ENTITY enigmail.amPrefMimePreferSMime.accesskey   "I">
 
 <!ENTITY enigmail.progressText.label               "">
 
@@ -380,14 +365,6 @@
 <!ENTITY enigmail.keyManWindow.accesskey           "">
 
 <!ENTITY enigmail.singleRcptSettings.label          "">
-
-<!ENTITY enigmail.compose.excesslength.label        "">
-<!ENTITY enigmail.compose.excesslength_action.label "">
-<!ENTITY enigmail.wrapSelectionList.label           "">
-<!ENTITY enigmail.compose.wrap_radio.label          "">
-<!ENTITY enigmail.compose.sendasis_radio.label      "">
-<!ENTITY enigmail.compose.use_mime_radio.label      "">
-<!ENTITY enigmail.compose.editmanually.label        "">
 
 <!ENTITY enigmail.selKeysButton.label               "">
 <!ENTITY enigmail.action.label                      "">
@@ -429,6 +406,8 @@
 <!ENTITY enigmail.moveDown.label                    "">
 <!ENTITY enigmail.moveDown.accesskey                "D">
 <!ENTITY enigmail.searchRule.label                  "">
+<!ENTITY enigmail.rules.displayAutocrypt.label      "">
+<!ENTITY enigmail.rules.displayAutocrypt.accesskey  "S">
 <!ENTITY enigmail.clearSearch.label                 "">
 <!ENTITY enigmail.clearSearch.accesskey             "">
 
@@ -436,7 +415,7 @@
 <!ENTITY enigmail.searchKeyDlgCapt.label           "">
 <!ENTITY enigmail.searchKeyDlgSelAll.label         "">
 
-<!ENTITY enigmail.created.label                    "">
+<!ENTITY enigmail.created.label                    "Oprettet">
 
 <!ENTITY enigmail.progress.label                   "">
 
@@ -444,13 +423,8 @@
 <!ENTITY enigmail.sKeyDlg.signKey.label            "">
 <!ENTITY enigmail.sKeyDlg.fingerprint.label        "">
 <!ENTITY enigmail.sKeyDlg.signWithKey.label        "">
+<!ENTITY enigmail.sKeyDlg.signUids.label           "">
 <!ENTITY enigmail.sKeyDlg.ownKeyTrust.label        "">
-<!ENTITY enigmail.sKeyDlg.checked.label            "">
-<!ENTITY enigmail.sKeyDlg.noAnswer.label           "">
-<!ENTITY enigmail.sKeyDlg.notChecked.label         "">
-<!ENTITY enigmail.sKeyDlg.casualCheck.label        "">
-<!ENTITY enigmail.sKeyDlg.carefulCheck.label       "">
-<!ENTITY enigmail.sKeyDlg.createLocal.label        "">
 
 <!ENTITY enigmail.addUidDlg.title                  "">
 <!ENTITY enigmail.addUidDlg.name.label             "">
@@ -459,7 +433,6 @@
 <!ENTITY enigmail.keyTrust.title                   "">
 <!ENTITY enigmail.keyTrust.trustKey.label          "">
 <!ENTITY enigmail.keyTrust.trustLevel.label        "">
-<!ENTITY enigmail.keyTrust.trustLevel.tooltip      "">
 <!ENTITY enigmail.keyTrust.dontKnow.label          "">
 <!ENTITY enigmail.keyTrust.noTrust.label           "">
 <!ENTITY enigmail.keyTrust.marginalTrust.label     "">
@@ -527,14 +500,14 @@
 <!ENTITY enigmail.keyMan.calcTrust.label           "">
 <!ENTITY enigmail.keyMan.ownerTrust.label          "">
 <!ENTITY enigmail.keyMan.fingerprint.label         "">
-<!ENTITY enigmail.keyMan.pEpBlacklisted.label      "">
 <!ENTITY enigmail.keyMan.selectAll.label           "">
 <!ENTITY enigmail.keyMan.addToPRRule.label         "">
 <!ENTITY enigmail.keyMan.emptyTree.tooltip         "">
 <!ENTITY enigmail.keyMan.nothingFound.tooltip      "">
 <!ENTITY enigmail.keyMan.pleaseWait.tooltip        "">
 
-<!ENTITY enigmail.keyMan.filter.label              "">
+<!ENTITY enigmail.keyMan.filter.label              "Søg efter nøgler">
+<!ENTITY enigmail.keyMan.filter.accesskey          "S">
 
 <!ENTITY enigmail.keyMan.close.accesskey             "">
 <!ENTITY enigmail.keyMan.generate.accesskey          "">
@@ -594,8 +567,8 @@
 <!ENTITY enigmail.keyDetails.keyPart.label           "">
 <!ENTITY enigmail.keyDetails.algorithm.label         "">
 <!ENTITY enigmail.keyDetails.size.label              "">
-<!ENTITY enigmail.keyDetails.created.label           "">
-<!ENTITY enigmail.keyDetails.expiry.label            "">
+<!ENTITY enigmail.keyDetails.created.label           "Oprettet">
+<!ENTITY enigmail.keyDetails.expiry.label            "Udløb">
 <!ENTITY enigmail.keyDetails.usage.label             "">
 <!ENTITY enigmail.keyDetails.fingerprint.label       "">
 <!ENTITY enigmail.keyDetails.selAction.label         "">
@@ -603,8 +576,9 @@
 <!ENTITY enigmail.keyDetails.change.label            "">
 <!ENTITY enigmail.keyDetails.signKey.label           "">
 <!ENTITY enigmail.keyDetails.trustStatus.label       "">
-<!ENTITY enigmail.keyDetails.keyValidity.label       "">
+<!ENTITY enigmail.keyDetails.keyValidity.label       "Validitet">
 <!ENTITY enigmail.keyDetails.alsoKnown.label         "">
+<!ENTITY enigmail.keyDetails.copyFpr.tooltip         "">
 
 <!ENTITY enigmail.cardDetails.title                  "">
 <!ENTITY enigmail.cardDetails.cardMenu.label         "">
@@ -623,7 +597,7 @@
 <!ENTITY enigmail.cardDetails.pinretry.label         "">
 <!ENTITY enigmail.cardDetails.sigcount.label         "">
 <!ENTITY enigmail.cardDetails.sigKey.label           "">
-<!ENTITY enigmail.cardDetails.keyCreated.label       "">
+<!ENTITY enigmail.cardDetails.keyCreated.label       "Oprettet">
 <!ENTITY enigmail.cardDetails.encKey.label           "">
 <!ENTITY enigmail.cardDetails.authKey.label          "">
 <!ENTITY enigmail.cardDetails.yes.label              "">
@@ -659,31 +633,20 @@
 <!-- wizard: welcome step -->
 <!ENTITY enigmail.setupWiz.title                     "">
 <!ENTITY enigmail.setupWiz.pgIntro.desc              "">
-<!-- wizard: install GnuPG step -->
-<!ENTITY enigmail.setupWiz.pgInstall.desc            "">
-<!ENTITY enigmail.setupWiz.pgInstall.installDesc1    "">
-<!ENTITY enigmail.setupWiz.pgInstall.installDesc2    "">
 
-<!ENTITY enigmail.setupWiz.pgInstall.locateDesc      "">
-<!ENTITY enigmail.setupWiz.pgInstall.installButton   "">
-<!ENTITY enigmail.setupWiz.pgInstall.locateButton    "">
-<!ENTITY enigmail.setupWiz.pgInstall.downloadLabel   "">
-<!ENTITY enigmail.setupWiz.pgInstall.installLabel    "">
-
-<!ENTITY enigmail.setupWiz.searchingGnuPG            "">
+<!ENTITY enigmail.setupWiz.insepctingEnv             "">
+<!ENTITY enigmail.setupWiz.usingGnuPG                "">
+<!ENTITY enigmail.setupWiz.usingOpenpgpJS            "">
 <!ENTITY enigmail.setupWiz.checkingSetup             "">
 <!ENTITY enigmail.setupWiz.startSetupButton          "">
-<!ENTITY enigmail.setupWiz.usingPepMode              "">
-<!ENTITY enigmail.setupWiz.synchronizeWithPep        "">
-<!ENTITY enigmail.setupWiz.useImportKeys             "">
 <!ENTITY enigmail.setupWiz.existingEncryptedMsg      "">
 <!ENTITY enigmail.setupWiz.existingKeysFound         "">
 <!ENTITY enigmail.setupWiz.applyExistingKeysBtn      "">
 <!ENTITY enigmail.setupWiz.rescanInboxBtn            "">
 <!ENTITY enigmail.setupWiz.importKeysBtn             "">
 
-<!ENTITY enigmail.advancedIdentityDlg.title          "">
 <!ENTITY enigmail.amPrefPgp.sendKeyWithMsg.label     "">
+<!ENTITY enigmail.amPrefPgp.sendKeyWithMsg.accesskey "">
 
 <!ENTITY enigmail.addPhoto.question.label            "">
 <!ENTITY enigmail.addPhoto.title                     "">
@@ -697,6 +660,7 @@
 <!ENTITY enigmail.savelogfile.label                   "">
 
 <!ENTITY enigmail.filterEditor.moveError.label       "">
+<!ENTITY enigmail.filterEditor.encryptToKey.label    "">
 
 <!-- Export wizard -->
 <!ENTITY enigmail.exportWiz.title                    "">
@@ -710,52 +674,10 @@
 <!ENTITY enigmail.exportWiz.pgExport.done            "">
 <!ENTITY enigmail.exportWiz.pgExport.failed          "">
 
-<!ENTITY enigmail.privacyPprefPane.juniorMode         "">
-<!ENTITY enigmail.privacyPprefPane.juniorModeAuto     "">
-<!ENTITY enigmail.privacyPprefPane.juniorModeForceOff "">
-<!ENTITY enigmail.privacyPprefPane.juniorModeForceOn  "">
-
-<!ENTITY enigmail.pEp.verifyTrustwords.label          "">
-<!ENTITY enigmail.pEp.verifyTrustwords.accesskey      "">
-<!ENTITY enigmail.pEp.revokeTrust.label               "">
-<!ENTITY enigmail.messeneger.pEpIcon.tootlip          "">
-
-<!ENTITY enigmail.pEp.trustWordsDlg.title             "">
-<!ENTITY enigmail.pEp.trustWordsDlg.overallDesc       "">
-<!ENTITY enigmail.pEp.trustWordsDlg.keySyncDesc       "">
-<!ENTITY enigmail.pEp.trustWordsDlg.myFingerprint     "">
-<!ENTITY enigmail.pEp.trustWordsDlg.trustwordsShort   "">
-<!ENTITY enigmail.pEp.trustWordsDlg.trustwordsLong    "">
-<!ENTITY enigmail.pEp.trustWordsDlg.fingerprint       "">
-
-<!ENTITY enigmail.pEp.trustWordsDlg.btnVerified       "">
-<!ENTITY enigmail.pEp.trustWordsDlg.btnMistrust       "">
-<!ENTITY enigmail.pEp.privacyStatus.label             "">
-<!ENTITY enigmail.pEp.composestatus.label             "Ukendt">
-
-<!ENTITY enigmail.pepHandshake.SuggestionTitle       "">
-<!ENTITY enigmail.pepHandshake.explanation           "">
-
-<!ENTITY enigmail.pepPrepHandshake.desc              "">
-
-<!ENTITY enigmail.pepPref.window.title               "Enigmail / p≡p præferencer">
-<!ENTITY enigmail.pepPref.accountTab.label           "">
-<!ENTITY enigmail.pepPref.compatTab.label            "">
-<!ENTITY enigmail.pepPref.aboutTab.label             "">
-<!ENTITY enigmail.pepPref.accountSecurity.desc       "">
-<!ENTITY enigmail.pepPref.storeSecurely.title        "">
-<!ENTITY enigmail.pepPref.storeSecurely.label        "">
-<!ENTITY enigmail.pepPref.enableEncryption.label     "">
-<!ENTITY enigmail.pepPref.passiveMode.label          "">
-<!ENTITY enigmail.pepPref.protectedSubject.label     "">
-<!ENTITY enigmail.pepPref.warnReducedSecurity.label  "">
-<!ENTITY enigmail.pepPref.openpgpCompatibility.label "">
-<!ENTITY enigmail.pepPref.autoKeyLookup.label        "">
-<!ENTITY enigmail.pepPref.credits.label              "">
-<!ENTITY enigmail.pepPref.thanksTo.label             "">
-
 <!ENTITY enigmail.acPreferEncrypt.label              "">
+<!ENTITY enigmail.acPreferEncrypt.accesskey          "">
 <!ENTITY enigmail.enableAutocrypt.label              "">
+<!ENTITY enigmail.enableAutocrypt.accesskey          "E">
 
 <!ENTITY enigmail.acSetupPasswd.dlgTitle             "">
 <!ENTITY enigmail.acSetupPasswd.password             "">
@@ -778,3 +700,10 @@
 <!ENTITY enigmail.importSetup.importingKeys          "">
 <!ENTITY enigmail.importSetup.restoringGnupgSettings "">
 <!ENTITY enigmail.importSetup.restoringEnigmail      "">
+
+<!ENTITY enigmail.changePasswd.title                 "">
+<!ENTITY enigmail.changePasswd.currPasswd.label      "">
+<!ENTITY enigmail.changePasswd.newPasswd.label       "">
+<!ENTITY enigmail.changePasswd.repeatPasswd.label    "">
+<!ENTITY enigmail.changePasswd.qualityMeter.label    "">
+<!ENTITY enigmail.changePasswd.passwdDontMatch.label "">
