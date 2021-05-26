@@ -82,7 +82,7 @@ pref("extensions.enigmail.keyManShowAllKeys", true);
 
 
 // list of keyservers to use
-pref("extensions.enigmail.keyserver", "vks://keys.openpgp.org, hkps://keyserver.ubuntu.com, hkps://hkps.pool.sks-keyservers.net");
+pref("extensions.enigmail.keyserver", "vks://keys.openpgp.org, hkps://keyserver.ubuntu.com, https://keys.mailvelope.com");
 
 // default keyserver
 pref("extensions.enigmail.defaultKeyserver", "vks://keys.openpgp.org");
