@@ -730,11 +730,10 @@ class GpgMECryptoAPI extends CryptoAPI {
     else {
       EnigmailLog.DEBUG(`gpgme.js: decrypt: result= ${JSON.stringify(result)}\n`);
 
-      ret.errorMsg = result.msg;
-      ret.statusFlags = EnigmailConstants.DECRYPTION_FAILED;
-      if (result.code === 117440529) {
-        ret.statusFlags |= EnigmailConstants.NO_SECKEY;
-      }
+      let r = getErrorMessage(result.code);
+      ret.errorMsg = r.errorMessage;
+      ret.exitCode = 1;
+      ret.statusFlags = r.statusFlags | EnigmailConstants.DECRYPTION_FAILED;
     }
 
     return ret;
@@ -1001,7 +1000,7 @@ class GpgMECryptoAPI extends CryptoAPI {
   /**
    * Encrypt messages
    *
-   * @param {String} from: keyID or email address of sender/signer
+   * @param {String} from: keyID of sender/signer
    * @param {String} recipients: keyIDs or email addresses of recipients, separated by spaces
    * @param {String} hiddenRecipients: keyIDs or email addresses of hidden recipients (bcc), separated by spaces
    * @param {Number} encryptionFlags: Flags for Signed/encrypted/PGP-MIME etc.
@@ -1017,7 +1016,60 @@ class GpgMECryptoAPI extends CryptoAPI {
    */
 
   async encryptMessage(from, recipients, hiddenRecipients, encryptionFlags, plainText, hashAlgorithm = null, parentWindow = null) {
-    return null;
+    EnigmailLog.DEBUG(`gpgme.js: encryptMessage(${from}, ${recipients}, ${encryptionFlags}, ${plainText.length})\n`);
+    let reqOp;
+
+    if (encryptionFlags & EnigmailConstants.SEND_ENCRYPTED) {
+      if (hiddenRecipients.length > 0) {
+        recipients += " " + hiddenRecipients;
+      }
+
+      reqOp = {
+        op: "encrypt",
+        keys: (from + " " + recipients).split(/[ ,]+/),
+        data: btoa(plainText),
+        sender: from,
+        base64: true,
+        armor: true,
+        'always-trust': encryptionFlags & EnigmailConstants.SEND_ALWAYS_TRUST ? true : false,
+        mime: encryptionFlags & EnigmailConstants.SEND_PGP_MIME ? true : false
+      };
+
+      if (encryptionFlags & EnigmailConstants.SEND_SIGNED) {
+        reqOp.signing_keys = from;
+      }
+    }
+    else {
+      reqOp = {
+        op: "sign",
+        keys: from,
+        data: btoa(plainText),
+        sender: from,
+        base64: true,
+        armor: true,
+        mode: "detached"
+      };
+    }
+    let result = await this.execJsonCmd(reqOp);
+
+    if (result.type === "ciphertext" || result.type === "signature") {
+      result.exitCode = 0;
+      result.statusFlags = 0;
+      if (result.base64) {
+        result.data = atob(result.data);
+      }
+    }
+    else {
+      EnigmailLog.DEBUG(`gpgme.js: encryptMessage: result= ${JSON.stringify(result)}\n`);
+
+      let r = getErrorMessage(result.code);
+      result.errorMsg = r.errorMessage;
+      result.exitCode = 1;
+      result.statusFlags = r.statusFlags;
+      result.data = "";
+    }
+
+    return result;
   }
 
   /**
@@ -1688,5 +1740,93 @@ async function exportKeyFromGnuPG(gpgPath, keyId, secretKey = false, asciiArmor 
     keyData: res.stdoutData,
     exitCode: exitCode,
     errorMsg: errorMsg
+  };
+}
+
+const GPG_SOURCE_SYSTEM = {
+  GPG_ERR_SOURCE_UNKNOWN: 0,
+  GPG_ERR_SOURCE_GCRYPT: 1,
+  GPG_ERR_SOURCE_GPG: 2,
+  GPG_ERR_SOURCE_GPGSM: 3,
+  GPG_ERR_SOURCE_GPGAGENT: 4,
+  GPG_ERR_SOURCE_PINENTRY: 5,
+  GPG_ERR_SOURCE_SCD: 6,
+  GPG_ERR_SOURCE_GPGME: 7,
+  GPG_ERR_SOURCE_KEYBOX: 8,
+  GPG_ERR_SOURCE_KSBA: 9,
+  GPG_ERR_SOURCE_DIRMNGR: 10,
+  GPG_ERR_SOURCE_GSTI: 11,
+  GPG_ERR_SOURCE_GPA: 12,
+  GPG_ERR_SOURCE_KLEO: 13,
+  GPG_ERR_SOURCE_G13: 14,
+  GPG_ERR_SOURCE_ASSUAN: 15,
+  GPG_ERR_SOURCE_TLS: 17,
+  GPG_ERR_SOURCE_ANY: 31
+};
+
+function getErrorMessage(errorNum) {
+  const sourceSystem = errorNum >> 24;
+  const errorCode = errorNum & 0xFFFFFF;
+
+  let errorMessage = "";
+  let statusFlags = 0;
+
+  switch (errorCode) {
+    case 32870: // error no tty
+      if (sourceSystem === GPG_SOURCE_SYSTEM.GPG_ERR_SOURCE_PINENTRY) {
+        errorMessage = EnigmailLocale.getString("errorHandling.pinentryCursesError") + "\n\n" + EnigmailLocale.getString("errorHandling.readFaq");
+        statusFlags = EnigmailConstants.DISPLAY_MESSAGE;
+      }
+      break;
+    case 11: // bad Passphrase
+    case 87: // bad PIN
+      errorMessage = EnigmailLocale.getString("badPhrase");
+      statusFlags = EnigmailConstants.BAD_PASSPHRASE;
+      break;
+    case 177: // no passphrase
+    case 178: // no PIN
+      errorMessage = EnigmailLocale.getString("missingPassphrase");
+      statusFlags = EnigmailConstants.MISSING_PASSPHRASE;
+      break;
+    case 99: // operation canceled
+      if (sourceSystem === GPG_SOURCE_SYSTEM.GPG_ERR_SOURCE_PINENTRY) {
+        errorMessage = EnigmailLocale.getString("missingPassphrase");
+        statusFlags = EnigmailConstants.MISSING_PASSPHRASE;
+      }
+      break;
+    case 77: // no agent
+    case 78: // agent error
+    case 80: // assuan server fault
+    case 81: // assuan error
+      errorMessage = EnigmailLocale.getString("errorHandling.gpgAgentError") + "\n\n" + EnigmailLocale.getString("errorHandling.readFaq");
+      statusFlags = EnigmailConstants.DISPLAY_MESSAGE;
+      break;
+    case 85: // no pinentry
+    case 86: // pinentry error
+      errorMessage = EnigmailLocale.getString("errorHandling.pinentryError") + "\n\n" + EnigmailLocale.getString("errorHandling.readFaq");
+      statusFlags = EnigmailConstants.DISPLAY_MESSAGE;
+      break;
+    case 92: // no dirmngr
+    case 93: // dirmngr error
+      errorMessage = EnigmailLocale.getString("errorHandling.dirmngrError") + "\n\n" + EnigmailLocale.getString("errorHandling.readFaq");
+      statusFlags = EnigmailConstants.DISPLAY_MESSAGE;
+      break;
+    case 2:
+    case 3:
+    case 149:
+    case 188:
+      statusFlags = EnigmailConstants.UNKNOWN_ALGO;
+      break;
+    case 15:
+      statusFlags = EnigmailConstants.BAD_ARMOR;
+      break;
+    case 58:
+      statusFlags = EnigmailConstants.NODATA;
+      break;
+  }
+
+  return {
+    errorMessage: errorMessage,
+    statusFlags: statusFlags
   };
 }
