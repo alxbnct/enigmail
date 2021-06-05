@@ -153,7 +153,7 @@ test(withTestGpgHome(withEnigmail(asyncTest(async function testDecrypt(esvc, win
   let pgpMsg = EnigmailArmor.splitArmoredBlocks(fileData)[0];
 
   let result = await gpgmeApi.decrypt(pgpMsg, {});
-  Assert.equal(result.statusFlags, EnigmailConstants.DECRYPTION_FAILED | EnigmailConstants.NO_SECKEY);
+  Assert.equal(result.statusFlags, EnigmailConstants.DECRYPTION_FAILED);
 
   const secKeyFile = do_get_file("resources/dev-strike.sec", false);
   let r = await gpgmeApi.importKeyFromFile(secKeyFile, false, null);
@@ -181,7 +181,7 @@ owE7rZbEEOfZI+yRmpOTr1CeX5SToscVkpFZrABEiQolqcUlCla6mlwA
 -----END PGP MESSAGE-----`;
 
   result = await gpgmeApi.decrypt(storedMsg, {});
-  Assert.equal(result.statusFlags, 65536);
+  Assert.equal(result.statusFlags, EnigmailConstants.DECRYPTION_FAILED | EnigmailConstants.NODATA);
   Assert.equal(result.exitCode, 1);
   Assert.equal(result.sigDetails, "");
   Assert.equal(result.decryptedData, "");
@@ -290,7 +290,7 @@ fsTKNmsBfsUHg/qzu+yD0e4bTuEKVsDcCg==
 -----END PGP MESSAGE-----`;
 
   result = await gpgmeApi.decrypt(badMdc, {});
-  Assert.equal(result.statusFlags, EnigmailConstants.DECRYPTION_FAILED);
+  Assert.equal(result.statusFlags, EnigmailConstants.DECRYPTION_FAILED | EnigmailConstants.NODATA);
   Assert.equal(result.exitCode, 1);
   Assert.equal(result.decryptedData, "");
 
