@@ -1073,27 +1073,6 @@ class GpgMECryptoAPI extends CryptoAPI {
   }
 
   /**
-   * Encrypt Files
-   *
-   * @param {String} from: keyID or email address of sender/signer
-   * @param {String} recipients: keyIDs or email addresses of recipients, separated by spaces
-   * @param {String} hiddenRecipients: keyIDs or email addresses of hidden recipients (bcc), separated by spaces
-   * @param {Number} encryptionFlags: Flags for Signed/encrypted/PGP-MIME etc.
-   * @param {nsIFile} inputFile: source file to encrypt
-   * @param {nsIFile} outputFile: target file containing encrypted data
-   *
-   * @return {Object}:
-   *     - {Number} exitCode:    0 = success / other values: error
-   *     - {String} data:        encrypted data
-   *     - {String} errorMsg:    error message in case exitCode !== 0
-   *     - {Number} statusFlags: Status flags for result
-   */
-
-  async encryptFile(from, recipients, hiddenRecipients, encryptionFlags, inputFile, outputFile, parentWindow = null) {
-    return null;
-  }
-
-  /**
    * Clear any cached passwords
    *
    * @return {Boolean} true if successful, false otherwise

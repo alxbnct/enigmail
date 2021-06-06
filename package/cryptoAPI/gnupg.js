@@ -756,12 +756,6 @@ class GnuPGCryptoAPI extends CryptoAPI {
     });
   }
 
-  async encryptFile(from, recipients, hiddenRecipients, encryptionFlags, inputFile, outputFile, parentWindow) {
-    let ret = await GnuPG_Encryption.encryptFile(from, recipients, hiddenRecipients, encryptionFlags, inputFile, outputFile, parentWindow);
-
-    return ret;
-  }
-
   /**
    * Clear any cached passwords
    *
