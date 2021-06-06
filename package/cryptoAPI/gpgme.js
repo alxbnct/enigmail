@@ -219,9 +219,13 @@ class GpgMECryptoAPI extends CryptoAPI {
       "with-secret": true
     };
 
-    if (onlyKeys) {
-      cmdObj.keys = onlyKeys.split(/[, ]+/);
+    if (onlyKeys && typeof(onlyKeys) === "string") {
+      onlyKeys = onlyKeys.split(/[, ]+/);
     }
+    if (onlyKeys) {
+      cmdObj.keys = onlyKeys;
+    }
+
     let keysObj = await this.execJsonCmd(cmdObj);
 
     let keyArr = [];
@@ -317,14 +321,17 @@ class GpgMECryptoAPI extends CryptoAPI {
   /**
    * Extract a photo ID from a key, store it as file and return the file object.
    *
-   * @param {String} keyId:       Key ID / fingerprint
+   * @param {String} keyId:       Key Fingerprint
    * @param {Number} photoNumber: number of the photo on the key, starting with 0
    *
    * @return {nsIFile} object or null in case no data / error.
    */
+
   async getPhotoFile(keyId, photoNumber) {
+    // not available via this API
     return null;
   }
+
 
   /**
    * Import key(s) from a file
@@ -363,36 +370,6 @@ class GpgMECryptoAPI extends CryptoAPI {
 
   async importKeyData(keyData, minimizeKey = false, limitedUids = []) {
     EnigmailLog.DEBUG(`gpgme.js: importKeyData(${keyData.length}, ${minimizeKey})\n`);
-
-    /*
-    // Using gpgme-json doesn't work with importing private keys, therefore using
-    // gpg directly
-
-    let res = await this.execJsonCmd({
-      op: "import",
-      data: keyData,
-      protocol: "openpgp",
-      base64: false
-    });
-
-    if ("result" in res) {
-      EnigmailLog.DEBUG(`gpgme.js: importKeys: ${JSON.stringify(res)}`);
-      let r = {
-        exitCode: 0,
-        importSum: res.result.considered,
-        importedKeys: [],
-        importUnchanged: res.result.unchanged
-      };
-
-      for (let k of res.result.imports) {
-        r.importedKeys.push(k.fingerprint);
-      }
-
-      return r;
-    }
-
-    return null;
-*/
 
     let args = ["--no-verbose", "--status-fd", "2"];
     if (minimizeKey) {
@@ -543,10 +520,10 @@ class GpgMECryptoAPI extends CryptoAPI {
    * @param {String} name:       name part of UID
    * @param {String} comment:    comment part of UID (brackets are added)
    * @param {String} email:      email part of UID (<> will be added)
-   * @param {Number} expiryDate: Unix timestamp of key expiry date; 0 if no expiry
-   * @param {Number} keyLength:  size of key in bytes (e.g 4096)
+   * @param {Number} expiryDate: number of days after now; 0 if no expiry
+   * @param {Number} keyLength:  size of key in bytes (not supported in this API)
    * @param {String} keyType:    'RSA' or 'ECC'
-   * @param {String} passphrase: password; use null if no password
+   * @param {String} passphrase: password; use null if no password (not supported in this API)
    *
    * @return {Object}: Handle to key creation
    *    - {function} cancel(): abort key creation
@@ -555,8 +532,40 @@ class GpgMECryptoAPI extends CryptoAPI {
    *                 - {String} generatedKeyId: generated key ID
    */
 
-  generateKey(name, comment, email, expiryDate, keyLength, keyType, passphrase) {
-    return null;
+  generateKey(name, comment, email, expiryDate = 0, keyLength, keyType, passphrase) {
+    EnigmailLog.DEBUG(`gpgme.js: generateKey(${name}, ${email}, ${expiryDate}, ${keyType})\n`);
+    let canceled = false;
+
+    let promise = new Promise((resolve, reject) => {
+      let uid = (name + (comment ? ` (${comment})` : "") + (email ? ` <${email}>` : "")).trim();
+      this.execJsonCmd({
+        op: "createkey",
+        userid: uid,
+        algo: (keyType === "RSA" ? "default" : "future-default"),
+        expires: expiryDate * 86400
+      }).then(async (result) => {
+        if ("fingerprint" in result) {
+          resolve({
+            exitCode: 0,
+            generatedKeyId: "0x" + result.fingerprint
+          });
+        }
+        else {
+          let r = getErrorMessage(result.code);
+          reject(r.errorMessage);
+        }
+
+      }).catch(err => {
+        reject(err);
+      });
+    });
+
+    return {
+      cancel: function() {
+        canceled = true;
+      },
+      promise: promise
+    };
   }
 
 
@@ -1124,7 +1133,7 @@ class GpgMECryptoAPI extends CryptoAPI {
       case "supports-gpg-agent":
         return EnigmailVersioning.greaterThanOrEqual(gpgVersion, "2.0.16");
       case "keygen-passphrase":
-        return EnigmailVersioning.lessThan(gpgVersion, "2.1") || EnigmailVersioning.greaterThanOrEqual(gpgVersion, "2.1.2");
+        return false;
       case "genkey-no-protection":
         return EnigmailVersioning.greaterThan(gpgVersion, "2.1");
       case "windows-photoid-bug":

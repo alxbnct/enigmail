@@ -236,7 +236,7 @@ class CryptoAPI {
    * @param {String} name:       name part of UID
    * @param {String} comment:    comment part of UID (brackets are added)
    * @param {String} email:      email part of UID (<> will be added)
-   * @param {Number} expiryDate: Unix timestamp of key expiry date; 0 if no expiry
+   * @param {Number} expiryDate: number of days after now; 0 if no expiry
    * @param {Number} keyLength:  size of key in bytes (e.g 4096)
    * @param {String} keyType:    'RSA' or 'ECC'
    * @param {String} passphrase: password; use null if no password

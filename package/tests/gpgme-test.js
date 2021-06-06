@@ -448,7 +448,6 @@ test(withTestGpgHome(withEnigmail(asyncTest(async function testAttachment(esvc, 
 
 test(withTestGpgHome(withEnigmail(asyncTest(async function testEncrypt(esvc, window) {
   const gpgmeApi = getGpgMEApi();
-
   gpgmeApi.initialize(null, esvc, null);
 
   const keyFile = do_get_file("resources/dev-strike.sec", false);
@@ -471,6 +470,47 @@ test(withTestGpgHome(withEnigmail(asyncTest(async function testEncrypt(esvc, win
   Assert.equal(result.exitCode, 0);
   Assert.ok(result.data.search(/^-----BEGIN PGP SIGNATURE-----$/m) >= 0, "contains Hash header");
 }))));
+
+
+test(withTestGpgHome(withEnigmail(asyncTest(async function testEncrypt(esvc, window) {
+  const gpgmeApi = getGpgMEApi();
+  gpgmeApi.initialize(null, esvc, null);
+
+  // Test ECC Key
+  let handle = gpgmeApi.generateKey("Test User", "", "testuser@invalid.domain", 5, 0, "ECC", "");
+  let retObj = await handle.promise;
+  Assert.equal(retObj.exitCode, 0);
+  let fpr = retObj.generatedKeyId;
+  Assert.equal(fpr.search(/^0x[0-9A-F]+$/), 0);
+
+  let keyList = await gpgmeApi.getKeys([fpr]);
+  Assert.equal(keyList.length, 1);
+
+  let keyObj = keyList[0];
+  Assert.equal(keyObj.keyTrust, "u");
+  Assert.equal(keyObj.userId, "Test User <testuser@invalid.domain>");
+  Assert.equal(keyObj.algoSym, "EdDSA");
+  Assert.equal(keyObj.subKeys.length, 1);
+  Assert.ok(keyObj.expiryTime > 0);
+
+  // Test RSA Key
+  handle = gpgmeApi.generateKey("Test User 2", "", "testuser2@invalid.domain", 0, 4096, "RSA", "");
+  retObj = await handle.promise;
+  Assert.equal(retObj.exitCode, 0);
+  fpr = retObj.generatedKeyId;
+  Assert.equal(fpr.search(/^0x[0-9A-F]+$/), 0);
+
+  keyList = await gpgmeApi.getKeys([fpr]);
+  Assert.equal(keyList.length, 1);
+
+  keyObj = keyList[0];
+  Assert.equal(keyObj.keyTrust, "u");
+  Assert.equal(keyObj.userId, "Test User 2 <testuser2@invalid.domain>");
+  Assert.equal(keyObj.algoSym, "RSA");
+  Assert.equal(keyObj.subKeys.length, 1);
+  Assert.equal(keyObj.expiryTime, 0);
+}))));
+
 
 ////////////////////////////////////////////////////////
 // Helper Functions
