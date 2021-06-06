@@ -446,6 +446,31 @@ test(withTestGpgHome(withEnigmail(asyncTest(async function testAttachment(esvc, 
   }
 }))));
 
+test(withTestGpgHome(withEnigmail(asyncTest(async function testEncrypt(esvc, window) {
+  const gpgmeApi = getGpgMEApi();
+
+  gpgmeApi.initialize(null, esvc, null);
+
+  const keyFile = do_get_file("resources/dev-strike.sec", false);
+  let r = await gpgmeApi.importKeyFromFile(keyFile);
+  Assert.equal(r.importSum, 1);
+
+  let encryptFlags = (EnigmailConstants.SEND_ENCRYPTED | EnigmailConstants.SEND_ALWAYS_TRUST | EnigmailConstants.SEND_SIGNED | EnigmailConstants.SEND_ENCRYPT_TO_SELF);
+
+  let result = await gpgmeApi.encryptMessage("0x65537E212DC19025AD38EDB2781617319CE311C4", "", "", encryptFlags, "Hello World");
+  Assert.equal(result.exitCode, 0);
+  Assert.ok(result.data.search(/^-----BEGIN PGP MESSAGE-----$/m) >= 0, "contains PGP start header");
+
+  encryptFlags = EnigmailConstants.SEND_SIGNED | EnigmailConstants.SEND_TEST;
+  result = await gpgmeApi.encryptMessage("0x65537E212DC19025AD38EDB2781617319CE311C4", null, null, encryptFlags, "Hello World");
+  Assert.equal(result.exitCode, 0);
+  Assert.ok(result.data.search(/-----BEGIN PGP SIGNED MESSAGE-----\r?\nHash: SHA(256|512)/) >= 0, "contains Hash header");
+
+  encryptFlags = EnigmailConstants.SEND_SIGNED | EnigmailConstants.SEND_PGP_MIME;
+  result = await gpgmeApi.encryptMessage("0x65537E212DC19025AD38EDB2781617319CE311C4", null, null, encryptFlags, "Hello World");
+  Assert.equal(result.exitCode, 0);
+  Assert.ok(result.data.search(/^-----BEGIN PGP SIGNATURE-----$/m) >= 0, "contains Hash header");
+}))));
 
 ////////////////////////////////////////////////////////
 // Helper Functions

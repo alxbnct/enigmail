@@ -35,7 +35,7 @@ var pgpjs_encrypt = {
    * @param {String} hiddenRecipients: keyIDs or email addresses of hidden recipients (bcc), separated by spaces
    * @param {Number} encryptionFlags: Flags for Signed/encrypted/PGP-MIME etc.
    * @param {String} plainText: data to encrypt
-   * @param {String} hashAlgorithm: [OPTIONAL] hash algorithm
+   * @param {String} hashAlgorithm: [OPTIONAL] hash algorithm (ignored for this API)
    * @param {nsIWindow} parentWindow: [OPTIONAL] window on top of which to display modal dialogs
    *
    * @return {Promise<Object>}:
