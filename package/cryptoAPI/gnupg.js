@@ -668,7 +668,6 @@ class GnuPGCryptoAPI extends CryptoAPI {
       errorMsg: ""
     };
 
-    let exitCodeObj = {};
     try {
       let trustData = EnigmailFiles.readFile(inputFile);
       res = await EnigmailExecution.execAsync(EnigmailGpg.agentPath, args, trustData);

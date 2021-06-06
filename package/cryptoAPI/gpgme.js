@@ -1020,10 +1020,19 @@ class GpgMECryptoAPI extends CryptoAPI {
    *         - errorMsg {String}: error message
    */
   async importOwnerTrust(inputFile) {
-    return {
-      exitCode: 0,
+    const GPG_ARGS = ["--no-tty", "--batch", "--no-verbose", "--import-ownertrust"];
+    let res = {
+      exitCode: -1,
       errorMsg: ""
     };
+
+    try {
+      let trustData = EnigmailFiles.readFile(inputFile);
+      res = await EnigmailExecution.execAsync(this._gpgPath, GPG_ARGS, trustData);
+    }
+    catch (ex) {}
+
+    return res;
   }
 
 

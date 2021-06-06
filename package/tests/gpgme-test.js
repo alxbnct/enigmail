@@ -1,4 +1,4 @@
-/*global do_load_module: false, do_get_file: false, do_get_cwd: false, testing: false, test: false, Assert: false, resetting: false */
+/*global do_load_module: false, do_get_file: false, do_get_cwd: false, testing: false, test: false, Assert: false, do_get_tmp_dir: false */
 /*global do_test_pending: false, do_test_finished: false, withTestGpgHome: false, asyncTest: false, withEnigmail: false, withOverwriteFuncs: false */
 
 /*
@@ -509,6 +509,35 @@ test(withTestGpgHome(withEnigmail(asyncTest(async function testEncrypt(esvc, win
   Assert.equal(keyObj.algoSym, "RSA");
   Assert.equal(keyObj.subKeys.length, 1);
   Assert.equal(keyObj.expiryTime, 0);
+}))));
+
+test(withTestGpgHome(withEnigmail(asyncTest(async function testOwnerTrust(esvc, window) {
+  const gpgmeApi = getGpgMEApi();
+  gpgmeApi.initialize(null, esvc, null);
+
+  const keyFile = do_get_file("resources/dev-strike.sec", false);
+  let r = await gpgmeApi.importKeyFromFile(keyFile);
+  Assert.equal(r.importSum, 1);
+
+  let keyList = await gpgmeApi.getKeys(["0x65537E212DC19025AD38EDB2781617319CE311C4"]);
+  Assert.equal(keyList.length, 1);
+  Assert.equal(keyList[0].keyTrust, "-");
+
+  let otFile = do_get_tmp_dir();
+  otFile.append("ownertrust-test.txt");
+  if (!EnigmailFiles.writeFileContents(otFile, "65537E212DC19025AD38EDB2781617319CE311C4:6:\n")) {
+    Assert.ok(false);
+  }
+  r = await gpgmeApi.importOwnerTrust(otFile);
+  Assert.equal(r.exitCode, 0);
+
+  keyList = await gpgmeApi.getKeys(["0x65537E212DC19025AD38EDB2781617319CE311C4"]);
+  Assert.equal(keyList.length, 1);
+  Assert.equal(keyList[0].keyTrust, "u");
+
+  r = await gpgmeApi.getOwnerTrust(null);
+  Assert.equal(r.exitCode, 0);
+  Assert.ok(r.ownerTrustData.search(/^65537E212DC19025AD38EDB2781617319CE311C4:6:/m) >= 0);
 }))));
 
 
