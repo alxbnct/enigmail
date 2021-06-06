@@ -541,6 +541,18 @@ test(withTestGpgHome(withEnigmail(asyncTest(async function testOwnerTrust(esvc, 
 }))));
 
 
+test(withTestGpgHome(homeDir => {
+  let cbFunc = withEnigmail(asyncTest(async function testGpgConfig(esvc, window) {
+    const gpgmeApi = getGpgMEApi();
+    gpgmeApi.initialize(null, esvc, null);
+
+    let cfgDir = gpgmeApi.getConfigDir();
+    Assert.equal(cfgDir, homeDir);
+  }));
+
+  cbFunc(homeDir);
+}));
+
 ////////////////////////////////////////////////////////
 // Helper Functions
 ////////////////////////////////////////////////////////

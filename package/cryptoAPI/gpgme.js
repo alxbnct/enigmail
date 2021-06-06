@@ -1424,6 +1424,18 @@ class GpgMECryptoAPI extends CryptoAPI {
    * @return {String}: config directory or null if none
    */
   getConfigDir() {
+    const gpgConfPath = resolveToolPath(this._gpgAgentPath, "gpgconf");
+    if (!gpgConfPath) return null;
+
+    const args = ["--list-dirs"];
+
+    let result = this.sync(EnigmailExecution.execAsync(gpgConfPath, args, ""));
+
+    let m = result.stdoutData.match(/^(homedir:)(.*)$/mi);
+    if (m && m.length > 2) {
+      return EnigmailData.convertGpgToUnicode(unescape(m[2]));
+    }
+
     return null;
   }
 
