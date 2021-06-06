@@ -56,6 +56,8 @@ class GpgMECryptoAPI extends CryptoAPI {
     super();
     this.api_name = "GpgME";
     this._gpgmePath = "";
+    this._gpgPath = "";
+    this._gpgAgentPath = "";
 
     if (!inspector) {
       inspector = Cc["@mozilla.org/jsinspector;1"].createInstance(Ci.nsIJSInspector);
@@ -85,9 +87,13 @@ class GpgMECryptoAPI extends CryptoAPI {
       }));
 
       for (let o of opts.components) {
-        if (o.name === "gpg") {
-          this._gpgPath = gpgUnescape(o.program_name);
-          break;
+        switch (o.name) {
+          case "gpg":
+            this._gpgPath = gpgUnescape(o.program_name);
+            break;
+          case "gpg-agent":
+            this._gpgAgentPath = gpgUnescape(o.program_name);
+            break;
         }
       }
 
@@ -1117,7 +1123,11 @@ class GpgMECryptoAPI extends CryptoAPI {
    * @return {Boolean} true if successful, false otherwise
    */
   async clearPassphrase() {
-    return null;
+    const input = "RELOADAGENT\n/bye\n";
+    let gpgConnPath = resolveToolPath(this._gpgAgentPath, "gpg-connect-agent");
+
+    let res = await EnigmailExecution.execAsync(gpgConnPath, [], input);
+    return (res.stdoutData.search(/^ERR/m) < 0);
   }
 
   /***
@@ -1510,6 +1520,28 @@ function resolvePath(env) {
   }
 
   return toolPath.QueryInterface(Ci.nsIFile);
+}
+
+function resolveToolPath(parentPath, fileName) {
+  let filePath = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
+
+  EnigmailFiles.initPath(filePath, parentPath);
+
+  if (filePath) {
+    // try to get the install directory of gpg/gpg2 executable
+    filePath.normalize();
+    filePath = filePath.parent;
+  }
+
+  if (filePath) {
+    filePath.append(EnigmailFiles.potentialWindowsExecutable(fileName));
+    if (filePath.exists()) {
+      filePath.normalize();
+      return filePath;
+    }
+  }
+
+  return EnigmailFiles.resolvePathWithEnv(fileName);
 }
 
 
