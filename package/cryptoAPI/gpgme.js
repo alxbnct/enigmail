@@ -981,11 +981,32 @@ class GpgMECryptoAPI extends CryptoAPI {
    *          - errorMsg {String}: error message
    */
   async getOwnerTrust(outputFile) {
+    const DEFAULT_FILE_PERMS = 0o600;
+    const GPG_ARGS = ["--no-tty", "--batch", "--no-verbose", "--export-ownertrust"];
+
+    let res = await EnigmailExecution.execAsync(this._gpgPath, GPG_ARGS, "");
+    let exitCode = res.exitCode;
+    let errorMsg = res.errorMsg;
+
+    if (outputFile) {
+      if (!EnigmailFiles.writeFileContents(outputFile, res.stdoutData, DEFAULT_FILE_PERMS)) {
+        exitCode = -1;
+        errorMsg = EnigmailLocale.getString("fileWriteFailed", [outputFile]);
+      }
+
+      return {
+        ownerTrustData: "",
+        exitCode: exitCode,
+        errorMsg: errorMsg
+      };
+    }
+
     return {
-      exitCode: 0,
-      ownerTrustData: "",
-      errorMsg: ""
+      ownerTrustData: res.stdoutData,
+      exitCode: exitCode,
+      errorMsg: errorMsg
     };
+
   }
 
 

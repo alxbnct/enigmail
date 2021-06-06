@@ -637,7 +637,11 @@ class GnuPGCryptoAPI extends CryptoAPI {
         exitCode = -1;
         errorMsg = EnigmailLocale.getString("fileWriteFailed", [outputFile]);
       }
-      return "";
+      return {
+        ownerTrustData: "",
+        exitCode: exitCode,
+        errorMsg: errorMsg
+      };
     }
 
     return {
