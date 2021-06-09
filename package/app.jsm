@@ -33,6 +33,10 @@ var EnigmailApp = {
     return Cc[XPCOM_APPINFO].getService(Ci.nsIXULAppInfo).platformVersion;
   },
 
+  getApplicationVersion: function() {
+    return Cc[XPCOM_APPINFO].getService(Ci.nsIXULAppInfo).version;
+  },
+
   /**
    * Return the directory holding the current profile as nsIFile object
    */
