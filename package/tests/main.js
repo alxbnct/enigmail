@@ -48,6 +48,7 @@ execTest("keyserver-test.js");
 execTest("keyserverUris-test.js");
 execTest("locale-test.js");
 execTest("log-test.js");
+execTest("httpProxy-test.js");
 execTest("mime-test.js");
 execTest("os-test.js");
 execTest("prefs-test.js");
