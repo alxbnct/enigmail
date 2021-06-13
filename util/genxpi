@@ -110,6 +110,7 @@ set chrome/content/preferences/defaultPrefs.js \
     chrome/content/modules/core.jsm \
     chrome/content/modules/configBackup.jsm \
     chrome/content/modules/enigmailOverlays.jsm \
+    chrome/content/modules/enigmailUpdate.jsm \
     chrome/content/modules/errorHandling.jsm \
     chrome/content/modules/funcs.jsm \
     chrome/content/modules/gnupgUpdate.jsm \
