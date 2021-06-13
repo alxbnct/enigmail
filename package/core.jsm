@@ -40,6 +40,7 @@ const getEnigmailWksMimeHandler = EnigmailLazy.loader("enigmail/wksMimeHandler.j
 const getEnigmailOverlays = EnigmailLazy.loader("enigmail/enigmailOverlays.jsm", "EnigmailOverlays");
 const getEnigmailSqlite = EnigmailLazy.loader("enigmail/sqliteDb.jsm", "EnigmailSqliteDb");
 const getEnigmailGnuPGUpdate = EnigmailLazy.loader("enigmail/gnupgUpdate.jsm", "EnigmailGnuPGUpdate");
+const getEnigmailUpdate = EnigmailLazy.loader("enigmail/enigmailUpdate.jsm", "EnigmailUpdate");
 const getEnigmailTimer = EnigmailLazy.loader("enigmail/timer.jsm", "EnigmailTimer");
 const Services = ChromeUtils.import("resource://gre/modules/Services.jsm").Services;
 
@@ -392,8 +393,13 @@ Enigmail.prototype = {
 
     getEnigmailTimer().setTimeout(
       function() {
+        getEnigmailUpdate().runUpdateCheck();
+      }, 18 * 1000); // wait 3 minutes before starting the update checker - FIXME
+
+    getEnigmailTimer().setTimeout(
+      function() {
         getEnigmailGnuPGUpdate().runUpdateCheck();
-      }, 240); // wait 4 minutes before starting the update checker
+      }, 240 * 1000); // wait 4 minutes before starting the update checker
     getEnigmailLog().DEBUG("core.jsm: Enigmail.initialize: END\n");
   },
 
