@@ -49,7 +49,7 @@ function onLoad() {
   var menulist = document.getElementById("signWithKey");
 
   for (key of keys) {
-    menulist.appendItem(key.userId + " - " + key.fprFormatted, key.fprFormatted);
+    menulist.appendItem(key.userId + " - " + key.fprFormatted, key.fpr);
   }
   if (menulist.selectedIndex == -1) {
     menulist.selectedIndex = 0;
