@@ -16,7 +16,6 @@ const EnigmailFiles = ChromeUtils.import("chrome://enigmail/content/modules/file
 const EnigmailLocale = ChromeUtils.import("chrome://enigmail/content/modules/locale.jsm").EnigmailLocale;
 const EnigmailData = ChromeUtils.import("chrome://enigmail/content/modules/data.jsm").EnigmailData;
 const EnigmailExecution = ChromeUtils.import("chrome://enigmail/content/modules/execution.jsm").EnigmailExecution;
-const EnigmailGpgAgent = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/gnupg-agent.jsm").EnigmailGpgAgent;
 const EnigmailGpg = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/gnupg-core.jsm").EnigmailGpg;
 const EnigmailKeyRing = ChromeUtils.import("chrome://enigmail/content/modules/keyRing.jsm").EnigmailKeyRing;
 const EnigmailErrorHandling = ChromeUtils.import("chrome://enigmail/content/modules/errorHandling.jsm").EnigmailErrorHandling;
@@ -240,12 +239,9 @@ function editKey(parent, needPassphrase, userId, keyId, editCmd, inputData, call
     return -1;
   }
 
-  var keyIdList = keyId.split(" ");
-  var args = EnigmailGpg.getStandardArgs(false);
+  let keyIdList = keyId.split(" ");
+  let args = ["--charset", "utf-8", "--display-charset", "utf-8", "--no-auto-check-trustdb", "--no-tty", "--no-verbose", "--status-fd", "1", "--logger-fd", "1", "--command-fd", "0"];
 
-  var statusFlags = {};
-
-  args = args.concat(["--no-tty", "--no-verbose", "--status-fd", "1", "--logger-fd", "1", "--command-fd", "0"]);
   if (userId) args = args.concat(["-u", userId]);
   var editCmdArr;
   if (typeof(editCmd) == "string") {
@@ -272,7 +268,7 @@ function editKey(parent, needPassphrase, userId, keyId, editCmd, inputData, call
   }
 
 
-  var command = EnigmailGpgAgent.agentPath;
+  let command = EnigmailKeyEditor.gpgPath;
   EnigmailLog.CONSOLE("enigmail> " + EnigmailFiles.formatCmdLine(command, args) + "\n");
 
   var keyEdit = new GpgEditorInterface(requestObserver, callbackFunc, inputData);
@@ -298,10 +294,9 @@ function editKey(parent, needPassphrase, userId, keyId, editCmd, inputData, call
 function runKeyTrustCheck(callbackFunc) {
   EnigmailLog.DEBUG("gnupg-keyEditor.jsm: runKeyTrustCheck()\n");
 
-  let args = EnigmailGpg.getStandardArgs(true);
-  args = args.concat(["--yes", "--check-trustdb"]);
+  let args = ["--charset", "utf-8", "--display-charset", "utf-8", "--no-auto-check-trustdb", "--batch", "--no-tty", "--no-verbose", "--status-fd", "2", "--yes", "--check-trustdb"];
 
-  EnigmailExecution.execCmd2(EnigmailGpgAgent.agentPath,
+  EnigmailExecution.execCmd2(EnigmailKeyEditor.gpgPath,
     args,
     null,
     function stdout(data) {
@@ -321,6 +316,8 @@ function runKeyTrustCheck(callbackFunc) {
  *   - {String} errorMsg:   error description in case of failure
  */
 var EnigmailKeyEditor = {
+  gpgPath: null,
+
   setKeyTrust: function(parent, keyId, trustLevel) {
     EnigmailLog.DEBUG("gnupg-keyEditor.jsm: setKeyTrust: trustLevel=" + trustLevel + ", keyId=" + keyId + "\n");
 

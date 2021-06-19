@@ -1159,7 +1159,7 @@ class GpgMECryptoAPI extends CryptoAPI {
   supportsFeature(featureName) {
     let gpgVersion = this._gpgVersion;
 
-    if (!gpgVersion || typeof(gpgVersion) != "string" || gpgVersion.length === 0) {
+    if (!gpgVersion || typeof(gpgVersion) !== "string" || gpgVersion.length === 0) {
       return undefined;
     }
 
@@ -1170,45 +1170,29 @@ class GpgMECryptoAPI extends CryptoAPI {
     }
 
     switch (featureName) {
-      case "supports-gpg-agent":
-        return EnigmailVersioning.greaterThanOrEqual(gpgVersion, "2.0.16");
-      case "keygen-passphrase":
-        return false;
-      case "genkey-no-protection":
-        return EnigmailVersioning.greaterThan(gpgVersion, "2.1");
-      case "windows-photoid-bug":
-        return EnigmailVersioning.lessThan(gpgVersion, "2.0.16");
-      case "supports-dirmngr":
-        return EnigmailVersioning.greaterThan(gpgVersion, "2.1");
-      case "supports-ecc-keys":
-        return EnigmailVersioning.greaterThan(gpgVersion, "2.1");
-      case "socks-on-windows":
-        return EnigmailVersioning.greaterThanOrEqual(gpgVersion, "2.0.20");
       case "search-keys-cmd":
         // returns a string
-        if (EnigmailVersioning.greaterThan(gpgVersion, "2.1")) {
-          return "save";
-        }
-        else
-          return "quit";
-      case "supports-sender":
-        return EnigmailVersioning.greaterThanOrEqual(gpgVersion, "2.1.15");
-      case "export-result":
-        return EnigmailVersioning.greaterThanOrEqual(gpgVersion, "2.1.10");
-      case "decryption-info":
-        return EnigmailVersioning.greaterThanOrEqual(gpgVersion, "2.0.19");
-      case "supports-wkd":
-        return EnigmailVersioning.greaterThanOrEqual(gpgVersion, "2.1.19");
-      case "export-specific-uid":
-        return EnigmailVersioning.greaterThanOrEqual(gpgVersion, "2.2.9");
-      case "supports-show-only":
-        return EnigmailVersioning.greaterThanOrEqual(gpgVersion, "2.1.14");
+        return "save";
       case "handles-huge-keys":
         return EnigmailVersioning.greaterThanOrEqual(gpgVersion, "2.2.17");
+      case "supports-sender":
+      case "export-result":
+      case "decryption-info":
+      case "supports-wkd":
+      case "export-specific-uid":
+      case "supports-show-only":
       case "smartcard":
       case "uid-management":
       case "ownertrust":
+      case "supports-dirmngr":
+      case "supports-ecc-keys":
+      case "socks-on-windows":
+      case "supports-gpg-agent":
+      case "genkey-no-protection":
         return true;
+      case "keygen-passphrase":
+      case "windows-photoid-bug":
+        return false;
     }
 
     return undefined;
@@ -1262,160 +1246,9 @@ class GpgMECryptoAPI extends CryptoAPI {
    * Return the key management functions (sub-API)
    */
   getKeyManagement() {
-
-    function createError() {
-      return {
-        returnCode: 1,
-        errorMsg: "Not implemented"
-      };
-    }
-
-    return {
-      /**
-       * Generate a revocation certificate and save it as a file
-       *
-       * @param {nsIWindow} parent       parent window for displaying (modal) messages
-       * @param {String}    keyId        fingerprint of the key to modify
-       * @param {nsIFile}   outFile      handle file for saving the revocation certificate
-       * @param {String}    reasonCode   revocation reason code as used by GnuPG "ask_revocation_reason.code"
-       * @param {String}    reasonText   explanation for revocation reason
-       * @return  {Promise<Object>}
-       *               - retunCode {Number}   0 = success / other values = error
-       *               - errorMsg  {String}   error message in case of error
-       */
-      genRevokeCert: async function(parent, keyId, outFile, reasonCode, reasonText) {
-        return createError();
-      },
-
-
-      /**
-       * set the expiration date of the chosen key and subkeys
-       *
-       * @param {nsIWindow} parent        parent window for displaying (modal) messages
-       * @param {String}    keyId         fingerprint of the key to modify
-       * @param {Array}     subKeys       List of Integer values, e.g. [0,1,3]
-       *                                  "0" reflects the primary key and should always be set.
-       * @param {Integer}   expiryValue   A number between 1 and 100
-       * @param {Integer}   timeScale     1 or 30 or 365 meaning days, months, years
-       * @param {Boolean}   noExpiry      True: never expire. False: use expiryLength.
-       * @return {Promise<Object>}
-       *               - retunCode {Number}   0 = success / other values = error
-       *               - errorMsg  {String}   error message in case of error
-       */
-      setKeyExpiration: async function(parent, keyId, subKeys, expiryValue, timeScale, noExpiry) {
-        return createError();
-      },
-
-
-      /**
-       * Enable or disable a key
-       *
-       * @param {nsIWindow} parent        parent window for displaying (modal) messages
-       * @param {String}    keyId         fingerprint of the key to modify
-       * @param {Boolean}   disableKey    True: disable key / false: enable key
-       * @return {Promise<Object>}
-       *               - retunCode {Number}   0 = success / other values = error
-       *               - errorMsg  {String}   error message in case of error
-       */
-      enableDisableKey: async function(parent, keyId, disableKey) {
-        return createError();
-      },
-
-
-      /**
-       * Initate the process (indlucing a dialog) to change the password of a key
-       *
-       * @param {nsIWindow} parent        parent window for displaying (modal) messages
-       * @param {String}    keyId         fingerprint of the key to modify
-       * @return {Promise<Object>}
-       *               - retunCode {Number}   0 = success / other values = error
-       *               - errorMsg  {String}   error message in case of error
-       */
-      initiateChangePassphrase: async function(parent, keyId) {
-        return createError();
-      },
-
-
-      /**
-       * Sign a key with another key
-       *
-       * @param {nsIWindow}     parent        parent window for displaying (modal) messages
-       * @param {String}        signingKeyId  fingerprint of the key used for signing
-       * @param {String}        keyIdToSign   fingerprint of the key to be signed
-       * @param {Array<String>} signUids      userIDs to sign (must match 1:1)
-       * @param {Boolean}       signLocally   true: create non-exportable signature / false: create exportable signature
-       * @param {Number}        trustLevel    Signture Trust level as in GnuPG "sign_uid.class"
-       * @return {Promise<Object>}
-       *               - retunCode {Number}   0 = success / other values = error
-       *               - errorMsg  {String}   error message in case of error
-       */
-      signKey: async function(parent, signingKeyId, keyIdToSign, signUids, signLocally, trustLevel) {
-        return createError();
-      },
-
-
-      /**
-       * Add a userID to a key
-       *
-       * @param {nsIWindow} parent        parent window for displaying (modal) messages
-       * @param {String}    keyId         fingerprint of the key to modify
-       * @param {String}    name          Display name of the UID (e.g. Bob Dylan)
-       * @param {String}    email         Email address of the UID (e.g. bob.dylan@domain.invalid)
-       * @param {String}    commment      Comment to be added in brackets
-       * @return {Promise<Object>}
-       *               - retunCode {Number}   0 = success / other values = error
-       *               - errorMsg  {String}   error message in case of error
-       */
-      addUid: function(parent, keyId, name, email, comment) {
-        return createError();
-      },
-
-
-      /**
-       * Set the primary UID on the key
-       *
-       * @param {nsIWindow} parent        parent window for displaying (modal) messages
-       * @param {String}    keyId         fingerprint of the key to modify
-       * @param {Number}    idNumber      the number of the UID to be set to primary, starting with 1
-       * @return {Promise<Object>}
-       *               - retunCode {Number}   0 = success / other values = error
-       *               - errorMsg  {String}   error message in case of error
-       */
-      setPrimaryUid: function(parent, keyId, idNumber) {
-        return createError();
-      },
-
-
-      /**
-       * Revoke a UID on a key
-       *
-       * @param {nsIWindow} parent        parent window for displaying (modal) messages
-       * @param {String}    keyId         fingerprint of the key to modify
-       * @param {Number}    idNumber      the number of the UID to be revoked, starting with 1
-       * @return {Promise<Object>}
-       *               - retunCode {Number}   0 = success / other values = error
-       *               - errorMsg  {String}   error message in case of error
-       */
-      revokeUid: function(parent, keyId, idNumber) {
-        return createError();
-      },
-
-
-      /**
-       * Add a UAT to a key containing a JPEG picture
-       *
-       * @param {nsIWindow} parent     parent window for displaying (modal) messages
-       * @param {String}    keyId      fingerprint of the key to modify
-       * @param {nsIFile}   photoFile  File containing JPEG data
-       * @return {Promise<Object>}
-       *               - retunCode {Number}   0 = success / other values = error
-       *               - errorMsg  {String}   error message in case of error
-       */
-      addPhoto: function(parent, keyId, photoFile) {
-        return createError();
-      }
-    };
-
+    const EnigmailKeyEditor = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/gnupg-keyEditor.jsm").EnigmailKeyEditor;
+    EnigmailKeyEditor.gpgPath = this._gpgPath;
+    return EnigmailKeyEditor;
   }
 
   /**
@@ -1567,7 +1400,8 @@ function createKeyObj(keyData) {
     expiryTime: 0,
     created: "",
     keyCreated: 0,
-    keyUseFor: (keyData.can_sign ? "s" : "") + (keyData.can_encrypt ? "e" : "") + (keyData.can_certify ? "c" : "") + (keyData.can_authenticate ? "a" : ""),
+    keyUseFor: (keyData.can_sign ? "s" : "") + (keyData.can_encrypt ? "e" : "") + (keyData.can_certify ? "c" : "") + (keyData.can_authenticate ? "a" : "") +
+    (keyData.secret ? (keyData.can_sign ? "S" : "") + (keyData.can_encrypt ? "E" : "") + (keyData.can_certify ? "C" : "") + (keyData.can_authenticate ? "A" : "") : ""),
     ownerTrust: VALIDITY_SYMBOL[keyData.owner_trust],
     keySize: 0,
     secretAvailable: keyData.secret,
@@ -1593,7 +1427,8 @@ function createKeyObj(keyData) {
         expiry: EnigmailTime.getDateTime(s.expires, true, false),
         expiryTime: s.expires,
         keyTrust: s.revoked ? "r" : s.expired ? "e" : s.disabled ? "d" : s.invalid ? "i" : "f",
-        keyUseFor: (s.can_sign ? "s" : "") + (s.can_encrypt ? "e" : "") + (s.can_certify ? "c" : "") + (s.can_authenticate ? "a" : ""),
+        keyUseFor: (s.can_sign ? "s" : "") + (s.can_encrypt ? "e" : "") + (s.can_certify ? "c" : "") + (s.can_authenticate ? "a" : "") +
+          (keyData.secret ? (s.can_sign ? "S" : "") + (s.can_encrypt ? "E" : "") + (s.can_certify ? "C" : "") + (s.can_authenticate ? "A" : "") : ""),
         keySize: s.length,
         algoSym: s.pubkey_algo_name,
         created: EnigmailTime.getDateTime(s.timestamp, true, false),

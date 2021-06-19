@@ -782,7 +782,10 @@ class GnuPGCryptoAPI extends CryptoAPI {
    * Return the key management functions (sub-API)
    */
   getKeyManagement() {
-    return ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/gnupg-keyEditor.jsm").EnigmailKeyEditor;
+    const EnigmailGpgAgent = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/gnupg-agent.jsm").EnigmailGpgAgent;
+    const EnigmailKeyEditor = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/gnupg-keyEditor.jsm").EnigmailKeyEditor;
+    EnigmailKeyEditor.gpgPath = EnigmailGpgAgent.agentPath;
+    return EnigmailKeyEditor;
   }
 
   getGroups() {
