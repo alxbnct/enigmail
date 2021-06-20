@@ -238,7 +238,7 @@ test(withTestGpgHome(withEnigmail(asyncTest(async function testKeyGen() {
     Assert.equal(keyList.length, 1);
 
     keyObj = keyList[0];
-    Assert.equal(keyObj.keyTrust, "u");
+    Assert.equal(keyObj.keyTrust, "e");
     Assert.equal(keyObj.userId, "Test User 2 <testuser2@invalid.domain>");
     Assert.equal(keyObj.algoSym, "RSA");
     Assert.equal(keyObj.subKeys.length, 1);
