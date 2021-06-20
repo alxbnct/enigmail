@@ -23,6 +23,9 @@ const EnigmailTime = ChromeUtils.import("chrome://enigmail/content/modules/time.
 const pgpjs_keys = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/pgpjs-keys.jsm").pgpjs_keys;
 
 var pgpjs_keyStore = {
+
+  getKeyFlags: getKeyFlags, // FIXME
+
   /**
    * Write key(s) into the database.
    *
@@ -62,7 +65,7 @@ var pgpjs_keyStore = {
 
             if ("keys" in res) keys = keys.concat(res.keys);
           }
-          catch(x) {
+          catch (x) {
             EnigmailLog.DEBUG(`pgpjs-keystore.jsm: writeKey: error while reading keys: ${x.toString()}\n`);
           }
         }
@@ -178,6 +181,7 @@ var pgpjs_keyStore = {
     EnigmailLog.DEBUG(`pgpjs-keystore.jsm: readKeyMetadata(${keyArr})\n`);
 
     const PgpJS = getOpenPGPLibrary();
+    const now = Date.now() / 1000;
 
     let rows = await keyStoreDatabase.readKeysFromDb(keyArr);
 
@@ -187,7 +191,17 @@ var pgpjs_keyStore = {
       if (rows[i].status === "disabled") {
         key.ownerTrust = 'd';
         key.keyTrust = 'd';
+        key.keyUseFor = key.keyUseFor.replace(/[CES]/g, "");
       }
+
+      // special handling for keys that expired after they were stored in DB
+      if (key.expiryTime < now) {
+        key.keyUseFor = key.keyUseFor.replace(/[CES]/g, "");
+        if (key.keyTrust.search(/^[fu]/) === 0) {
+          key.keyTrust = "e";
+        }
+      }
+
       foundKeys.push(key);
     }
     return foundKeys;
@@ -1261,6 +1275,8 @@ async function getKeyFlags(key) {
   }
   catch (x) {}
 
+  let keyStatusCode = await getKeyStatusCode(key);
+
   for (let sk of key.subKeys) {
     try {
       await sk.verify(key.primaryKey);
@@ -1268,8 +1284,9 @@ async function getKeyFlags(key) {
     catch (x) {}
 
     for (let sig in sk.bindingSignatures) {
+      let skNotExp = !isDataExpired(sk, sk.bindingSignatures[sig]);
       for (let flg in sk.bindingSignatures[sig].keyFlags) {
-        determineFlags(sk.bindingSignatures[sig].keyFlags[flg], sk.bindingSignatures[sig].verified);
+        determineFlags(sk.bindingSignatures[sig].keyFlags[flg], sk.bindingSignatures[sig].verified && skNotExp && keyStatusCode === "f");
       }
     }
   }
@@ -1277,14 +1294,14 @@ async function getKeyFlags(key) {
   for (let usr of key.users) {
     for (let sig in usr.selfCertifications) {
       for (let flg in usr.selfCertifications[sig].keyFlags) {
-        determineFlags(usr.selfCertifications[sig].keyFlags[flg], usr.selfCertifications[sig].verified);
+        determineFlags(usr.selfCertifications[sig].keyFlags[flg], usr.selfCertifications[sig].verified && keyStatusCode === "f");
       }
     }
   }
 
   for (let sig in key.directSignatures) {
     for (let flg in key.directSignatures[sig].keyFlags) {
-      determineFlags(key.directSignatures[sig].keyFlags[flg], key.directSignatures[sig].verified);
+      determineFlags(key.directSignatures[sig].keyFlags[flg], key.directSignatures[sig].verified && keyStatusCode === "f");
     }
   }
 
