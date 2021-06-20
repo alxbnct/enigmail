@@ -191,7 +191,7 @@ var pgpjs_keyStore = {
       if (rows[i].status === "disabled") {
         key.ownerTrust = 'd';
         key.keyTrust = 'd';
-        key.keyUseFor = key.keyUseFor.replace(/[CES]/g, "");
+        key.keyUseFor = "";
       }
 
       // special handling for keys that expired after they were stored in DB
