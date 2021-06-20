@@ -1226,13 +1226,17 @@ function isDataExpired(keyPacket, signature, date = new Date()) {
 
 function getExpirationTime(keyPacket, signature) {
   let expirationTime;
+  try {
+    // check V4 expiration time
+    if (signature.keyNeverExpires === false) {
+      expirationTime = keyPacket.created.getTime() + signature.keyExpirationTime * 1000;
+    }
 
-  // check V4 expiration time
-  if (signature.keyNeverExpires === false) {
-    expirationTime = keyPacket.created.getTime() + signature.keyExpirationTime * 1000;
+    return expirationTime ? new Date(expirationTime) : Infinity;
   }
-
-  return expirationTime ? new Date(expirationTime) : Infinity;
+  catch (ex) {
+    return Infinity;
+  }
 }
 
 function normalizeDate(time = Date.now()) {
