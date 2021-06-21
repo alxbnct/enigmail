@@ -56,9 +56,9 @@ test(withTestGpgHome(withEnigmail(function shouldGetKeyFunctions() {
   Assert.equal(k._sigList, null);
 
   let s = k.signatures;
+  Assert.equal(s.length, 1);
 
   let fpr = "DB54FB278F6AE719DE0DE881B17D4C762F5752A9";
-  Assert.equal(fpr in s, true);
   if (fpr in s) {
     Assert.equal(s[fpr].sigList[0].signerKeyId, "781617319CE311C4");
   }
@@ -599,9 +599,11 @@ test(function shouldClone() {
 
 test(withTestGpgHome(withEnigmail(asyncTest(async function testOwnerTrust() {
   const secretKey = do_get_file("resources/dev-strike.sec", false);
-  EnigmailKeyRing.importKeyFromFile(secretKey, {}, {});
+  const cApi = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI.jsm").EnigmailCryptoAPI();
+  const keyMan = cApi.getKeyManagement();
 
-  await EnigmailKeyEditor.setKeyTrust(null, "0x65537E212DC19025AD38EDB2781617319CE311C4", 5);
+  EnigmailKeyRing.importKeyFromFile(secretKey, {}, {});
+  await keyMan.setKeyTrust(null, "0x65537E212DC19025AD38EDB2781617319CE311C4", 5);
 
   let errorMsgObj = {};
   let exitCodeObj = {};

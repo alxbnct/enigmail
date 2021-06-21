@@ -21,15 +21,15 @@ function EnigmailCryptoAPI(reset = false) {
     const EnigmailPrefs = ChromeUtils.import("chrome://enigmail/content/modules/prefs.jsm").EnigmailPrefs;
 
     switch (EnigmailPrefs.getPref("cryptoAPI")) {
+      case 0:
+      case 1:
+        loadGpgMEApi();
+        break;
       case 2:
         loadOpenPGPjsApi();
         break;
-      case 0: // TODO: add logic to determine API
-      case 1:
-        loadGnuPGApi();
-        break;
       case 3:
-        loadGpgMEApi();
+        loadGnuPGApi();
         break;
     }
   }

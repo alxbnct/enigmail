@@ -50,6 +50,6 @@ test(withTestGpgHome(withEnigmail(function shouldExportMinimalSubkey() {
   minKey = keyObj.getMinimalPubKey("does@not.exist");
   Assert.equal(minKey.exitCode, 0);
 
-  Assert.equal(minKey.keyData.substr(0, 50), "xsDNBFub08oBDACmb04i4u8xUV1ADbnbN5l83mpr70OyWVJb5E");
-  Assert.equal(minKey.keyData.substr(-50, 50), "1MU0qOC5SusatWeaebL9igZMla4aqtnLyRwLcsKODSTaZXQw==");
+  Assert.equal(minKey.keyData.substr(0, 50), "mQGNBFub08oBDACmb04i4u8xUV1ADbnbN5l83mpr70OyWVJb5E");
+  Assert.equal(minKey.keyData.substr(-50, 50), "p9TFNKjguUrrGrVnmnmy/YoGTJWuGqrZy8kcC3LCjg0k2mV0M=");
 })));

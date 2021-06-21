@@ -214,7 +214,7 @@ pref("extensions.enigmail.protectedHeadersLegacyPart", false);
 // do reset the "references" and "in-reply-to" headers?
 pref("extensions.enigmail.protectReferencesHdr", false);
 
-// holds the timestamp of the last check for GnuPG updates
+// holds the timestamp of the last check for Enigmail updates
 pref("extensions.enigmail.lastUpdateCheck", "0");
 
 // tor configuration

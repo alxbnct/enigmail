@@ -8,7 +8,7 @@
 "use strict";
 
 do_load_module("file://" + do_get_cwd().path + "/testHelper.js");
-/* global setupTestAccounts: false, withTestGpgHome: false, withEnigmail: false, component: false, withLogFiles: false */
+/* global setupTestAccounts: false, withTestGpgHome: false, withEnigmail: false, component: false, withLogFiles: false, asyncTest: false */
 
 testing("autocrypt.jsm"); /*global EnigmailAutocrypt: false, EnigmailKeyRing: false, EnigmailStdlib: false, EnigmailSqliteDb: false */
 const Sqlite = ChromeUtils.import("resource://gre/modules/Sqlite.jsm").Sqlite;
@@ -87,32 +87,26 @@ setupTestAccounts("strike.devtest@gmail.com", "0x781617319CE311C4");
 
 /* global Sqlite */
 
-test(function prepareDb() {
-  let inspector = Cc["@mozilla.org/jsinspector;1"].createInstance(Ci.nsIJSInspector);
+test(asyncTest(async function prepareDb() {
 
   // Drop autocrypt_keydata table (if it exists)
-  async function doPreparation() {
-    let connection = await Sqlite.openConnection({
-      path: "enigmail.sqlite",
-      sharedMemoryCache: false
-    });
-    try {
-      await connection.execute("drop table autocrypt_keydata;");
-      connection.close();
-    } catch (err) {
-      connection.close();
-    }
-    await EnigmailSqliteDb.checkDatabaseStructure();
-    inspector.exitNestedEventLoop(0);
+  let connection = await Sqlite.openConnection({
+    path: "enigmail.sqlite",
+    sharedMemoryCache: false
+  });
+  try {
+    await connection.execute("drop table autocrypt_keydata;");
+    connection.close();
   }
-
-  doPreparation();
-  inspector.enterNestedEventLoop(0);
-});
+  catch (err) {
+    connection.close();
+  }
+  await EnigmailSqliteDb.checkDatabaseStructure();
+}));
 
 
 // testing: extractMessageId
-test(function processHeader() {
+test(withTestGpgHome(asyncTest(async function processHeader() {
 
   const hdr0 = "type=1; addr=dev-tiger@test.notreal; keydata=" + pubkey1;
   const hdr1 = "type=1; addr=dev-tiger@test.notreal; keydata=" + pubkey2;
@@ -126,77 +120,51 @@ test(function processHeader() {
 
   const updateDate = d1.toUTCString();
 
-  do_test_pending();
-  EnigmailAutocrypt.processAutocryptHeader("dev-tiger@test.notreal", [hdr0], sentDate).
-  then(result => {
-    Assert.equal(0, result);
+  let result = await EnigmailAutocrypt.processAutocryptHeader("dev-tiger@test.notreal", [hdr0], sentDate);
+  Assert.equal(0, result);
 
-    return EnigmailAutocrypt.getOpenPGPKeyForEmail(["dev-tiger@test.notreal"]);
-  }).then(result => {
-    Assert.equal(1, result.length);
-    Assert.equal(sentDate, result[0].lastAutocrypt.toUTCString());
-    Assert.equal("8C140834F2D683E9A016D3098439E17046977C46", result[0].fpr);
-    Assert.equal(pubkey1.replace(/[\r\n ]/g, ""), result[0].keyData);
+  result = await EnigmailAutocrypt.getOpenPGPKeyForEmail(["dev-tiger@test.notreal"]);
+  Assert.equal(1, result.length);
+  Assert.equal(sentDate, result[0].lastAutocrypt.toUTCString());
+  Assert.equal("8C140834F2D683E9A016D3098439E17046977C46", result[0].fpr);
+  Assert.equal(pubkey1.replace(/[\r\n ]/g, ""), result[0].keyData);
 
-    return EnigmailAutocrypt.processAutocryptHeader("dev-tiger@test.notreal", [hdr1], updateDate);
-  }).then(result => {
-    Assert.equal(0, result);
+  result = await EnigmailAutocrypt.processAutocryptHeader("dev-tiger@test.notreal", [hdr1], updateDate);
+  Assert.equal(0, result);
 
-    return EnigmailAutocrypt.getOpenPGPKeyForEmail(["dev-tiger@test.notreal"]);
-  }).then(result => {
-    Assert.equal(1, result.length);
-    Assert.equal(updateDate, result[0].lastAutocrypt.toUTCString());
-    Assert.equal("65537E212DC19025AD38EDB2781617319CE311C4", result[0].fpr);
-    Assert.equal(pubkey2.replace(/[\r\n ]/g, ""), result[0].keyData);
+  result = await EnigmailAutocrypt.getOpenPGPKeyForEmail(["dev-tiger@test.notreal"]);
+  Assert.equal(1, result.length);
+  Assert.equal(updateDate, result[0].lastAutocrypt.toUTCString());
+  Assert.equal("65537E212DC19025AD38EDB2781617319CE311C4", result[0].fpr);
+  Assert.equal(pubkey2.replace(/[\r\n ]/g, ""), result[0].keyData);
 
-    // this should not change anything, update in the past
-    return EnigmailAutocrypt.processAutocryptHeader("dev-tiger@test.notreal", [hdr0], sentDate);
-  }).then(result => {
-    Assert.equal(0, result);
+  // this should not change anything, update in the past
+  result = await EnigmailAutocrypt.processAutocryptHeader("dev-tiger@test.notreal", [hdr0], sentDate);
+  Assert.equal(0, result);
 
-    return EnigmailAutocrypt.getOpenPGPKeyForEmail(["dev-tiger@test.notreal"]);
-  }).then(result => {
-    Assert.equal(1, result.length);
-    Assert.equal(updateDate, result[0].lastAutocrypt.toUTCString());
-    Assert.equal("65537E212DC19025AD38EDB2781617319CE311C4", result[0].fpr);
-    Assert.equal(pubkey2.replace(/[\r\n ]/g, ""), result[0].keyData);
+  result = await EnigmailAutocrypt.getOpenPGPKeyForEmail(["dev-tiger@test.notreal"]);
+  Assert.equal(1, result.length);
+  Assert.equal(updateDate, result[0].lastAutocrypt.toUTCString());
+  Assert.equal("65537E212DC19025AD38EDB2781617319CE311C4", result[0].fpr);
+  Assert.equal(pubkey2.replace(/[\r\n ]/g, ""), result[0].keyData);
+})));
 
-    do_test_finished();
-  }).
-  catch(err => {
-    Assert.equal(err, 1);
-    do_test_finished();
-  });
-
-});
-
-test(withLogFiles(withTestGpgHome(withEnigmail(function shouldGetKeyFunctions() {
+test(withLogFiles(withTestGpgHome(withEnigmail(asyncTest(async function shouldGetKeyFunctions() {
   const publicKey = do_get_file("resources/dev-strike.asc", false);
   const secretKey = do_get_file("resources/dev-strike.sec", false);
   EnigmailKeyRing.importKeyFromFile(publicKey, {}, {});
   EnigmailKeyRing.importKeyFromFile(secretKey, {}, {});
 
-  let inspector = Cc["@mozilla.org/jsinspector;1"].createInstance(Ci.nsIJSInspector);
-
   let id = EnigmailStdlib.getIdentityForEmail("strike.devtest@gmail.com").identity;
   Assert.equal(id.email, "strike.devtest@gmail.com", "ID OK");
 
-  EnigmailAutocrypt.createSetupMessage(id).then(res => {
-    Assert.ok(res);
-    Assert.equal(res.passwd.length, 44, "password length");
-    Assert.ok(res.msg.length > 5500, "message is long enough");
-    Assert.equal(res.msg.substr(0, 100), "To: strike.devtest@gmail.com\r\nFrom: strike.devtest@gmail.com\r\nAutocrypt-Setup-Message: v1\r\nSubject: ");
+  let res = await EnigmailAutocrypt.createSetupMessage(id);
+  Assert.ok(res);
+  Assert.equal(res.passwd.length, 44, "password length");
+  Assert.ok(res.msg.length > 5500, "message is long enough");
+  Assert.equal(res.msg.substr(0, 100), "To: strike.devtest@gmail.com\r\nFrom: strike.devtest@gmail.com\r\nAutocrypt-Setup-Message: v1\r\nSubject: ");
 
-    return EnigmailAutocrypt.handleBackupMessage(res.passwd, res.msg, "strike.devtest@gmail.com");
-  }).then(res => {
-    Assert.ok(res);
-    Assert.equal(res.fpr, "65537E212DC19025AD38EDB2781617319CE311C4");
-
-    inspector.exitNestedEventLoop();
-  }).catch(err => {
-    Assert.equal(err, 0, "this should not happen");
-    inspector.exitNestedEventLoop();
-  });
-  inspector.enterNestedEventLoop(0);
-
-}))));
+  res = await EnigmailAutocrypt.handleBackupMessage(res.passwd, res.msg, "strike.devtest@gmail.com");
+  Assert.ok(res);
+  Assert.equal(res.fpr, "65537E212DC19025AD38EDB2781617319CE311C4");
+})))));

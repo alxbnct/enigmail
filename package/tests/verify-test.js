@@ -25,7 +25,7 @@ test(withTestGpgHome(withEnigmail(function shouldVerifyAttachment() {
   let promise = EnigmailVerifyAttachment.attachment(attachment, signature);
   promise.then(function(result) {
     Assert.assertContains(result, 'Good signature from anonymous strike');
-    Assert.assertContains(result, 'Key ID: 0x0x65537E212DC19025AD38EDB2781617319CE311C');
+    Assert.assertContains(result, 'Key ID: 0x65537E212DC19025AD38EDB2781617319CE311C');
     inspector.exitNestedEventLoop(0);
   }).catch(x => {
     Assert.ok(false, "exception in verifyAttachment");

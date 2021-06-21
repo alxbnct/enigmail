@@ -8,7 +8,7 @@
 
 "use strict";
 
-do_load_module("file://" + do_get_cwd().path + "/testHelper.js"); /*global withPreferences: false, resetting: false, withEnvironment: false, withEnigmail: false, withTestGpgHome: false, gKeyListObj: true */
+do_load_module("file://" + do_get_cwd().path + "/testHelper.js"); /*global withPreferences: false, resetting: false, withEnvironment: false, withEnigmail: false, withTestGpgHome: false, gKeyListObj: true, asyncTest: false*/
 
 testing("keyserver.jsm");
 /*global false parseKeyserverUrl: false, accessHkpInternal: false, accessKeyBase: false, accessGnuPG: false
@@ -59,7 +59,7 @@ test(function testHkpCreateRequestUrl() {
   Assert.equal(r.url, "http://example.com:11371/pks/add");
 });
 
-test(withTestGpgHome(withEnigmail(function testAccessKeyServer() {
+test(withTestGpgHome(withEnigmail(asyncTest(async function testAccessKeyServer() {
   // overwrite createRequestUrl to get local files
   accessHkpInternal.createRequestUrl = function(keyserver, actionFlag, searchTerm) {
     let fn = "";
@@ -90,43 +90,38 @@ test(withTestGpgHome(withEnigmail(function testAccessKeyServer() {
     };
   };
 
-  let inspector = Cc["@mozilla.org/jsinspector;1"].createInstance(Ci.nsIJSInspector);
+  let res = await accessHkpInternal.download("781617319CE311C4", "dummy");
+  Assert.equal(res.keyList.length, 1);
+  Assert.equal(res.result, 0);
+  Assert.equal(res.keyList[0], "65537E212DC19025AD38EDB2781617319CE311C4");
 
-  accessHkpInternal.download("781617319CE311C4", "dummy").then(res => {
-    Assert.equal(res.keyList.length, 1);
-    Assert.equal(res.result, 0);
-    Assert.equal(res.keyList[0], "65537E212DC19025AD38EDB2781617319CE311C4");
+  let o = EnigmailKeyRing.getKeyById("0x781617319CE311C4");
+  Assert.notEqual(o, null);
+  Assert.equal(o.fpr, "65537E212DC19025AD38EDB2781617319CE311C4");
 
-    let o = EnigmailKeyRing.getKeyById("0x781617319CE311C4");
-    Assert.notEqual(o, null);
-    Assert.equal(o.fpr, "65537E212DC19025AD38EDB2781617319CE311C4");
+  let data = accessHkpInternal.buildHkpPayload(EnigmailConstants.UPLOAD_KEY, "0x781617319CE311C4");
+  Assert.equal(data.replace(/%0D%0A/g, "%0A").substr(0, 75), "keytext=-----BEGIN%20PGP%20PUBLIC%20KEY%20BLOCK-----%0A%0AmQINBFVHm5sBEACs9");
 
-    let data = accessHkpInternal.buildHkpPayload(EnigmailConstants.UPLOAD_KEY, "0x781617319CE311C4");
-    Assert.equal(data.replace(/%0D%0A/g, "%0A").substr(0, 75), "keytext=-----BEGIN%20PGP%20PUBLIC%20KEY%20BLOCK-----%0A%0AmQINBFVHm5sBEACs9");
+  res = await accessHkpInternal.search("anything", "dummy");
+  Assert.equal(res.result, 0);
+  Assert.equal(res.pubKeys.length, 3);
+  Assert.equal(res.pubKeys[0].keyId, "CCCCCCCCCCCCCCCCCCCCCCCC0003AAAA00010001");
+  Assert.equal(res.pubKeys[1].keyId, "CCCCCCCCCCCCCCCCCCCCCCCC0004AAAA00010001");
+  Assert.equal(res.pubKeys[1].created, "2017-12-30");
+  Assert.equal(res.pubKeys[1].uid[1], "User Three <test-3@enigmail-test.net>");
+  Assert.equal(res.pubKeys[2].keyId, "CCCCCCCCCCCCCCCCCCCCCCCC0005AAAA00010001");
+  Assert.equal(res.pubKeys[2].status, "r");
 
-    return accessHkpInternal.search("anything", "dummy");
-  }).then(res => {
-    Assert.equal(res.result, 0);
-    Assert.equal(res.pubKeys.length, 3);
-    Assert.equal(res.pubKeys[0].keyId, "CCCCCCCCCCCCCCCCCCCCCCCC0003AAAA00010001");
-    Assert.equal(res.pubKeys[1].keyId, "CCCCCCCCCCCCCCCCCCCCCCCC0004AAAA00010001");
-    Assert.equal(res.pubKeys[1].created, "2017-12-30");
-    Assert.equal(res.pubKeys[1].uid[1], "User Three <test-3@enigmail-test.net>");
-    Assert.equal(res.pubKeys[2].keyId, "CCCCCCCCCCCCCCCCCCCCCCCC0005AAAA00010001");
-    Assert.equal(res.pubKeys[2].status, "r");
+  try {
+    res = await accessHkpInternal.upload("0x781617319CE311C4", "dummy");
 
-    return accessHkpInternal.upload("0x781617319CE311C4", "dummy");
-  }).then(res => {
     Assert.ok(false);
+  }
+  catch (ex) {
+    Assert.equal(ex.result, EnigmailConstants.KEYSERVER_ERR_SERVER_UNAVAILABLE); // this is bound to fail ;-)
+  }
 
-    inspector.exitNestedEventLoop();
-  }).catch(res => {
-    Assert.equal(res.result, EnigmailConstants.KEYSERVER_ERR_SERVER_UNAVAILABLE); // this is bound to fail ;-)
-    inspector.exitNestedEventLoop();
-  });
-
-  inspector.enterNestedEventLoop(0);
-})));
+}))));
 
 
 test(function testKeybaseCreateRequestUrl() {
@@ -141,13 +136,14 @@ test(function testKeybaseCreateRequestUrl() {
   try {
     accessKeyBase.createRequestUrl(EnigmailConstants.UPLOAD_KEY, "abc");
     Assert.ok(false);
-  } catch (ex) {
+  }
+  catch (ex) {
     Assert.ok(true);
   }
 });
 
 
-test(withTestGpgHome(withEnigmail(function testAccessKeybase() {
+test(withTestGpgHome(withEnigmail(asyncTest(async (esvc, window) => {
   // overwrite createRequestUrl to get local files
   accessKeyBase.createRequestUrl = function(actionFlag, searchTerm) {
     let fn = "";
@@ -173,43 +169,33 @@ test(withTestGpgHome(withEnigmail(function testAccessKeybase() {
     };
   };
 
+  EnigmailKeyRing.clearCache();
+
   let o = EnigmailKeyRing.getKeyById("0x8439E17046977C46");
   Assert.equal(o, null);
 
-  let inspector = Cc["@mozilla.org/jsinspector;1"].createInstance(Ci.nsIJSInspector);
+  let res = await accessKeyBase.search("anything", "dummy");
+  Assert.equal(res.result, 0);
+  Assert.equal(res.pubKeys.length, 3);
+  Assert.equal(res.pubKeys[0].keyId, "1234567890ABCDEF1234567890ABCDEF12345678");
+  Assert.equal(res.pubKeys[1].keyId, "ABCDEF0123456780000000000000000012345678");
+  Assert.equal(res.pubKeys[1].created, "");
+  Assert.equal(res.pubKeys[1].uid[0], "devtiger (Dev Tiger)");
+  Assert.equal(res.pubKeys[2].keyId, "9876543210111111111BBBBBBBBCCCCCCCAAAAAA");
+  Assert.equal(res.pubKeys[2].status, "");
 
-  accessKeyBase.search("anything", "dummy").then(res => {
-    Assert.equal(res.result, 0);
-    Assert.equal(res.pubKeys.length, 3);
-    Assert.equal(res.pubKeys[0].keyId, "1234567890ABCDEF1234567890ABCDEF12345678");
-    Assert.equal(res.pubKeys[1].keyId, "ABCDEF0123456780000000000000000012345678");
-    Assert.equal(res.pubKeys[1].created, "");
-    Assert.equal(res.pubKeys[1].uid[0], "devtiger (Dev Tiger)");
-    Assert.equal(res.pubKeys[2].keyId, "9876543210111111111BBBBBBBBCCCCCCCAAAAAA");
-    Assert.equal(res.pubKeys[2].status, "");
+  res = await accessKeyBase.download("0x8439E17046977C46", "dummy");
+  Assert.equal(res.keyList.length, 1);
+  Assert.equal(res.result, 0);
 
-    return accessKeyBase.download("0x8439E17046977C46", "dummy");
-  }).then(res => {
-    Assert.equal(res.keyList.length, 1);
-    Assert.equal(res.result, 0);
+  o = EnigmailKeyRing.getKeyById("0x8439E17046977C46");
+  Assert.notEqual(o, null);
+  Assert.equal(o.fpr, "8C140834F2D683E9A016D3098439E17046977C46");
 
-    let o = EnigmailKeyRing.getKeyById("0x8439E17046977C46");
-    Assert.notEqual(o, null);
-    Assert.equal(o.fpr, "8C140834F2D683E9A016D3098439E17046977C46");
-
-    inspector.exitNestedEventLoop();
-  }).catch(res => {
-    Assert.ok(false);
-    inspector.exitNestedEventLoop();
-  });
-
-  inspector.enterNestedEventLoop(0);
-})));
+}))));
 
 
-test(withTestGpgHome(withEnigmail(function testAccessGnuPG() {
-  let inspector = Cc["@mozilla.org/jsinspector;1"].createInstance(Ci.nsIJSInspector);
-
+test(withTestGpgHome(withEnigmail(asyncTest(async function testAccessGnuPG() {
 
   // overwrite accessKeyServer to mock it
   accessGnuPG.accessKeyServer = function(actionFlag, keyserver, keyId, listener) {
@@ -251,14 +237,16 @@ pub:CCCCCCCCCCCCCCCCCCCCCCCC0005AAAA00010001:1:4096:1510762768:1668442768:r
 uid:Revoked User <revoked-key@enigmail-test.net>:1510762768::
 uat::::
 uat::::`;
-          } else {
+          }
+          else {
             retObj.stderrData = "[GNUPG:] FAILURE search-keys 167772380\n";
           }
           break;
         case EnigmailConstants.UPLOAD_KEY:
           if (keyId == "ok") {
             retObj.stderrData = "[GNUPG:] EXPORTED ABCDEF0123456780000000000000000012345678\n";
-          } else {
+          }
+          else {
             retObj.stderrData = "[GNUPG:] ERROR keyserver_send 167804953\n[GNUPG:] FAILURE send-keys 167804953\n";
           }
 
@@ -268,44 +256,41 @@ uat::::`;
     });
   };
 
-  async function doTest() {
-    try {
-      let res = await accessGnuPG.download("ok", null, null);
-      Assert.equal(res.keyList.length, 2);
-      Assert.equal(res.keyList[1], "ABCDEF0123456780000000000000000012345678");
-      Assert.equal(res.result, 0);
+  try {
+    let res = await accessGnuPG.download("ok", null, null);
+    Assert.equal(res.keyList.length, 2);
+    Assert.equal(res.keyList[1], "ABCDEF0123456780000000000000000012345678");
+    Assert.equal(res.result, 0);
 
-      res = await accessGnuPG.search("ok", null, null);
-      Assert.equal(res.pubKeys.length, 3);
-    } catch (ex) {
-      Assert.ok(false);
-    }
-
-    try {
-      let res = await accessGnuPG.search("error", null, null);
-      Assert.ok(false);
-    } catch (ex) {
-      Assert.equal(ex.result, EnigmailConstants.KEYSERVER_ERR_SERVER_UNAVAILABLE);
-      Assert.equal(ex.errorDetails, EnigmailLocale.getString("keyserver.error.unavailable"));
-    }
-
-    try {
-      let res = await accessGnuPG.upload("ok", null, null);
-      Assert.equal(res.keyList.length, 1);
-      Assert.equal(res.result, 0);
-
-      res = await accessGnuPG.search("ok", null, null);
-      Assert.equal(res.pubKeys.length, 3);
-
-      res = await accessGnuPG.search("error", null, null);
-      Assert.ok(false);
-    } catch (ex) {
-      Assert.equal(ex.result, 5);
-    }
-
-    inspector.exitNestedEventLoop();
+    res = await accessGnuPG.search("ok", null, null);
+    Assert.equal(res.pubKeys.length, 3);
+  }
+  catch (ex) {
+    Assert.ok(false);
   }
 
-  doTest();
-  inspector.enterNestedEventLoop(0);
-})));
+  try {
+    await accessGnuPG.search("error", null, null);
+    Assert.ok(false);
+  }
+  catch (ex) {
+    Assert.equal(ex.result, EnigmailConstants.KEYSERVER_ERR_SERVER_UNAVAILABLE);
+    Assert.equal(ex.errorDetails, EnigmailLocale.getString("keyserver.error.unavailable"));
+  }
+
+  try {
+    let res = await accessGnuPG.upload("ok", null, null);
+    Assert.equal(res.keyList.length, 1);
+    Assert.equal(res.result, 0);
+
+    res = await accessGnuPG.search("ok", null, null);
+    Assert.equal(res.pubKeys.length, 3);
+
+    res = await accessGnuPG.search("error", null, null);
+    Assert.ok(false);
+  }
+  catch (ex) {
+    Assert.equal(ex.result, 5);
+  }
+
+}))));

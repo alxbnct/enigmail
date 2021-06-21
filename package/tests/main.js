@@ -35,7 +35,6 @@ execTest("system-test.js");
 execTest("decryption-test.js");
 execTest("verify-test.js");
 execTest("errorHandling-test.js");
-execTest("encryption-test.js");
 execTest("core-test.js");
 execTest("files-test.js");
 execTest("streams-test.js");

@@ -161,7 +161,7 @@ test(function shouldHandleEncryptionFailedNoPublicKey() {
   const result = EnigmailErrorHandling.parseErrorOutput(errorOutput, o);
 
   Assert.assertContains(result, "No public key");
-  Assert.equal(o.errorMsg, EnigmailLocale.getString("keyError.keySpecNotFound", "iapazmino@thoughtworks.com"));
+  Assert.equal(o.errorMsg, EnigmailLocale.getString("keyRing.pubKeyRevoked", ["Iván Pazmiño <iapazmino@thoughtworks.com>", "0x5728FC09A0203DEC"]) + "\n");
 });
 
 test(function shouldHandleErrors() {
