@@ -12,6 +12,7 @@
 do_load_module("file://" + do_get_cwd().path + "/testHelper.js"); /*global withTestGpgHome: false */
 
 testing("errorHandling.jsm"); /*global EnigmailErrorHandling: false, EnigmailConstants: false, EnigmailLocale: false */
+const EnigmailKeyRing = ChromeUtils.import("chrome://enigmail/content/modules/keyRing.jsm").EnigmailKeyRing;
 
 test(function decryptionFailedWillSetDecryptionFailedFlag() {
   var context = {};
@@ -153,6 +154,8 @@ test(function shouldHandleUnverifiedSignature() {
 });
 
 test(function shouldHandleEncryptionFailedNoPublicKey() {
+  EnigmailKeyRing.clearCache();
+
   const errorOutput = "gpg: iapazmino@thoughtworks.com: skipped: No public key\n" +
     "[GNUPG:] INV_RECP 0 iapazmino@thoughtworks.com\n" +
     "gpg: salida3.xtxt: encryption failed: No public key";
@@ -161,7 +164,7 @@ test(function shouldHandleEncryptionFailedNoPublicKey() {
   const result = EnigmailErrorHandling.parseErrorOutput(errorOutput, o);
 
   Assert.assertContains(result, "No public key");
-  Assert.equal(o.errorMsg, EnigmailLocale.getString("keyRing.pubKeyRevoked", ["Iván Pazmiño <iapazmino@thoughtworks.com>", "0x5728FC09A0203DEC"]) + "\n");
+  Assert.equal(o.errorMsg, EnigmailLocale.getString("keyError.keySpecNotFound", "iapazmino@thoughtworks.com"));
 });
 
 test(function shouldHandleErrors() {
