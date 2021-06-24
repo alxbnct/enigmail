@@ -301,7 +301,12 @@ var EnigmailExecution = {
    */
 
   execAsync: function(command, args, input, subprocessHandle = null, maxSize = 0) {
-    EnigmailLog.WRITE("execution.jsm: execAsync: command = '" + command.path + "'\n");
+    if (typeof(command) === "string") {
+      EnigmailLog.WRITE(`execution.jsm: execAsync: command = '${command}'\n`);
+    }
+    else
+      EnigmailLog.WRITE(`execution.jsm: execAsync: command = '${command.path}'\n`);
+
     return new Promise((resolve, reject) => {
 
       if ((typeof input) != "string") input = "";

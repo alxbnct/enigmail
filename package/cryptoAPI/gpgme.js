@@ -1519,12 +1519,13 @@ function parseImportResult(statusMsg) {
 }
 
 async function determineGpgVersion(gpgPath) {
+  EnigmailLog.DEBUG(`gpgme.js: determineGpgVersion(${gpgPath})\n`);
   const args = ["--batch", "--no-tty", "--charset", "utf-8", "--display-charset", "utf-8", "--version", "--version"];
 
   const res = await EnigmailExecution.execAsync(gpgPath, args);
 
   if (res.exitCode !== 0) {
-    EnigmailLog.ERROR(`gpgme.js: setAgentPath: gpg failed with exitCode ${res.exitCode} msg='${res.stdoutData} ${res.stderrData}'\n`);
+    EnigmailLog.ERROR(`gpgme.js: determineGpgVersion: gpg failed with exitCode ${res.exitCode} msg='${res.stdoutData} ${res.stderrData}'\n`);
     throw Components.results.NS_ERROR_FAILURE;
   }
 

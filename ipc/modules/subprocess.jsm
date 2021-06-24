@@ -289,7 +289,7 @@ var subprocess = {
           }
 
           ERROR_LOG(errStr);
-          throw ("subprocess.jsm: caught error: " + errStr);
+          throw new Error("subprocess.jsm: caught error: " + errStr);
         });
 
     }
@@ -299,6 +299,10 @@ var subprocess = {
       opts.stderr = "stdout";
     } else {
       opts.stderr = "pipe";
+    }
+
+    if (!options.command) {
+      throw new Error("subprocess.jsm: no command given");
     }
 
     if (options.command instanceof Ci.nsIFile) {
