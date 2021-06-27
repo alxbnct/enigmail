@@ -86,9 +86,6 @@ test(withTestGpgHome(withEnigmail(function testBeginCryptoEncapsulation() {
   EnigmailKeyRing.importKeyFromFile(secretKey, errorMsgObj, importedKeysObj);
   const strikeAccount = "strike.devtest@gmail.com";
 
-  // force GnuPG to use SHA512
-  EnigmailPrefs.setPref("agentAdditionalParam", "--digest-algo SHA512");
-
   const e = new PgpMimeEncrypt(null);
   e.msgCompFields = [];
   e.hashAlgorithm = "";
@@ -106,8 +103,7 @@ test(withTestGpgHome(withEnigmail(function testBeginCryptoEncapsulation() {
 
   e.beginCryptoEncapsulation({}, strikeAccount, {}, {}, false, false);
 
-  Assert.equal(e.hashAlgorithm, "sha512");
-  EnigmailPrefs.setPref("agentAdditionalParam", "");
+  Assert.ok(e.hashAlgorithm == "sha256" || e.hashAlgorithm == "sha512");
 })));
 
 test(function testWriteSecureHeaders() {
