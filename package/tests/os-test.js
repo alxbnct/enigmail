@@ -10,7 +10,7 @@
 
 do_load_module("file://" + do_get_cwd().path + "/testHelper.js"); /*global withEnigmail: false, component: false, withTestGpgHome: false, osUtils: false */
 
-testing("os.jsm"); /*global EnigmailOS: false, operatingSystem: true, isMac: false, isDosLike: false, isWin32: false */
+testing("os.jsm"); /*global EnigmailOS: false, operatingSystem: true, isMac: false, isDosLike: false, isWin32: true */
 
 var EnigmailExecution = component("enigmail/execution.jsm").EnigmailExecution;
 

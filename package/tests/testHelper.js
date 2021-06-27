@@ -85,6 +85,11 @@ var TestHelper = {
 
   initalizeGpgHome: function() {
     component("enigmail/files.jsm");
+    const EnigmailOS = Components.utils.import("chrome://enigmail/content/modules/os.jsm").EnigmailOS;
+
+    // reset isWin32 to its original value (modified in several sub-tests)
+    EnigmailOS.isWin32 = EnigmailOS.getOS() === "WINNT";
+
     var homedir = osUtils.OS.Path.join(TestEnigmailFiles.getTempDir(), ".gnupgTest" + TestEnigmailRNG.generateRandomString(8));
     var workingDirectory = new osUtils.FileUtils.File(homedir);
     if (!workingDirectory.exists()) {
@@ -125,6 +130,7 @@ var TestHelper = {
     environment.set("ENIGMAILKEYS", workingDirectory.path);
     if (TestEnigmailCore.getEnvList() !== null)
       TestEnigmailCore.setEnvVariable("GNUPGHOME", workingDirectory.path);
+
     return homedir;
   },
 

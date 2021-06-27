@@ -80,6 +80,10 @@ class GpgMECryptoAPI extends CryptoAPI {
     }
 
     this._gpgmePath = resolvePath(esvc.environment);
+    if (!this._gpgmePath) {
+      throw new Error(`gpgme.js: initialize: gpgme-json executable not found`);
+    }
+
     this._gpgPath = null;
     try {
       let opts = this.sync(this.execJsonCmd({

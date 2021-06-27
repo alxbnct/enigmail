@@ -9,9 +9,7 @@
 
 do_load_module("file://" + do_get_cwd().path + "/testHelper.js"); /*global withEnigmail: false, withTestGpgHome: false */
 
-testing("decryption.jsm");
-/*global EnigmailDecryption: false, EnigmailArmor: false, EnigmailConstants: false,
-EnigmailKeyRing: false */
+testing("decryption.jsm"); /*global EnigmailDecryption: false, EnigmailArmor: false, EnigmailConstants: false, EnigmailKeyRing: false */
 
 test(withTestGpgHome(withEnigmail(function shouldDecryptMessage() {
   let secretKeyFile = do_get_file("resources", false);
