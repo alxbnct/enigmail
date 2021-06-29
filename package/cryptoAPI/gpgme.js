@@ -697,7 +697,7 @@ class GpgMECryptoAPI extends CryptoAPI {
       base64: true
     });
 
-    EnigmailLog.DEBUG(`gpgme.js: decrypt: result: ${JSON.stringify(result)}\n`);
+    EnigmailLog.DEBUG(`gpgme.js: decrypt: result.type: ${result.type}\n`);
     let ret = {
       decryptedData: "",
       exitCode: 1,
@@ -808,7 +808,7 @@ class GpgMECryptoAPI extends CryptoAPI {
       await this._interpetSignatureData(result, ret);
     }
     else {
-      EnigmailLog.DEBUG(`gpgme.js: verifyMime: result= ${JSON.stringify(result)}\n`);
+      EnigmailLog.DEBUG(`gpgme.js: verifyMime: result.type: ${result.type}\n`);
       ret.errorMsg = result.msg;
       ret.statusFlags = EnigmailConstants.DECRYPTION_FAILED;
     }
@@ -1100,6 +1100,7 @@ class GpgMECryptoAPI extends CryptoAPI {
       };
     }
     let result = await this.execJsonCmd(reqOp);
+    EnigmailLog.DEBUG(`gpgme.js: encryptMessage: result.type: ${result.type}\n`);
 
     if (result.type === "ciphertext" || result.type === "signature") {
       result.exitCode = 0;
@@ -1109,7 +1110,7 @@ class GpgMECryptoAPI extends CryptoAPI {
       }
     }
     else {
-      EnigmailLog.DEBUG(`gpgme.js: encryptMessage: result= ${JSON.stringify(result)}\n`);
+      EnigmailLog.DEBUG(`gpgme.js: encryptMessage: result=${JSON.stringify(result)}\n`);
 
       let r = getErrorMessage(result.code);
       result.errorMsg = r.errorMessage;
