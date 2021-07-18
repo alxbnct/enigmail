@@ -21,6 +21,7 @@ if (typeof CryptoAPI === "undefined") {
 XPCOMUtils.defineLazyModuleGetter(this, "EnigmailKeyRing", "chrome://enigmail/content/modules/keyRing.jsm", "EnigmailKeyRing"); /* global EnigmailKeyRing: false */
 XPCOMUtils.defineLazyModuleGetter(this, "EnigmailDialog", "chrome://enigmail/content/modules/dialog.jsm", "EnigmailDialog"); /* global EnigmailDialog: false */
 XPCOMUtils.defineLazyModuleGetter(this, "EnigmailData", "chrome://enigmail/content/modules/data.jsm", "EnigmailData"); /* global EnigmailData: false */
+XPCOMUtils.defineLazyModuleGetter(this, "EnigmailKeyEditor", "chrome://enigmail/content/modules/cryptoAPI/gnupg-keyEditor.jsm", "EnigmailKeyEditor"); /* global EnigmailKeyEditor: false */
 
 const EnigmailLog = ChromeUtils.import("chrome://enigmail/content/modules/log.jsm").EnigmailLog;
 const EnigmailExecution = ChromeUtils.import("chrome://enigmail/content/modules/execution.jsm").EnigmailExecution;
@@ -31,8 +32,6 @@ const EnigmailData = ChromeUtils.import("chrome://enigmail/content/modules/data.
 const EnigmailLocale = ChromeUtils.import("chrome://enigmail/content/modules/locale.jsm").EnigmailLocale;
 const EnigmailOS = ChromeUtils.import("chrome://enigmail/content/modules/os.jsm").EnigmailOS;
 const EnigmailVersioning = ChromeUtils.import("chrome://enigmail/content/modules/versioning.jsm").EnigmailVersioning;
-
-//const pgpjs_keys = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/pgpjs-keys.jsm").pgpjs_keys;
 
 const nsIWindowsRegKey = Ci.nsIWindowsRegKey;
 const MINIMUM_GPG_VERSION = "2.2.10";
@@ -58,6 +57,7 @@ class GpgMECryptoAPI extends CryptoAPI {
     this._gpgmePath = "";
     this._gpgPath = "";
     this._gpgAgentPath = "";
+    this._gpgVersion = "";
 
     if (!inspector) {
       inspector = Cc["@mozilla.org/jsinspector;1"].createInstance(Ci.nsIJSInspector);
@@ -114,6 +114,8 @@ class GpgMECryptoAPI extends CryptoAPI {
 
       this._gpgPath = r.gpgPath;
       this._gpgVersion = r.gpgVersion;
+      this._gpgConfPath = resolveToolPath(this._gpgAgentPath, "gpgconf");
+
     }
     catch (ex) {
       EnigmailLog.DEBUG(`gpgme.js: initialize: error: ${ex.toString()}\n`);
@@ -357,8 +359,6 @@ class GpgMECryptoAPI extends CryptoAPI {
 
   async importKeyFromFile(inputFile) {
     EnigmailLog.DEBUG(`gpgme.js: importKeyFromFile(${inputFile.path})\n`);
-
-    const EnigmailFiles = ChromeUtils.import("chrome://enigmail/content/modules/files.jsm").EnigmailFiles;
 
     let fileData = EnigmailFiles.readBinaryFile(inputFile);
     return this.importKeyData(fileData, false);
@@ -1251,7 +1251,6 @@ class GpgMECryptoAPI extends CryptoAPI {
    * Return the key management functions (sub-API)
    */
   getKeyManagement() {
-    const EnigmailKeyEditor = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/gnupg-keyEditor.jsm").EnigmailKeyEditor;
     EnigmailKeyEditor.gpgPath = this._gpgPath;
     return EnigmailKeyEditor;
   }
@@ -1262,12 +1261,11 @@ class GpgMECryptoAPI extends CryptoAPI {
    * @return {String}: config directory or null if none
    */
   getConfigDir() {
-    const gpgConfPath = resolveToolPath(this._gpgAgentPath, "gpgconf");
-    if (!gpgConfPath) return null;
+    if (!this._gpgConfPath) return null;
 
     const args = ["--list-dirs"];
 
-    let result = this.sync(EnigmailExecution.execAsync(gpgConfPath, args, ""));
+    let result = this.sync(EnigmailExecution.execAsync(this._gpgConfPath, args, ""));
 
     let m = result.stdoutData.match(/^(homedir:)(.*)$/mi);
     if (m && m.length > 2) {

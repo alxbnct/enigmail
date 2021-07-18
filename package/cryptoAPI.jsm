@@ -28,19 +28,10 @@ function EnigmailCryptoAPI(reset = false) {
       case 2:
         loadOpenPGPjsApi();
         break;
-      case 3:
-        loadGnuPGApi();
-        break;
     }
   }
 
   return gCurrentApi;
-}
-
-function loadGnuPGApi() {
-  const getGnuPGAPI = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/gnupg.js").getGnuPGAPI;
-
-  gCurrentApi = getGnuPGAPI();
 }
 
 function loadOpenPGPjsApi() {

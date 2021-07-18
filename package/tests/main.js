@@ -27,6 +27,7 @@ function execTest(filename) {
 
 execTest("initialize.js");
 execTest("funcs-test.js");
+execTest("gpgme-test.js");
 execTest("gpgAgent-test.js");
 execTest("autocrypt-test.js");
 execTest("armor-test.js");
@@ -38,7 +39,6 @@ execTest("errorHandling-test.js");
 execTest("core-test.js");
 execTest("files-test.js");
 execTest("streams-test.js");
-execTest("gnupg-keylist-test.js");
 execTest("key-test.js");
 execTest("keyObj-test.js");
 execTest("keyRing-test.js");
@@ -70,4 +70,3 @@ execTest("pgpjs-keystore-test.js");
 execTest("pgpjs-decrypt-test.js");
 execTest("pgpjs-encrypt-test.js");
 execTest("pgpjs-keymanip-test.js");
-execTest("gpgme-test.js");

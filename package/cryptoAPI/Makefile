@@ -10,12 +10,8 @@ include $(DEPTH)/config/autoconf.mk
 GENDIR = $(DIST)/chrome/content/modules/cryptoAPI
 
 MODFILES = \
-	gnupg.js \
 	gnupg-agent.jsm \
 	gnupg-core.jsm \
-	gnupg-decryption.jsm \
-	gnupg-encryption.jsm \
-	gnupg-keylist.jsm \
 	gnupg-key.jsm \
 	gnupg-keyEditor.jsm \
 	gpgme.js \
