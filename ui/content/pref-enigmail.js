@@ -26,7 +26,6 @@ var Ci = Components.interfaces;
 
 var EnigmailConfigBackup = ChromeUtils.import("chrome://enigmail/content/modules/configBackup.jsm").EnigmailConfigBackup;
 var EnigmailWindows = ChromeUtils.import("chrome://enigmail/content/modules/windows.jsm").EnigmailWindows;
-var EnigmailGpgAgent = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/gnupg-agent.jsm").EnigmailGpgAgent;
 var EnigmailLazy = ChromeUtils.import("chrome://enigmail/content/modules/lazy.jsm").EnigmailLazy;
 var EnigmailCryptoAPI = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI.jsm").EnigmailCryptoAPI;
 
@@ -132,8 +131,9 @@ function displayPrefs(showDefault, showPrefs, setPrefs) {
   }
 }
 
-function prefOnLoad() {
+async function prefOnLoad() {
   EnigmailLog.DEBUG("pref-enigmail.js: prefOnLoad()\n");
+  const cApi = EnigmailCryptoAPI();
 
   document.getElementById("acSetupMessageDesc").innerHTML = EnigmailLocale.getString("acSetupMessage.desc");
 
@@ -141,19 +141,16 @@ function prefOnLoad() {
   displayPrefs(false, true, false);
   displayRequireRestart();
 
-  document.getElementById("enigmail_agentPath").value = EnigConvertToUnicode(EnigGetPref("agentPath"), "utf-8");
-
   var maxIdle = -1;
   if (isGnuPGBackend()) {
     if (!gEnigmailSvc) {
       maxIdle = EnigmailPrefs.getPref("maxIdleMinutes");
     }
     else {
-      maxIdle = EnigmailGpgAgent.getMaxIdlePref(window);
+      maxIdle = await cApi.getMaxIdlePref(window);
     }
     document.getElementById("maxIdleMinutes").value = maxIdle;
 
-    document.getElementById("GnuPGBox").removeAttribute("collapsed");
     document.getElementById("idleBox").removeAttribute("collapsed");
   }
   else {
@@ -221,15 +218,6 @@ function prefOnLoad() {
     gMimePartsElement.removeAttribute("checked");
   }
 
-  var overrideGpg = document.getElementById("enigOverrideGpg");
-  if (EnigGetPref("agentPath")) {
-    overrideGpg.checked = true;
-  }
-  else {
-    overrideGpg.checked = false;
-  }
-  enigActivateDependent(overrideGpg, "enigmail_agentPath enigmail_browsePath");
-
   var testEmailElement = document.getElementById("enigmail_test_email");
   var userIdValue = EnigGetPref("userIdValue");
 
@@ -250,29 +238,6 @@ function enigDetermineGpgPath() {
       }
     }
     catch (ex) {}
-  }
-
-  if (gEnigmailSvc.initialized && typeof(EnigmailGpgAgent.agentPath) == "object") {
-    try {
-      var agentPath = "";
-      if (EnigGetOS() == "WINNT") {
-        agentPath = EnigGetFilePath(EnigmailGpgAgent.agentPath).replace(/\\\\/g, "\\");
-      }
-      else {
-        agentPath = EnigmailGpgAgent.agentPath.path;
-        // EnigGetFilePath(EnigmailGpgAgent.agentPath); // .replace(/\\\\/g, "\\");
-      }
-      if (agentPath.length > 50) {
-        agentPath = agentPath.substring(0, 50) + "...";
-      }
-      document.getElementById("enigmailGpgPath").setAttribute("value", EnigGetString("prefs.gpgFound", agentPath));
-    }
-    catch (ex) {
-      document.getElementById("enigmailGpgPath").setAttribute("value", "error 2");
-    }
-  }
-  else {
-    document.getElementById("enigmailGpgPath").setAttribute("value", EnigGetString("prefs.gpgNotFound"));
   }
 }
 
@@ -424,9 +389,10 @@ function resetRememberedValues() {
   EnigmailDialog.info(window, EnigGetString("warningsAreReset"));
 }
 
-function prefOnAccept() {
+async function prefOnAccept() {
 
   EnigmailLog.DEBUG("pref-enigmail.js: prefOnAccept\n");
+  const cApi = EnigmailCryptoAPI();
 
   let defaultKeySrv = document.getElementById("enigmail_defaultKeyserver").value;
 
@@ -435,15 +401,7 @@ function prefOnAccept() {
     return false;
   }
 
-  var oldAgentPath = EnigGetPref("agentPath");
-
-  if (!document.getElementById("enigOverrideGpg").checked) {
-    document.getElementById("enigmail_agentPath").value = "";
-  }
-  var newAgentPath = document.getElementById("enigmail_agentPath").value;
-
   displayPrefs(false, false, true);
-  EnigSetPref("agentPath", EnigConvertFromUnicode(newAgentPath, "utf-8"));
 
   if (gMimePartsElement &&
     (gMimePartsElement.checked != gMimePartsValue)) {
@@ -458,7 +416,7 @@ function prefOnAccept() {
   if (gOrigMaxIdle != maxIdle) {
     // only change setting in gpg-agent if value has actually changed
     // because gpg-agent deletes cache upon changing timeout settings
-    if (isGnuPGBackend()) EnigmailGpgAgent.setMaxIdlePref(maxIdle);
+    if (isGnuPGBackend()) await cApi.setMaxIdlePref(maxIdle);
   }
 
   let protectionUndecided = (EnigGetPref("protectedHeaders") === 1);
@@ -473,47 +431,12 @@ function prefOnAccept() {
 
   EnigSavePrefs();
 
-  if (oldAgentPath != newAgentPath) {
-    if (!gEnigmailSvc) {
-      try {
-        gEnigmailSvc = getCore().createInstance();
-      }
-      catch (ex) {}
-    }
-
-    if (gEnigmailSvc.initialized) {
-      try {
-        gEnigmailSvc.reinitialize();
-      }
-      catch (ex) {
-        EnigError(EnigGetString("invalidGpgPath"));
-      }
-    }
-    else {
-      gEnigmailSvc = null;
-      GetEnigmailSvc();
-    }
-  }
-
   if (isRestartRequired()) {
     if (EnigmailDialog.confirmDlg(window, EnigmailLocale.getString("pref.dialogRestartApp.desc"),
-    EnigmailLocale.getString("dlg.button.restartNow"), EnigmailLocale.getString("dlg.button.restartLater"))) {
+        EnigmailLocale.getString("dlg.button.restartNow"), EnigmailLocale.getString("dlg.button.restartLater"))) {
       restartApplication();
     }
   }
-
-  // detect use of gpg-agent and warn if needed
-  if (isGnuPGBackend()) {
-    if (!EnigmailGpgAgent.isAgentTypeGpgAgent()) {
-      if (document.getElementById("maxIdleMinutes").value > 0) {
-        EnigAlertPref(EnigGetString("prefs.warnIdleTimeForUnknownAgent"), "warnGpgAgentAndIdleTime");
-      }
-    }
-  }
-
-  // update status bar because whether/how to process rules might have changed
-  // NO EFFECT, TB hangs:
-  //Enigmail.msg.updateStatusBar();
 
   return true;
 }
@@ -603,24 +526,7 @@ function handleClick(event) {
 function isGnuPGBackend() {
   const cApi = EnigmailCryptoAPI();
 
-  return (cApi.apiName === "GnuPG");
-}
-
-function enigLocateGpg() {
-  var fileName = "gpg";
-  var ext = "";
-  if (EnigGetOS() == "WINNT") {
-    ext = ".exe";
-  }
-  var filePath = EnigFilePicker(EnigGetString("locateGpg"),
-    "", false, ext,
-    fileName + ext, null);
-  if (filePath) {
-    //     if (EnigmailOS.getOS() == "WINNT") {
-    //       document.getElementById("enigmail_agentPath").value = EnigGetFilePath(filePath);
-    //     }
-    document.getElementById("enigmail_agentPath").value = filePath.path;
-  }
+  return (cApi.apiName === "GpgME");
 }
 
 

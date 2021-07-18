@@ -86,14 +86,9 @@ set chrome/content/preferences/defaultPrefs.js \
     chrome/content/modules/configure.jsm \
     chrome/content/modules/constants.jsm \
     chrome/content/modules/cryptoAPI.jsm \
-    chrome/content/modules/cryptoAPI/gnupg.js \
     chrome/content/modules/cryptoAPI/gnupg-agent.jsm \
     chrome/content/modules/cryptoAPI/gnupg-core.jsm \
-    chrome/content/modules/cryptoAPI/gnupg-encryption.jsm \
-    chrome/content/modules/cryptoAPI/gnupg-decryption.jsm \
-    chrome/content/modules/cryptoAPI/gnupg-key.jsm \
     chrome/content/modules/cryptoAPI/gnupg-keyEditor.jsm \
-    chrome/content/modules/cryptoAPI/gnupg-keylist.jsm \
     chrome/content/modules/cryptoAPI/gpgme.js \
     chrome/content/modules/cryptoAPI/openpgp-js.js \
     chrome/content/modules/cryptoAPI/pgpjs-encrypt.jsm \

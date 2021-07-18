@@ -18,13 +18,13 @@ const EnigmailFiles = ChromeUtils.import("chrome://enigmail/content/modules/file
 const EnigmailLog = ChromeUtils.import("chrome://enigmail/content/modules/log.jsm").EnigmailLog;
 const EnigmailCore = ChromeUtils.import("chrome://enigmail/content/modules/core.jsm").EnigmailCore;
 const EnigmailExecution = ChromeUtils.import("chrome://enigmail/content/modules/execution.jsm").EnigmailExecution;
-const EnigmailGpgAgent = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/gnupg-agent.jsm").EnigmailGpgAgent;
 const EnigmailStdlib = ChromeUtils.import("chrome://enigmail/content/modules/stdlib.jsm").EnigmailStdlib;
 const EnigmailSend = ChromeUtils.import("chrome://enigmail/content/modules/send.jsm").EnigmailSend;
 const EnigmailMimeEncrypt = ChromeUtils.import("chrome://enigmail/content/modules/mimeEncrypt.jsm").EnigmailMimeEncrypt;
 const EnigmailConstants = ChromeUtils.import("chrome://enigmail/content/modules/constants.jsm").EnigmailConstants;
 const EnigmailFuncs = ChromeUtils.import("chrome://enigmail/content/modules/funcs.jsm").EnigmailFuncs;
 const EnigmailLocale = ChromeUtils.import("chrome://enigmail/content/modules/locale.jsm").EnigmailLocale;
+const EnigmailCryptoAPI = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI.jsm").EnigmailCryptoAPI;
 
 const GPG_WKS_CLIENT = "gpg-wks-client";
 
@@ -41,6 +41,11 @@ var EnigmailWks = {
    */
   getWksClientPathAsync: function(window, cb) {
     EnigmailLog.DEBUG("webKey.jsm: getWksClientPathAsync\n");
+
+    const cApi = EnigmailCryptoAPI();
+    if (cApi.api_name !== "GpgME") {
+      return cb(null);
+    }
 
     if (EnigmailWks.wksClientPath === null) {
       let listener = EnigmailExecution.newSimpleListener(null, function(ret) {
@@ -86,7 +91,7 @@ var EnigmailWks = {
         }
       });
 
-      return EnigmailExecution.execStart(EnigmailGpgAgent.gpgconfPath, ["--list-dirs"], false, window, listener, {
+      return EnigmailExecution.execStart(cApi._gpgConfPath, ["--list-dirs"], false, window, listener, {
         value: null
       });
     }
@@ -107,6 +112,12 @@ var EnigmailWks = {
    */
   isWksSupportedAsync: function(email, window, cb) {
     EnigmailLog.DEBUG("webKey.jsm: isWksSupportedAsync: email = " + email + "\n");
+
+    const cApi = EnigmailCryptoAPI();
+    if (cApi.api_name !== "GpgME") {
+      return cb(false);
+    }
+
     return EnigmailWks.getWksClientPathAsync(window, function(wks_client) {
       if (wks_client === null) {
         cb(false);

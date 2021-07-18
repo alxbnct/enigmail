@@ -376,39 +376,6 @@
                 </hbox>
               </vbox>
             </vbox>
-            <vbox class="enigmailCaptionbox" orient="vertical" flex="1" id="GnuPGBox" collapsed="true">
-              <html:h1><html:span>&enigmail.prefs.pathsTitle.label;</html:span></html:h1>
-              <vbox>
-                <hbox align="center">
-                  <label id="enigmailGpgPath" value="(error)"/>
-                </hbox>
-                <hbox align="center">
-                  <checkbox label="&enigmail.prefs.overrideGpg.label;"
-                            tooltip="prefs.overrideGpg.tooltip"
-                            id="enigOverrideGpg"
-                            oncommand="enigActivateDependent(this, 'enigmail_agentPath enigmail_browsePath');"/>
-                  <textbox id="enigmail_agentPath" size="30" aria-labelledby="enigOverrideGpg"/>
-                  <button id="enigmail_browsePath"
-                          label="&enigmail.browse.label;"
-                    oncommand="enigLocateGpg();"/>
-                </hbox>
-
-                <separator/>
-
-                <hbox>
-                  <hbox align="center">
-                    <label control="enigmail_agentAdditionalParam"
-                          tooltip="agentAdditionalParam.tooltip"
-                          value="&enigmail.agentAdditionalParam.label;"/>
-                  </hbox>
-                  <hbox>
-                    <textbox id="enigmail_agentAdditionalParam"
-                            tooltip="agentAdditionalParam.tooltip"
-                            size="30"/>
-                  </hbox>
-                </hbox>
-              </vbox>
-            </vbox>
           </vbox>
           <hbox>
             <vbox class="enigmailCaptionbox" orient="vertical" flex="1" id="idleBox" collapsed="true">

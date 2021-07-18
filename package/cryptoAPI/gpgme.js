@@ -32,6 +32,7 @@ const EnigmailData = ChromeUtils.import("chrome://enigmail/content/modules/data.
 const EnigmailLocale = ChromeUtils.import("chrome://enigmail/content/modules/locale.jsm").EnigmailLocale;
 const EnigmailOS = ChromeUtils.import("chrome://enigmail/content/modules/os.jsm").EnigmailOS;
 const EnigmailVersioning = ChromeUtils.import("chrome://enigmail/content/modules/versioning.jsm").EnigmailVersioning;
+const EnigmailPrefs = ChromeUtils.import("chrome://enigmail/content/modules/prefs.jsm").EnigmailPrefs;
 
 const nsIWindowsRegKey = Ci.nsIWindowsRegKey;
 const MINIMUM_GPG_VERSION = "2.2.10";
@@ -58,6 +59,7 @@ class GpgMECryptoAPI extends CryptoAPI {
     this._gpgPath = "";
     this._gpgAgentPath = "";
     this._gpgVersion = "";
+    this._gpgConfPath = "";
 
     if (!inspector) {
       inspector = Cc["@mozilla.org/jsinspector;1"].createInstance(Ci.nsIJSInspector);
@@ -128,7 +130,6 @@ class GpgMECryptoAPI extends CryptoAPI {
    * Close/shutdown anything related to the functionality
    */
   finalize() {
-    // TODO: terminate running gpgme-json instance
     return null;
   }
 
@@ -1275,7 +1276,6 @@ class GpgMECryptoAPI extends CryptoAPI {
     return null;
   }
 
-  // TODO: use gpgme-json as a daemon running as long as the mail app.
   async execJsonCmd(paramsObj) {
     let jsonStr = JSON.stringify(paramsObj);
     EnigmailLog.DEBUG(`gpgme.js: execJsonCmd(${jsonStr.substr(0, 40)})\n`);
@@ -1292,6 +1292,71 @@ class GpgMECryptoAPI extends CryptoAPI {
         "error": result.stderrData
       };
     }
+  }
+
+  async getAgentMaxIdle() {
+    EnigmailLog.DEBUG("gpgme.js: getAgentMaxIdle()\n");
+    let maxIdle = -1;
+
+    if (!this._gpgConfPath) return maxIdle;
+
+    const DEFAULT = 7;
+    const CFGVALUE = 9;
+
+    let result = await EnigmailExecution.execAsync(this._gpgConfPath, ["--list-options", "gpg-agent"], "");
+    const lines = result.stdoutData.split(/[\r\n]/);
+
+    for (let i = 0; i < lines.length; i++) {
+      EnigmailLog.DEBUG("gpgme.js: getAgentMaxIdle: line: " + lines[i] + "\n");
+
+      if (lines[i].search(/^default-cache-ttl:/) === 0) {
+        const m = lines[i].split(/:/);
+        if (m[CFGVALUE].length === 0) {
+          maxIdle = Math.round(m[DEFAULT] / 60);
+        }
+        else {
+          maxIdle = Math.round(m[CFGVALUE] / 60);
+        }
+
+        break;
+      }
+    }
+    return maxIdle;
+  }
+
+  async setAgentMaxIdle(idleMinutes) {
+    EnigmailLog.DEBUG("gpgme.js: setAgentMaxIdle()\n");
+    if (!this._gpgConfPath) return;
+
+    const RUNTIME = 8;
+
+    const stdinData = "default-cache-ttl:" + RUNTIME + ":" + (idleMinutes * 60) + "\n" +
+      "max-cache-ttl:" + RUNTIME + ":" + (idleMinutes * 600) + "\n";
+
+    let result = await EnigmailExecution.execAsync(this._gpgConfPath, ["--runtime", "--change-options", "gpg-agent"], stdinData);
+    EnigmailLog.DEBUG("gpgme.js: setAgentMaxIdle.stdout: " + result.stdoutData + "\n");
+  }
+
+  async getMaxIdlePref() {
+    let maxIdle = EnigmailPrefs.getPref("maxIdleMinutes");
+
+    try {
+      if (this._gpgConfPath) {
+        const m = await this.getAgentMaxIdle();
+        if (m > -1) maxIdle = m;
+      }
+    }
+    catch (ex) {}
+
+    return maxIdle;
+  }
+
+  async setMaxIdlePref(minutes) {
+    EnigmailPrefs.setPref("maxIdleMinutes", minutes);
+    try {
+      await this.setAgentMaxIdle(minutes);
+    }
+    catch (ex) {}
   }
 }
 
@@ -1404,7 +1469,7 @@ function createKeyObj(keyData) {
     created: "",
     keyCreated: 0,
     keyUseFor: (keyData.can_sign ? "s" : "") + (keyData.can_encrypt ? "e" : "") + (keyData.can_certify ? "c" : "") + (keyData.can_authenticate ? "a" : "") +
-    (keyData.secret ? (keyData.can_sign ? "S" : "") + (keyData.can_encrypt ? "E" : "") + (keyData.can_certify ? "C" : "") + (keyData.can_authenticate ? "A" : "") : ""),
+      (keyData.secret ? (keyData.can_sign ? "S" : "") + (keyData.can_encrypt ? "E" : "") + (keyData.can_certify ? "C" : "") + (keyData.can_authenticate ? "A" : "") : ""),
     ownerTrust: VALIDITY_SYMBOL[keyData.owner_trust],
     keySize: 0,
     secretAvailable: keyData.secret,

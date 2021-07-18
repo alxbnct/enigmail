@@ -26,10 +26,9 @@ function getBackendWorking() {
   const cApi = EnigmailCryptoAPI();
   let agentStr = "";
 
-  if (cApi.apiName === "GnuPG") {
-    const EnigmailGpgAgent = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/gnupg-agent.jsm").EnigmailGpgAgent;
+  if (cApi.apiName === "GpgME") {
     if (enigmailSvc) {
-      agentStr = EnigmailLocale.getString("usingAgent", [EnigmailGpgAgent.agentType, EnigmailGpgAgent.agentPath.path]);
+      agentStr = EnigmailLocale.getString("usingAgent", ["Gnupg / GpgME", cApi._gpgVersion]);
     }
     else {
       agentStr = EnigmailLocale.getString("agentError");

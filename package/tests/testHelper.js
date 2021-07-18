@@ -376,12 +376,13 @@ function withEnigmail(f) {
 }
 
 function shutdownGpgAgent() {
-  const EnigmailGpgAgent = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/gnupg-agent.jsm").EnigmailGpgAgent;
+  const EnigmailCryptoAPI = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI.jsm").EnigmailCryptoAPI;
   const subprocess = ChromeUtils.import("chrome://enigmail/content/modules/subprocess.jsm").subprocess;
+  const cApi = EnigmailCryptoAPI();
 
-  if (EnigmailGpgAgent.gpgconfPath) {
+  if (cApi._gpgConfPath) {
     const proc = {
-      command: EnigmailGpgAgent.gpgconfPath,
+      command: cApi._gpgConfPath,
       arguments: ["--kill", "gpg-agent"],
       environment: TestEnigmailCore.getEnvList(),
       charset: null,

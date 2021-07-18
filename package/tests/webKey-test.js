@@ -1,4 +1,4 @@
-/*global do_load_module: false, do_get_file: false, do_get_cwd: false, testing: false, test: false, Assert: false, resetting: false, JSUnit: false, do_test_pending: false, do_test_finished: false */
+/*global do_load_module: false, do_get_file: false, do_get_cwd: false, testing: false, test: false, Assert: false, resetting: false, JSUnit: false, asyncTest: false, do_test_finished: false */
 /*global TestHelper: false, withEnvironment: false, nsIWindowsRegKey: true */
 /*
  * This Source Code Form is subject to the terms of the Mozilla Public
@@ -13,10 +13,11 @@ do_load_module("file://" + do_get_cwd().path + "/testHelper.js");
 
 testing("webKey.jsm");
 /*global EnigmailWks: false, GPG_WKS_CLIENT: false,
- EnigmailExecution: false, EnigmailFiles: false, EnigmailGpgAgent: false, EnigmailSend: false,
+ EnigmailExecution: false, EnigmailFiles: false, EnigmailSend: false,
  EnigmailLog: false */
 const subprocess = component("enigmail/subprocess.jsm").subprocess;
 const EnigmailOS = component("enigmail/os.jsm").EnigmailOS;
+const getGpgMEApi = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/gpgme.js").getGpgMEApi;
 
 function getWksPath() {
   var wksClient = GPG_WKS_CLIENT;
@@ -27,12 +28,18 @@ function getWksPath() {
   return wksClient;
 }
 
+var GpgmeApi = null;
+
+test(withTestGpgHome(withEnigmail(asyncTest(async (esvc, window) => {
+  // Test key importing and key listing
+  GpgmeApi = getGpgMEApi();
+  GpgmeApi.initialize(null, esvc, null);
+}))));
+
 test(function getWksPathInBinDir() {
-  TestHelper.resetting(EnigmailGpgAgent, "gpgconfPath", "TEST_PATH", function() {
+  TestHelper.resetting(GpgmeApi, "_gpgConfPath", "TEST_PATH", function() {
     TestHelper.resetting(EnigmailWks, "wksClientPath", null, function() {
       TestHelper.resetting(EnigmailExecution, "execStart", function(path, args, wat, win, listener, ops) {
-        Assert.equal(path, "TEST_PATH");
-
         if (EnigmailOS.isDosLike) {
           listener.stdout("bindir:" + do_get_cwd().path + "\r\nlibexecdir:C:\\GnuPG\\lib\\exec\\dir\\test\r\n");
         } else {
@@ -60,11 +67,9 @@ test(function getWksPathInBinDir() {
 });
 
 test(function getWksPathInLibexecDir() {
-  TestHelper.resetting(EnigmailGpgAgent, "gpgconfPath", "TEST_PATH", function() {
+  TestHelper.resetting(GpgmeApi, "_gpgConfPath", "TEST_PATH", function() {
     TestHelper.resetting(EnigmailWks, "wksClientPath", null, function() {
       TestHelper.resetting(EnigmailExecution, "execStart", function(path, args, wat, win, listener, ops) {
-        Assert.equal(path, "TEST_PATH");
-
         if (EnigmailOS.isDosLike) {
           listener.stdout("libexecdir:" + do_get_cwd().path + "\r\nbindir:C:\\GnuPG\\bin\\dir\\test\r\n");
         } else {

@@ -28,7 +28,7 @@ function execTest(filename) {
 execTest("initialize.js");
 execTest("funcs-test.js");
 execTest("gpgme-test.js");
-execTest("gpgAgent-test.js");
+execTest("execution-test.js");
 execTest("autocrypt-test.js");
 execTest("armor-test.js");
 execTest("data-test.js");

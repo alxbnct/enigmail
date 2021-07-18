@@ -13,7 +13,6 @@ const EnigmailPrefs = ChromeUtils.import("chrome://enigmail/content/modules/pref
 const InstallGnuPG = ChromeUtils.import("chrome://enigmail/content/modules/installGnuPG.jsm").InstallGnuPG;
 const EnigmailOS = ChromeUtils.import("chrome://enigmail/content/modules/os.jsm").EnigmailOS;
 const EnigmailGpg = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/gnupg-core.jsm").EnigmailGpg;
-const EnigmailGpgAgent = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/gnupg-agent.jsm").EnigmailGpgAgent;
 const EnigmailLog = ChromeUtils.import("chrome://enigmail/content/modules/log.jsm").EnigmailLog;
 const EnigmailVersioning = ChromeUtils.import("chrome://enigmail/content/modules/versioning.jsm").EnigmailVersioning;
 const EnigmailTimer = ChromeUtils.import("chrome://enigmail/content/modules/timer.jsm").EnigmailTimer;
@@ -184,7 +183,7 @@ function isGpgOsxInstalled() {
 function isGnuPGBackend() {
   const cApi = EnigmailCryptoAPI();
 
-  return (cApi.apiName === "GnuPG");
+  return (cApi.apiName === "GpgME");
 }
 
 /**
@@ -195,7 +194,9 @@ function isGnuPGBackend() {
 function prepareKeyringConversion() {
   // delete gpg-v21-migrated in GnuPG profile if existing
   EnigmailLog.DEBUG(`gnupgUpdate.jsm: prepareKeyringConversion()\n`);
-  let homeDir = EnigmailGpgAgent.getGpgHomeDir();
+
+  const cApi = EnigmailCryptoAPI();
+  let homeDir = cApi.getConfigDir();
   let gpgHomeDir = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
   EnigmailFiles.initPath(gpgHomeDir, homeDir);
 
@@ -227,7 +228,9 @@ function prepareKeyringConversion() {
 function importKeysFromOldGnuPG() {
   EnigmailLog.DEBUG(`gnupgUpdate.jsm: importKeysFromOldGnuPG()\n`);
 
-  let homeDir = EnigmailGpgAgent.getGpgHomeDir();
+  const cApi = EnigmailCryptoAPI();
+  let homeDir = cApi.getConfigDir();
+
   let gpgHomeDir = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
   EnigmailFiles.initPath(gpgHomeDir, homeDir);
 
