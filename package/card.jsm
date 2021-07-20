@@ -11,7 +11,6 @@ var EXPORTED_SYMBOLS = ["EnigmailCard"];
 
 const EnigmailLog = ChromeUtils.import("chrome://enigmail/content/modules/log.jsm").EnigmailLog;
 const EnigmailExecution = ChromeUtils.import("chrome://enigmail/content/modules/execution.jsm").EnigmailExecution;
-const EnigmailGpg = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/gnupg-core.jsm").EnigmailGpg;
 const EnigmailCryptoAPI = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI.jsm").EnigmailCryptoAPI;
 
 var EnigmailCard = {
@@ -25,12 +24,11 @@ var EnigmailCard = {
       return "";
     }
 
-    const GPG_ADDITIONAL_OPTIONS=["--no-verbose", "--status-fd", "2", "--fixed-list-mode", "--with-colons", "--card-status"];
-    const args = EnigmailGpg.getStandardArgs(false).concat(GPG_ADDITIONAL_OPTIONS);
+    const args = ["--charset", "utf-8", "--display-charset", "utf-8", "--no-auto-check-trustdb", "--no-verbose", "--status-fd", "2", "--fixed-list-mode", "--with-colons", "--card-status"];
     const statusMsgObj = {};
     const statusFlagsObj = {};
 
-    const outputTxt = EnigmailExecution.execCmd(EnigmailGpg.agentPath, args, "", exitCodeObj, statusFlagsObj, statusMsgObj, errorMsgObj);
+    const outputTxt = EnigmailExecution.execCmd(cApi._gpgPath, args, "", exitCodeObj, statusFlagsObj, statusMsgObj, errorMsgObj);
 
     if ((exitCodeObj.value === 0) && !outputTxt) {
       exitCodeObj.value = -1;

@@ -17,7 +17,6 @@ const EnigmailKeyserverURIs = ChromeUtils.import("chrome://enigmail/content/modu
 const EnigmailData = ChromeUtils.import("chrome://enigmail/content/modules/data.jsm").EnigmailData;
 const EnigmailConstants = ChromeUtils.import("chrome://enigmail/content/modules/constants.jsm").EnigmailConstants;
 const EnigmailExecution = ChromeUtils.import("chrome://enigmail/content/modules/execution.jsm").EnigmailExecution;
-const EnigmailGpg = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/gnupg-core.jsm").EnigmailGpg;
 const EnigmailHttpProxy = ChromeUtils.import("chrome://enigmail/content/modules/httpProxy.jsm").EnigmailHttpProxy;
 const EnigmailOS = ChromeUtils.import("chrome://enigmail/content/modules/os.jsm").EnigmailOS;
 const EnigmailXhrUtils = ChromeUtils.import("chrome://enigmail/content/modules/xhrUtils.jsm").EnigmailXhrUtils;
@@ -229,6 +228,9 @@ const accessHkpInternal = {
    */
   accessKeyServer: function(actionFlag, keyserver, keyId, listener) {
     EnigmailLog.DEBUG(`keyserver.jsm: accessHkpInternal.accessKeyServer(${keyserver})\n`);
+
+    const cApi = EnigmailCryptoAPI();
+
     if (keyserver === null) {
       keyserver = EnigmailKeyserverURIs.getDefaultKeyServer();
     }
@@ -298,7 +300,7 @@ const accessHkpInternal = {
             else {
               let errorMsgObj = {},
                 importedKeysObj = {};
-              let importMinimal = (xmlReq.responseText.length > 1024000 && (!EnigmailGpg.getGpgFeature("handles-huge-keys")));
+              let importMinimal = (xmlReq.responseText.length > 1024000 && (!cApi.supportsFeature("handles-huge-keys")));
               let r = EnigmailKeyRing.importKey(null, false, xmlReq.responseText, "", errorMsgObj, importedKeysObj, importMinimal);
               if (r === 0) {
                 resolve(importedKeysObj.value);
@@ -352,7 +354,7 @@ const accessHkpInternal = {
         EnigmailLog.DEBUG(`keyserver.jsm: accessHkpInternal.accessKeyServer: requesting ${url}\n`);
         xmlReq.open(method, url);
         xmlReq.setRequestHeader("Content-Type", contentType);
-          xmlReq.send(payLoad);
+        xmlReq.send(payLoad);
       }
     });
   },
@@ -850,6 +852,8 @@ const accessGnuPG = {
   accessKeyServer: function(actionFlag, keyserver, keyId, listener) {
     EnigmailLog.DEBUG(`keyserver.jsm: accessGnuPG: accessKeyServer(${keyserver})\n`);
 
+    const cApi = EnigmailCryptoAPI();
+
     let processHandle = {
       value: null
     };
@@ -870,11 +874,7 @@ const accessGnuPG = {
       keyserver = EnigmailKeyserverURIs.getDefaultKeyServer();
     }
 
-    let args = EnigmailGpg.getStandardArgs(true);
-    args.push("--log-file");
-    args.push(EnigmailOS.isWin32 ? "NUL" : "/dev/null");
-    args.push("--with-colons");
-
+    let args = ["--batch", "--no-tty", "--no-verbose", "--status-fd", "2", "--log-file", EnigmailOS.isWin32 ? "NUL" : "/dev/null", "--with-colons"];
     let cmd = "";
 
     let proxyHost = EnigmailHttpProxy.getHttpProxy();
@@ -900,7 +900,7 @@ const accessGnuPG = {
     args.push(cmd);
     args = args.concat(keyId.split(/ +/));
 
-    return EnigmailExecution.execAsync(EnigmailGpg.agentPath, args, "", processHandle);
+    return EnigmailExecution.execAsync(cApi._gpgPath, args, "", processHandle);
   },
 
   parseStatusMsg: function(execResult) {
@@ -1135,6 +1135,7 @@ function getAccessType(keyserver) {
     keyserver = EnigmailKeyserverURIs.getDefaultKeyServer();
   }
 
+  const cApi = EnigmailCryptoAPI();
 
   let srv = parseKeyserverUrl(keyserver);
   switch (srv.protocol) {
@@ -1142,7 +1143,8 @@ function getAccessType(keyserver) {
       return accessKeyBase;
     case "ldap":
     case "ldaps":
-      return accessGnuPG;
+      if (cApi.api_name === "GpgME")  return accessGnuPG;
+      throw new Error("Unsupported protocol");
     case "vks":
       return accessVksServer;
   }
@@ -1151,7 +1153,7 @@ function getAccessType(keyserver) {
     return accessVksServer;
   }
 
-  if (EnigmailPrefs.getPref("useGpgKeysTool")) {
+  if (EnigmailPrefs.getPref("useGpgKeysTool") && cApi.api_name === "GpgME") {
     return accessGnuPG;
   }
 

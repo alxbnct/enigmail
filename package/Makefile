@@ -87,7 +87,6 @@ MODFILES = \
            compat.jsm \
            time.jsm \
            timer.jsm \
-           tor.jsm \
            trust.jsm \
            uris.jsm \
            verify.jsm \

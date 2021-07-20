@@ -57,7 +57,6 @@ execTest("mimeEncrypt-test.js");
 execTest("expiry-test.js");
 execTest("installGnuPG-test.js");
 execTest("keyRefreshService-test.js");
-execTest("tor-test.js");
 execTest("versioning-test.js");
 execTest("rng-test.js");
 execTest("dns-test.js");

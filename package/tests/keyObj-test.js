@@ -12,7 +12,6 @@
 do_load_module("file://" + do_get_cwd().path + "/testHelper.js"); /*global withEnigmail: false, withTestGpgHome: false, gKeyListObj: true */
 
 /*global createAndSortKeyList: false */
-const EnigmailGpg = component("enigmail/cryptoAPI/gnupg-core.jsm").EnigmailGpg;
 const EnigmailKeyRing = component("enigmail/keyRing.jsm").EnigmailKeyRing;
 
 testing("keyObj.jsm"); /*global EnigmailKeyObj: false */
@@ -29,19 +28,13 @@ test(withTestGpgHome(withEnigmail(function shouldExportMinimalSubkey() {
   const keyObj = EnigmailKeyRing.getKeyById("0x7F1568CB8997F7BA");
   Assert.assertContains(keyObj.userId, "alice@example.invalid");
 
-  if (EnigmailGpg.getGpgFeature("export-specific-uid")) {
-    // only perform test if GnuPG 2.2.9+ is available
-    let minKey = keyObj.getMinimalPubKey("bob@somewhere.invalid");
-    Assert.equal(minKey.exitCode, 0);
-
-    Assert.equal(minKey.keyData.substr(0, 50), "mQGNBFub08oBDACmb04i4u8xUV1ADbnbN5l83mpr70OyWVJb5E");
-    Assert.equal(minKey.keyData.substr(-50, 50), "p9TFNKjguUrrGrVnmnmy/YoGTJWuGqrZy8kcC3LCjg0k2mV0M=");
-  }
-
-  EnigmailGpg.agentVersion = "2.2.1";
-  Assert.ok(!EnigmailGpg.getGpgFeature("export-specific-uid"));
-
   let minKey = keyObj.getMinimalPubKey("bob@somewhere.invalid");
+  Assert.equal(minKey.exitCode, 0);
+
+  Assert.equal(minKey.keyData.substr(0, 50), "mQGNBFub08oBDACmb04i4u8xUV1ADbnbN5l83mpr70OyWVJb5E");
+  Assert.equal(minKey.keyData.substr(-50, 50), "p9TFNKjguUrrGrVnmnmy/YoGTJWuGqrZy8kcC3LCjg0k2mV0M=");
+
+  minKey = keyObj.getMinimalPubKey("bob@somewhere.invalid");
   Assert.equal(minKey.exitCode, 0);
   Assert.equal(minKey.keyData.substr(3, 50), "NBFub08oBDACmb04i4u8xUV1ADbnbN5l83mpr70OyWVJb5ElIc");
   Assert.ok(minKey.keyData.substr(-50, 50) == "1MU0qOC5SusatWeaebL9igZMla4aqtnLyRwLcsKODSTaZXQw==" ||

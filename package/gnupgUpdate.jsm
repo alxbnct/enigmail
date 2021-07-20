@@ -12,7 +12,6 @@ var EXPORTED_SYMBOLS = ["EnigmailGnuPGUpdate"];
 const EnigmailPrefs = ChromeUtils.import("chrome://enigmail/content/modules/prefs.jsm").EnigmailPrefs;
 const InstallGnuPG = ChromeUtils.import("chrome://enigmail/content/modules/installGnuPG.jsm").InstallGnuPG;
 const EnigmailOS = ChromeUtils.import("chrome://enigmail/content/modules/os.jsm").EnigmailOS;
-const EnigmailGpg = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/gnupg-core.jsm").EnigmailGpg;
 const EnigmailLog = ChromeUtils.import("chrome://enigmail/content/modules/log.jsm").EnigmailLog;
 const EnigmailVersioning = ChromeUtils.import("chrome://enigmail/content/modules/versioning.jsm").EnigmailVersioning;
 const EnigmailTimer = ChromeUtils.import("chrome://enigmail/content/modules/timer.jsm").EnigmailTimer;
@@ -29,6 +28,8 @@ var EnigmailGnuPGUpdate = {
     if (!isGnuPGBackend()) return false;
     if (!this.isGnuPGUpdatable()) return false;
 
+    const cApi = EnigmailCryptoAPI();
+
     let now = Math.floor(Date.now() / 1000);
     let lastCheck = Number(EnigmailPrefs.getPref("gpgLastUpdate"));
     if (now > lastCheck) {
@@ -37,7 +38,7 @@ var EnigmailGnuPGUpdate = {
 
     let newVer = await InstallGnuPG.getAvailableInstaller();
 
-    if (newVer && EnigmailVersioning.greaterThan(newVer.gpgVersion, EnigmailGpg.agentVersion)) {
+    if (newVer && EnigmailVersioning.greaterThan(newVer.gpgVersion, cApi._gpgVersion)) {
       // new version is available
       return true;
     }
@@ -72,10 +73,11 @@ var EnigmailGnuPGUpdate = {
 
   isGnuPGUpdatable: function() {
     if (!isGnuPGBackend()) return false;
+    const cApi = EnigmailCryptoAPI();
 
     if (!EnigmailPrefs.getPref("gpgUpgradeFrom20")) {
       // don't upgrade if GnuPG 2.0.x is detected
-      if (EnigmailVersioning.greaterThan("2.1", EnigmailGpg.agentVersion)) {
+      if (EnigmailVersioning.greaterThan("2.1", cApi._gpgVersion)) {
         return false;
       }
     }
@@ -129,7 +131,8 @@ var EnigmailGnuPGUpdate = {
   requireKeyRingUpgrade: function() {
     if (!isGnuPGBackend()) return false;
 
-    return EnigmailVersioning.greaterThan("2.1", EnigmailGpg.agentVersion);
+    const cApi = EnigmailCryptoAPI();
+    return EnigmailVersioning.greaterThan("2.1", cApi._gpgVersion);
   },
 
   /**
@@ -171,7 +174,8 @@ function isGpg4WinInstalled() {
 
 function isGpgOsxInstalled() {
   // check the installation path of GnuPG
-  return (EnigmailGpg.agentPath.path.search(/^\/usr\/local\/gnupg-2.[12]\//) === 0);
+  const cApi = EnigmailCryptoAPI();
+  return (cApi._gpgPath.search(/^\/usr\/local\/gnupg-2.[12]\//) === 0);
 }
 
 

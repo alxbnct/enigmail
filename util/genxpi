@@ -86,8 +86,6 @@ set chrome/content/preferences/defaultPrefs.js \
     chrome/content/modules/configure.jsm \
     chrome/content/modules/constants.jsm \
     chrome/content/modules/cryptoAPI.jsm \
-    chrome/content/modules/cryptoAPI/gnupg-agent.jsm \
-    chrome/content/modules/cryptoAPI/gnupg-core.jsm \
     chrome/content/modules/cryptoAPI/gnupg-keyEditor.jsm \
     chrome/content/modules/cryptoAPI/gpgme.js \
     chrome/content/modules/cryptoAPI/openpgp-js.js \
@@ -175,7 +173,6 @@ set chrome/content/preferences/defaultPrefs.js \
     chrome/content/modules/compat.jsm \
     chrome/content/modules/time.jsm \
     chrome/content/modules/timer.jsm \
-    chrome/content/modules/tor.jsm \
     chrome/content/modules/trust.jsm \
     chrome/content/modules/uris.jsm \
     chrome/content/modules/verify.jsm \

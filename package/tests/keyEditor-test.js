@@ -12,10 +12,18 @@ do_load_module("file://" + do_get_cwd().path + "/testHelper.js"); /*global withE
 
 testing("cryptoAPI/gnupg-keyEditor.jsm"); /*global editKey: false, EnigmailKeyRing: false */
 var EnigmailTime = component("enigmail/time.jsm").EnigmailTime;
-var EnigmailGpg = component("enigmail/cryptoAPI/gnupg-code.jsm").EnigmailGpg;
+var getGpgMEApi = component("enigmail/cryptoAPI/gpgme.js").getGpgMEApi;
+var gGnuPGPath = null;
 
-test(withTestGpgHome(withEnigmail(asyncTest(function shouldEditKey() {
-  EnigmailKeyEditor.gpgPath = EnigmailGpg.agentPath;
+
+test(withTestGpgHome(withEnigmail(asyncTest(function shouldEditKey(esvc, window) {
+  if (!gGnuPGPath) {
+    const gpgmeApi = getGpgMEApi();
+    gpgmeApi.initialize(esvc);
+    gGnuPGPath = gpgmeApi._gpgPath;
+  }
+
+  EnigmailKeyEditor.gpgPath = gGnuPGPath;
 
   return new Promise((resolve, reject) => {
     importKeys();
