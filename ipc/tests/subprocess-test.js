@@ -15,6 +15,27 @@ const subprocess = ChromeUtils.import("chrome://enigmail/content/modules/subproc
 var gTestLines;
 var gResultData;
 var gResultStdErr;
+var gInspector = Cc["@mozilla.org/jsinspector;1"].createInstance(Ci.nsIJSInspector);
+
+function sync(promise) {
+  let res = null,
+    isError = false;
+  promise.then(gotResult => {
+    res = gotResult;
+    gInspector.exitNestedEventLoop();
+  }).catch(gotResult => {
+    res = gotResult;
+    isError = true;
+    gInspector.exitNestedEventLoop();
+  });
+
+  gInspector.enterNestedEventLoop(0);
+
+  if (isError) {
+    throw res;
+  }
+  return res;
+}
 
 function run_test() {
   var isWindows = ("@mozilla.org/windows-registry-key;1" in Components.classes);
@@ -89,7 +110,9 @@ function run_test() {
     mergeStderr: false
   });
 
-  p.wait();
+  let r = sync(p.promise);
+  Assert.ok(r === 0 || r === 255, "exit code");
+
   Assert.equal(
     gTestLines.join(""),
     gResultData,
@@ -129,7 +152,7 @@ function run_test() {
     mergeStderr: true
   });
 
-  p.wait();
+  sync(p.promise);
   Assert.equal(gTestLines.join("").replace(/\r\n/g, "\n").length + 30, gResultData.replace(/\r\n/g, "\n").length, "comparing result");
 
 
@@ -159,7 +182,7 @@ function run_test() {
     mergeStderr: false
   });
 
-  p.wait();
+  sync(p.promise);
 
   Assert.equal(gTestLines.join(""), gResultData, "comparing result");
 
@@ -184,8 +207,7 @@ function run_test() {
     mergeStderr: false
   });
 
-  var exitCode = p.wait();
-  // Assert.notEqual(0, exitCode, "expecting non-zero exit code"); // fails from time to time
+  sync(p.promise);
   Assert.equal("", gResultData, "comapring result");
   gResultStdErr = gResultStdErr.replace(/\r\n/g, "\n");
   Assert.equal(18, gResultStdErr.length, "check error message");
@@ -204,7 +226,7 @@ function run_test() {
     stdin: gTestLines.join("")
   });
 
-  p.wait();
+  sync(p.promise);
 
   p = subprocess.call({
     command: pl,
@@ -216,7 +238,7 @@ function run_test() {
     }
   });
 
-  p.wait();
+  sync(p.promise);
   Assert.equal(gTestLines.join(""), gResultData, "read file");
 
   /////////////////////////////////////////////////////////////////
@@ -243,7 +265,7 @@ function run_test() {
     }
   });
 
-  p.wait();
+  sync(p.promise);
 
   /////////////////////////////////////////////////////////////////
   // Test environment variables
@@ -268,7 +290,7 @@ function run_test() {
     mergeStderr: false
   });
 
-  p.wait();
+  sync(p.promise);
   Assert.equal(gTestLines.join(""), gResultData, "variable comparison");
 
   /////////////////////////////////////////////////////////////////
@@ -298,7 +320,7 @@ function run_test() {
     Assert.ok(false, "error: " + ex);
   }
 
-  p.wait();
+  sync(p.promise);
 
 
   /////////////////////////////////////////////////////////////////
@@ -320,7 +342,7 @@ function run_test() {
       mergeStderr: false
     });
 
-    p.wait();
+    sync(p.promise);
   }
 
   dataFile.remove(false);

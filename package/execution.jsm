@@ -20,6 +20,8 @@ const EnigmailConstants = ChromeUtils.import("chrome://enigmail/content/modules/
 
 const loadOS = EnigmailLazy.loader("enigmail/os.jsm", "EnigmailOS");
 
+var inspector;
+
 var EnigmailExecution = {
   agentType: "",
 
@@ -165,7 +167,7 @@ var EnigmailExecution = {
     EnigmailLog.CONSOLE("enigmail> " + EnigmailFiles.formatCmdLine(command, args) + "\n");
 
     try {
-      subprocess.call({
+      EnigmailExecution.syncProc(subprocess.call({
         command: command,
         arguments: args,
         charset: null,
@@ -176,7 +178,7 @@ var EnigmailExecution = {
           errOutput = result.stderr;
         },
         mergeStderr: false
-      }).wait();
+      }).promise);
     }
     catch (ex) {
       EnigmailLog.ERROR("execution.jsm: EnigmailExecution.simpleExecCmd: " + command.path + " failed\n");
@@ -240,7 +242,7 @@ var EnigmailExecution = {
 
     const proc = procBuilder.build();
     try {
-      subprocess.call(proc).wait();
+      EnigmailExecution.syncProc(subprocess.call(proc).promise);
     }
     catch (ex) {
       EnigmailLog.ERROR("execution.jsm: EnigmailExecution.execCmd: subprocess.call failed with '" + ex.toString() + "'\n");
@@ -498,7 +500,7 @@ var EnigmailExecution = {
     procBuilder.setStdout(stdoutFunc);
     procBuilder.setDone(doneFunc);
     const proc = procBuilder.build();
-    subprocess.call(proc).wait();
+    EnigmailExecution.syncProc(subprocess.call(proc).promise);
   },
 
 
@@ -536,5 +538,29 @@ var EnigmailExecution = {
     };
 
     return simpleListener;
+  },
+
+  syncProc: function(promise) {
+    if (!inspector) {
+      inspector = Cc["@mozilla.org/jsinspector;1"].createInstance(Ci.nsIJSInspector);
+    }
+
+    let res = null,
+      isError = false;
+    promise.then(gotResult => {
+      res = gotResult;
+      inspector.exitNestedEventLoop();
+    }).catch(gotResult => {
+      res = gotResult;
+      isError = true;
+      inspector.exitNestedEventLoop();
+    });
+
+    inspector.enterNestedEventLoop(0);
+
+    if (isError) {
+      throw res;
+    }
+    return res;
   }
 };

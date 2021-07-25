@@ -37,6 +37,7 @@ const EnigmailOS = ChromeUtils.import("chrome://enigmail/content/modules/os.jsm"
 const EnigmailApp = ChromeUtils.import("chrome://enigmail/content/modules/app.jsm").EnigmailApp;
 const PromiseUtils = ChromeUtils.import("resource://gre/modules/PromiseUtils.jsm").PromiseUtils;
 const EnigmailFiles = ChromeUtils.import("chrome://enigmail/content/modules/files.jsm").EnigmailFiles;
+const EnigmailExecution = ChromeUtils.import("chrome://enigmail/content/modules/execution.jsm").EnigmailExecution;
 const EnigmailXhrUtils = ChromeUtils.import("chrome://enigmail/content/modules/xhrUtils.jsm").EnigmailXhrUtils;
 
 const EXEC_FILE_PERMS = 0x1C0; // 0700
@@ -107,7 +108,7 @@ Installer.prototype = {
     };
 
     try {
-      subprocess.call(proc).wait();
+      EnigmailExecution.syncProc(subprocess.call(proc).promise);
       if (exitCode) throw "Installer failed with exit code " + exitCode;
     }
     catch (ex) {
@@ -157,7 +158,7 @@ Installer.prototype = {
     };
 
     try {
-      subprocess.call(proc).wait();
+      EnigmailExecution.syncProc(subprocess.call(proc).promise);
     }
     catch (ex) {
       EnigmailLog.ERROR("installGnuPG.jsm.cleanupMacOs: subprocess.call failed with '" + ex.toString() + "'\n");
@@ -291,92 +292,91 @@ Installer.prototype = {
 
   getDownloadUrl: function(on) {
 
-    let deferred = PromiseUtils.defer();
+    return new Promise((resolve, reject) => {
 
-    function reqListener() {
-      // "this" is set by the calling XMLHttpRequest
-      if (typeof(this.responseXML) == "object") {
-        EnigmailLog.DEBUG("installGnuPG.jsm: getDownloadUrl.reqListener: got: " + this.responseText + "\n");
-        if (!this.responseText) {
-          onError({
-            type: "Network"
-          });
-          return;
-        }
-
-        if (typeof(this.responseText) == "string") {
+      function reqListener() {
+        // "this" is set by the calling XMLHttpRequest
+        if (typeof(this.responseXML) == "object") {
           EnigmailLog.DEBUG("installGnuPG.jsm: getDownloadUrl.reqListener: got: " + this.responseText + "\n");
-
-          try {
-            let doc = JSON.parse(this.responseText);
-            self.url = doc.url;
-            self.hash = sanitizeHash(doc.hash);
-            self.command = doc.command;
-            self.mount = sanitizeFileName(doc.mountPath);
-            self.gpgVersion = doc.gpgVersion;
-            deferred.resolve();
-          }
-          catch (ex) {
-            EnigmailLog.DEBUG("installGnuPG.jsm: getDownloadUrl.reqListener: exception: " + ex.toString() + "\n");
-
+          if (!this.responseText) {
             onError({
               type: "Network"
             });
+            return;
+          }
+
+          if (typeof(this.responseText) == "string") {
+            EnigmailLog.DEBUG("installGnuPG.jsm: getDownloadUrl.reqListener: got: " + this.responseText + "\n");
+
+            try {
+              let doc = JSON.parse(this.responseText);
+              self.url = doc.url;
+              self.hash = sanitizeHash(doc.hash);
+              self.command = doc.command;
+              self.mount = sanitizeFileName(doc.mountPath);
+              self.gpgVersion = doc.gpgVersion;
+              resolve();
+            }
+            catch (ex) {
+              EnigmailLog.DEBUG("installGnuPG.jsm: getDownloadUrl.reqListener: exception: " + ex.toString() + "\n");
+
+              onError({
+                type: "Network"
+              });
+            }
           }
         }
       }
-    }
 
-    function onError(error) {
-      deferred.reject("error");
-      if (self.progressListener) {
-        return self.progressListener.onError(error);
+      function onError(error) {
+        reject("error");
+        if (self.progressListener) {
+          return self.progressListener.onError(error);
+        }
+
+        return false;
       }
 
-      return false;
-    }
 
+      EnigmailLog.DEBUG("installGnuPG.jsm: getDownloadUrl: start request\n");
 
-    EnigmailLog.DEBUG("installGnuPG.jsm: getDownloadUrl: start request\n");
+      let queryUrl = GPG_QUERY_URL;
 
-    let queryUrl = GPG_QUERY_URL;
+      // if ENIGMAIL_GPG_DOWNLOAD_URL env variable is set, use that instead of the
+      // official URL (for testing)
+      let env = Cc["@mozilla.org/process/environment;1"].getService(Ci.nsIEnvironment);
+      if (env.get("ENIGMAIL_GPG_DOWNLOAD_URL")) {
+        queryUrl = env.get("ENIGMAIL_GPG_DOWNLOAD_URL");
+      }
 
-    // if ENIGMAIL_GPG_DOWNLOAD_URL env variable is set, use that instead of the
-    // official URL (for testing)
-    let env = Cc["@mozilla.org/process/environment;1"].getService(Ci.nsIEnvironment);
-    if (env.get("ENIGMAIL_GPG_DOWNLOAD_URL")) {
-      queryUrl = env.get("ENIGMAIL_GPG_DOWNLOAD_URL");
-    }
+      var self = this;
 
-    var self = this;
+      try {
+        var xulRuntime = Cc[XPCOM_APPINFO].getService(Ci.nsIXULRuntime);
+        var platform = xulRuntime.XPCOMABI.toLowerCase();
+        var os = EnigmailOS.getOS().toLowerCase();
 
-    try {
-      var xulRuntime = Cc[XPCOM_APPINFO].getService(Ci.nsIXULRuntime);
-      var platform = xulRuntime.XPCOMABI.toLowerCase();
-      var os = EnigmailOS.getOS().toLowerCase();
+        var oReq = new XMLHttpRequest();
+        oReq.onload = reqListener;
+        oReq.addEventListener("error",
+          function(e) {
+            var error = EnigmailXhrUtils.createTCPErrorFromFailedXHR(oReq);
+            onError(error);
+          },
+          false);
 
-      var oReq = new XMLHttpRequest();
-      oReq.onload = reqListener;
-      oReq.addEventListener("error",
-        function(e) {
-          var error = EnigmailXhrUtils.createTCPErrorFromFailedXHR(oReq);
-          onError(error);
-        },
-        false);
+        oReq.open("get", queryUrl + "?vEnigmail=" + escape(EnigmailApp.getVersion()) + "&os=" + escape(os) + "&platform=" +
+          escape(platform), true);
+        oReq.send();
+      }
+      catch (ex) {
+        reject(ex);
+        EnigmailLog.writeException("installGnuPG.jsm", ex);
 
-      oReq.open("get", queryUrl + "?vEnigmail=" + escape(EnigmailApp.getVersion()) + "&os=" + escape(os) + "&platform=" +
-        escape(platform), true);
-      oReq.send();
-    }
-    catch (ex) {
-      deferred.reject(ex);
-      EnigmailLog.writeException("installGnuPG.jsm", ex);
-
-      if (self.progressListener)
-        self.progressListener.onError("installGnuPG.downloadFailed");
-    }
-
-    return deferred.promise;
+        if (self.progressListener)
+          self.progressListener.onError("installGnuPG.downloadFailed");
+      }
+    });
   },
 
   getUrlObj: function() {

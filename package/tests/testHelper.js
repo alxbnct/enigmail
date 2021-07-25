@@ -390,7 +390,7 @@ function shutdownGpgAgent() {
     };
 
     try {
-      subprocess.call(proc).wait();
+      cApi.sync(subprocess.call(proc).promise);
     } catch (ex) {
       Assert.ok(false, "Could not kill gpg-agent");
     }

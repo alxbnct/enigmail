@@ -7,16 +7,13 @@
 
 var EXPORTED_SYMBOLS = ["EnigmailSystem"];
 
-
-
-
-
 const ctypes = ChromeUtils.import("resource://gre/modules/ctypes.jsm").ctypes;
 const EnigmailOS = ChromeUtils.import("chrome://enigmail/content/modules/os.jsm").EnigmailOS;
 const EnigmailData = ChromeUtils.import("chrome://enigmail/content/modules/data.jsm").EnigmailData;
 const subprocess = ChromeUtils.import("chrome://enigmail/content/modules/subprocess.jsm").subprocess;
 const EnigmailLog = ChromeUtils.import("chrome://enigmail/content/modules/log.jsm").EnigmailLog;
 const EnigmailPrefs = ChromeUtils.import("chrome://enigmail/content/modules/prefs.jsm").EnigmailPrefs;
+const EnigmailExecution = ChromeUtils.import("chrome://enigmail/content/modules/execution.jsm").EnigmailExecution;
 
 var gKernel32Dll = null;
 var gSystemCharset = null;
@@ -97,7 +94,7 @@ function getWindowsCopdepage() {
         output += data;
       }
     });
-    p.wait();
+    EnigmailExecution.syncProc(p.promise);
 
     output = output.replace(/[\r\n]/g, "");
     output = output.replace(/^(.*[: ])([0-9]+)([^0-9].*)?$/, "$2");
@@ -135,7 +132,7 @@ function getUnixCharset() {
 
     let output = "";
 
-    let p = subprocess.call({
+    EnigmailExecution.syncProc(subprocess.call({
       command: localeFile,
       arguments: [],
       environment: [],
@@ -144,8 +141,7 @@ function getUnixCharset() {
       stdout: function(data) {
         output += data;
       }
-    });
-    p.wait();
+    }).promise);
 
     let m = output.match(/^(LC_ALL=)(.*)$/m);
     if (m && m.length > 2) {

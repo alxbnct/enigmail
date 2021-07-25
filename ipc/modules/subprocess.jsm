@@ -30,9 +30,7 @@
  *    },
  *    mergeStderr: false
  *  });
- *  p.wait(); // wait for the subprocess to terminate
- *            // this will block the main thread,
- *            // only do if you can wait that long
+ *  p.promise.then(...); // wait for the subprocess to terminate
  *
  *
  * Description of parameters:
@@ -76,7 +74,8 @@
  *              The exit code from the process available via result.exitCode. If
  *              stdout is not defined, then the output from stdout is available
  *              via result.stdout. stderr data is in result.stderr
- *              done() is guaranteed to be called before .wait() finishes
+ *              done() is guaranteed to be called before the returned promise is
+ *              resolved.
  *
  * mergeStderr: optional boolean value. If true, stderr is merged with stdout;
  *              no data will be provided to stderr. Default is false.
@@ -87,8 +86,8 @@
  * The object returned by subprocess.call offers a few methods that can be
  * executed:
  *
- * wait():         waits for the subprocess to terminate. It is not required to use
- *                 wait; done will be called in any case when the subprocess terminated.
+ * promise:        a promise that will be resolved when the process has terminated.
+ *                 The exitCode is passed along as resolve(exitCode).
  *
  * kill(hardKill): kill the subprocess. Any open pipes will be closed and
  *                 done will be called.
@@ -148,7 +147,8 @@ async function read(pipe) {
     if (buffer.byteLength > 0) {
       return arrayBufferToString(buffer);
     }
-  } catch (ex) {
+  }
+  catch (ex) {
     DEBUG_LOG("err: " + ex.toString());
   }
   return "";
@@ -190,6 +190,13 @@ var subprocess = {
     let stdinClosed = false;
     let stdoutData = "";
     let stderrData = "";
+    let returnDeferred = {};
+
+    let promise = new Promise(function(resolve, reject) {
+      returnDeferred.resolve = resolve;
+      returnDeferred.reject = reject;
+    });
+    returnDeferred.promise = promise;
 
     let formattedStack = Components.stack.formattedStack;
 
@@ -220,7 +227,8 @@ var subprocess = {
           }
         });
 
-      } else {
+      }
+      else {
         if (typeof options.stdin === "string") {
           DEBUG_LOG("write Stdin");
           writePipe(proc.stdin, options.stdin);
@@ -238,8 +246,10 @@ var subprocess = {
           if (typeof options.stdout === "function") {
             try {
               options.stdout(data);
-            } catch (ex) {}
-          } else
+            }
+            catch (ex) {}
+          }
+          else
             stdoutData += data;
         }));
 
@@ -250,8 +260,10 @@ var subprocess = {
             if (typeof options.stderr === "function") {
               try {
                 options.stderr(data);
-              } catch (ex) {}
-            } else
+              }
+              catch (ex) {}
+            }
+            else
               stderrData += data;
 
           }));
@@ -274,15 +286,19 @@ var subprocess = {
                 stdout: stdoutData,
                 stderr: stderrData
               });
-            } catch (ex) {}
+            }
+            catch (ex) {}
           }
+
+          returnDeferred.resolve(result.exitCode);
         })
         .catch(error => {
           resolved = -1;
           let errStr = "";
           if (typeof error === "string") {
             errStr = error;
-          } else if (error) {
+          }
+          else if (error) {
             for (let i in error) {
               errStr += "\n" + i + ": " + error[i];
             }
@@ -297,7 +313,8 @@ var subprocess = {
     let opts = {};
     if (options.mergeStderr) {
       opts.stderr = "stdout";
-    } else {
+    }
+    else {
       opts.stderr = "pipe";
     }
 
@@ -307,7 +324,8 @@ var subprocess = {
 
     if (options.command instanceof Ci.nsIFile) {
       opts.command = options.command.path;
-    } else {
+    }
+    else {
       opts.command = options.command;
     }
 
@@ -342,13 +360,7 @@ var subprocess = {
     );
 
     return {
-      wait: function() {
-        let mainThread = Services.tm.mainThread;
-        while (resolved === null)
-          mainThread.processNextEvent(true);
-
-        return resolved;
-      },
+      promise: returnDeferred.promise,
 
       kill: function(hard = false) {
         subproc.then(proc => {

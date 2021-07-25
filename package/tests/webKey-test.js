@@ -47,8 +47,12 @@ test(function getWksPathInBinDir() {
         }
         listener.done(0);
 
+        let p = new Promise((resolve, reject) => {
+          resolve(true);
+        });
+
         return {
-          'wait': function() {}
+          'promise': p
         };
       }, function() {
         let win = JSUnit.createStubWindow();
@@ -59,7 +63,7 @@ test(function getWksPathInBinDir() {
         });
 
         if (handle) {
-          handle.wait();
+          EnigmailExecution.syncProc(handle.promise);
         }
       });
     });
@@ -76,9 +80,12 @@ test(function getWksPathInLibexecDir() {
           listener.stdout("libexecdir:" + do_get_cwd().path + "\nbindir:/bin/dir/test\n");
         }
         listener.done(0);
+        let p = new Promise((resolve, reject) => {
+          resolve(true);
+        });
 
         return {
-          'wait': function() {}
+          'promise': p
         };
       }, function() {
         let win = JSUnit.createStubWindow();
@@ -89,7 +96,7 @@ test(function getWksPathInLibexecDir() {
         });
 
         if (handle) {
-          handle.wait();
+          EnigmailExecution.syncProc(handle.promise);
         }
       });
     });
@@ -128,9 +135,12 @@ lalala
 --=-=01-uhb5j5etxykdj5cqrpky=-=--`
       );
       listener.done(0);
+      let p = new Promise((resolve, reject) => {
+        resolve(true);
+      });
 
       return {
-        'wait': function() {}
+        'promise': p
       };
     }, function() {
       TestHelper.resetting(EnigmailSend, "simpleSendMessage", function(op1, op2, op3, op4, op5) {
@@ -149,7 +159,7 @@ lalala
         });
 
         if (handle) {
-          handle.wait();
+          EnigmailExecution.syncProc(handle.promise);
         }
       });
     });
@@ -161,9 +171,12 @@ test(function wksConfirmKey() {
     TestHelper.resetting(EnigmailExecution, "execStart", function(path, args, wat, win, listener, ops) {
       Assert.equal(path, "WKS_CLIENT_DUMMY");
       listener.done(0);
+      let p = new Promise((resolve, reject) => {
+        resolve(true);
+      });
 
       return {
-        'wait': function() {}
+        'promise': p
       };
     }, function() {
       TestHelper.resetting(EnigmailSend, "simpleSendMessage", function(op1, op2, op3, op4, op5) {
@@ -205,7 +218,7 @@ lalala
         });
 
         if (handle) {
-          handle.wait();
+          EnigmailExecution.syncProc(handle.promise);
         }
       });
     });
@@ -219,8 +232,12 @@ test(function positiveWksSupportCheck() {
       Assert.equal(args[0], "--supported");
       Assert.equal(args[1], "test2@example.com");
       listener.done(0);
+      let p = new Promise((resolve, reject) => {
+        resolve(true);
+      });
+
       return {
-        'wait': function() {}
+        'promise': p
       };
     }, function() {
       let win = JSUnit.createStubWindow();
@@ -229,7 +246,7 @@ test(function positiveWksSupportCheck() {
       });
 
       if (handle) {
-        handle.wait();
+        EnigmailExecution.syncProc(handle.promise);
       }
     });
   });
@@ -242,8 +259,12 @@ test(function negativeWksSupportCheck() {
       Assert.equal(args[0], "--supported");
       Assert.equal(args[1], "test2@example.com");
       listener.done(1);
+      let p = new Promise((resolve, reject) => {
+        resolve(true);
+      });
+
       return {
-        'wait': function() {}
+        'promise': p
       };
     }, function() {
       let win = JSUnit.createStubWindow();
@@ -252,7 +273,7 @@ test(function negativeWksSupportCheck() {
       });
 
       if (handle) {
-        handle.wait();
+        EnigmailExecution.syncProc(handle.promise);
       }
     });
   });
