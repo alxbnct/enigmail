@@ -305,6 +305,7 @@ var subprocess = {
           }
 
           ERROR_LOG(errStr);
+          returnDeferred.reject(errStr);
           throw new Error("subprocess.jsm: caught error: " + errStr);
         });
 
