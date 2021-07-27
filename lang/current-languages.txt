@@ -13,6 +13,7 @@ gd
 gl
 hr
 hu
+hy
 it
 ja
 ko
