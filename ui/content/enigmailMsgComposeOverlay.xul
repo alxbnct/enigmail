@@ -189,11 +189,6 @@
             </menupopup>
           </menu>
 
-          <menuitem id="enigmail_help"
-              label="&enigmail.help.label;"
-              accesskey="&enigmail.help.accesskey;"
-              oncommand="EnigmailWindows.openHelpWindow('compose');" />
-
         </menupopup>
       </menu>
   </menubar>

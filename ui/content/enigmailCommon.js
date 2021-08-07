@@ -260,11 +260,6 @@ function EnigError(mesg) {
 }
 
 
-function EnigHelpWindow(source) {
-  EnigmailWindows.openHelpWindow(source);
-}
-
-
 function EnigDisplayRadioPref(prefName, prefValue, optionElementIds) {
   EnigmailLog.DEBUG("enigmailCommon.js: EnigDisplayRadioPref: " + prefName + ", " + prefValue + "\n");
 

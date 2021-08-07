@@ -143,20 +143,6 @@ var EnigmailWindows = {
 
 
   /**
-   * Display the key help window
-   *
-   * @source - |string| containing the name of the file to display
-   *
-   * no return value
-   */
-
-  openHelpWindow: function(source) {
-    EnigmailWindows.openWin("enigmail:help",
-      "chrome://enigmail/content/ui/enigmailHelp.xul?src=" + source,
-      "centerscreen,resizable");
-  },
-
-  /**
    * Display the "About Enigmail" window
    *
    * no return value

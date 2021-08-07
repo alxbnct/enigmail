@@ -54,8 +54,6 @@ UIFILES = \
 	enigmailGenericDisplay.js \
 	enigmailGenericDisplay.xul \
 	enigmailGenericDisplay.htm \
-	enigmailHelp.xul \
-	enigmailHelp.js \
 	enigmailImportPhoto.js \
 	enigmailImportPhoto.xul \
 	keyDetailsDlg.js \

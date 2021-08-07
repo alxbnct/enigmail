@@ -21,7 +21,7 @@
         xmlns:html="http://www.w3.org/1999/xhtml"
         onload="onLoadDialog();"
         minheight="300"
-        buttons="accept,cancel,help"
+        buttons="accept,cancel"
         persist="screenX screenY width height">
 
   <script type="application/x-javascript" src="chrome://enigmail/content/ui/enigmailRulesEditor.js"/>

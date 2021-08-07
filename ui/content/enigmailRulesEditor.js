@@ -371,7 +371,3 @@ document.addEventListener("dialogaccept", function(event) {
   if (!onAcceptDialog())
     event.preventDefault(); // Prevent the dialog closing.
 });
-
-document.addEventListener("dialoghelp", function(event) {
-  EnigmailWindows.openHelpWindow('rulesEditor');
-});

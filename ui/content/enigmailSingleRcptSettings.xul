@@ -22,7 +22,7 @@
         onload="enigmailDlgOnLoad();"
         minheight="200"
         theme="default-light"
-        buttons="accept,cancel,help">
+        buttons="accept,cancel">
 
   <script type="application/x-javascript" src="chrome://enigmail/content/ui/enigmailCommon.js"/>
   <script type="application/x-javascript" src="chrome://enigmail/content/ui/enigmailSingleRcptSettings.js"/>

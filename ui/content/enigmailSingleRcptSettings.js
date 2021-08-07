@@ -5,7 +5,7 @@
  */
 
 // Uses: chrome://enigmail/content/ui/enigmailCommon.js
-/* global EnigInitCommon: false, GetEnigmailSvc: false, EnigGetString: false, EnigHelpWindow: false */
+/* global EnigInitCommon: false, GetEnigmailSvc: false, EnigGetString: false */
 /* global EnigConfirm: false, EnigmailLog: false, EnigmailKeyRing: false, EnigmailDialog: false */
 
 "use strict";
@@ -285,9 +285,4 @@ function enigEnableKeySel(enable) {
 document.addEventListener("dialogaccept", function(event) {
   if (!enigmailDlgOnAccept())
     event.preventDefault(); // Prevent the dialog closing.
-});
-
-
-document.addEventListener("dialoghelp", function(event) {
-  EnigHelpWindow('editRcptRule');
 });

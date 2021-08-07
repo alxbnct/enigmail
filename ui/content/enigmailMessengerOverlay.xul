@@ -134,13 +134,6 @@
              accesskey="&enigmail.prefs.accesskey;"
              oncommand="EnigmailWindows.openPrefWindow(window, true, null);" />
 
-        <toolbarbutton id="enigmail_help2"
-             class="subviewbutton subviewbutton-iconic"
-             label="&enigmail.help.label;"
-             accesskey="&enigmail.help.accesskey;"
-             enigmailtype="enigmail"
-             oncommand="EnigmailWindows.openHelpWindow('messenger');" />
-
         <toolbarbutton id="enigmail_debugMenu2"
              label="&enigmail.debugMenu.label;"
              closemenu="none"
@@ -409,12 +402,6 @@
              label="&enigmail.prefs.label;"
              accesskey="&enigmail.prefs.accesskey;"
              oncommand="EnigmailWindows.openPrefWindow(window, true, null);" />
-
-        <menuitem id="enigmail_help"
-             label="&enigmail.help.label;"
-             accesskey="&enigmail.help.accesskey;"
-             enigmailtype="enigmail"
-             oncommand="EnigmailWindows.openHelpWindow('messenger');" />
 
         <menu id="enigmail_debugMenu"
              label="&enigmail.debugMenu.label;"

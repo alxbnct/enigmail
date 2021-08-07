@@ -157,12 +157,6 @@
                    label="&enigmail.encryptionModelManually.label;"
                    oncommand="resetSendingPrefsManually();"/>
           </radiogroup>
-          <!-- sending preferences: help button for convenient settings -->
-          <vbox align="end">
-            <button id="sendingPrefsHelp"
-                    label="&enigmail.help.label;"
-                    oncommand="EnigHelpWindow('sendingPrefs');"/>
-          </vbox>
         </hbox>
 
         <!-- elements for manual settings: -->
