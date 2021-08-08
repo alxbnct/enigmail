@@ -966,7 +966,7 @@ CryptMessageIntoFolder.prototype = {
   storeMessage: function(msg) {
     try {
       if (this.mimeTree.headers.has("subject")) {
-        this.hdr.subject = self.mimeTree.headers.get("subject");
+        this.hdr.subject = this.mimeTree.headers.get("subject");
       }
     }
     catch (ex) {}
