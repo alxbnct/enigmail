@@ -585,6 +585,20 @@ CryptMessageIntoFolder.prototype = {
           this.mimeTree.headers._rawHeaders.set("subject", [subject]);
         }
       }
+      else if ((!(ret.statusFlags & EnigmailConstants.GOOD_SIGNATURE)) &&  ct.search(/^multipart\/signed/i) === 0) {
+        // RFC 3156, Section 6.1 message
+
+        let innerMsg = EnigmailMime.getMimeTree(ret.decryptedData, false);
+        if (innerMsg.subParts.length > 0) {
+          ct = innerMsg.subParts[0].fullContentType;
+          let hdrMap = innerMsg.subParts[0].headers._rawHeaders;
+          if (ct.search(/protected-headers/i) >= 0 && hdrMap.has("subject")) {
+            let subject = innerMsg.subParts[0].headers._rawHeaders.get("subject").join("");
+            subject = subject.replace(/^(Re: )+/, "Re: ");
+            this.mimeTree.headers._rawHeaders.set("subject", [subject]);
+          }
+        }
+      }
     }
 
     let boundary = getBoundary(mimePart);
@@ -964,13 +978,6 @@ CryptMessageIntoFolder.prototype = {
   },
 
   storeMessage: function(msg) {
-    try {
-      if (this.mimeTree.headers.has("subject")) {
-        this.hdr.subject = this.mimeTree.headers.get("subject");
-      }
-    }
-    catch (ex) {}
-
     return EnigmailPersistentCrypto.copyMessageToFolder(this.hdr, this.destFolder, this.move, msg, false);
   },
 
