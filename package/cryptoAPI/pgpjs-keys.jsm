@@ -136,7 +136,7 @@ var pgpjs_keys = {
           case "publicKey":
           case "secretKey":
             key = {
-              id: m.packets[i].getKeyId().toHex().toUpperCase(),
+              id: m.packets[i].getKeyID().toHex().toUpperCase(),
               fpr: m.packets[i].getFingerprint().toUpperCase(),
               uids: [],
               created: EnigmailTime.getDateTime(m.packets[i].getCreationTime().getTime() / 1000, true, false),
@@ -197,7 +197,7 @@ var pgpjs_keys = {
      */
 
     const fpr = pgpJsKey.getFingerprint().toUpperCase();
-    const keyId = pgpJsKey.getKeyId().toHex().toUpperCase();
+    const keyId = pgpJsKey.getKeyID().toHex().toUpperCase();
     let sigs = [];
     for (let u of pgpJsKey.users) {
       if (u.userId) {

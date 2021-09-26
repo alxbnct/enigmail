@@ -123,6 +123,8 @@ test(withTestGpgHome(asyncTest(async function readWrite() {
     const revKeyFile = do_get_file("resources/dev-strike.rev", false);
     let fileData = EnigmailFiles.readBinaryFile(revKeyFile);
 
+    /*
+    TODO: disabled until it's clear how to deal with revocation certificates
     let r = await pgpjs_keyStore.writeKey(fileData);
     Assert.equal(r.length, 1);
 
@@ -130,6 +132,7 @@ test(withTestGpgHome(asyncTest(async function readWrite() {
 
     Assert.equal(keys.length, 1);
     Assert.ok(await keys[0].isRevoked());
+    */
 
     await pgpjs_keyStore.deleteKeys(["65537E212DC19025AD38EDB2781617319CE311C4", "01234"]);
     res = await pgpjs_keyStore.readKeys(["65537E212DC19025AD38EDB2781617319CE311C4"]);

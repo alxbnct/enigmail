@@ -324,13 +324,13 @@ var pgpjs_decrypt = {
         let keyId = sig.keyid.toHex();
 
         for (let k of pubKeys) {
-          if (k.getKeyId().toHex() === keyId) {
+          if (k.getKeyID().toHex() === keyId) {
             currentKey = k;
             break;
           }
           else {
             for (let sk of k.subKeys) {
-              if (sk.getKeyId().toHex() === keyId) {
+              if (sk.getKeyID().toHex() === keyId) {
                 currentKey = k;
                 break;
               }

@@ -44,41 +44,45 @@ var pgpjs_keyStore = {
         let blocks = getArmor().splitArmoredBlocks(keyData);
 
         for (let b of blocks) {
+          let res;
           try {
-            let res = await PgpJS.message.readArmored(b);
-            if (res.packets.length > 0) {
-              switch (res.packets[0].tag) {
-                case PgpJS.enums.packet.publicKey:
-                case PgpJS.enums.packet.secretKey:
-                  res = await PgpJS.key.readArmored(b);
-                  break;
-                case PgpJS.enums.packet.signature:
-                  if (res.packets[0].signatureType === PgpJS.enums.signature.key_revocation) {
-                    res = await appendRevocationCert(res);
-                  }
-                  else {
-                    res = {};
-                  }
-                  break;
-              }
-            }
-
-            if ("keys" in res) keys = keys.concat(res.keys);
+            res = await PgpJS.readKeys({
+              armoredKeys: b
+            });
           }
           catch (x) {
-            EnigmailLog.DEBUG(`pgpjs-keystore.jsm: writeKey: error while reading keys: ${x.toString()}\n`);
+            try {
+              res = await PgpJS.readSignature({
+                armoredSignature: b
+              });
+
+              if (res.length > 0) {
+                if (res[0].getSubkeys().length === 0 && res[0].revocationSignatures.length > 0) {
+                  res = await appendRevocationCert(res);
+                }
+              }
+            }
+            catch (x) {
+              EnigmailLog.DEBUG(`pgpjs-keystore.jsm: writeKey: error while reading keys: ${x.toString()}\n`);
+            }
           }
+
+          keys = keys.concat(res);
         }
       }
       else {
         let data = stringToUint8Array(keyData);
-        let res = await PgpJS.key.read(data);
-        keys = res.keys;
+        let res = await PgpJS.readKeys({
+          binaryKeys: data
+        });
+        keys = res;
       }
     }
     else {
       // we got a Uint8Array
-      keys = (await PgpJS.key.read(keyData)).keys;
+      keys = await PgpJS.readKeys({
+        binaryKeys: keyData
+      });
     }
     let importedFpr = [];
 
@@ -163,7 +167,9 @@ var pgpjs_keyStore = {
       foundKeys.push({
         fpr: i,
         status: rows[i].status,
-        key: (await PgpJS.key.readArmored(rows[i].armoredKey)).keys[0]
+        key: (await PgpJS.readKey({
+          armoredKey: rows[i].armoredKey
+        }))
       });
     }
     return foundKeys;
@@ -413,7 +419,7 @@ var pgpjs_keyStore = {
     dbPathObj.append("openpgp-revocs.d");
 
     EnigmailFiles.ensureWritableDirectory(dbPathObj, 0o700);
-    const uid = key.users[0].userId.userid;
+    const uid = key.users[0].userID.userID;
     dbPathObj.append(`${fpr}.rev`);
 
     const data = `This is a revocation certificate for the OpenPGP key:
@@ -514,19 +520,21 @@ const keyStoreDatabase = {
 
     if (fpr in rows) {
       // merge existing key with new key data
-      let oldKey = await PgpJS.key.readArmored(rows[fpr].armoredKey);
+      let oldKey = await PgpJS.readKey({
+        armoredKey: rows[fpr].armoredKey
+      });
       try {
-        await key.update(oldKey.keys[0]);
+        await key.update(oldKey);
       }
       catch (x) {
         // if the keys can't be merged, try to update the old key with the new one
         try {
-          await oldKey.keys[0].update(key);
-          key = oldKey.keys[0];
+          await oldKey.update(key);
+          key = oldKey;
         }
         catch (x) {
           // if we have a private key, keep it, otherwise use the new key
-          if (oldKey.keys[0].isPrivate()) key = oldKey.keys[0];
+          if (oldKey.isPrivate()) key = oldKey;
         }
       }
       metadata = await getKeyMetadata(key);
@@ -900,7 +908,7 @@ async function getKeyMetadata(key) {
   let keyObj = {};
   let uatNum = 0;
 
-  keyObj.keyId = key.getKeyId().toHex().toUpperCase();
+  keyObj.keyId = key.getKeyID().toHex().toUpperCase();
   keyObj.secretAvailable = key.isPrivate();
 
   try {
@@ -942,7 +950,7 @@ async function getKeyMetadata(key) {
   keyObj.algoSym = getAlgorithmDesc(key.getAlgorithmInfo().algorithm);
   keyObj.keySize = key.getAlgorithmInfo().bits;
   keyObj.fpr = key.getFingerprint().toUpperCase();
-  keyObj.userId = prim ? prim.userId.userid : "n/a";
+  keyObj.userId = prim ? prim.userID.userID : "n/a";
   keyObj.photoAvailable = false;
 
   keyObj.userIds = [];
@@ -951,7 +959,7 @@ async function getKeyMetadata(key) {
     let trustLevel = "f";
     if (keyIsValid) {
       try {
-        trustLevel = await getUserStatusCode(key.users[i], key.keyPacket);
+        trustLevel = await getUserStatusCode(key.users[i], key);
       }
       catch (x) {}
     }
@@ -972,7 +980,7 @@ async function getKeyMetadata(key) {
     }
     else {
       keyObj.userIds.push({
-        userId: key.users[i].userId.userid,
+        userId: key.users[i].userID.userID,
         keyTrust: trustLevel,
         uidFpr: "",
         type: "uid"
@@ -1003,7 +1011,7 @@ async function getKeyMetadata(key) {
     }
 
     keyObj.subKeys.push({
-      keyId: sk[i].getKeyId().toHex().toUpperCase(),
+      keyId: sk[i].getKeyID().toHex().toUpperCase(),
       expiry: EnigmailTime.getDateTime(exp, true, false),
       expiryTime: exp,
       keyTrust: keyTrust,
@@ -1073,9 +1081,7 @@ async function appendRevocationCert(pgpMessage) {
   let foundKeys = await pgpjs_keyStore.getKeysForKeyIds(false, [keyId]);
 
   if (foundKeys.length === 1) {
-    return {
-      keys: [await foundKeys[0].applyRevocationCertificate(pgpMessage.armor())]
-    };
+    return [await foundKeys[0].applyRevocationCertificate(pgpMessage.armor())];
   }
 
   return null;
@@ -1106,7 +1112,7 @@ async function getKeyStatusCode(key) {
     if (await key.isRevoked(null, null, now)) {
       return "r";
     }
-    else if (!key.users.some(user => user.userId && user.selfCertifications.length)) {
+    else if (!key.users.some(user => user.userID && user.selfCertifications.length)) {
       return "i";
     }
     else {
@@ -1130,26 +1136,20 @@ async function getKeyStatusCode(key) {
   return "f";
 }
 
-async function getUserStatusCode(user, keyPacket) {
+async function getUserStatusCode(user, key) {
   try {
     if (!user.selfCertifications.length) {
       return "i";
     }
 
-    const dataToVerify = {
-      userId: user.userId,
-      userAttribute: user.userAttribute,
-      key: keyPacket
-    };
-
     const results = ["i"].concat(
       await Promise.all(user.selfCertifications.map(async function(selfCertification) {
 
-        if (selfCertification.revoked || await user.isRevoked(keyPacket, selfCertification)) {
+        if (selfCertification.revoked || await user.isRevoked(key.keyPacket, selfCertification)) {
           return "r";
         }
 
-        if (!(selfCertification.verified || await selfCertification.verify(keyPacket, dataToVerify))) {
+        if (!(await user.verifyCertificate(selfCertification, [key]))) {
           return "i";
         }
 
@@ -1259,15 +1259,15 @@ async function getKeyFlags(key) {
   function determineFlags(inputFlags, isVerified) {
     try {
 
-      if (inputFlags & PgpJS.enums.keyFlags.certify_keys) ++keyUse.cert;
-      if (inputFlags & PgpJS.enums.keyFlags.sign_data) ++keyUse.sign;
-      if (inputFlags & PgpJS.enums.keyFlags.encrypt_communication) ++keyUse.enc;
-      if (inputFlags & PgpJS.enums.keyFlags.encrypt_storage) ++keyUse.enc;
+      if (inputFlags & PgpJS.enums.keyFlags.certifyKeys) ++keyUse.cert;
+      if (inputFlags & PgpJS.enums.keyFlags.signData) ++keyUse.sign;
+      if (inputFlags & PgpJS.enums.keyFlags.encryptCommunication) ++keyUse.enc;
+      if (inputFlags & PgpJS.enums.keyFlags.encryptStorage) ++keyUse.enc;
       if (isVerified) {
-        if (inputFlags & PgpJS.enums.keyFlags.certify_keys) ++keyUse.certValid;
-        if (inputFlags & PgpJS.enums.keyFlags.sign_data) ++keyUse.signValid;
-        if (inputFlags & PgpJS.enums.keyFlags.encrypt_communication) ++keyUse.encValid;
-        if (inputFlags & PgpJS.enums.keyFlags.encrypt_storage) ++keyUse.encValid;
+        if (inputFlags & PgpJS.enums.keyFlags.certifyKeys) ++keyUse.certValid;
+        if (inputFlags & PgpJS.enums.keyFlags.signData) ++keyUse.signValid;
+        if (inputFlags & PgpJS.enums.keyFlags.encryptCommunication) ++keyUse.encValid;
+        if (inputFlags & PgpJS.enums.keyFlags.encryptStorage) ++keyUse.encValid;
       }
     }
     catch (x) {}
@@ -1281,7 +1281,7 @@ async function getKeyFlags(key) {
 
   let keyStatusCode = await getKeyStatusCode(key);
 
-  for (let sk of key.subKeys) {
+  for (let sk of key.getSubkeys()) {
     try {
       await sk.verify(key.primaryKey);
     }
