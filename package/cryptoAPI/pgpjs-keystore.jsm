@@ -52,22 +52,22 @@ var pgpjs_keyStore = {
           }
           catch (x) {
             try {
-              res = await PgpJS.readSignature({
-                armoredSignature: b
+              const SignaturePacket = PgpJS.SignaturePacket;
+              const packetData = await PgpJS.unarmor(b);
+              const packetList = await PgpJS.PacketList.fromBinary(packetData.data, {
+                [SignaturePacket.tag]: SignaturePacket
               });
 
-              if (res.length > 0) {
-                if (res[0].getSubkeys().length === 0 && res[0].revocationSignatures.length > 0) {
-                  res = await appendRevocationCert(res);
-                }
-              }
+              res = await appendRevocationCert(packetList);
             }
             catch (x) {
               EnigmailLog.DEBUG(`pgpjs-keystore.jsm: writeKey: error while reading keys: ${x.toString()}\n`);
             }
           }
 
-          keys = keys.concat(res);
+          if (res) {
+            keys = keys.concat(res);
+          }
         }
       }
       else {
@@ -1069,19 +1069,25 @@ function getKeyFromJSON(jsonStr) {
 }
 
 
-async function appendRevocationCert(pgpMessage) {
-  EnigmailLog.DEBUG("pgpjs-keystore.jsm: appendSignatureToKey()\n");
+async function appendRevocationCert(packetList) {
+  EnigmailLog.DEBUG("pgpjs-keystore.jsm: appendRevocationCert()\n");
 
-  let keyId = getFprFromArray(pgpMessage.packets[0].issuerFingerprint);
+  const PgpJS = getOpenPGPLibrary();
+  const revCert = packetList.findPacket(PgpJS.SignaturePacket.tag);
 
+  if (revCert.signatureType !== PgpJS.enums.signature.keyRevocation) {
+    return null;
+  }
+
+  let keyId = getFprFromArray(revCert.issuerFingerprint);
   if (!keyId) {
-    keyId = pgpMessage.packets[0].issuerKeyId.toHex().toUpperCase();
+    keyId = revCert.issuerKeyID.toHex().toUpperCase();
   }
 
   let foundKeys = await pgpjs_keyStore.getKeysForKeyIds(false, [keyId]);
 
   if (foundKeys.length === 1) {
-    return [await foundKeys[0].applyRevocationCertificate(pgpMessage.armor())];
+    return [await foundKeys[0].applyRevocationCertificate(await PgpJS.armor(PgpJS.enums.armor.signature, packetList.write()))];
   }
 
   return null;
