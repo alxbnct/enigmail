@@ -209,12 +209,13 @@ async function signData(signingKeyId, text, detachedSignature, encryptionFlags) 
 async function decryptPrivateKey(keyData, decryptionMsg, encryptionFlags) {
   if (encryptionFlags & EnigmailConstants.SEND_TEST) {
     gLastKeyDecrypted = null;
-    let success = await pgpjs_keys.decryptSecretKey(keyData.key, decryptionMsg);
-    if (success) {
+    let decryptedKey = await pgpjs_keys.decryptSecretKey(keyData.key, decryptionMsg);
+    if (decryptedKey) {
+      keyData.key = decryptedKey;
       gLastKeyDecrypted = keyData.key;
     }
 
-    return success;
+    return decryptedKey !== null;
   }
 
   // regular message -> use the key once
@@ -223,6 +224,9 @@ async function decryptPrivateKey(keyData, decryptionMsg, encryptionFlags) {
     gLastKeyDecrypted = null;
     return true;
   }
-  else
-    return pgpjs_keys.decryptSecretKey(keyData.key, decryptionMsg);
+  else {
+    let decryptedKey = pgpjs_keys.decryptSecretKey(keyData.key, decryptionMsg);
+    keyData.key = decryptedKey;
+    return  decryptedKey !== null;
+  }
 }

@@ -64,6 +64,7 @@ var pgpjs_keymanipulation = {
     if (!res) {
       return createError(EnigmailLocale.getString("noPassphrase"));
     }
+    keyList[0] = res;
 
     const revokedKey = await keyList[0].revoke({
       flag: revokeReason,
