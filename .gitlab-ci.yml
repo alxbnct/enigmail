@@ -1,4 +1,4 @@
-image: node:16-buster
+image: node:16-bullseye
 
 build:
   script:
@@ -54,7 +54,7 @@ test:
     - curl -s -o gpgme.tar.bz2 https://enigmail.net/unit-testing/gpgme-${GPGMEVERSION}.tar.bz2
     - tar jxf gpgme.tar.bz2
     - (cd gpgme-${GPGMEVERSION} && ./configure && make && make install)
-    - export TBDOWNLOAD=https://projects.binaryoutcast.com/interlink/releases/7762/interlink-52.9.7762.linux-x86_64-gtk3.tar.xz
+    - export TBDOWNLOAD=https://enigmail.net/unit-testing/interlink-52.9.7899.linux-x86_64-gtk3.tar.xz
     - curl -s -o interlink.tar.xz $TBDOWNLOAD
     - tar -xJvf interlink.tar.xz
     - interlink/interlink --version
