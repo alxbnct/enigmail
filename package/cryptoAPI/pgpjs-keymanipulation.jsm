@@ -152,7 +152,7 @@ var pgpjs_keymanipulation = {
 
     parent.openDialog("chrome://enigmail/content/ui/changePassword.xul", "", "dialog,modal,centerscreen", {
       keyId: keyList[0].getFingerprint().toUpperCase(),
-      userId: keyList[0].users[0].userId.userid,
+      userId: keyList[0].users[0].userID.userID,
       noCurrentPasswd: keyList[0].isDecrypted()
     });
 
@@ -163,19 +163,20 @@ var pgpjs_keymanipulation = {
   performChangePassphrase: async function(keyId, oldPassword, newPassword) {
     EnigmailLog.DEBUG(`pgpjs-keymanipulation.jsm: performChangePassphrase: keyId=${keyId}\n`);
 
+    const PgpJS = getOpenPGPLibrary();
     let keyList = await pgpjs_keyStore.getKeysForKeyIds(true, [keyId]);
 
     if (!keyList || keyList.length === 0) {
       return createError(EnigmailLocale.getString("keyNotFound", keyId));
     }
 
-    const key = keyList[0];
+    let key = keyList[0];
     if (!key.isDecrypted()) {
       try {
-        let success = await key.decrypt(oldPassword);
-        if (!success) {
-          return createError(EnigmailLocale.getString("changePasswdDlg.wrongOldPasswd"));
-        }
+        key = await PgpJS.decryptKey({
+          privateKey: key,
+          passphrase: oldPassword
+        });
       }
       catch (ex) {
         if (pgpjs_keys.isWrongPassword(ex)) {
@@ -188,7 +189,10 @@ var pgpjs_keymanipulation = {
     }
 
     if (newPassword.length > 0) {
-      await key.encrypt(newPassword);
+      key = await PgpJS.encryptKey({
+        privateKey: key,
+        passphrase: newPassword
+      });
     }
 
     try {
@@ -230,7 +234,7 @@ var pgpjs_keymanipulation = {
         return createError(result.errorMsg);
       }
     }
-    catch(ex) {
+    catch (ex) {
       return createError(ex.message);
     }
   }
