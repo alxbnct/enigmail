@@ -30664,7 +30664,7 @@ var openpgp = (function (exports) {
    * @private
    */
   function toArray$1(param) {
-    if (param && !util.isArray(param)) {
+    if (param && !Array.isArray(param)) {
       param = [param];
     }
     return param;
