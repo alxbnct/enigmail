@@ -219,14 +219,14 @@ var pgpjs_keyStore = {
     const PgpJS = getOpenPGPLibrary();
 
     let keyList = await this.readKeys(keyArr);
-    let packets = new PgpJS.packet.List();
+    let packets = new PgpJS.PacketList();
 
     for (let i in keyList) {
       let k = await keyList[i].key.toPublic();
-      packets.concat(await k.toPacketlist());
+      packets = packets.concat(await k.toPacketList());
     }
 
-    return PgpJS.armor.encode(PgpJS.enums.armor.public_key, packets.write(), 0, 0);
+    return PgpJS.armor(PgpJS.enums.armor.publicKey, packets.write());
   },
 
 
@@ -243,7 +243,7 @@ var pgpjs_keyStore = {
 
     if (keyList.length > 0) {
       let k = await keyList[0].key.toPublic();
-      k.toPacketlist();
+      k.toPacketList();
 
       if (!email) {
         try {
@@ -279,20 +279,20 @@ var pgpjs_keyStore = {
     const PgpJS = getOpenPGPLibrary();
 
     let keyList = await this.readKeys(keyArr);
-    let packets = new PgpJS.packet.List();
+    let packets = new PgpJS.PacketList();
 
     for (let k of keyList) {
       if (k.key.isPrivate()) {
         if (minimalKey) {
-          packets.concat(await pgpjs_keys.getStrippedKey(k.key, null, true));
+          packets = packets.concat(await pgpjs_keys.getStrippedKey(k.key, null, true));
         }
         else {
-          packets.concat(await k.key.toPacketlist());
+          packets = packets.concat(await k.key.toPacketList());
         }
       }
     }
 
-    return PgpJS.armor.encode(PgpJS.enums.armor.private_key, packets.write(), 0, 0);
+    return PgpJS.armor(PgpJS.enums.armor.privateKey, packets.write());
   },
 
   /**
@@ -390,11 +390,11 @@ var pgpjs_keyStore = {
       }
     }
 
-    returnArray.toPacketlist = function() {
+    returnArray.toPacketList = function() {
       let pktList = new PgpJS.packet.List();
 
       for (let i = 0; i < this.length; i++) {
-        pktList.concat(this[i].toPacketlist());
+        pktList.concat(this[i].toPacketList());
       }
 
       return pktList;
@@ -523,6 +523,7 @@ const keyStoreDatabase = {
       let oldKey = await PgpJS.readKey({
         armoredKey: rows[fpr].armoredKey
       });
+
       try {
         await key.update(oldKey);
       }

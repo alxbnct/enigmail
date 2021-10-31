@@ -65,7 +65,7 @@ var pgpjs_keys = {
     try {
       if (typeof(key) === "string") {
         let keyList = await PgpJS.readKeys({
-          armoredKey: key
+          armoredKeys: key
         });
 
         if (!keyList || keyList.length === 0) {
@@ -73,10 +73,6 @@ var pgpjs_keys = {
         }
 
         key = keyList[0];
-      }
-
-      if (key.isPrivate()) {
-        key = key.toPublic();
       }
 
       let uid = await key.getPrimaryUser(null, searchUid);
@@ -90,14 +86,18 @@ var pgpjs_keys = {
       if ("otherCertifications" in uid.user) uid.user.otherCertifications = [];
 
       const primaryKey = key.getKeys()[0];
-      let p = new PgpJS.PacketList();
-      await p.read(primaryKey.write(), {
-        [PgpJS.PublicKeyPacket.tag]: PgpJS.PublicKeyPacket,
-        [PgpJS.UserIDPacket.tag]: PgpJS.UserIDPacket,
-        [PgpJS.SignaturePacket.tag]: PgpJS.SignaturePacket,
-        [PgpJS.PublicSubkeyPacket.tag]: PgpJS.PublicSubkeyPacket
-      });
+      /*
+            await p.read(primaryKey.write(), {
+              [PgpJS.PublicKeyPacket.tag]: PgpJS.PublicKeyPacket,
+              [PgpJS.UserIDPacket.tag]: PgpJS.UserIDPacket,
+              [PgpJS.SignaturePacket.tag]: PgpJS.SignaturePacket,
+              [PgpJS.PublicSubkeyPacket.tag]: PgpJS.PublicSubkeyPacket
+            });
+      */
+      // get the primary key ...
+      let p = primaryKey.toPacketList().filterByTag(PgpJS.PublicKeyPacket.tag, PgpJS.SecretKeyPacket.tag);
 
+      // ... and append the various parts needed for a stripped key
       p = p.concat(uid.user.toPacketList());
       if (key !== signSubkey) {
         p = p.concat(signSubkey.toPacketList());
@@ -291,9 +291,11 @@ var pgpjs_keys = {
 
     switch (keyType) {
       case "ECC":
-        options.curve = "ed25519";
+        options.curve = "curve25519";
+        options.type = 'ecc';
         break;
       case "RSA":
+        options.type = 'rsa';
         options.rsaBits = keyLength;
         break;
       default:
