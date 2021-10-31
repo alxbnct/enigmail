@@ -86,14 +86,7 @@ var pgpjs_keys = {
       if ("otherCertifications" in uid.user) uid.user.otherCertifications = [];
 
       const primaryKey = key.getKeys()[0];
-      /*
-            await p.read(primaryKey.write(), {
-              [PgpJS.PublicKeyPacket.tag]: PgpJS.PublicKeyPacket,
-              [PgpJS.UserIDPacket.tag]: PgpJS.UserIDPacket,
-              [PgpJS.SignaturePacket.tag]: PgpJS.SignaturePacket,
-              [PgpJS.PublicSubkeyPacket.tag]: PgpJS.PublicSubkeyPacket
-            });
-      */
+
       // get the primary key ...
       let p = primaryKey.toPacketList().filterByTag(PgpJS.PublicKeyPacket.tag, PgpJS.SecretKeyPacket.tag);
 

@@ -34,10 +34,11 @@ test(withTestGpgHome(asyncTest(async function genKey() {
   const ek = (await newKey.getEncryptionKey()).getFingerprint();
   const sk = (await newKey.getSigningKey()).getFingerprint();
 
-  let packetList = await pgpjs_keys.getStrippedKey(newKey, "email@domain.invalid", true);
+  let newPubKey = newKey.toPublic();
+  let packetList = await pgpjs_keys.getStrippedKey(newPubKey, "email@domain.invalid", true);
   let strippedKey = new PgpJS.PublicKey(packetList);
   Assert.ok((await strippedKey.subkeys[0].getExpirationTime()) > NOW + 80000000);
-  Assert.equal((await strippedKey.getPrimaryUser()).user.userID[0].userID, "Someone <email@domain.invalid>");
+  Assert.equal((await strippedKey.getPrimaryUser()).user.userID.userID, "Someone <email@domain.invalid>");
   Assert.equal((await strippedKey.getSigningKey()).getFingerprint(), sk);
   Assert.equal((await strippedKey.getEncryptionKey()).getFingerprint(), ek);
 
