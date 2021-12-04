@@ -90,10 +90,7 @@ var pgpjs_decrypt = {
       idx = message.packets.indexOfTag(PgpJS.enums.packet.literalData);
       if (idx.length > 0 && idx[0] === 0) {
         let litDataArr = message.getLiteralData();
-        retData.decryptedData = "";
-        for (let i of litDataArr) {
-          retData.decryptedData += EnigmailData.arrayBufferToString(i);
-        }
+        retData.decryptedData += EnigmailData.arrayBufferToString(litDataArr);
         retData.statusFlags = 0;
         return retData;
       }
