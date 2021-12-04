@@ -133,7 +133,7 @@ function getUnixCharset() {
 
     let output = "";
 
-    EnigmailExecution().syncProc(subprocess.call({
+    getEnigmailExecution().syncProc(subprocess.call({
       command: localeFile,
       arguments: [],
       environment: [],
