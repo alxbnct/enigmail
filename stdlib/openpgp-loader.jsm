@@ -7,7 +7,7 @@
 
 const Services = ChromeUtils.import("resource://gre/modules/Services.jsm").Services;
 
-var EXPORTED_SYMBOLS = ["getOpenPGPLibrary"];
+var EXPORTED_SYMBOLS = ["getOpenPGPLibrary", "resetLibrary"];
 
 // Complete list of gobal prpoperties (as of TB 65), taken from
 // [mozilla-source]/js/xpconnect/src/Sandbox.cpp
@@ -140,7 +140,7 @@ function loadOpenPGPjsLib() {
 
   Services.scriptloader.loadSubScript("chrome://enigmail/content/modules/stdlib/openpgp-lib.js", g, "UTF-8");
 
-  const openPGPLib = g.openpgp;
+  const openPGPLib = g._glob.openpgp;
   const cfg = openPGPLib.config;
   cfg.show_comment = false;
   cfg.show_version = false;
@@ -148,4 +148,8 @@ function loadOpenPGPjsLib() {
   cfg.tolerant = true;
 
   return openPGPLib;
+}
+
+function resetLibrary() {
+  gLibrary = null;
 }
