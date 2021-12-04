@@ -29,8 +29,8 @@ test(withTestGpgHome(asyncTest(async function genKey() {
 
   let newKey = await pgpjs_keys.changeKeyExpiry(key, [0, 1], 86400);
 
-  Assert.ok((await newKey.subkeys[0].getExpirationTime()) > NOW + 80000 * 1000);
-  Assert.ok((await newKey.subkeys[0].getExpirationTime()) <= NOW + 90000 * 1000);
+  Assert.ok((await newKey.subkeys[0].getExpirationTime()).getTime() > NOW + 80000 * 1000);
+  Assert.ok((await newKey.subkeys[0].getExpirationTime()).getTime() <= NOW + 90000 * 1000);
   const ek = (await newKey.getEncryptionKey()).getFingerprint();
   const sk = (await newKey.getSigningKey()).getFingerprint();
 
