@@ -212,7 +212,7 @@ var pgpjs_keys = {
               sig.signerKeyId = EnigmailFuncs.arrayToHex(c.issuerFingerprint);
             }
             else {
-              sig.signerKeyId = c.issuerKeyId.toHex().toUpperCase();
+              sig.signerKeyId = c.issuerKeyID.toHex().toUpperCase();
             }
             uid.sigList.push(sig);
           }
@@ -233,7 +233,7 @@ var pgpjs_keys = {
               sig.signerKeyId = EnigmailFuncs.arrayToHex(c.issuerFingerprint);
             }
             else {
-              sig.signerKeyId = c.issuerKeyId.toHex().toUpperCase();
+              sig.signerKeyId = c.issuerKeyID.toHex().toUpperCase();
             }
             uid.sigList.push(sig);
           }

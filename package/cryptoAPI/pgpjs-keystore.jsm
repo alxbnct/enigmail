@@ -201,7 +201,7 @@ var pgpjs_keyStore = {
       }
 
       // special handling for keys that expired after they were stored in DB
-      if (key.expiryTime < now) {
+      if (key.expiryTime < now && key.expiryTime > 0) {
         key.keyUseFor = key.keyUseFor.replace(/[CES]/g, "");
         if (key.keyTrust.search(/^[fu]/) === 0) {
           key.keyTrust = "e";
