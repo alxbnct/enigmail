@@ -108,6 +108,7 @@ test(withTestGpgHome(asyncTest(async function testChangeExpiry() {
 test(withTestGpgHome(asyncTest(async function testChangePassword() {
   try {
     await pgpjs_keyStore.init();
+    const PgpJS = getOpenPGPLibrary();
 
     const pubKeyFile = do_get_file("resources/dev-strike.sec", false);
     let fileData = EnigmailFiles.readBinaryFile(pubKeyFile);
@@ -133,13 +134,17 @@ test(withTestGpgHome(asyncTest(async function testChangePassword() {
     let key = keys[0].key;
     Assert.ok(!key.isDecrypted(), "key is encrypted");
 
-    let success = false;
     try {
-      success = await key.decrypt(newPasswd);
+      key = await PgpJS.decryptKey({
+        privateKey: key,
+        passphrase: newPasswd
+      });
+      Assert.ok(key !== null, "key decryption successful");
     }
-    catch (ex) {}
+    catch (ex) {
+      Assert.ok(false, "key decryption failed");
+    }
 
-    Assert.ok(success, "key decryption successful");
     Assert.ok(key.isDecrypted(), "key is decrypted");
 
     // test removing the password from key
@@ -181,6 +186,7 @@ test(withTestGpgHome(asyncTest(async function testChangePassword() {
 test(withTestGpgHome(asyncTest(async function testWrongPassword() {
   try {
     await pgpjs_keyStore.init();
+    const PgpJS = getOpenPGPLibrary();
 
     const pubKeyFile = do_get_file("resources/dev-strike.sec", false);
     let fileData = EnigmailFiles.readBinaryFile(pubKeyFile);
@@ -196,7 +202,10 @@ test(withTestGpgHome(asyncTest(async function testWrongPassword() {
 
     Assert.ok(!key.isDecrypted(), "key is encrypted");
     try {
-      r = await key.decrypt("wrong password");
+      r = await PgpJS.decryptKey({
+        privateKey: key,
+        passphrase: "wrong password"
+      });
       Assert.ok(false, "key decryption must not succeed");
     }
     catch (ex) {
@@ -212,6 +221,7 @@ test(withTestGpgHome(asyncTest(async function testWrongPassword() {
 test(withTestGpgHome(asyncTest(async function testPartialKeyDecryption() {
   try {
     await pgpjs_keyStore.init();
+    const PgpJS = getOpenPGPLibrary();
 
     const passwd = "STRIKEfreedom@Qu1to";
 
@@ -223,9 +233,12 @@ test(withTestGpgHome(asyncTest(async function testPartialKeyDecryption() {
 
     let keys = await pgpjs_keyStore.readKeys(["0x8A11371431B0941F815967C373665408D8D8AC8E"]);
     let key = keys[0].key;
-    Assert.ok(!key.isDecrypted(), "key is encrypted");
+    Assert.ok(key.isDecrypted(), "key is encrypted");
     try {
-      r = await key.decrypt(passwd);
+      key = await PgpJS.decryptKey({
+        privateKey: key,
+        passphrase: passwd
+      });
       Assert.ok(false, "key decryption must not succeed");
     }
     catch (ex) {
@@ -241,6 +254,7 @@ test(withTestGpgHome(asyncTest(async function testPartialKeyDecryption() {
 test(withTestGpgHome(asyncTest(async function testWrongPassword() {
   try {
     await pgpjs_keyStore.init();
+    const PgpJS = getOpenPGPLibrary();
 
     const pubKeyFile = do_get_file("resources/dev-strike.sec", false);
     let fileData = EnigmailFiles.readBinaryFile(pubKeyFile);
@@ -256,7 +270,10 @@ test(withTestGpgHome(asyncTest(async function testWrongPassword() {
 
     Assert.ok(!key.isDecrypted(), "key is encrypted");
     try {
-      r = await key.decrypt("wrong password");
+      r = await PgpJS.decryptKey({
+        privateKey: key,
+        passphrase: "wrong password"
+      });
       Assert.ok(false, "key decryption must not succeed");
     }
     catch (ex) {
@@ -301,13 +318,13 @@ test(withTestGpgHome(asyncTest(async function testSignKey() {
         Assert.equal(uid.otherCertifications.length, 0);
       }
       else {
-        if (uid.userId) {
+        if (uid.userID) {
           // User IDs
-          if (uid.userId.userid === "test.bob@somewhere.invalid") {
+          if (uid.userID.userID === "test.bob@somewhere.invalid") {
             Assert.equal(uid.otherCertifications.length, 1);
           }
           else {
-            Assert.equal(uid.otherCertifications.length, 2, "user ID: " + uid.userId.userid);
+            Assert.equal(uid.otherCertifications.length, 2, "user ID: " + uid.userID.userID);
           }
         }
         else {

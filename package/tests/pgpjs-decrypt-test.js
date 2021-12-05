@@ -175,8 +175,8 @@ fsTKNmsBfsUHg/qzu+yD0e4bTuEKVsDcCg==
 -----END PGP MESSAGE-----`;
 
     result = await pgpjs_decrypt.processPgpMessage(badMdc, {});
-    Assert.equal(result.statusFlags, EnigmailConstants.DECRYPTION_FAILED | EnigmailConstants.MISSING_MDC);
-    Assert.equal(result.exitCode, 0);
+    Assert.equal(result.statusFlags, EnigmailConstants.DECRYPTION_FAILED);
+    Assert.equal(result.exitCode, 1);
     Assert.equal(result.decryptedData, "");
 
     const packetV3 = `-----BEGIN PGP SIGNED MESSAGE-----
@@ -215,7 +215,7 @@ test(withTestGpgHome(asyncTest(async function testVerifyFile() {
     Assert.ok(false, "Should not obtain a valid verification");
   }
   catch (err) {
-    Assert.assertContains(err, "Unverified signature - signed with unknown key");
+    Assert.assertContains(String(err), "Unverified signature - signed with unknown key");
   }
 
   let keyData = EnigmailFiles.readBinaryFile(pubKeyFile);

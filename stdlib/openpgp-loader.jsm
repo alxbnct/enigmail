@@ -7,7 +7,7 @@
 
 const Services = ChromeUtils.import("resource://gre/modules/Services.jsm").Services;
 
-var EXPORTED_SYMBOLS = ["getOpenPGPLibrary"];
+var EXPORTED_SYMBOLS = ["getOpenPGPLibrary", "resetLibrary"];
 
 // Complete list of gobal prpoperties (as of TB 65), taken from
 // [mozilla-source]/js/xpconnect/src/Sandbox.cpp
@@ -140,20 +140,16 @@ function loadOpenPGPjsLib() {
 
   Services.scriptloader.loadSubScript("chrome://enigmail/content/modules/stdlib/openpgp-lib.js", g, "UTF-8");
 
-  const openPGPLib = g.window.openpgp;
+  const openPGPLib = g._glob.openpgp;
   const cfg = openPGPLib.config;
   cfg.show_comment = false;
   cfg.show_version = false;
   cfg.compression = openPGPLib.enums.compression.zlib;
   cfg.tolerant = true;
-  // cfg.debug = true;
 
-  try {
-    let worker = new Worker('chrome://enigmail/content/modules/stdlib/openpgp.worker.js');
-    openPGPLib.initWorker({ workers: [worker] });
-    Services.console.logStringMessage("Enigmail: openpgp-loader.jsm: initialized worker");
-  } catch (ex) {
-    Services.console.logStringMessage("Enigmail: openpgp-loader.jsm: failed to initialize worker");
-  }
   return openPGPLib;
+}
+
+function resetLibrary() {
+  gLibrary = null;
 }

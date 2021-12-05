@@ -93,8 +93,8 @@ var pgpjs_encrypt = {
         if (encryptionFlags & EnigmailConstants.SEND_ENCRYPT_TO_SELF) recipientArr.push(ownKeyId);
         let result = await encryptData(recipientArr, from, plainText);
 
-        if ("data" in result) {
-          retObj.data = result.data;
+        if (typeof(result) === "string") {
+          retObj.data = result;
           retObj.exitCode = 0;
         }
       }
@@ -103,19 +103,15 @@ var pgpjs_encrypt = {
           (encryptionFlags & EnigmailConstants.SEND_ATTACHMENT));
 
         let result = await signData(from, plainText, detachedSig ? true : false, encryptionFlags);
-        if ("signature" in result) {
-          retObj.data = result.signature;
-          retObj.exitCode = 0;
-
-        }
-        else if ("data" in result) {
-          retObj.data = result.data;
+        if (typeof(result) === "string") {
+          retObj.data = result;
           retObj.exitCode = 0;
         }
       }
     }
     catch (ex) {
       EnigmailLog.DEBUG(`pgpjs-encrypt.jsm: encryptMessage: ERROR: ${ex.toString()}\n`);
+      EnigmailLog.DEBUG(`${ex.stack}\n`);
       retObj.errorMsg = ex.toString();
     }
     return retObj;
@@ -153,11 +149,10 @@ async function encryptData(recipientKeyIds, signingKeyId, text, encryptionFlags)
   let publicKeys = await pgpjs_keyStore.getKeysForKeyIds(false, uniqueKeyIds);
 
   return await PgpJS.encrypt({
-    message: PgpJS.message.fromText(text),
-    publicKeys: publicKeys,
-    privateKeys: pk.key ? [pk.key] : null, // for signing
-    streaming: false,
-    armor: true
+    message: await PgpJS.createMessage({text}),
+    encryptionKeys: publicKeys,
+    signingKeys: pk.key ? [pk.key] : undefined, // for signing
+    format: "armored"
   });
 }
 
@@ -188,13 +183,22 @@ async function signData(signingKeyId, text, detachedSignature, encryptionFlags) 
     throw Error("No password provided");
   }
 
-  return await PgpJS.sign({
-    message: PgpJS.cleartext.fromText(text),
-    privateKeys: [pk.key],
-    streaming: false,
-    detached: detachedSignature,
-    armor: true
-  });
+  if (detachedSignature) {
+    return await PgpJS.sign({
+      message: await PgpJS.createMessage({text}),
+      signingKeys: [pk.key],
+      detached: detachedSignature,
+      format: "armored"
+    });
+  }
+  else {
+    return await PgpJS.sign({
+      message: await PgpJS.createCleartextMessage({text}),
+      signingKeys: [pk.key],
+      detached: detachedSignature,
+      format: "armored"
+    });
+  }
 }
 
 /**
@@ -205,16 +209,19 @@ async function signData(signingKeyId, text, detachedSignature, encryptionFlags) 
  * @param {Object} keyData:         <key> contains the private key
  * @param {Text} decryptionMsg:     reason message to display for password dialog
  * @param {Number} encryptionFlags: Flags for Signed/encrypted/PGP-MIME etc.
+ *
+ * @returns {Boolean} true if key was decrypted, false if not
  */
 async function decryptPrivateKey(keyData, decryptionMsg, encryptionFlags) {
   if (encryptionFlags & EnigmailConstants.SEND_TEST) {
     gLastKeyDecrypted = null;
-    let success = await pgpjs_keys.decryptSecretKey(keyData.key, decryptionMsg);
-    if (success) {
+    let decryptedKey = await pgpjs_keys.decryptSecretKey(keyData.key, decryptionMsg);
+    if (decryptedKey) {
+      keyData.key = decryptedKey;
       gLastKeyDecrypted = keyData.key;
     }
 
-    return success;
+    return decryptedKey !== null;
   }
 
   // regular message -> use the key once
@@ -223,6 +230,9 @@ async function decryptPrivateKey(keyData, decryptionMsg, encryptionFlags) {
     gLastKeyDecrypted = null;
     return true;
   }
-  else
-    return pgpjs_keys.decryptSecretKey(keyData.key, decryptionMsg);
+  else {
+    let decryptedKey = await pgpjs_keys.decryptSecretKey(keyData.key, decryptionMsg);
+    keyData.key = decryptedKey;
+    return  decryptedKey !== null;
+  }
 }

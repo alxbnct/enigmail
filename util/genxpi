@@ -153,7 +153,6 @@ set chrome/content/preferences/defaultPrefs.js \
     chrome/content/modules/stdlib/msgHdrUtils.jsm \
     chrome/content/modules/stdlib/openpgp-loader.jsm \
     chrome/content/modules/stdlib/openpgp-lib.js \
-    chrome/content/modules/stdlib/openpgp.worker.js \
     chrome/content/modules/stdlib/web-streams.jsm \
     chrome/content/modules/stdlib.jsm \
     chrome/content/modules/streams.jsm \

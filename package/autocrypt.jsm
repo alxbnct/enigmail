@@ -423,83 +423,81 @@ var EnigmailAutocrypt = {
    *             msg:    String - complete setup message
    *             passwd: String - backup password
    */
-  createSetupMessage: function(identity) {
+  createSetupMessage: async function(identity) {
     EnigmailLog.DEBUG("autocrypt.jsm: createSetupMessage()\n");
 
     const openPGPjs = getOpenPGPLibrary();
 
-    return new Promise((resolve, reject) => {
-      let keyId = "";
-      let key;
+    let keyId = "";
+    let key;
+    try {
+      if (!EnigmailCore.getService(null, false)) {
+        throw 0;
+      }
+
+      if (identity.getIntAttribute("pgpKeyMode") === 1) {
+        keyId = identity.getCharAttribute("pgpkeyId");
+      }
+
+      if (keyId.length > 0) {
+        key = EnigmailKeyRing.getKeyById(keyId);
+      }
+      else {
+        key = EnigmailKeyRing.getSecretKeyByUserId(identity.email);
+      }
+
+      if (!key) {
+        EnigmailLog.DEBUG("autocrypt.jsm: createSetupMessage: no key found for " + identity.email + "\n");
+        throw 1;
+      }
+
+      let keyData = key.getSecretKey(true).keyData;
+
+      if (!keyData || keyData.length === 0) {
+        EnigmailLog.DEBUG("autocrypt.jsm: createSetupMessage: no key found for " + identity.email + "\n");
+        throw 1;
+      }
+
+      let ac = EnigmailFuncs.getAccountForIdentity(identity);
+      let preferEncrypt = ac.incomingServer.getIntValue("acPreferEncrypt") > 0 ? "mutual" : "nopreference";
+
+      let innerMsg = EnigmailArmor.replaceArmorHeaders(keyData, {
+        'Autocrypt-Prefer-Encrypt': preferEncrypt
+      }) + '\r\n';
+
+      let bkpCode = createBackupCode();
+      let enc = {
+        message: await openPGPjs.createMessage({
+          text: innerMsg
+        }),
+        passwords: bkpCode,
+        format: "armored"
+      };
+
+      // create symmetrically encrypted message
       try {
+        let msg = await openPGPjs.encrypt(enc);
+        let msgData = EnigmailArmor.replaceArmorHeaders(msg, {
+          'Passphrase-Format': 'numeric9x4',
+          'Passphrase-Begin': bkpCode.substr(0, 2)
+        }).replace(/\n/g, "\r\n");
 
-        if (!EnigmailCore.getService(null, false)) {
-          reject(0);
-          return;
-        }
-
-        if (identity.getIntAttribute("pgpKeyMode") === 1) {
-          keyId = identity.getCharAttribute("pgpkeyId");
-        }
-
-        if (keyId.length > 0) {
-          key = EnigmailKeyRing.getKeyById(keyId);
-        }
-        else {
-          key = EnigmailKeyRing.getSecretKeyByUserId(identity.email);
-        }
-
-        if (!key) {
-          EnigmailLog.DEBUG("autocrypt.jsm: createSetupMessage: no key found for " + identity.email + "\n");
-          reject(1);
-          return;
-        }
-
-        let keyData = key.getSecretKey(true).keyData;
-
-        if (!keyData || keyData.length === 0) {
-          EnigmailLog.DEBUG("autocrypt.jsm: createSetupMessage: no key found for " + identity.email + "\n");
-          reject(1);
-          return;
-        }
-
-        let ac = EnigmailFuncs.getAccountForIdentity(identity);
-        let preferEncrypt = ac.incomingServer.getIntValue("acPreferEncrypt") > 0 ? "mutual" : "nopreference";
-
-        let innerMsg = EnigmailArmor.replaceArmorHeaders(keyData, {
-          'Autocrypt-Prefer-Encrypt': preferEncrypt
-        }) + '\r\n';
-
-        let bkpCode = createBackupCode();
-        let enc = {
-          message: openPGPjs.message.fromText(innerMsg),
-          passwords: bkpCode,
-          armor: true
+        let m = createBackupOuterMsg(identity.email, msgData);
+        return {
+          msg: m,
+          passwd: bkpCode
         };
-
-        // create symmetrically encrypted message
-        openPGPjs.encrypt(enc).then(msg => {
-          let msgData = EnigmailArmor.replaceArmorHeaders(msg.data, {
-            'Passphrase-Format': 'numeric9x4',
-            'Passphrase-Begin': bkpCode.substr(0, 2)
-          }).replace(/\n/g, "\r\n");
-
-          let m = createBackupOuterMsg(identity.email, msgData);
-          resolve({
-            msg: m,
-            passwd: bkpCode
-          });
-        }).catch(e => {
-          EnigmailLog.DEBUG("autocrypt.jsm: createSetupMessage: error " + e + "\n");
-          reject(2);
-        });
       }
-      catch (ex) {
-        EnigmailLog.DEBUG("autocrypt.jsm: createSetupMessage: error " + ex.toString() + "\n");
-        EnigmailLog.DEBUG("  stack:\n" + ex.stack + "\n");
-        reject(4);
+      catch (e) {
+        EnigmailLog.DEBUG("autocrypt.jsm: createSetupMessage: error " + e + "\n");
+        throw 2;
       }
-    });
+    }
+    catch (ex) {
+      EnigmailLog.DEBUG("autocrypt.jsm: createSetupMessage: error " + ex.toString() + "\n");
+      EnigmailLog.DEBUG("  stack:\n" + ex.stack + "\n");
+      throw 4;
+    }
   },
 
   /**
@@ -605,7 +603,9 @@ var EnigmailAutocrypt = {
         end = {};
       let msgType = EnigmailArmor.locateArmoredBlock(attachmentData, 0, "", start, end, {});
 
-      openPGPjs.message.readArmored(attachmentData.substring(start.value, end.value)).then(encMessage => {
+      openPGPjs.readMessage({
+          armoredMessage: attachmentData.substring(start.value, end.value)
+        }).then(encMessage => {
           let enc = {
             message: encMessage,
             passwords: [passwd],

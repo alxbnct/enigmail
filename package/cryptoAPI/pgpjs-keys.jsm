@@ -48,6 +48,7 @@ var pgpjs_keys = {
    * @param {String} emailAddr:  If set, only filter for UIDs with the emailAddr
    * @param {Boolean} getPacketList: if true, return packet list instead of Uint8Array
    *
+   * @return {Uint8Array|PacketList} key data, either as UInt8Array or as PacketList object
    */
   getStrippedKey: async function(key, emailAddr, getPacketList = false) {
     EnigmailLog.DEBUG("pgpjs-keys.jsm: getStrippedKey()\n");
@@ -63,16 +64,15 @@ var pgpjs_keys = {
 
     try {
       if (typeof(key) === "string") {
-        let msg = await PgpJS.key.readArmored(key);
+        let keyList = await PgpJS.readKeys({
+          armoredKeys: key
+        });
 
-        if (!msg || msg.keys.length === 0) {
-          if (msg.err) {
-            EnigmailLog.writeException("pgpjs-keys.jsm", msg.err[0]);
-          }
+        if (!keyList || keyList.length === 0) {
           return null;
         }
 
-        key = msg.keys[0];
+        key = keyList[0];
       }
 
       let uid = await key.getPrimaryUser(null, searchUid);
@@ -85,14 +85,18 @@ var pgpjs_keys = {
       if (signSubkey && "directSignatures" in signSubkey) signSubkey.directSignatures = [];
       if ("otherCertifications" in uid.user) uid.user.otherCertifications = [];
 
-      let p = new PgpJS.packet.List();
-      p.push(key.primaryKey);
-      p.concat(uid.user.toPacketlist());
+      const primaryKey = key.getKeys()[0];
+
+      // get the primary key ...
+      let p = primaryKey.toPacketList().filterByTag(PgpJS.PublicKeyPacket.tag, PgpJS.SecretKeyPacket.tag);
+
+      // ... and append the various parts needed for a stripped key
+      p = p.concat(uid.user.toPacketList());
       if (key !== signSubkey) {
-        p.concat(signSubkey.toPacketlist());
+        p = p.concat(signSubkey.toPacketList());
       }
       if (key !== encSubkey) {
-        p.concat(encSubkey.toPacketlist());
+        p = p.concat(encSubkey.toPacketList());
       }
 
       if (getPacketList) {
@@ -124,60 +128,43 @@ var pgpjs_keys = {
     }
     else {
       isBinary = true;
-      blocks = [EOpenpgp.bytesToArmor(PgpJS.enums.armor.public_key, keyBlockStr)];
+      blocks = [EOpenpgp.bytesToArmor(PgpJS.enums.armor.publicKey, keyBlockStr)];
     }
 
     for (let b of blocks) {
-      let m = await PgpJS.message.readArmored(b);
+      let keys = await PgpJS.readKeys({
+        armoredKeys: b
+      });
 
-      for (let i = 0; i < m.packets.length; i++) {
-        let packetType = PgpJS.enums.read(PgpJS.enums.packet, m.packets[i].tag);
-        switch (packetType) {
-          case "publicKey":
-          case "secretKey":
-            key = {
-              id: m.packets[i].getKeyId().toHex().toUpperCase(),
-              fpr: m.packets[i].getFingerprint().toUpperCase(),
-              uids: [],
-              created: EnigmailTime.getDateTime(m.packets[i].getCreationTime().getTime() / 1000, true, false),
-              name: null,
-              isSecret: false,
-              revoke: false
-            };
+      for (let k of keys) {
 
-            if (!(key.id in keyList)) {
-              keyList[key.id] = key;
-            }
+        // main key
+        key = {
+          id: k.getKeyID().toHex().toUpperCase(),
+          fpr: k.getFingerprint().toUpperCase(),
+          uids: [],
+          created: EnigmailTime.getDateTime(k.getCreationTime().getTime() / 1000, true, false),
+          name: null,
+          isSecret: k.isPrivate(),
+          revoke: (k.revocationSignatures.length > 0)
+        };
 
-            if (packetType === "secretKey") {
-              keyList[key.id].isSecret = true;
-            }
-            break;
-          case "userid":
-            if (!key.name) {
-              key.name = m.packets[i].userid.replace(/[\r\n]+/g, " ");
-            }
-            else {
-              key.uids.push(m.packets[i].userid.replace(/[\r\n]+/g, " "));
-            }
-            break;
-          case "signature":
-            if (m.packets[i].signatureType === SIG_TYPE_REVOCATION) {
-              let keyId = m.packets[i].issuerKeyId.toHex().toUpperCase();
-              if (keyId in keyList) {
-                keyList[keyId].revoke = true;
-              }
-              else {
-                keyList[keyId] = {
-                  revoke: true,
-                  id: keyId
-                };
-              }
-            }
-            break;
+        if (!(key.id in keyList)) {
+          keyList[key.id] = key;
+        }
+
+        // user IDs
+        for (let u of k.users) {
+          if (!key.name) {
+            key.name = u.userID.userID.replace(/[\r\n]+/g, " ");
+          }
+          else {
+            key.uids.push(u.userID.userID.replace(/[\r\n]+/g, " "));
+          }
         }
       }
     }
+
 
     return keyList;
   },
@@ -197,14 +184,14 @@ var pgpjs_keys = {
      */
 
     const fpr = pgpJsKey.getFingerprint().toUpperCase();
-    const keyId = pgpJsKey.getKeyId().toHex().toUpperCase();
+    const keyId = pgpJsKey.getKeyID().toHex().toUpperCase();
     let sigs = [];
     for (let u of pgpJsKey.users) {
-      if (u.userId) {
+      if (u.userID) {
         if (u.selfCertifications.length > 0) {
           let uid = {
-            userId: u.userId.userid,
-            rawUserId: u.userId.userid,
+            userId: u.userID.userID,
+            rawUserId: u.userID.userID,
             keyId: keyId,
             fpr: fpr,
             created: EnigmailTime.getDateTime(u.selfCertifications[0].created / 1000, true, false),
@@ -225,7 +212,7 @@ var pgpjs_keys = {
               sig.signerKeyId = EnigmailFuncs.arrayToHex(c.issuerFingerprint);
             }
             else {
-              sig.signerKeyId = c.issuerKeyId.toHex().toUpperCase();
+              sig.signerKeyId = c.issuerKeyID.toHex().toUpperCase();
             }
             uid.sigList.push(sig);
           }
@@ -246,7 +233,7 @@ var pgpjs_keys = {
               sig.signerKeyId = EnigmailFuncs.arrayToHex(c.issuerFingerprint);
             }
             else {
-              sig.signerKeyId = c.issuerKeyId.toHex().toUpperCase();
+              sig.signerKeyId = c.issuerKeyID.toHex().toUpperCase();
             }
             uid.sigList.push(sig);
           }
@@ -266,13 +253,10 @@ var pgpjs_keys = {
    * @param {Object} key:    OpenPGP.js key
    * @param {Number} reason: Reason code (EnigmailConstants.KEY_DECRYPT_REASON_xxx)
    *
-   * @return {Boolean}: true if key successfully decrypted; false otherwise
+   * @return {Object}: decrypted key if key successfully decrypted; null otherwise
    */
   decryptSecretKey: async function(key, reason) {
-    let passwd = await internalSecretKeyDecryption(key, reason);
-
-    if (passwd === null) return false;
-    return true;
+    return internalSecretKeyDecryption(key, reason);
   },
 
   generateKey: async function(name, comment, email, expiryDate, keyLength, keyType, passphrase) {
@@ -284,25 +268,27 @@ var pgpjs_keys = {
       genName += ` (${comment})`;
     }
 
-    if (email) {
-      genName += ` <${email}>`;
-    }
-
     // Name, comment and email are in UTF-8
     genName = EnigmailData.convertToUnicode(genName.trim(), 'utf-8');
 
     let options = {
-      userIds: genName,
+      userIDs: {
+        name: genName,
+        email: email
+      },
       keyExpirationTime: expiryDate * 86400,
       passphrase: EnigmailData.convertToUnicode(passphrase, 'utf-8'),
+      format: 'armored',
       subkeys: [{}]
     };
 
     switch (keyType) {
       case "ECC":
-        options.curve = "ed25519";
+        options.curve = "curve25519";
+        options.type = 'ecc';
         break;
       case "RSA":
+        options.type = 'rsa';
         options.rsaBits = keyLength;
         break;
       default:
@@ -310,16 +296,18 @@ var pgpjs_keys = {
     }
 
     const {
-      privateKeyArmored,
+      privateKey,
       revocationCertificate
     } = await PgpJS.generateKey(options);
 
-    const key = (await PgpJS.key.readArmored(privateKeyArmored)).keys[0];
+    const key = await PgpJS.readPrivateKey({
+      armoredKey: privateKey
+    });
 
 
     EnigmailLog.DEBUG(`pgpjs-keys.jsm: generateKey: key created\n`);
     return {
-      privateKey: privateKeyArmored,
+      privateKey: privateKey,
       revocationCertificate: revocationCertificate,
       key: key
     };
@@ -362,6 +350,8 @@ var pgpjs_keys = {
    * @param {Array<Number>} subKeyIdentification:  Subkeys to modify
    *                                   "0" reflects the primary key and should always be set.
    * @param {Number} expiryTime: time from now when key should expire in seconds. 0 for no expiry
+   *
+   * @return {Object} modified Key
    */
   changeKeyExpiry: async function(key, subKeyIdentification, expiryTime) {
     EnigmailLog.DEBUG(`pgpjs-keys.jsm: changeKeyExpiry: (${key.getFingerprint()}, ${expiryTime})\n`);
@@ -373,30 +363,19 @@ var pgpjs_keys = {
 
     const NOW = Date.now();
     let uids = [];
-    let subkeys = key.subKeys;
-    key.subKeys = [];
-    let subkeyOptions = [];
+    let subkeys = key.subkeys;
+    key.subkeys = [];
 
     // append subkeys to modify
     for (let i = 0; i < subkeys.length; i++) {
       if (subKeyIdentification.indexOf(i + 1) >= 0) {
-        key.subKeys.push(subkeys[i]);
-        if (expiryTime > 0) {
-          subkeyOptions.push({
-            keyExpirationTime: Math.floor((NOW - subkeys[i].getCreationTime().getTime()) / 1000) + expiryTime
-          });
-        }
-        else {
-          subkeyOptions.push({
-            keyExpirationTime: 0
-          });
-        }
+        key.subkeys.push(subkeys[i]);
       }
     }
 
     // change the expiry date for not revoked user IDs
     for (let uid of key.users) {
-      if (uid.userId !== null && uid.revocationSignatures.length === 0) uids.push(uid.userId);
+      if (uid.userID !== null && uid.revocationSignatures.length === 0) uids.push(uid.userID);
     }
 
     // expiry is stored in number of seconds after key creation
@@ -408,26 +387,26 @@ var pgpjs_keys = {
     let opts = {
       privateKey: key,
       keyExpirationTime: deltaSeconds,
-      userIds: uids,
-      subkeys: subkeyOptions
+      userIDs: uids,
+      format: 'object'
     };
 
-    let newKey = await PgpJS.key.reformat(opts);
+    let newKey = (await PgpJS.reformatKey(opts)).privateKey;
 
     // add subkeys that were excluded
     for (let i = 0; i < subkeys.length; i++) {
       if (subKeyIdentification.indexOf(i + 1) < 0) {
-        newKey.subKeys.push(subkeys[i]);
+        newKey.subkeys.push(subkeys[i]);
       }
     }
 
     newKey.revocationSignatures = [];
-    await key.update(newKey);
+    let finalKey = await key.update(newKey);
 
     if (passwd.length > 0) {
-      await key.encrypt(passwd);
+      await finalKey.encrypt(passwd);
     }
-    return key;
+    return finalKey;
   },
 
   /**
@@ -444,7 +423,10 @@ var pgpjs_keys = {
   signKey: async function(signingKey, keyToSign, uidList) {
     EnigmailLog.DEBUG(`pgpjs-keys.jsm: changeKeyExpiry: (${keyToSign.getFingerprint()})\n`);
 
-    if (!await pgpjs_keys.decryptSecretKey(signingKey, EnigmailConstants.KEY_DECRYPT_REASON_MANIPULATE_KEY)) {
+    const PgpJS = getOpenPGPLibrary();
+
+    signingKey = await pgpjs_keys.decryptSecretKey(signingKey, EnigmailConstants.KEY_DECRYPT_REASON_MANIPULATE_KEY);
+    if (!signingKey) {
       return {
         signedKey: null,
         errorMsg: EnigmailLocale.getString("decryptKey.wrongPassword")
@@ -455,10 +437,10 @@ var pgpjs_keys = {
 
     for (let i = 0; i < keyToSign.users.length; i++) {
       // don't sign UATs
-      if (keyToSign.users[i].userId === null) continue;
+      if (keyToSign.users[i].userID === null) continue;
 
       // skip non-matching userIds
-      if (uidList.indexOf(keyToSign.users[i].userId.userid) < 0) continue;
+      if (uidList.indexOf(keyToSign.users[i].userID.userID) < 0) continue;
 
       const uid = keyToSign.users[i];
       try {
@@ -469,7 +451,7 @@ var pgpjs_keys = {
       }
 
       try {
-        keyToSign.users[i] = await uid.sign(keyToSign.keyPacket, [signingKey]);
+        keyToSign.users[i] = await uid.certify([signingKey], undefined, PgpJS.config);
         signedSomething = true;
       }
       catch (ex) {
@@ -527,7 +509,7 @@ var pgpjs_keys = {
         isDecrypted = false;
       }
 
-      for (let sk of key.subKeys) {
+      for (let sk of key.subkeys) {
         if (!(await sk.isDecrypted())) {
           isDecrypted = false;
         }
@@ -574,8 +556,10 @@ var pgpjs_keys = {
 async function internalSecretKeyDecryption(key, reason) {
   EnigmailLog.DEBUG(`pgpjs-keys.jsm: decryptSecretKey(${key.getFingerprint()})\n`);
 
+  const PgpJS = getOpenPGPLibrary();
+
   if (!key.isPrivate()) return null;
-  if (key.isDecrypted()) return "";
+  if (key.isDecrypted()) return key;
 
   const pm = Cc["@mozilla.org/login-manager;1"].getService(Ci.nsILoginManager);
   const queryString = ENIGMAIL_PASSWD_PREFIX + key.getFingerprint().toUpperCase();
@@ -601,9 +585,12 @@ async function internalSecretKeyDecryption(key, reason) {
 
     if (password) {
       try {
-        let success = await key.decrypt(password);
-        if (success) {
-          return password;
+        const decryptedKey = await PgpJS.decryptKey({
+          privateKey: key,
+          passphrase: password
+        });
+        if (decryptedKey) {
+          return decryptedKey;
         }
         else {
           password = null;
@@ -615,7 +602,7 @@ async function internalSecretKeyDecryption(key, reason) {
             password = null;
           }
           else if (pgpjs_keys.isKeyFullyDecrypted(ex, key)) {
-            return password;
+            return key;
           }
           else if (ex.message.search(/s2k/i) >= 0) {
             displayMd5Error();
@@ -659,7 +646,7 @@ function requestPassword(key, reason, attempt) {
     },
     fpr = key.getFingerprint().toUpperCase(),
     created = EnigmailTime.getDateTime(key.getCreationTime().getTime() / 1000, true, false),
-    uid = key.users[0].userId.userid;
+    uid = key.users[0].userID.userID;
 
   let reasonStr = "";
   switch (reason) {

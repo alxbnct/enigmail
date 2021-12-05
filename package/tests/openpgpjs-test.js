@@ -101,9 +101,11 @@ test(withTestGpgHome(withEnigmail(asyncTest(async function testImportAndDeleteKe
     Assert.ok(armor.keyData.length > 2800);
 
     const PgpJS = getOpenPGPLibrary();
-    r = await PgpJS.key.readArmored(armor.keyData);
-    Assert.ok(r.keys.length === 1);
-    Assert.equal(r.keys[0].getFingerprint().toUpperCase(), "65537E212DC19025AD38EDB2781617319CE311C4");
+    r = await PgpJS.readKeys({
+      armoredKeys: armor.keyData
+    });
+    Assert.ok(r.length === 1);
+    Assert.equal(r[0].getFingerprint().toUpperCase(), "65537E212DC19025AD38EDB2781617319CE311C4");
 
     r = await cApi.deleteKeys(["0x65537E212DC19025AD38EDB2781617319CE311C4"]);
     Assert.equal(r.exitCode, 0);
@@ -112,7 +114,7 @@ test(withTestGpgHome(withEnigmail(asyncTest(async function testImportAndDeleteKe
     Assert.equal(r.length, 0);
   }
   catch (ex) {
-    Assert.ok(false, "exception: " + ex.toString());
+    Assert.ok(false, "exception: " + ex.toString() + "\n" + ex.stack);
   }
 }))));
 
@@ -139,33 +141,39 @@ test(withTestGpgHome(withEnigmail(asyncTest(async function testImportExport() {
     Assert.equal(armor.exitCode, 0);
     Assert.ok(armor.keyData.search(/-----BEGIN PGP PUBLIC KEY BLOCK-----/) === 0);
     Assert.ok(armor.keyData.length > 2800);
-    r = await PgpJS.key.readArmored(armor.keyData);
-    Assert.ok(r.keys.length === 1);
-    Assert.equal(r.keys[0].users.length, 5);
+    r = await PgpJS.readKeys({
+      armoredKeys: armor.keyData
+    });
+    Assert.ok(r.length === 1);
+    Assert.equal(r[0].users.length, 5);
 
     armor = await cApi.extractSecretKey("0xADC49530CB6B132412D856107F1568CB8997F7BA", true);
     Assert.equal(armor.exitCode, 0);
     Assert.ok(armor.keyData.search(/-----BEGIN PGP PRIVATE KEY BLOCK-----/) === 0);
     Assert.ok(armor.keyData.length > 2800);
 
-    r = await PgpJS.key.readArmored(armor.keyData);
-    Assert.ok(r.keys.length === 1);
-    Assert.equal(r.keys[0].getFingerprint().toUpperCase(), "ADC49530CB6B132412D856107F1568CB8997F7BA");
-    Assert.ok(r.keys[0].isPrivate());
-    Assert.equal(r.keys[0].users.length, 1);
+    r = await PgpJS.readPrivateKeys({
+      armoredKeys: armor.keyData
+    });
+    Assert.ok(r.length === 1);
+    Assert.equal(r[0].getFingerprint().toUpperCase(), "ADC49530CB6B132412D856107F1568CB8997F7BA");
+    Assert.ok(r[0].isPrivate());
+    Assert.equal(r[0].users.length, 1);
 
     r = await cApi.getMinimalPubKey("0xADC49530CB6B132412D856107F1568CB8997F7BA");
     Assert.ok(r.keyData.length > 2800);
 
-    r = await PgpJS.key.readArmored(EnigmailOpenPGP.bytesToArmor(PgpJS.enums.armor.public_key, atob(r.keyData)));
-    Assert.ok(r.keys.length === 1);
-    Assert.equal(r.keys[0].getFingerprint().toUpperCase(), "ADC49530CB6B132412D856107F1568CB8997F7BA");
-    Assert.ok(!r.keys[0].isPrivate());
-    Assert.equal(r.keys[0].users.length, 1);
-    Assert.equal(r.keys[0].users[0].userId.userid, "Unit Test <alice@example.invalid>");
+    r = await PgpJS.readKeys({
+      armoredKeys: EnigmailOpenPGP.bytesToArmor(PgpJS.enums.armor.publicKey, atob(r.keyData))
+    });
+    Assert.ok(r.length === 1);
+    Assert.equal(r[0].getFingerprint().toUpperCase(), "ADC49530CB6B132412D856107F1568CB8997F7BA");
+    Assert.ok(!r[0].isPrivate());
+    Assert.equal(r[0].users.length, 1);
+    Assert.equal(r[0].users[0].userID.userID, "Unit Test <alice@example.invalid>");
   }
   catch (ex) {
-    Assert.ok(false, "exception: " + ex.toString());
+    Assert.ok(false, "exception: " + ex.toString() + "\n" + ex.stack);
   }
 }))));
 
@@ -229,7 +237,7 @@ test(withTestGpgHome(withEnigmail(asyncTest(async function testKeyGen() {
 
     // Test RSA Key
     handle = cApi.generateKey("Test User 2", "", "testuser2@invalid.domain", 0, 4096, "RSA", "");
-     retObj = await handle.promise;
+    retObj = await handle.promise;
     Assert.equal(retObj.exitCode, 0);
     fpr = retObj.generatedKeyId;
     Assert.equal(fpr.search(/^0x[0-9A-F]+$/), 0);
@@ -238,7 +246,7 @@ test(withTestGpgHome(withEnigmail(asyncTest(async function testKeyGen() {
     Assert.equal(keyList.length, 1);
 
     keyObj = keyList[0];
-    Assert.equal(keyObj.keyTrust, "e");
+    Assert.equal(keyObj.keyTrust, "u");
     Assert.equal(keyObj.userId, "Test User 2 <testuser2@invalid.domain>");
     Assert.equal(keyObj.algoSym, "RSA");
     Assert.equal(keyObj.subKeys.length, 1);
