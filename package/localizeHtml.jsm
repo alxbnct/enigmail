@@ -41,7 +41,7 @@ function getBackendWorking() {
     const getOpenPGPLibrary = ChromeUtils.import("chrome://enigmail/content/modules/stdlib/openpgp-loader.jsm").getOpenPGPLibrary;
 
     let pgpjs = getOpenPGPLibrary();
-    agentStr = EnigmailLocale.getString("usingOpenPGPVersion", pgpjs.config.versionstring);
+    agentStr = EnigmailLocale.getString("usingOpenPGPVersion", pgpjs.config.versionString);
   }
   return agentStr;
 }
