@@ -40,6 +40,17 @@ const NS_LOCALFILEOUTPUTSTREAM_CONTRACTID = "@mozilla.org/network/file-output-st
  */
 
 var pgpjs_keys = {
+
+  /**
+   * Get a human readable version string
+   *
+   * @returns {String}
+   */
+  getVersionString: function() {
+    const PgpJS = getOpenPGPLibrary();
+    return EnigmailLocale.getString("usingOpenPGPVersion", PgpJS.config.versionString);
+  },
+
   /**
    * Get a minimal key, possibly reduced to a specific email address
    *

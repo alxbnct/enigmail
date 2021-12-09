@@ -51,6 +51,16 @@ class OpenPGPjsCryptoAPI extends CryptoAPI {
     if (!success) throw "Init Error";
   }
 
+
+  /**
+   * Get a human readable version string
+   *
+   * @returns {String}
+   */
+  getVersionString() {
+    return pgpjs_keys.getVersionString();
+  }
+
   async getKeys(onlyKeys = null) {
     return pgpjs_keyStore.readKeyMetadata(onlyKeys);
   }

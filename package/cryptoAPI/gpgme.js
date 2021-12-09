@@ -1204,6 +1204,15 @@ class GpgMECryptoAPI extends CryptoAPI {
     return undefined;
   }
 
+  /**
+   * Get a human readable version string
+   *
+   * @returns {String}
+   */
+   getVersionString() {
+    return EnigmailLocale.getString("usingAgent", ["Gnupg / GpgME", this._gpgVersion]);
+  }
+
 
   /**
    *

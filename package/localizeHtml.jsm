@@ -26,23 +26,16 @@ function getBackendWorking() {
   const cApi = EnigmailCryptoAPI();
   let agentStr = "";
 
-  if (cApi.apiName === "GpgME") {
-    if (enigmailSvc) {
-      agentStr = EnigmailLocale.getString("usingAgent", ["Gnupg / GpgME", cApi._gpgVersion]);
-    }
-    else {
-      agentStr = EnigmailLocale.getString("agentError");
+  if (!enigmailSvc) {
+    agentStr = EnigmailLocale.getString("agentError");
 
-      if (enigmailSvc && enigmailSvc.initializationError)
-        agentStr += "\n" + enigmailSvc.initializationError;
-    }
+    if (enigmailSvc && enigmailSvc.initializationError)
+      agentStr += "\n" + enigmailSvc.initializationError;
   }
   else {
-    const getOpenPGPLibrary = ChromeUtils.import("chrome://enigmail/content/modules/stdlib/openpgp-loader.jsm").getOpenPGPLibrary;
-
-    let pgpjs = getOpenPGPLibrary();
-    agentStr = EnigmailLocale.getString("usingOpenPGPVersion", pgpjs.config.versionString);
+    agentStr = cApi.getVersionString();
   }
+
   return agentStr;
 }
 

@@ -491,6 +491,15 @@ class CryptoAPI {
 
 
   /**
+   * Get a human readable version string
+   *
+   * @returns {String}
+   */
+  getVersionString() {
+    return "NONE";
+  }
+
+  /**
    *
    * @param {String} trustCode
    * @return {String}   Localized label
