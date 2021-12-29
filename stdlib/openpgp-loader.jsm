@@ -6,8 +6,9 @@
 "use strict";
 
 const Services = ChromeUtils.import("resource://gre/modules/Services.jsm").Services;
+const EnigmailLog = ChromeUtils.import("chrome://enigmail/content/modules/log.jsm").EnigmailLog;
 
-var EXPORTED_SYMBOLS = ["getOpenPGPLibrary", "resetLibrary"];
+var EXPORTED_SYMBOLS = ["getOpenPGPLibrary"];
 
 // Complete list of gobal prpoperties (as of TB 65), taken from
 // [mozilla-source]/js/xpconnect/src/Sandbox.cpp
@@ -114,9 +115,14 @@ function loadOpenPGPjsLib() {
       log: function(str) {
         Services.console.logStringMessage(str);
       },
-      error: function() {},
+      error: function(str) {
+        Services.console.logStringMessage(str);
+      },
       table: function() {},
-      warn: function() {}
+      warn: function() {},
+      trace: function(str) {
+        Services.console.logStringMessage("Stack trace" + str ? str : "");
+      }
     },
 
     // imports from global scope
@@ -140,7 +146,7 @@ function loadOpenPGPjsLib() {
 
   Services.scriptloader.loadSubScript("chrome://enigmail/content/modules/stdlib/openpgp-lib.js", g, "UTF-8");
 
-  const openPGPLib = g._glob.openpgp;
+  const openPGPLib = g.openpgp;
   const cfg = openPGPLib.config;
   cfg.show_comment = false;
   cfg.show_version = false;
@@ -148,8 +154,4 @@ function loadOpenPGPjsLib() {
   cfg.tolerant = true;
 
   return openPGPLib;
-}
-
-function resetLibrary() {
-  gLibrary = null;
 }
