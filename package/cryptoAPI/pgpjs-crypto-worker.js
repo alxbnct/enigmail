@@ -479,6 +479,61 @@ var workerBody = {
     }
 
     return result;
+  },
+
+  encryptData: async function({
+    text,
+    encryptionKeys,
+    signingKeys
+  }) {
+
+    let publicKeys = await PgpJS.readKeys({
+      armoredKeys: encryptionKeys
+    });
+
+    let privateKeys = undefined;
+
+    if (signingKeys) {
+      privateKeys = await PgpJS.readPrivateKeys({
+        armoredKeys: signingKeys
+      });
+    }
+
+    return await PgpJS.encrypt({
+      message: await PgpJS.createMessage({text}),
+      encryptionKeys: publicKeys,
+      signingKeys: privateKeys, // for signing
+      format: "armored"
+    });
+  },
+
+  signData: async function({
+    text,
+    signingKeys,
+    detachedSignature
+  }) {
+    let privateKeys = await PgpJS.readPrivateKeys({
+      armoredKeys: signingKeys
+    });
+
+  if (detachedSignature) {
+    return await PgpJS.sign({
+      message: await PgpJS.createMessage({text}),
+      signingKeys: privateKeys,
+      detached: detachedSignature,
+      format: "armored"
+    });
+  }
+  else {
+    return await PgpJS.sign({
+      message: await PgpJS.createCleartextMessage({text}),
+      signingKeys: privateKeys,
+      detached: detachedSignature,
+      format: "armored"
+    });
+  }
+
+
   }
 };
 

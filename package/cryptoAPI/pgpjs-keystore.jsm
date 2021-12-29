@@ -391,10 +391,10 @@ var pgpjs_keyStore = {
     }
 
     returnArray.toPacketList = function() {
-      let pktList = new PgpJS.packet.List();
+      let pktList = new PgpJS.PacketList();
 
       for (let i = 0; i < this.length; i++) {
-        pktList.concat(this[i].toPacketList());
+        pktList = pktList.concat(this[i].toPacketList());
       }
 
       return pktList;

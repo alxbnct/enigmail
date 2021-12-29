@@ -16,6 +16,7 @@ const getOpenPGPLibrary = ChromeUtils.import("chrome://enigmail/content/modules/
 const EnigmailConstants = ChromeUtils.import("chrome://enigmail/content/modules/constants.jsm").EnigmailConstants;
 const pgpjs_keys = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/pgpjs-keys.jsm").pgpjs_keys;
 const pgpjs_keyStore = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/pgpjs-keystore.jsm").pgpjs_keyStore;
+const pgpjs_crypto = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/pgpjs-crypto-main.jsm").pgpjs_crypto;
 const EnigmailLocale = ChromeUtils.import("chrome://enigmail/content/modules/locale.jsm").EnigmailLocale;
 
 var gLastKeyDecrypted = null;
@@ -148,12 +149,7 @@ async function encryptData(recipientKeyIds, signingKeyId, text, encryptionFlags)
   let uniqueKeyIds = [...new Set(recipientKeyIds)]; // make key IDs unique
   let publicKeys = await pgpjs_keyStore.getKeysForKeyIds(false, uniqueKeyIds);
 
-  return await PgpJS.encrypt({
-    message: await PgpJS.createMessage({text}),
-    encryptionKeys: publicKeys,
-    signingKeys: pk.key ? [pk.key] : undefined, // for signing
-    format: "armored"
-  });
+  return pgpjs_crypto.encryptData(text, publicKeys, pk.key);
 }
 
 /**
@@ -183,22 +179,7 @@ async function signData(signingKeyId, text, detachedSignature, encryptionFlags) 
     throw Error("No password provided");
   }
 
-  if (detachedSignature) {
-    return await PgpJS.sign({
-      message: await PgpJS.createMessage({text}),
-      signingKeys: [pk.key],
-      detached: detachedSignature,
-      format: "armored"
-    });
-  }
-  else {
-    return await PgpJS.sign({
-      message: await PgpJS.createCleartextMessage({text}),
-      signingKeys: [pk.key],
-      detached: detachedSignature,
-      format: "armored"
-    });
-  }
+  return pgpjs_crypto.signData(text, pk.key, detachedSignature);
 }
 
 /**

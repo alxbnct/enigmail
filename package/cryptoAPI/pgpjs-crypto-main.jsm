@@ -129,6 +129,64 @@ var pgpjs_crypto = {
     const detailArr = ret.sigDetails.split(/ /);
     const dateTime = EnigmailTime.getDateTime(detailArr[2], true, true);
     return ret.errorMsg + "\n" + EnigmailLocale.getString("keyAndSigDate", [ret.keyId, dateTime]);
+  },
+
+  /**
+   * Encrypt (and possibly sign) some text data
+   *
+   * @param {String} text:             The data to encrypt.
+   * @param {Array<Key>} publicKeys:   Array of keys to which to encrypt the message
+   * @param {Key} signingKey:          If provided, the message will be signed using that key.
+   *                                   If null, message will not be signed.
+   */
+  encryptData: async function(text, publicKeys, signingKey) {
+    EnigmailLog.DEBUG(`pgpjs-encrypt.jsm: encryptData(${text.length})\n`);
+    const PgpJS = getOpenPGPLibrary();
+
+    let publicKeyPackets = new PgpJS.PacketList();
+    publicKeyPackets = publicKeyPackets.concat(await publicKeys.toPacketList());
+    let armoredPk = PgpJS.armor(PgpJS.enums.armor.publicKey, publicKeyPackets.write());
+
+    let armoredSk = null;
+
+    if (signingKey) {
+      let signingKeyPackets = new PgpJS.PacketList();
+      signingKeyPackets = signingKeyPackets.concat(await signingKey.toPacketList());
+      armoredSk = PgpJS.armor(PgpJS.enums.armor.privateKey, signingKeyPackets.write());
+    }
+
+    let result = await PgpJsWorkerParent.sendMessage("encryptData", {
+      text,
+      encryptionKeys: armoredPk,
+      signingKeys: armoredSk
+    });
+
+    return result;
+  },
+
+  /**
+   * Sign some text data
+   *
+   * @param {String} text:                The data to sign.
+   * @param {Key} signingKey:             The key used to sign the text.
+   * @param {Boolean} detachedSignature:  Create a detached signature (true) or clearsigned message (false).
+   */
+  signData: async function(text, signingKey, detachedSignature) {
+    EnigmailLog.DEBUG(`pgpjs-encrypt.jsm: signData(${text.length})\n`);
+    const PgpJS = getOpenPGPLibrary();
+
+
+    let signingKeyPackets = new PgpJS.PacketList();
+    signingKeyPackets = signingKeyPackets.concat(await signingKey.toPacketList());
+    let armoredSk = PgpJS.armor(PgpJS.enums.armor.privateKey, signingKeyPackets.write());
+
+    let result = await PgpJsWorkerParent.sendMessage("signData", {
+      text,
+      signingKeys: armoredSk,
+      detachedSignature
+    });
+
+    return result;
   }
 };
 
