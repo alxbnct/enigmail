@@ -90,7 +90,8 @@ set chrome/content/preferences/defaultPrefs.js \
     chrome/content/modules/cryptoAPI/gpgme.js \
     chrome/content/modules/cryptoAPI/openpgp-js.js \
     chrome/content/modules/cryptoAPI/pgpjs-encrypt.jsm \
-    chrome/content/modules/cryptoAPI/pgpjs-decrypt.jsm \
+    chrome/content/modules/cryptoAPI/pgpjs-crypto-main.jsm \
+    chrome/content/modules/cryptoAPI/pgpjs-crypto-worker.js \
     chrome/content/modules/cryptoAPI/pgpjs-keys.jsm \
     chrome/content/modules/cryptoAPI/pgpjs-keymanipulation.jsm \
     chrome/content/modules/cryptoAPI/pgpjs-keystore.jsm \

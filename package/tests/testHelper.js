@@ -55,8 +55,6 @@ var TestHelper = {
 
   testing: function(name) {
     TestHelper.currentlyTesting = name;
-    const resetOpenPGPLibrary = ChromeUtils.import("chrome://enigmail/content/modules/stdlib/openpgp-loader.jsm").resetLibrary;
-    resetOpenPGPLibrary();
   },
 
   registerTest: function(fn) {

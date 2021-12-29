@@ -1967,7 +1967,6 @@ Enigmail.msg = {
 
     var mailNewsUrl = Enigmail.msg.getCurrentMsgUrl();
     var urlSpec = mailNewsUrl ? mailNewsUrl.spec : "";
-    var newBufferSize = 0;
 
     var l = urlSpec.length;
 

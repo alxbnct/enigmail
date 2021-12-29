@@ -14,7 +14,7 @@ var Services = ChromeUtils.import("resource://gre/modules/Services.jsm").Service
 const pgpjs_keys = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/pgpjs-keys.jsm").pgpjs_keys;
 const pgpjs_keyStore = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/pgpjs-keystore.jsm").pgpjs_keyStore;
 const pgpjs_encrypt = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/pgpjs-encrypt.jsm").pgpjs_encrypt;
-const pgpjs_decrypt = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/pgpjs-decrypt.jsm").pgpjs_decrypt;
+const pgpjs_crypto = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/pgpjs-crypto-main.jsm").pgpjs_crypto;
 const pgpjs_keymanipulation = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/pgpjs-keymanipulation.jsm").pgpjs_keymanipulation;
 const EnigmailLazy = ChromeUtils.import("chrome://enigmail/content/modules/lazy.jsm").EnigmailLazy;
 const EnigmailLog = ChromeUtils.import("chrome://enigmail/content/modules/log.jsm").EnigmailLog;
@@ -382,7 +382,7 @@ class OpenPGPjsCryptoAPI extends CryptoAPI {
   async getFileName(byteData) {
     let fn = null;
     try {
-      let msg = await pgpjs_decrypt.processPgpMessage(byteData, {});
+      let msg = await pgpjs_crypto.processPgpMessage(byteData, {});
       fn = msg.encryptedFileName;
     }
     catch (x) {}
@@ -404,7 +404,7 @@ class OpenPGPjsCryptoAPI extends CryptoAPI {
    */
 
   async verifyAttachment(filePath, sigPath) {
-    return pgpjs_decrypt.verifyFile(filePath, sigPath);
+    return pgpjs_crypto.verifyFile(filePath, sigPath);
   }
 
   /**
@@ -420,7 +420,7 @@ class OpenPGPjsCryptoAPI extends CryptoAPI {
    */
 
   async decryptAttachment(encrypted) {
-    let ret = await pgpjs_decrypt.processPgpMessage(encrypted, {});
+    let ret = await pgpjs_crypto.processPgpMessage(encrypted, {});
 
     if ("decryptedData" in ret) {
       ret.stdoutData = ret.decryptedData;
@@ -446,10 +446,10 @@ class OpenPGPjsCryptoAPI extends CryptoAPI {
     EnigmailLog.DEBUG(`openpgpg-js.js: decrypt()\n`);
 
     if (options.verifyOnly) {
-      return pgpjs_decrypt.verify(pgpMessage, options);
+      return pgpjs_crypto.verify(pgpMessage, options);
     }
     else {
-      return pgpjs_decrypt.processPgpMessage(pgpMessage, options);
+      return pgpjs_crypto.processPgpMessage(pgpMessage, options);
     }
   }
 
@@ -471,7 +471,7 @@ class OpenPGPjsCryptoAPI extends CryptoAPI {
     options.verifyOnly = false;
     options.uiFlags = EnigmailConstants.UI_PGP_MIME;
 
-    return pgpjs_decrypt.processPgpMessage(encrypted, options);
+    return pgpjs_crypto.processPgpMessage(encrypted, options);
   }
 
   /**
@@ -489,7 +489,7 @@ class OpenPGPjsCryptoAPI extends CryptoAPI {
    */
 
   async verifyMime(signedData, signature, options) {
-    return pgpjs_decrypt.verifyDetached(signedData, signature);
+    return pgpjs_crypto.verifyDetached(signedData, signature);
   }
 
 

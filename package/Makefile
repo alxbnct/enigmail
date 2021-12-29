@@ -17,7 +17,6 @@ MODFILES = \
            addrbook.jsm \
            amPrefsService.jsm \
            app.jsm \
-           armor.jsm \
            attachment.jsm \
            autocrypt.jsm \
            autoSetup.jsm \
@@ -26,7 +25,6 @@ MODFILES = \
            commandLine.jsm \
            configBackup.jsm \
            configure.jsm \
-           constants.jsm \
            core.jsm \
            cryptoAPI.jsm \
            data.jsm \
@@ -98,6 +96,10 @@ MODFILES = \
            xhrUtils.jsm \
            zbase32.jsm
 
+COPYFILES = \
+	armor.jsm \
+	constants.jsm
+
 DATE_FMT = +%Y%m%d-%H%M
 SOURCE_DATE_EPOCH ?= $(shell date +%s)
 
@@ -112,11 +114,14 @@ GENFILES = $(addprefix $(GENDIR)/,$(MODFILES))
 $(GENDIR)/%.jsm: %.jsm
 	$(DEPTH)/util/prepPostbox $(TARGET_TOOL) $< $@
 
-all: dirs build deploy
+all: dirs build copyfiles deploy
 
 build: $(GENFILES)
 
-deploy: $(PREFFILES)
+copyfiles: $(COPYFILES)
+	$(DEPTH)/util/install -m 644 $(DIST)/chrome/content/modules $(COPYFILES)
+
+deploy: $(PREFFILES) 
 	$(DEPTH)/util/install -m 644 $(DIST)/chrome/content/preferences $(PREFFILES)
 	$(DEPTH)/util/install -m 644 $(DIST) enigmail-startup.js
 	echo '"use strict";' > $(DIST)/chrome/content/modules/buildDate.jsm
@@ -129,6 +134,7 @@ deploy: $(PREFFILES)
 clean:
 	$(DEPTH)/util/install -u $(DIST)/chrome/content/preferences $(PREFFILES)
 	$(DEPTH)/util/install -u $(DIST)/chrome/content/modules $(MODFILES)
+	$(DEPTH)/util/install -u $(DIST)/chrome/content/modules $(COPYFILES)
 	$(DEPTH)/util/install -u $(DIST) bootstrap.js manifest.json install.rdf chrome.manifest
 
 .PHONY: dirs $(DIRS)

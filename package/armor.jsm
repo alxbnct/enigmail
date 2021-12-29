@@ -9,8 +9,14 @@
 
 var EXPORTED_SYMBOLS = ["EnigmailArmor"];
 
-const EnigmailConstants = ChromeUtils.import("chrome://enigmail/content/modules/constants.jsm").EnigmailConstants;
-const EnigmailLog = ChromeUtils.import("chrome://enigmail/content/modules/log.jsm").EnigmailLog;
+//const EnigmailConstants = ChromeUtils.import("chrome://enigmail/content/modules/constants.jsm").EnigmailConstants;
+//const EnigmailLog = ChromeUtils.import("chrome://enigmail/content/modules/log.jsm").EnigmailLog;
+
+const ArmorConstants = {
+  SIGNATURE_TEXT: 1,
+  SIGNATURE_HEADERS: 2,
+  SIGNATURE_ARMOR: 3
+};
 
 
 // Locates STRing in TEXT occurring only at the beginning of a line
@@ -34,7 +40,8 @@ function searchBlankLine(str, then) {
   var offset = str.search(/\n\s*\r?\n/);
   if (offset === -1) {
     return "";
-  } else {
+  }
+  else {
     return then(offset);
   }
 }
@@ -43,7 +50,8 @@ function indexOfNewline(str, off, then) {
   var offset = str.indexOf("\n", off);
   if (offset === -1) {
     return "";
-  } else {
+  }
+  else {
     return then(offset);
   }
 }
@@ -64,7 +72,7 @@ var EnigmailArmor = {
    *           If no block is found, an empty String is returned;
    */
   locateArmoredBlock: function(text, offset, indentStr, beginIndexObj, endIndexObj, indentStrObj) {
-    EnigmailLog.DEBUG("armor.jsm: Enigmail.locateArmoredBlock: " + offset + ", '" + indentStr + "'\n");
+    // EnigmailLog.DEBUG("armor.jsm: Enigmail.locateArmoredBlock: " + offset + ", '" + indentStr + "'\n");
 
     beginIndexObj.value = -1;
     endIndexObj.value = -1;
@@ -113,7 +121,7 @@ var EnigmailArmor = {
     var blockType = "";
     if (matches && (matches.length > 1)) {
       blockType = matches[1];
-      EnigmailLog.DEBUG("armor.jsm: Enigmail.locateArmoredBlock: blockType=" + blockType + "\n");
+      // EnigmailLog.DEBUG("armor.jsm: Enigmail.locateArmoredBlock: blockType=" + blockType + "\n");
     }
 
     if (blockType == "UNVERIFIED MESSAGE") {
@@ -159,12 +167,12 @@ var EnigmailArmor = {
       i = endObj.value;
     }
 
-    EnigmailLog.DEBUG("armor.jsm: locateArmorBlocks: Found " + blocks.length + " Blocks\n");
+    // EnigmailLog.DEBUG("armor.jsm: locateArmorBlocks: Found " + blocks.length + " Blocks\n");
     return blocks;
   },
 
   extractSignaturePart: function(signatureBlock, part) {
-    EnigmailLog.DEBUG("armor.jsm: Enigmail.extractSignaturePart: part=" + part + "\n");
+    // EnigmailLog.DEBUG("armor.jsm: Enigmail.extractSignaturePart: part=" + part + "\n");
 
     return searchBlankLine(signatureBlock, function(offset) {
       return indexOfNewline(signatureBlock, offset + 1, function(offset) {
@@ -173,7 +181,7 @@ var EnigmailArmor = {
           return "";
         }
 
-        if (part === EnigmailConstants.SIGNATURE_TEXT) {
+        if (part === ArmorConstants.SIGNATURE_TEXT) {
           return signatureBlock.substr(offset + 1, beginIndex - offset - 1).
           replace(/^- -/, "-").
           replace(/\n- -/g, "\n-").
@@ -189,15 +197,16 @@ var EnigmailArmor = {
           var signBlock = signatureBlock.substr(offset, endIndex - offset);
 
           return searchBlankLine(signBlock, function(armorIndex) {
-            if (part == EnigmailConstants.SIGNATURE_HEADERS) {
+            if (part == ArmorConstants.SIGNATURE_HEADERS) {
               return signBlock.substr(1, armorIndex);
             }
 
             return indexOfNewline(signBlock, armorIndex + 1, function(armorIndex) {
-              if (part == EnigmailConstants.SIGNATURE_ARMOR) {
+              if (part == ArmorConstants.SIGNATURE_ARMOR) {
                 return signBlock.substr(armorIndex, endIndex - armorIndex).
                 replace(/\s*/g, "");
-              } else {
+              }
+              else {
                 return "";
               }
             });

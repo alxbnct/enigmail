@@ -1,0 +1,302 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
+"use strict";
+
+const Services = ChromeUtils.import("resource://gre/modules/Services.jsm").Services;
+const EnigmailLog = ChromeUtils.import("chrome://enigmail/content/modules/log.jsm").EnigmailLog;
+const EnigmailPrefs = ChromeUtils.import("chrome://enigmail/content/modules/prefs.jsm").EnigmailPrefs;
+const EnigmailFiles = ChromeUtils.import("chrome://enigmail/content/modules/files.jsm").EnigmailFiles;
+const EnigmailArmor = ChromeUtils.import("chrome://enigmail/content/modules/armor.jsm").EnigmailArmor;
+const EnigmailLocale = ChromeUtils.import("chrome://enigmail/content/modules/locale.jsm").EnigmailLocale;
+const EnigmailTime = ChromeUtils.import("chrome://enigmail/content/modules/time.jsm").EnigmailTime;
+const EnigmailConstants = ChromeUtils.import("chrome://enigmail/content/modules/constants.jsm").EnigmailConstants;
+const pgpjs_keys = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/pgpjs-keys.jsm").pgpjs_keys;
+const pgpjs_keyStore = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/pgpjs-keystore.jsm").pgpjs_keyStore;
+const getOpenPGPLibrary = ChromeUtils.import("chrome://enigmail/content/modules/stdlib/openpgp-loader.jsm").getOpenPGPLibrary;
+
+var EXPORTED_SYMBOLS = ["pgpjs_crypto"];
+
+var pgpjs_crypto = {
+  /**
+   * Process an OpenPGP message
+   *
+   * @param {String} encrypted     The encrypted data
+   * @param {Object} options       Decryption options
+   *
+   * @return {Promise<Object>} - Return object with decryptedData and status information:
+   *     - {String} decryptedData
+   *     - {Number} exitCode
+   *     - {Number} statusFlags
+   *     - {String} errorMsg
+   *     - {String} blockSeparation
+   *
+   * Use Promise.catch to handle failed decryption.
+   * retObj.errorMsg will be an error message in this case.
+   */
+
+  processPgpMessage: async function(encrypted, options) {
+    EnigmailLog.DEBUG(`pgpjs-crypro-main.jsm: processPgpMessage(${encrypted.length})\n`);
+
+    let result;
+    try {
+      result = await PgpJsWorkerParent.sendMessage("processPgpMessage", {
+        encrypted,
+        options
+      });
+    }
+    catch (ex) {
+      EnigmailLog.DEBUG(`pgpjs-decrypt.jsm: processPgpMessage: ERROR: ${ex.toString()}\n`);
+      result.errorMsg = ex.toString();
+      result.exitCode = 1;
+    }
+
+    return result;
+  },
+
+  verify: async function(data, options) {
+    EnigmailLog.DEBUG(`pgpjs-decrypt.jsm: verify(${data.length})\n`);
+
+    let result = {};
+
+    let blocks = EnigmailArmor.locateArmoredBlocks(data);
+
+    result.statusFlags = 0;
+    result.exitCode = 1;
+
+    try {
+      if (blocks && blocks.length > 0) {
+        if (blocks[0].blocktype === "SIGNED MESSAGE") {
+          result = await PgpJsWorkerParent.sendMessage("verify", {
+            data: data.substring(blocks[0].begin, blocks[0].end),
+            options
+          });
+        }
+      }
+    }
+    catch (ex) {
+      EnigmailLog.DEBUG(`pgpjs-decrypt.jsm: verify: ERROR: ${ex.toString()}\n`);
+      result.errorMsg = ex.toString();
+      result.statusFlags = EnigmailConstants.UNVERIFIED_SIGNATURE;
+    }
+    return result;
+  },
+
+  verifyDetached: async function(data, signature, returnData = false) {
+    EnigmailLog.DEBUG(`pgpjs-decrypt.jsm: verifyDetached(${data.length})\n`);
+
+    let result = await PgpJsWorkerParent.sendMessage("verifyDetached", {
+      data,
+      signature,
+      returnData
+    });
+    return result;
+  },
+
+
+  verifyFile: async function(dataFilePath, signatureFilePath) {
+    const PgpJS = getOpenPGPLibrary();
+
+    let dataFile = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
+    let sigFile = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
+    EnigmailFiles.initPath(dataFile, dataFilePath);
+    EnigmailFiles.initPath(sigFile, signatureFilePath);
+
+    if (!dataFile.exists()) {
+      throw new Error(`Data file ${dataFilePath} does not exist`);
+    }
+    if (!sigFile.exists()) {
+      throw new Error(`Signature file ${signatureFilePath} does not exist`);
+    }
+
+    let data = EnigmailFiles.readBinaryFile(dataFile);
+    let sig = EnigmailFiles.readBinaryFile(sigFile);
+
+    if (sig.search(/^-----BEGIN PGP/m) < 0) {
+      let msg = await PgpJS.signature.read(ensureUint8Array(sig));
+      sig = msg.armor();
+    }
+
+    let ret = await this.verifyDetached(data, sig, false);
+
+    if (ret.statusFlags & (EnigmailConstants.BAD_SIGNATURE | EnigmailConstants.UNVERIFIED_SIGNATURE)) {
+      throw ret.errorMsg ? ret.errorMsg : EnigmailLocale.getString("unverifiedSig") + " - " + EnigmailLocale.getString("msgSignedUnkownKey");
+    }
+
+    const detailArr = ret.sigDetails.split(/ /);
+    const dateTime = EnigmailTime.getDateTime(detailArr[2], true, true);
+    return ret.errorMsg + "\n" + EnigmailLocale.getString("keyAndSigDate", [ret.keyId, dateTime]);
+  }
+};
+
+function ensureUint8Array(stringOrUint8Array) {
+  if (typeof stringOrUint8Array === "string") {
+
+    const result = new Uint8Array(stringOrUint8Array.length);
+    for (let i = 0; i < stringOrUint8Array.length; i++) {
+      result[i] = stringOrUint8Array.charCodeAt(i);
+    }
+    return result;
+
+  }
+
+  return stringOrUint8Array;
+}
+
+
+/**
+ * Callback functions called from worker for tasks requiring chrome
+ */
+
+var WorkerRequestHandler = {
+  /**
+   * Get secret keys as armored string
+   *
+   * @param {Array<String>} keyIds
+   * @returns {String}
+   */
+  getSecretKeysForIds: async function(keyIds) {
+    EnigmailLog.DEBUG(`pgpjs-crypto-main.jsm: getSecretKeysForIds()\n`);
+    let secretKeys = await pgpjs_keyStore.readSecretKeys(keyIds, false);
+
+    return secretKeys;
+  },
+
+  getPublicKeysForIds: async function(keyIds) {
+    EnigmailLog.DEBUG(`pgpjs-crypto-main.jsm: getPublicKeysForIds()\n`);
+    let publicKeys = await pgpjs_keyStore.readPublicKeys(keyIds);
+
+    return publicKeys;
+  },
+
+  getDecryptedSecretKey: async function(options) {
+    EnigmailLog.DEBUG(`pgpjs-crypto-main.jsm: getDecryptedSecretKey()\n`);
+    const PgpJS = getOpenPGPLibrary();
+
+    let secretKey = await pgpjs_keyStore.getKeysForKeyIds(true, [options.secretKeyFpr], false);
+    let dedryptedSecKey = await pgpjs_keys.decryptSecretKey(secretKey[0], options.decryptionReason);
+    let packets = new PgpJS.PacketList();
+
+    // remove all 3rd-party signatures that just grow the key
+    for (let u in dedryptedSecKey.users) {
+      dedryptedSecKey.users[u].otherCertifications = [];
+    }
+
+    if (dedryptedSecKey) {
+      packets = packets.concat(await dedryptedSecKey.toPacketList());
+      return PgpJS.armor(PgpJS.enums.armor.privateKey, packets.write());
+    }
+
+    return null;
+  },
+
+  downloadMissingKeys: async function(keyIds) {
+    EnigmailLog.DEBUG(`pgpjs-crypto-main.jsm: downloadMissingKeys()\n`);
+
+    const EnigmailKeyServer = ChromeUtils.import("chrome://enigmail/content/modules/keyserver.jsm").EnigmailKeyServer;
+    const PgpJS = getOpenPGPLibrary();
+    let packets = new PgpJS.PacketList();
+
+    try {
+      const keyserver = EnigmailPrefs.getAutoKeyRetrieveServer();
+
+      if (keyserver && keyserver.length > 0) {
+        const keyList = "0x" + keyIds.join(" 0x");
+        const ret = await EnigmailKeyServer.download(keyList, keyserver);
+
+        if (ret.result === 0 && ret.keyList.length > 0) {
+          let foundKeys = await pgpjs_keyStore.getKeysForKeyIds(false, keyIds);
+          packets = packets.concat(await foundKeys.toPacketList());
+        }
+      }
+    }
+    catch (x) {}
+
+    return PgpJS.armor(PgpJS.enums.armor.publicKey, packets.write());
+  }
+
+};
+
+var pendingPromises = [];
+var gTransactionId = 0;
+
+const cryptoWorker = new Worker('chrome://enigmail/content/modules/cryptoAPI/pgpjs-crypto-worker.js');
+
+cryptoWorker.onmessage = async function(e) {
+  if ("logMessage" in e.data) {
+    if (e.data.logLevel >= 5) {
+      EnigmailLog.DEBUG(`${e.data.logMessage}\n`);
+    }
+    else if (e.data.logLevel === 0) {
+      EnigmailLog.ERROR(`${e.data.logMessage}\n`);
+    }
+    return;
+  }
+
+  if (!("trxId" in e.data)) {
+    EnigmailLog.ERROR(`pgpjs-crypto-worker.jsm. onmessage: cannot deliver message received from worker ${e.data}\n`);
+  }
+
+  if ("func" in e.data) {
+    let method = e.data.func;
+    let args = e.data.param || null;
+
+    if (method in WorkerRequestHandler) {
+      try {
+        let workerResult = await WorkerRequestHandler[method](args);
+        cryptoWorker.postMessage({
+          trxId: e.data.trxId,
+          result: workerResult
+        });
+      }
+      catch (ex) {
+        cryptoWorker.postMessage({
+          trxId: e.data.trxId,
+          error: `${ex.toString()}\n${ex.stack}`
+        });
+      }
+    }
+    else {
+      EnigmailLog.ERROR(`pgpjs-crypto-worker.jsm. onmessage: Unknown function call ${e.data.func} received from worker\n`);
+    }
+    return;
+  }
+
+  if (pendingPromises[e.data.trxId]) {
+    if ("result" in e.data) {
+      pendingPromises[e.data.trxId].resolve(e.data.result);
+    }
+    else {
+      EnigmailLog.ERROR(`${e.data.error}\n`);
+      pendingPromises[e.data.trxId].reject(e.data.error);
+    }
+    delete pendingPromises[e.data.trxId];
+  }
+};
+
+cryptoWorker.onerror = function(e) {
+  EnigmailLog.ERROR(`pgpjs-crypto-worker.jsm. onerror: Error received from worker: ${e.message}\n`);
+};
+
+
+const PgpJsWorkerParent = {
+
+  sendMessage(functionName, param, transferables) {
+    let trxId = ++gTransactionId;
+    return new Promise((resolve, reject) => {
+      cryptoWorker.postMessage({
+        func: functionName,
+        trxId: trxId,
+        param: param
+      }, transferables);
+
+      pendingPromises[trxId] = {
+        resolve,
+        reject
+      };
+    });
+  }
+};

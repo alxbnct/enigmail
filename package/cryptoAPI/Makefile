@@ -13,12 +13,15 @@ MODFILES = \
 	gnupg-keyEditor.jsm \
 	gpgme.js \
 	openpgp-js.js \
+	pgpjs-crypto-main.jsm \
 	pgpjs-encrypt.jsm \
-	pgpjs-decrypt.jsm \
 	pgpjs-keys.jsm \
 	pgpjs-keystore.jsm \
 	pgpjs-keymanipulation.jsm \
 	interface.js
+
+WORKERS = \
+	pgpjs-crypto-worker.js
 
 GENFILES = $(addprefix $(GENDIR)/,$(MODFILES))
 
@@ -28,9 +31,13 @@ $(GENDIR)/%.jsm: %.jsm
 $(GENDIR)/%.js: %.js
 	$(DEPTH)/util/prepPostbox $(TARGET_TOOL) $< $@
 
-build: $(GENFILES)
+build: $(GENFILES) deploy
+
+deploy:
+	$(DEPTH)/util/install -m 644 $(GENDIR) $(WORKERS)
 
 all: build
 
 clean:
 	$(DEPTH)/util/install -u $(DIST)/chrome/content/modules/cryptoAPI $(MODFILES)
+	$(DEPTH)/util/install -u $(DIST)/chrome/content/modules/cryptoAPI $(WORKERS)
