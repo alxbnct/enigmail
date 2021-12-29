@@ -707,35 +707,6 @@ function getDateTime(dateNum, withDate, withTime) {
   }
 }
 
-const gTrx = [];
-
-function startOpenpgpTrx() {
-  let promiseObj = {};
-
-  return new Promise((resolve, reject) => {
-    promiseObj.resolve = resolve;
-    promiseObj.reject = reject;
-    gTrx.push(promiseObj);
-
-    if (gTrx.length === 1) {
-      DEBUG_LOG("====> start process directly");
-      resolve();
-    }
-  });
-}
-
-function endOpenpgpTrx() {
-  if (gTrx.length > 0) {
-    DEBUG_LOG("<==== end process");
-    gTrx.splice(0, 1); // remove 1st element
-  }
-
-  if (gTrx.length > 0) {
-    DEBUG_LOG("====> start process queued");
-    gTrx[0].resolve();
-  }
-}
-
 /*************************************************************************
  *
  * Implementation of Worker
@@ -818,9 +789,7 @@ onmessage = async function(e) {
   }
 
   try {
-    await startOpenpgpTrx();
     let workerResult = await workerBody[method](args);
-    endOpenpgpTrx();
     DEBUG_LOG('Posting message back to main script');
     postMessage({
       trxId: e.data.trxId,
@@ -828,7 +797,6 @@ onmessage = async function(e) {
     });
   }
   catch (ex) {
-    endOpenpgpTrx();
     postMessage({
       trxId: e.data.trxId,
       error: `${ex.toString()}\n${ex.stack}`
