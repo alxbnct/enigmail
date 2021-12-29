@@ -17,7 +17,6 @@ MODFILES = \
            web-streams.jsm
 
 WORKERS = \
-           openpgp-worker.js \
            openpgp-lib.js
 
 GENFILES = $(addprefix $(GENDIR)/,$(MODFILES))
