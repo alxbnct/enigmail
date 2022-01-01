@@ -25,11 +25,10 @@ test(withTestGpgHome(asyncTest(async function genKey() {
   Assert.equal(key.users[0].userID.userID, "Someone <email@domain.invalid>");
   Assert.ok(keyData.privateKey.indexOf("PGP PRIVATE KEY") > 0);
   Assert.ok(keyData.revocationCertificate.indexOf("PGP PUBLIC KEY") > 0);
-  Assert.equal((await key.subkeys[0].getExpirationTime()), Infinity);
+  Assert.equal((await (await key.subkeys[0]).getExpirationTime()), Infinity);
 
   let newKey = await pgpjs_keys.changeKeyExpiry(key, [0, 1], 86400);
-  let exp = await (newKey.subkeys[0].getExpirationTime());
-
+  let exp = await (await (newKey.subkeys[0]).getExpirationTime());
   Assert.ok(exp.getTime() > NOW + 80000 * 1000);
   Assert.ok(exp.getTime() <= NOW + 90000 * 1000);
   const ek = (await newKey.getEncryptionKey()).getFingerprint();
@@ -38,7 +37,7 @@ test(withTestGpgHome(asyncTest(async function genKey() {
   let newPubKey = newKey.toPublic();
   let packetList = await pgpjs_keys.getStrippedKey(newPubKey, "email@domain.invalid", true);
   let strippedKey = new PgpJS.PublicKey(packetList);
-  Assert.ok((await strippedKey.subkeys[0].getExpirationTime()) > NOW + 80000000);
+  Assert.ok((await (await strippedKey.subkeys[0]).getExpirationTime()) > NOW + 80000000);
   Assert.equal((await strippedKey.getPrimaryUser()).user.userID.userID, "Someone <email@domain.invalid>");
   Assert.equal((await strippedKey.getSigningKey()).getFingerprint(), sk);
   Assert.equal((await strippedKey.getEncryptionKey()).getFingerprint(), ek);
