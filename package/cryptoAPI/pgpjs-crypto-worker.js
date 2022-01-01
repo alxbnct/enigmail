@@ -107,7 +107,7 @@ var workerBody = {
     let encToDetails = "";
 
     try {
-      encToDetails = getKeydesc(pubKeyIds);
+      encToDetails = await requestMessage("getKeydesc", pubKeyIds);
 
       // get OpenPGP.js key objects for secret keys
       let armoredSecretKeys = await requestMessage("getSecretKeysForIds", pubKeyIds);
@@ -188,7 +188,7 @@ var workerBody = {
     catch (ex) {
       if (("message" in ex) && ex.message.search(/(Message .*not authenticated|missing MDC|Modification detected)/) > 0) {
         retData.statusFlags |= EnigmailConstants.MISSING_MDC;
-        retData.statusMsg = "MDC ERROR\n"; // FIXME: EnigmailLocale.getString("missingMdcError") + "\n";
+        retData.statusMsg = "%MISSING_MDC";
       }
       else {
         DEBUG_LOG(`decryptMessage: ERROR: ${ex.toString()}\n`);
@@ -468,10 +468,10 @@ var workerBody = {
       }
 
       if (result.statusFlags & EnigmailConstants.GOOD_SIGNATURE) {
-        result.errorMsg = `Good signature from ${result.userId}`; // FIXME: EnigmailLocale.getString("prefGood", [result.userId]);
+        result.errorMsg = `%GOOD_SIG:${result.userId}`;
       }
       else if (result.statusFlags & EnigmailConstants.BAD_SIGNATURE) {
-        result.errorMsg = `Invalid signature from ${result.userId}`; // FIXME: EnigmailLocale.getString("prefBad", [result.userId]);
+        result.errorMsg = `%BAD_SIG:${result.userId}`;
       }
     }
     catch (ex) {
@@ -597,33 +597,6 @@ function readFromStream(reader) {
   });
 }
 
-function getKeydesc(pubKeyIds) {
-  DEBUG_LOG(`getKeydesc()\n`);
-  //   const EnigmailKeyRing = ChromeUtils.import("chrome://enigmail/content/modules/keyRing.jsm").EnigmailKeyRing;
-
-  //   if (pubKeyIds.length > 0) {
-  //     let encToArray = [];
-  //     // for each key also show an associated user ID if known:
-  //     for (let keyId of pubKeyIds) {
-  //       // except for ID 00000000, which signals hidden keys
-  //       if (keyId.search(/^0+$/) < 0) {
-  //         let localKey = EnigmailKeyRing.getKeyById("0x" + keyId);
-  //         if (localKey) {
-  //           encToArray.push(`0x${keyId} (${localKey.userId})`);
-  //         }
-  //         else {
-  //           encToArray.push(`0x${keyId}`);
-  //         }
-  //       }
-  //       else {
-  //         encToArray.push(EnigmailLocale.getString("hiddenKey"));
-  //       }
-  //     }
-  //     return "\n  " + encToArray.join(",\n  ") + "\n";
-  //   }
-
-  return "";
-}
 
 function getReturnObj() {
   return {

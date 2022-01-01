@@ -49,16 +49,16 @@ var pgpjs_crypto = {
       });
     }
     catch (ex) {
-      EnigmailLog.DEBUG(`pgpjs-decrypt.jsm: processPgpMessage: ERROR: ${ex.toString()}\n`);
+      EnigmailLog.DEBUG(`pgpjs-crypto-main.jsm: processPgpMessage: ERROR: ${ex.toString()}\n`);
       result.errorMsg = ex.toString();
       result.exitCode = 1;
     }
 
-    return result;
+    return this.prepareResultText(result);
   },
 
   verify: async function(data, options) {
-    EnigmailLog.DEBUG(`pgpjs-decrypt.jsm: verify(${data.length})\n`);
+    EnigmailLog.DEBUG(`pgpjs-crypto-main.jsm: verify(${data.length})\n`);
 
     let result = {};
 
@@ -78,22 +78,22 @@ var pgpjs_crypto = {
       }
     }
     catch (ex) {
-      EnigmailLog.DEBUG(`pgpjs-decrypt.jsm: verify: ERROR: ${ex.toString()}\n`);
+      EnigmailLog.DEBUG(`pgpjs-crypto-main.jsm: verify: ERROR: ${ex.toString()}\n`);
       result.errorMsg = ex.toString();
       result.statusFlags = EnigmailConstants.UNVERIFIED_SIGNATURE;
     }
-    return result;
+    return this.prepareResultText(result);
   },
 
   verifyDetached: async function(data, signature, returnData = false) {
-    EnigmailLog.DEBUG(`pgpjs-decrypt.jsm: verifyDetached(${data.length})\n`);
+    EnigmailLog.DEBUG(`pgpjs-crypto-main.jsm: verifyDetached(${data.length})\n`);
 
     let result = await PgpJsWorkerParent.sendMessage("verifyDetached", {
       data,
       signature,
       returnData
     });
-    return result;
+    return this.prepareResultText(result);
   },
 
 
@@ -122,6 +122,8 @@ var pgpjs_crypto = {
 
     let ret = await this.verifyDetached(data, sig, false);
 
+    ret = this.prepareResultText(ret);
+
     if (ret.statusFlags & (EnigmailConstants.BAD_SIGNATURE | EnigmailConstants.UNVERIFIED_SIGNATURE)) {
       throw ret.errorMsg ? ret.errorMsg : EnigmailLocale.getString("unverifiedSig") + " - " + EnigmailLocale.getString("msgSignedUnkownKey");
     }
@@ -140,7 +142,7 @@ var pgpjs_crypto = {
    *                                   If null, message will not be signed.
    */
   encryptData: async function(text, publicKeys, signingKey) {
-    EnigmailLog.DEBUG(`pgpjs-encrypt.jsm: encryptData(${text.length})\n`);
+    EnigmailLog.DEBUG(`pgpjs-crypto-main.jsm: encryptData(${text.length})\n`);
     const PgpJS = getOpenPGPLibrary();
 
     let publicKeyPackets = new PgpJS.PacketList();
@@ -172,7 +174,7 @@ var pgpjs_crypto = {
    * @param {Boolean} detachedSignature:  Create a detached signature (true) or clearsigned message (false).
    */
   signData: async function(text, signingKey, detachedSignature) {
-    EnigmailLog.DEBUG(`pgpjs-encrypt.jsm: signData(${text.length})\n`);
+    EnigmailLog.DEBUG(`pgpjs-crypto-main.jsm: signData(${text.length})\n`);
     const PgpJS = getOpenPGPLibrary();
 
 
@@ -187,6 +189,29 @@ var pgpjs_crypto = {
     });
 
     return result;
+  },
+
+  prepareResultText: function(resultData) {
+    if (resultData.statusMsg === "%MISSING_MDC") {
+      resultData.statusMsg = EnigmailLocale.getString("missingMdcError") + "\n";
+    }
+
+    let m = resultData.errorMsg.match(/^%(GOOD_SIG|BAD_SIG):(.*)/);
+    if (m && m.length >= 3) {
+      let str="";
+      switch (m[1]) {
+      case "GOOD_SIG":
+        str = "prefGood";
+        break;
+      case "BAD_SIG":
+        str = "prefBad";
+        break;
+      }
+
+      resultData.errorMsg = EnigmailLocale.getString(str, [m[2]]);
+    }
+
+    return resultData;
   }
 };
 
@@ -274,8 +299,35 @@ var WorkerRequestHandler = {
     catch (x) {}
 
     return PgpJS.armor(PgpJS.enums.armor.publicKey, packets.write());
-  }
+  },
 
+  getKeydesc: function (pubKeyIds) {
+    EnigmailLog.DEBUG(`pgpjs-crypto-main.jsm: getKeydesc()\n`);
+      const EnigmailKeyRing = ChromeUtils.import("chrome://enigmail/content/modules/keyRing.jsm").EnigmailKeyRing;
+
+      if (pubKeyIds.length > 0) {
+        let encToArray = [];
+        // for each key also show an associated user ID if known:
+        for (let keyId of pubKeyIds) {
+          // except for ID 00000000, which signals hidden keys
+          if (keyId.search(/^0+$/) < 0) {
+            let localKey = EnigmailKeyRing.getKeyById("0x" + keyId);
+            if (localKey) {
+              encToArray.push(`0x${keyId} (${localKey.userId})`);
+            }
+            else {
+              encToArray.push(`0x${keyId}`);
+            }
+          }
+          else {
+            encToArray.push(EnigmailLocale.getString("hiddenKey"));
+          }
+        }
+        return "\n  " + encToArray.join(",\n  ") + "\n";
+      }
+
+    return "";
+  }
 };
 
 var pendingPromises = [];
