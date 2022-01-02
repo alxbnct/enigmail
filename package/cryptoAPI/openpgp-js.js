@@ -16,11 +16,12 @@ const pgpjs_keyStore = ChromeUtils.import("chrome://enigmail/content/modules/cry
 const pgpjs_encrypt = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/pgpjs-encrypt.jsm").pgpjs_encrypt;
 const pgpjs_crypto = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/pgpjs-crypto-main.jsm").pgpjs_crypto;
 const pgpjs_keymanipulation = ChromeUtils.import("chrome://enigmail/content/modules/cryptoAPI/pgpjs-keymanipulation.jsm").pgpjs_keymanipulation;
-const EnigmailLazy = ChromeUtils.import("chrome://enigmail/content/modules/lazy.jsm").EnigmailLazy;
 const EnigmailLog = ChromeUtils.import("chrome://enigmail/content/modules/log.jsm").EnigmailLog;
 const EnigmailConstants = ChromeUtils.import("chrome://enigmail/content/modules/constants.jsm").EnigmailConstants;
+const XPCOMUtils = ChromeUtils.import("resource://gre/modules/XPCOMUtils.jsm").XPCOMUtils;
 
-const getKeyRing = EnigmailLazy.loader("enigmail/keyRing.jsm", "EnigmailKeyRing");
+/* eslint no-invalid-this: 0 */
+XPCOMUtils.defineLazyModuleGetter(this, "EnigmailKeyRing", "chrome://enigmail/content/modules/keyRing.jsm", "EnigmailKeyRing"); /* global EnigmailKeyRing: false */
 
 // Load generic API
 if (typeof CryptoAPI === "undefined") {
@@ -88,38 +89,7 @@ class OpenPGPjsCryptoAPI extends CryptoAPI {
    */
 
   async importKeyData(keyData, minimizeKey, limitedUid) {
-    if (minimizeKey) {
-      let firstUid = null;
-      if (limitedUid && limitedUid.length > 0) {
-        firstUid = limitedUid[0];
-      }
-      keyData = (await pgpjs_keys.getStrippedKey(keyData, firstUid, true)).write();
-    }
-
-    try {
-      let imported = await pgpjs_keyStore.writeKey(keyData);
-
-      return {
-        exitCode: 0,
-        importedKeys: imported,
-        importSum: imported.length,
-        importUnchanged: 0,
-        secCount: 0,
-        secDups: 0,
-        secImported: 0
-      };
-    }
-    catch (ex) {
-      return {
-        exitCode: 1,
-        importedKeys: [],
-        importSum: 0,
-        importUnchanged: 0,
-        secCount: 0,
-        secDups: 0,
-        secImported: 0
-      };
-    }
+    return pgpjs_keyStore.importKeyData(keyData, minimizeKey, limitedUid);
   }
 
   /**
@@ -156,7 +126,7 @@ class OpenPGPjsCryptoAPI extends CryptoAPI {
     let exitCode = 1;
     try {
       await pgpjs_keyStore.deleteKeys(fpr);
-      getKeyRing().updateKeys(fpr);
+      EnigmailKeyRing.updateKeys(fpr);
 
       exitCode = 0;
     }

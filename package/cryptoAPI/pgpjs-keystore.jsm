@@ -27,6 +27,56 @@ var pgpjs_keyStore = {
   getKeyFlags: getKeyFlags, // FIXME
 
   /**
+   * Import key(s) from a string provided
+   *
+   * @param {String} keyData:  the key data to be imported (ASCII armored)
+   * @param {Boolean} minimizeKey: import the minimum key without any 3rd-party signatures
+   * @param {Array of String} limitedUid: only import the UID specified
+   *
+   * @return {Object} or null in case no data / error:
+   *   - {Number}          exitCode:        result code (0: OK)
+   *   - {Array of String) importedKeys:    imported fingerprints
+   *   - {Number}          importSum:       total number of processed keys
+   *   - {Number}          importUnchanged: number of unchanged keys
+   */
+
+  importKeyData: async function(keyData, minimizeKey, limitedUid) {
+    if (minimizeKey) {
+      let firstUid = null;
+      if (limitedUid && limitedUid.length > 0) {
+        firstUid = limitedUid[0];
+      }
+      keyData = (await pgpjs_keys.getStrippedKey(keyData, firstUid, true)).write();
+    }
+
+    try {
+      let imported = await this.writeKey(keyData);
+
+      return {
+        exitCode: 0,
+        importedKeys: imported,
+        importSum: imported.length,
+        importUnchanged: 0,
+        secCount: 0,
+        secDups: 0,
+        secImported: 0
+      };
+    }
+    catch (ex) {
+      return {
+        exitCode: 1,
+        importedKeys: [],
+        importSum: 0,
+        importUnchanged: 0,
+        secCount: 0,
+        secDups: 0,
+        secImported: 0
+      };
+    }
+  },
+
+
+  /**
    * Write key(s) into the database.
    *
    * @param {String} keyData: armored or binary key data

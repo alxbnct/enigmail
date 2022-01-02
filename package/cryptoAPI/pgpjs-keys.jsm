@@ -166,11 +166,13 @@ var pgpjs_keys = {
 
         // user IDs
         for (let u of k.users) {
-          if (!key.name) {
-            key.name = u.userID.userID.replace(/[\r\n]+/g, " ");
-          }
-          else {
-            key.uids.push(u.userID.userID.replace(/[\r\n]+/g, " "));
+          if (u.userID) {
+            if (!key.name) {
+              key.name = u.userID.userID.replace(/[\r\n]+/g, " ");
+            }
+            else {
+              key.uids.push(u.userID.userID.replace(/[\r\n]+/g, " "));
+            }
           }
         }
       }

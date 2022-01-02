@@ -152,7 +152,6 @@ var workerBody = {
             if ("signatures" in result && result.signatures.length > 0) {
               let pkt = new PgpJS.PacketList();
 
-              // TODO: check if that works
               for (let sig of result.signatures) {
                 let sigPackets = await sig.signature;
                 pkt = pkt.concat(sigPackets.packets);
