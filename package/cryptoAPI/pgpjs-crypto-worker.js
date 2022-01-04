@@ -105,6 +105,7 @@ var workerBody = {
 
     const retData = getReturnObj();
     let encToDetails = "";
+    let secretKeys = [];
 
     try {
       encToDetails = await requestMessage("getKeydesc", pubKeyIds);
@@ -112,12 +113,13 @@ var workerBody = {
       // get OpenPGP.js key objects for secret keys
       let armoredSecretKeys = await requestMessage("getSecretKeysForIds", pubKeyIds);
 
-      let secretKeys = await PgpJS.readKeys({
-        armoredKeys: armoredSecretKeys
-      });
-
-      if (secretKeys.length === 0) {
+      if (armoredSecretKeys.length === 0) {
         retData.statusFlags |= EnigmailConstants.NO_SECKEY;
+      }
+      else {
+        secretKeys = await PgpJS.readKeys({
+          armoredKeys: armoredSecretKeys
+        });
       }
 
       // try to decrypt the message using the secret keys one-by-one
@@ -127,11 +129,11 @@ var workerBody = {
           decryptionReason: EnigmailConstants.KEY_DECRYPT_REASON_ENCRYPTED_MSG
         });
 
-        let secKey = await PgpJS.readKeys({
-          armoredKeys: decryptedSecKey
-        });
+        if (decryptedSecKey.length > 0) {
+          let secKey = await PgpJS.readKeys({
+            armoredKeys: decryptedSecKey
+          });
 
-        if (secKey) {
           secKey.revocationSignatures = []; // remove revocation sigs to allow decryption
           let result = await PgpJS.decrypt({
             message: message,
@@ -249,39 +251,47 @@ var workerBody = {
     signature,
     returnData = false
   }) {
-    DEBUG_LOG(`verifyDetached(${data}, ${signature})\n`);
+    DEBUG_LOG(`verifyDetached(${data.length}, ${signature.length})\n`);
+    try {
+      let sigString;
 
-    let sigString;
+      if (typeof(signature) === "string") {
+        sigString = signature;
+      }
+      else {
+        sigString = await PgpJS.armor(PgpJS.enums.armor.signature, signature.write());
+      }
 
-    if (typeof(signature) === "string") {
-      sigString = signature;
+      // if (sigString.packets.length === 0) {
+      //   result.exitCode = 1;
+      //   result.statusFlags = EnigmailConstants.NO_PUBKEY;
+      //   result.errorMsg = EnigmailLocale.getString("unverifiedSig") + EnigmailLocale.getString("msgTypeUnsupported");
+      //   return result;
+      // }
+
+      let msg;
+      if (typeof(data) === "string") {
+        msg = await PgpJS.createMessage({
+          text: data
+        });
+      }
+      else {
+        msg = await PgpJS.createMessage({
+          binary: data
+        });
+      }
+
+      await msg.appendSignature(sigString);
+
+      return this.verifyMessage(msg, returnData);
     }
-    else {
-      sigString = await PgpJS.armor(PgpJS.enums.armor.signature, signature.write());
+    catch (ex) {
+      return {
+        exitCode: 1,
+        statusFlags: EnigmailConstants.NO_PUBKEY,
+        errorMsg: ex.toString()
+      };
     }
-
-    // if (sigString.packets.length === 0) {
-    //   result.exitCode = 1;
-    //   result.statusFlags = EnigmailConstants.NO_PUBKEY;
-    //   result.errorMsg = EnigmailLocale.getString("unverifiedSig") + EnigmailLocale.getString("msgTypeUnsupported");
-    //   return result;
-    // }
-
-    let msg;
-    if (typeof(data) === "string") {
-      msg = await PgpJS.createMessage({
-        text: data
-      });
-    }
-    else {
-      msg = await PgpJS.createMessage({
-        binary: data
-      });
-    }
-
-    await msg.appendSignature(sigString);
-
-    return this.verifyMessage(msg, returnData);
   },
 
   /**
@@ -324,6 +334,11 @@ var workerBody = {
 
     if (armoredPubKeys.length === 0) {
       armoredPubKeys = await requestMessage("downloadMissingKeys", keyIds);
+    }
+
+    if (armoredPubKeys.length === 0) {
+      result.keyId = keyIds[0];
+      return result;
     }
 
     let pubKeys = await PgpJS.readKeys({
@@ -499,7 +514,9 @@ var workerBody = {
     }
 
     return await PgpJS.encrypt({
-      message: await PgpJS.createMessage({text}),
+      message: await PgpJS.createMessage({
+        text
+      }),
       encryptionKeys: publicKeys,
       signingKeys: privateKeys, // for signing
       format: "armored"
@@ -515,22 +532,26 @@ var workerBody = {
       armoredKeys: signingKeys
     });
 
-  if (detachedSignature) {
-    return await PgpJS.sign({
-      message: await PgpJS.createMessage({text}),
-      signingKeys: privateKeys,
-      detached: detachedSignature,
-      format: "armored"
-    });
-  }
-  else {
-    return await PgpJS.sign({
-      message: await PgpJS.createCleartextMessage({text}),
-      signingKeys: privateKeys,
-      detached: detachedSignature,
-      format: "armored"
-    });
-  }
+    if (detachedSignature) {
+      return await PgpJS.sign({
+        message: await PgpJS.createMessage({
+          text
+        }),
+        signingKeys: privateKeys,
+        detached: detachedSignature,
+        format: "armored"
+      });
+    }
+    else {
+      return await PgpJS.sign({
+        message: await PgpJS.createCleartextMessage({
+          text
+        }),
+        signingKeys: privateKeys,
+        detached: detachedSignature,
+        format: "armored"
+      });
+    }
 
 
   }

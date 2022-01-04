@@ -269,6 +269,10 @@ var pgpjs_keyStore = {
     const PgpJS = getOpenPGPLibrary();
 
     let keyList = await this.readKeys(keyArr);
+    if (keyList.length === 0) {
+      return "";
+    }
+
     let packets = new PgpJS.PacketList();
 
     for (let i in keyList) {
@@ -314,7 +318,7 @@ var pgpjs_keyStore = {
   /**
    * Export secret key(s) as ASCII armored data
    *
-   * @param {String}  keyArr       Specification by fingerprint or keyID, separate mutliple keys with spaces
+   * @param {String}  keyArr      Specification by fingerprint or keyID, separate mutliple keys with spaces
    * @param {Boolean} minimalKey  if true, reduce key to minimum required
    *
    * @return {Object}:
@@ -329,6 +333,10 @@ var pgpjs_keyStore = {
     const PgpJS = getOpenPGPLibrary();
 
     let keyList = await this.readKeys(keyArr);
+    if (keyList.length === 0) {
+      return "";
+    }
+
     let packets = new PgpJS.PacketList();
 
     for (let k of keyList) {

@@ -273,7 +273,7 @@ var WorkerRequestHandler = {
       return PgpJS.armor(PgpJS.enums.armor.privateKey, packets.write());
     }
 
-    return null;
+    return "";
   },
 
   downloadMissingKeys: async function(keyIds) {
@@ -298,7 +298,11 @@ var WorkerRequestHandler = {
     }
     catch (x) {}
 
-    return PgpJS.armor(PgpJS.enums.armor.publicKey, packets.write());
+    if (packets.length > 0) {
+      return PgpJS.armor(PgpJS.enums.armor.publicKey, packets.write());
+    }
+    else
+      return "";
   },
 
   getKeydesc: function (pubKeyIds) {
@@ -370,7 +374,7 @@ cryptoWorker.onmessage = async function(e) {
       }
     }
     else {
-      EnigmailLog.ERROR(`pgpjs-crypto-worker.jsm. onmessage: Unknown function call ${e.data.func} received from worker\n`);
+      EnigmailLog.ERROR(`pgpjs-crypto-worker.jsm: onmessage: Unknown function call ${e.data.func} received from worker\n`);
     }
     return;
   }
@@ -380,7 +384,7 @@ cryptoWorker.onmessage = async function(e) {
       pendingPromises[e.data.trxId].resolve(e.data.result);
     }
     else {
-      EnigmailLog.ERROR(`${e.data.error}\n`);
+      EnigmailLog.ERROR(`pgpjs-crypto-worker.jsm: onmessage: ${e.data.error}\n`);
       pendingPromises[e.data.trxId].reject(e.data.error);
     }
     delete pendingPromises[e.data.trxId];
