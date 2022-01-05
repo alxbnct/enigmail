@@ -212,6 +212,7 @@ var workerBody = {
 
     result.statusFlags = 0;
     result.exitCode = 1;
+    result.decryptedData = "";
 
     try {
       let msg = await PgpJS.readCleartextMessage({
@@ -289,6 +290,7 @@ var workerBody = {
       return {
         exitCode: 1,
         statusFlags: EnigmailConstants.NO_PUBKEY,
+        decryptedData: "",
         errorMsg: ex.toString()
       };
     }

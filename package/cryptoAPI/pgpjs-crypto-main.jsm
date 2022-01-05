@@ -60,12 +60,13 @@ var pgpjs_crypto = {
   verify: async function(data, options) {
     EnigmailLog.DEBUG(`pgpjs-crypto-main.jsm: verify(${data.length})\n`);
 
-    let result = {};
+    let result = {
+      statusFlags: 0,
+      exitCode: 1,
+      decryptedData: ""
+    };
 
     let blocks = EnigmailArmor.locateArmoredBlocks(data);
-
-    result.statusFlags = 0;
-    result.exitCode = 1;
 
     try {
       if (blocks && blocks.length > 0) {
@@ -198,14 +199,14 @@ var pgpjs_crypto = {
 
     let m = resultData.errorMsg.match(/^%(GOOD_SIG|BAD_SIG):(.*)/);
     if (m && m.length >= 3) {
-      let str="";
+      let str = "";
       switch (m[1]) {
-      case "GOOD_SIG":
-        str = "prefGood";
-        break;
-      case "BAD_SIG":
-        str = "prefBad";
-        break;
+        case "GOOD_SIG":
+          str = "prefGood";
+          break;
+        case "BAD_SIG":
+          str = "prefBad";
+          break;
       }
 
       resultData.errorMsg = EnigmailLocale.getString(str, [m[2]]);
@@ -305,30 +306,30 @@ var WorkerRequestHandler = {
       return "";
   },
 
-  getKeydesc: function (pubKeyIds) {
+  getKeydesc: function(pubKeyIds) {
     EnigmailLog.DEBUG(`pgpjs-crypto-main.jsm: getKeydesc()\n`);
-      const EnigmailKeyRing = ChromeUtils.import("chrome://enigmail/content/modules/keyRing.jsm").EnigmailKeyRing;
+    const EnigmailKeyRing = ChromeUtils.import("chrome://enigmail/content/modules/keyRing.jsm").EnigmailKeyRing;
 
-      if (pubKeyIds.length > 0) {
-        let encToArray = [];
-        // for each key also show an associated user ID if known:
-        for (let keyId of pubKeyIds) {
-          // except for ID 00000000, which signals hidden keys
-          if (keyId.search(/^0+$/) < 0) {
-            let localKey = EnigmailKeyRing.getKeyById("0x" + keyId);
-            if (localKey) {
-              encToArray.push(`0x${keyId} (${localKey.userId})`);
-            }
-            else {
-              encToArray.push(`0x${keyId}`);
-            }
+    if (pubKeyIds.length > 0) {
+      let encToArray = [];
+      // for each key also show an associated user ID if known:
+      for (let keyId of pubKeyIds) {
+        // except for ID 00000000, which signals hidden keys
+        if (keyId.search(/^0+$/) < 0) {
+          let localKey = EnigmailKeyRing.getKeyById("0x" + keyId);
+          if (localKey) {
+            encToArray.push(`0x${keyId} (${localKey.userId})`);
           }
           else {
-            encToArray.push(EnigmailLocale.getString("hiddenKey"));
+            encToArray.push(`0x${keyId}`);
           }
         }
-        return "\n  " + encToArray.join(",\n  ") + "\n";
+        else {
+          encToArray.push(EnigmailLocale.getString("hiddenKey"));
+        }
       }
+      return "\n  " + encToArray.join(",\n  ") + "\n";
+    }
 
     return "";
   }

@@ -45,7 +45,7 @@ test(withTestGpgHome(asyncTest(async function testDecrypt() {
     let pgpMsg = EnigmailArmor.splitArmoredBlocks(fileData)[0];
 
     let result = await pgpjs_crypto.processPgpMessage(pgpMsg, {});
-    Assert.equal(result.statusFlags, EnigmailConstants.DECRYPTION_FAILED);
+    Assert.equal(result.statusFlags, EnigmailConstants.DECRYPTION_FAILED | EnigmailConstants.NO_SECKEY);
 
     const pubKeyFile = do_get_file("resources/dev-strike.sec", false);
     fileData = EnigmailFiles.readBinaryFile(pubKeyFile);
@@ -194,7 +194,7 @@ iD8DBQE+yUcu4mZch0nhy8kRAuh/AKDM1Xc49BKVfJIFg/btWGfbF/pgcwCgw0Zk
 `;
 
     result = await pgpjs_crypto.verify(packetV3, {});
-    Assert.equal(result.statusFlags, EnigmailConstants.UNVERIFIED_SIGNATURE);
+    Assert.equal(result.statusFlags, EnigmailConstants.NO_PUBKEY);
     Assert.equal(result.exitCode, 1);
     Assert.equal(result.decryptedData, "");
   }
@@ -216,7 +216,7 @@ test(withTestGpgHome(asyncTest(async function testVerifyFile() {
     Assert.ok(false, "Should not obtain a valid verification");
   }
   catch (err) {
-    Assert.assertContains(String(err), "Error during parsing");
+    Assert.assertContains(String(err), "Unverified signature - signed with unknown key");
   }
 
   let keyData = EnigmailFiles.readBinaryFile(pubKeyFile);
