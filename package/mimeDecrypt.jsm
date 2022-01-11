@@ -65,11 +65,7 @@ var EnigmailMimeDecrypt = {
     let encPart = EnigmailLocale.getString("mimeDecrypt.encryptedPart.attachmentLabel");
     let concealed = EnigmailLocale.getString("mimeDecrypt.encryptedPart.concealedData");
     let retData =
-      `Content-Type: message/rfc822; name="${encPart}.eml"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="${encPart}.eml"
-
-Content-Type: text/html
+      `Content-Type: text/html
 
 <p><i>${concealed}</i></p>
 `;
