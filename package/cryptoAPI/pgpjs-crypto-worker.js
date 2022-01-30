@@ -263,13 +263,6 @@ var workerBody = {
         sigString = await PgpJS.armor(PgpJS.enums.armor.signature, signature.write());
       }
 
-      // if (sigString.packets.length === 0) {
-      //   result.exitCode = 1;
-      //   result.statusFlags = EnigmailConstants.NO_PUBKEY;
-      //   result.errorMsg = EnigmailLocale.getString("unverifiedSig") + EnigmailLocale.getString("msgTypeUnsupported");
-      //   return result;
-      // }
-
       let msg;
       if (typeof(data) === "string") {
         msg = await PgpJS.createMessage({

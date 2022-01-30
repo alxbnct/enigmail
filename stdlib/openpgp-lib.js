@@ -19,6 +19,7 @@ function require(mod) {
   modName = mod.replace(/^.*\//, "");
   return babelHelpers[modName];
 }
+
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -82,7 +83,7 @@ function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (O
 
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { (0, _defineProperty2.default)(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
 
-/*! OpenPGP.js v5.0.1 - 2021-11-17 - this is LGPL licensed code, see LICENSE/our website https://openpgpjs.org/ for more information. */
+/*! OpenPGP.js v5.1.0 - 2022-01-24 - this is LGPL licensed code, see LICENSE/our website https://openpgpjs.org/ for more information. */
 var openpgp = function (exports) {
   'use strict';
 
@@ -2421,6 +2422,38 @@ var openpgp = function (exports) {
         }));
         reject(exception);
       });
+    },
+
+    /**
+     * Return either `a` or `b` based on `cond`, in algorithmic constant time.
+     * @param {Boolean} cond
+     * @param {Uint8Array} a
+     * @param {Uint8Array} b
+     * @returns `a` if `cond` is true, `b` otherwise
+     */
+    selectUint8Array: function (cond, a, b) {
+      const length = Math.max(a.length, b.length);
+      const result = new Uint8Array(length);
+      let end = 0;
+
+      for (let i = 0; i < result.length; i++) {
+        result[i] = a[i] & 256 - cond | b[i] & 255 + cond;
+        end += cond & i < a.length | 1 - cond & i < b.length;
+      }
+
+      return result.subarray(0, end);
+    },
+
+    /**
+     * Return either `a` or `b` based on `cond`, in algorithmic constant time.
+     * NB: it only supports `a, b` with values between 0-255.
+     * @param {Boolean} cond
+     * @param {Uint8} a
+     * @param {Uint8} b
+     * @returns `a` if `cond` is true, `b` otherwise
+     */
+    selectUint8: function (cond, a, b) {
+      return a & 256 - cond | b & 255 + cond;
     }
   };
   /* OpenPGP radix-64/base64 string encoding/decoding
@@ -3037,7 +3070,13 @@ var openpgp = function (exports) {
       v5Keys: 4
     },
 
-    /** Asserts validity and converts from string/integer to integer. */
+    /**
+     * Asserts validity of given value and converts from string/integer to integer.
+     * @param {Object} type target enum type
+     * @param {String|Integer} e value to check and/or convert
+     * @returns {Integer} enum value if it exists
+     * @throws {Error} if the value is invalid
+     */
     write: function (type, e) {
       if (typeof e === 'number') {
         e = this.read(type, e);
@@ -3050,7 +3089,13 @@ var openpgp = function (exports) {
       throw new Error('Invalid enum value.');
     },
 
-    /** Converts from an integer to string. */
+    /**
+     * Converts enum integer value to the corresponding string, if it exists.
+     * @param {Object} type target enum type
+     * @param {Integer} e value to convert
+     * @returns {String} name of enum value if it exists
+     * @throws {Error} if the value is invalid
+     */
     read: function (type, e) {
       if (!type[byValue]) {
         type[byValue] = [];
@@ -3202,6 +3247,26 @@ var openpgp = function (exports) {
     allowInsecureVerificationWithReformattedKeys: false,
 
     /**
+     * Enable constant-time decryption of RSA- and ElGamal-encrypted session keys, to hinder Bleichenbacher-like attacks (https://link.springer.com/chapter/10.1007/BFb0055716).
+     * This setting has measurable performance impact and it is only helpful in application scenarios where both of the following conditions apply:
+     * - new/incoming messages are automatically decrypted (without user interaction);
+     * - an attacker can determine how long it takes to decrypt each message (e.g. due to decryption errors being logged remotely).
+     * See also `constantTimePKCS1DecryptionSupportedSymmetricAlgorithms`.
+     * @memberof module:config
+     * @property {Boolean} constantTimePKCS1Decryption
+     */
+    constantTimePKCS1Decryption: false,
+
+    /**
+     * This setting is only meaningful if `constantTimePKCS1Decryption` is enabled.
+     * Decryption of RSA- and ElGamal-encrypted session keys of symmetric algorithms different from the ones specified here will fail.
+     * However, the more algorithms are added, the slower the decryption procedure becomes.
+     * @memberof module:config
+     * @property {Set<Integer>} constantTimePKCS1DecryptionSupportedSymmetricAlgorithms {@link module:enums.symmetric}
+     */
+    constantTimePKCS1DecryptionSupportedSymmetricAlgorithms: new Set([enums.symmetric.aes128, enums.symmetric.aes192, enums.symmetric.aes256]),
+
+    /**
      * @memberof module:config
      * @property {Integer} minBytesForWebCrypto The minimum amount of bytes for which to use native WebCrypto APIs when available
      */
@@ -3235,7 +3300,7 @@ var openpgp = function (exports) {
      * @memberof module:config
      * @property {String} versionString A version string to be included in armored messages
      */
-    versionString: 'OpenPGP.js 5.0.1',
+    versionString: 'OpenPGP.js 5.1.0',
 
     /**
      * @memberof module:config
@@ -4911,7 +4976,11 @@ var openpgp = function (exports) {
       return joinBytes(r1, r2);
     }
 
-  } // TODO use webCrypto or nodeCrypto when possible.
+  }
+  /**
+   * Javascript AES implementation.
+   * This is used as fallback if the native Crypto APIs are not available.
+   */
 
 
   function aes(length) {
@@ -9372,7 +9441,7 @@ var openpgp = function (exports) {
     // Use JS fallbacks
     hashFunctions = {
       md5: md5,
-      sha1: asmcryptoHash(Sha1, navigator.userAgent.indexOf('Edge') === -1 && 'SHA-1'),
+      sha1: asmcryptoHash(Sha1, (!navigator.userAgent || navigator.userAgent.indexOf('Edge') === -1) && 'SHA-1'),
       sha224: hashjsHash(_224),
       sha256: asmcryptoHash(Sha256, 'SHA-256'),
       sha384: hashjsHash(_384, 'SHA-384'),
@@ -9412,32 +9481,25 @@ var openpgp = function (exports) {
      */
     digest: function (algo, data) {
       switch (algo) {
-        case 1:
-          // - MD5 [HAC]
+        case enums.hash.md5:
           return this.md5(data);
 
-        case 2:
-          // - SHA-1 [FIPS180]
+        case enums.hash.sha1:
           return this.sha1(data);
 
-        case 3:
-          // - RIPE-MD/160 [HAC]
+        case enums.hash.ripemd:
           return this.ripemd(data);
 
-        case 8:
-          // - SHA256 [FIPS180]
+        case enums.hash.sha256:
           return this.sha256(data);
 
-        case 9:
-          // - SHA384 [FIPS180]
+        case enums.hash.sha384:
           return this.sha384(data);
 
-        case 10:
-          // - SHA512 [FIPS180]
+        case enums.hash.sha512:
           return this.sha512(data);
 
-        case 11:
-          // - SHA224 [FIPS180]
+        case enums.hash.sha224:
           return this.sha224(data);
 
         default:
@@ -9452,30 +9514,23 @@ var openpgp = function (exports) {
      */
     getHashByteLength: function (algo) {
       switch (algo) {
-        case 1:
-          // - MD5 [HAC]
+        case enums.hash.md5:
           return 16;
 
-        case 2: // - SHA-1 [FIPS180]
-
-        case 3:
-          // - RIPE-MD/160 [HAC]
+        case enums.hash.sha1:
+        case enums.hash.ripemd:
           return 20;
 
-        case 8:
-          // - SHA256 [FIPS180]
+        case enums.hash.sha256:
           return 32;
 
-        case 9:
-          // - SHA384 [FIPS180]
+        case enums.hash.sha384:
           return 48;
 
-        case 10:
-          // - SHA512 [FIPS180]
+        case enums.hash.sha512:
           return 64;
 
-        case 11:
-          // - SHA224 [FIPS180]
+        case enums.hash.sha224:
           return 28;
 
         default:
@@ -9529,18 +9584,29 @@ var openpgp = function (exports) {
     /* twofish is not implemented in OpenSSL */
 
   };
+  /**
+   * CFB encryption
+   * @param {enums.symmetric} algo - block cipher algorithm
+   * @param {Uint8Array} key
+   * @param {MaybeStream<Uint8Array>} plaintext
+   * @param {Uint8Array} iv
+   * @param {Object} config - full configuration, defaults to openpgp.config
+   * @returns MaybeStream<Uint8Array>
+   */
 
   async function encrypt(algo, key, plaintext, iv, config) {
-    if (util.getNodeCrypto() && nodeAlgos[algo]) {
+    const algoName = enums.read(enums.symmetric, algo);
+
+    if (util.getNodeCrypto() && nodeAlgos[algoName]) {
       // Node crypto library.
       return nodeEncrypt(algo, key, plaintext, iv);
     }
 
-    if (algo.substr(0, 3) === 'aes') {
+    if (algoName.substr(0, 3) === 'aes') {
       return aesEncrypt(algo, key, plaintext, iv, config);
     }
 
-    const cipherfn = new cipher[algo](key);
+    const cipherfn = new cipher[algoName](key);
     const block_size = cipherfn.blockSize;
     const blockc = iv.slice();
     let pt = new Uint8Array();
@@ -9570,18 +9636,29 @@ var openpgp = function (exports) {
 
     return transform(plaintext, process, process);
   }
+  /**
+   * CFB decryption
+   * @param {enums.symmetric} algo - block cipher algorithm
+   * @param {Uint8Array} key
+   * @param {MaybeStream<Uint8Array>} ciphertext
+   * @param {Uint8Array} iv
+   * @returns MaybeStream<Uint8Array>
+   */
+
 
   async function decrypt(algo, key, ciphertext, iv) {
-    if (util.getNodeCrypto() && nodeAlgos[algo]) {
+    const algoName = enums.read(enums.symmetric, algo);
+
+    if (util.getNodeCrypto() && nodeAlgos[algoName]) {
       // Node crypto library.
       return nodeDecrypt(algo, key, ciphertext, iv);
     }
 
-    if (algo.substr(0, 3) === 'aes') {
+    if (algoName.substr(0, 3) === 'aes') {
       return aesDecrypt(algo, key, ciphertext, iv);
     }
 
-    const cipherfn = new cipher[algo](key);
+    const cipherfn = new cipher[algoName](key);
     const block_size = cipherfn.blockSize;
     let blockp = iv;
     let ct = new Uint8Array();
@@ -9649,7 +9726,7 @@ var openpgp = function (exports) {
 
     const {
       blockSize
-    } = cipher[algo];
+    } = crypto.getCipher(algo);
     const cbc_pt = util.concatUint8Array([new Uint8Array(blockSize), pt]);
     const ct = new Uint8Array(await webCrypto$1.encrypt({
       name: ALGO,
@@ -9660,12 +9737,14 @@ var openpgp = function (exports) {
   }
 
   function nodeEncrypt(algo, key, pt, iv) {
-    const cipherObj = new nodeCrypto$1.createCipheriv(nodeAlgos[algo], key, iv);
+    const algoName = enums.read(enums.symmetric, algo);
+    const cipherObj = new nodeCrypto$1.createCipheriv(nodeAlgos[algoName], key, iv);
     return transform(pt, value => new Uint8Array(cipherObj.update(value)));
   }
 
   function nodeDecrypt(algo, key, ct, iv) {
-    const decipherObj = new nodeCrypto$1.createDecipheriv(nodeAlgos[algo], key, iv);
+    const algoName = enums.read(enums.symmetric, algo);
+    const decipherObj = new nodeCrypto$1.createDecipheriv(nodeAlgos[algoName], key, iv);
     return transform(ct, value => new Uint8Array(decipherObj.update(value)));
   }
 
@@ -9883,8 +9962,8 @@ var openpgp = function (exports) {
   }
 
   async function CTR(key) {
-    if (util.getWebCrypto() && key.length !== 24 && // WebCrypto (no 192 bit support) see: https://www.chromium.org/blink/webcrypto#TOC-AES-support
-    navigator.userAgent.indexOf('Edge') === -1) {
+    if (util.getWebCrypto() && key.length !== 24 && ( // WebCrypto (no 192 bit support) see: https://www.chromium.org/blink/webcrypto#TOC-AES-support
+    !navigator.userAgent || navigator.userAgent.indexOf('Edge') === -1)) {
       key = await webCrypto$3.importKey('raw', key, {
         name: 'AES-CTR',
         length: key.length * 8
@@ -9915,13 +9994,13 @@ var openpgp = function (exports) {
   }
   /**
    * Class to en/decrypt using EAX mode.
-   * @param {String} cipher - The symmetric cipher algorithm to use e.g. 'aes128'
+   * @param {enums.symmetric} cipher - The symmetric cipher algorithm to use
    * @param {Uint8Array} key - The encryption key
    */
 
 
   async function EAX(cipher, key) {
-    if (cipher.substr(0, 3) !== 'aes') {
+    if (cipher !== enums.symmetric.aes128 && cipher !== enums.symmetric.aes192 && cipher !== enums.symmetric.aes256) {
       throw new Error('EAX mode supports only AES cipher');
     }
 
@@ -10026,7 +10105,7 @@ var openpgp = function (exports) {
   const one$1 = new Uint8Array([1]);
   /**
    * Class to en/decrypt using OCB mode.
-   * @param {String} cipher - The symmetric cipher algorithm to use e.g. 'aes128'
+   * @param {enums.symmetric} cipher - The symmetric cipher algorithm to use
    * @param {Uint8Array} key - The encryption key
    */
 
@@ -10038,7 +10117,8 @@ var openpgp = function (exports) {
     constructKeyVariables(cipher$1, key);
 
     function constructKeyVariables(cipher$1, key) {
-      const aes = new cipher[cipher$1](key);
+      const cipherName = enums.read(enums.symmetric, cipher$1);
+      const aes = new cipher[cipherName](key);
       encipher = aes.encrypt.bind(aes);
       decipher = aes.decrypt.bind(aes);
       const mask_x = encipher(zeroBlock$1);
@@ -10549,12 +10629,12 @@ var openpgp = function (exports) {
   const ALGO = 'AES-GCM';
   /**
    * Class to en/decrypt using GCM mode.
-   * @param {String} cipher - The symmetric cipher algorithm to use e.g. 'aes128'
+   * @param {enums.symmetric} cipher - The symmetric cipher algorithm to use
    * @param {Uint8Array} key - The encryption key
    */
 
   async function GCM(cipher, key) {
-    if (cipher.substr(0, 3) !== 'aes') {
+    if (cipher !== enums.symmetric.aes128 && cipher !== enums.symmetric.aes192 && cipher !== enums.symmetric.aes256) {
       throw new Error('GCM mode supports only AES cipher');
     }
 
@@ -10568,7 +10648,7 @@ var openpgp = function (exports) {
         encrypt: async function (pt, iv, adata = new Uint8Array()) {
           if (!pt.length || // iOS does not support GCM-en/decrypting empty messages
           // Also, synchronous en/decryption might be faster in this case.
-          !adata.length && navigator.userAgent.indexOf('Edge') !== -1 // Edge does not support GCM-en/decrypting without ADATA
+          !adata.length && navigator.userAgent && navigator.userAgent.indexOf('Edge') !== -1 // Edge does not support GCM-en/decrypting without ADATA
           ) {
             return AES_GCM.encrypt(pt, key, iv, adata);
           }
@@ -10584,7 +10664,7 @@ var openpgp = function (exports) {
         decrypt: async function (ct, iv, adata = new Uint8Array()) {
           if (ct.length === tagLength$2 || // iOS does not support GCM-en/decrypting empty messages
           // Also, synchronous en/decryption might be faster in this case.
-          !adata.length && navigator.userAgent.indexOf('Edge') !== -1 // Edge does not support GCM-en/decrypting without ADATA
+          !adata.length && navigator.userAgent && navigator.userAgent.indexOf('Edge') !== -1 // Edge does not support GCM-en/decrypting without ADATA
           ) {
             return AES_GCM.decrypt(ct, key, iv, adata);
           }
@@ -12172,22 +12252,33 @@ var openpgp = function (exports) {
    * Decode a EME-PKCS1-v1_5 padded message
    * @see {@link https://tools.ietf.org/html/rfc4880#section-13.1.2|RFC 4880 13.1.2}
    * @param {Uint8Array} encoded - Encoded message bytes
-   * @returns {Uint8Array} Message.
+   * @param {Uint8Array} randomPayload - Data to return in case of decoding error (needed for constant-time processing)
+   * @returns {Uint8Array} decoded data or `randomPayload` (on error, if given)
+   * @throws {Error} on decoding failure, unless `randomPayload` is provided
    */
 
 
-  function emeDecode(encoded) {
-    let i = 2;
+  function emeDecode(encoded, randomPayload) {
+    // encoded format: 0x00 0x02 <PS> 0x00 <payload>
+    let offset = 2;
+    let separatorNotFound = 1;
 
-    while (encoded[i] !== 0 && i < encoded.length) {
-      i++;
+    for (let j = offset; j < encoded.length; j++) {
+      separatorNotFound &= encoded[j] !== 0;
+      offset += separatorNotFound;
     }
 
-    const psLen = i - 2;
-    const separator = encoded[i++];
+    const psLen = offset - 2;
+    const payload = encoded.subarray(offset + 1); // discard the 0x00 separator
 
-    if (encoded[0] === 0 && encoded[1] === 2 && psLen >= 8 && separator === 0) {
-      return encoded.subarray(i);
+    const isValidPadding = encoded[0] === 0 & encoded[1] === 2 & psLen >= 8 & !separatorNotFound;
+
+    if (randomPayload) {
+      return util.selectUint8Array(isValidPadding, payload, randomPayload);
+    }
+
+    if (isValidPadding) {
+      return payload;
     }
 
     throw new Error('Decryption error');
@@ -12353,17 +12444,20 @@ var openpgp = function (exports) {
    * @param {Uint8Array} p - RSA private prime p
    * @param {Uint8Array} q - RSA private prime q
    * @param {Uint8Array} u - RSA private coefficient
+   * @param {Uint8Array} randomPayload - Data to return on decryption error, instead of throwing
+   *                                     (needed for constant-time processing)
    * @returns {Promise<String>} RSA Plaintext.
+   * @throws {Error} on decryption error, unless `randomPayload` is given
    * @async
    */
 
 
-  async function decrypt$1(data, n, e, d, p, q, u) {
+  async function decrypt$1(data, n, e, d, p, q, u, randomPayload) {
     if (util.getNodeCrypto()) {
-      return nodeDecrypt$1(data, n, e, d, p, q, u);
+      return nodeDecrypt$1(data, n, e, d, p, q, u, randomPayload);
     }
 
-    return bnDecrypt(data, n, e, d, p, q, u);
+    return bnDecrypt(data, n, e, d, p, q, u, randomPayload);
   }
   /**
    * Generate a new random private key B bits long with public exponent E.
@@ -12726,7 +12820,7 @@ var openpgp = function (exports) {
     return data.modExp(e, n).toUint8Array('be', n.byteLength());
   }
 
-  async function nodeDecrypt$1(data, n, e, d, p, q, u) {
+  async function nodeDecrypt$1(data, n, e, d, p, q, u, randomPayload) {
     const {
       default: BN
     } = await Promise.resolve().then(function () {
@@ -12775,11 +12869,15 @@ var openpgp = function (exports) {
     try {
       return new Uint8Array(nodeCrypto$6.privateDecrypt(key, data));
     } catch (err) {
+      if (randomPayload) {
+        return randomPayload;
+      }
+
       throw new Error('Decryption error');
     }
   }
 
-  async function bnDecrypt(data, n, e, d, p, q, u) {
+  async function bnDecrypt(data, n, e, d, p, q, u, randomPayload) {
     const BigInteger = await util.getBigInteger();
     data = new BigInteger(data);
     n = new BigInteger(n);
@@ -12809,7 +12907,7 @@ var openpgp = function (exports) {
     let result = h.mul(p).add(mp); // result < n due to relations above
 
     result = result.mul(unblinder).mod(n);
-    return emeDecode(result.toUint8Array('be', n.byteLength()));
+    return emeDecode(result.toUint8Array('be', n.byteLength()), randomPayload);
   }
   /** Convert Openpgp private key params to jwk key according to
    * @link https://tools.ietf.org/html/rfc7517
@@ -12908,19 +13006,22 @@ var openpgp = function (exports) {
    * @param {Uint8Array} c2
    * @param {Uint8Array} p
    * @param {Uint8Array} x
+   * @param {Uint8Array} randomPayload - Data to return on unpadding error, instead of throwing
+   *                                     (needed for constant-time processing)
    * @returns {Promise<Uint8Array>} Unpadded message.
+   * @throws {Error} on decryption error, unless `randomPayload` is given
    * @async
    */
 
 
-  async function decrypt$2(c1, c2, p, x) {
+  async function decrypt$2(c1, c2, p, x, randomPayload) {
     const BigInteger = await util.getBigInteger();
     c1 = new BigInteger(c1);
     c2 = new BigInteger(c2);
     p = new BigInteger(p);
     x = new BigInteger(x);
     const padded = c1.modExp(x, p).modInv(p).imul(c2).imod(p);
-    return emeDecode(padded.toUint8Array('be', p.byteLength()));
+    return emeDecode(padded.toUint8Array('be', p.byteLength()), randomPayload);
   }
   /**
    * Validate ElGamal parameters
@@ -13326,6 +13427,12 @@ var openpgp = function (exports) {
       cipher: curve.cipher
     };
   }
+  /**
+   * Get preferred hash algo to use with the given curve
+   * @param {module:type/oid} oid - curve oid
+   * @returns {enums.hash} hash algorithm
+   */
+
 
   function getPreferredHashAlgo(oid) {
     return curves[enums.write(enums.curve, oid.toHex())].hash;
@@ -14063,855 +14170,6 @@ var openpgp = function (exports) {
     decode: decode$1
   }); // OpenPGP.js - An OpenPGP implementation in javascript
 
-  const webCrypto$8 = util.getWebCrypto();
-  const nodeCrypto$9 = util.getNodeCrypto();
-  /**
-   * Validate ECDH parameters
-   * @param {module:type/oid} oid - Elliptic curve object identifier
-   * @param {Uint8Array} Q - ECDH public point
-   * @param {Uint8Array} d - ECDH secret scalar
-   * @returns {Promise<Boolean>} Whether params are valid.
-   * @async
-   */
-
-  async function validateParams$4(oid, Q, d) {
-    return validateStandardParams(enums.publicKey.ecdh, oid, Q, d);
-  } // Build Param for ECDH algorithm (RFC 6637)
-
-
-  function buildEcdhParam(public_algo, oid, kdfParams, fingerprint) {
-    return util.concatUint8Array([oid.write(), new Uint8Array([public_algo]), kdfParams.write(), util.stringToUint8Array('Anonymous Sender    '), fingerprint.subarray(0, 20)]);
-  } // Key Derivation Function (RFC 6637)
-
-
-  async function kdf(hashAlgo, X, length, param, stripLeading = false, stripTrailing = false) {
-    // Note: X is little endian for Curve25519, big-endian for all others.
-    // This is not ideal, but the RFC's are unclear
-    // https://tools.ietf.org/html/draft-ietf-openpgp-rfc4880bis-02#appendix-B
-    let i;
-
-    if (stripLeading) {
-      // Work around old go crypto bug
-      for (i = 0; i < X.length && X[i] === 0; i++);
-
-      X = X.subarray(i);
-    }
-
-    if (stripTrailing) {
-      // Work around old OpenPGP.js bug
-      for (i = X.length - 1; i >= 0 && X[i] === 0; i--);
-
-      X = X.subarray(0, i + 1);
-    }
-
-    const digest = await hash.digest(hashAlgo, util.concatUint8Array([new Uint8Array([0, 0, 0, 1]), X, param]));
-    return digest.subarray(0, length);
-  }
-  /**
-   * Generate ECDHE ephemeral key and secret from public key
-   *
-   * @param {Curve} curve - Elliptic curve object
-   * @param {Uint8Array} Q - Recipient public key
-   * @returns {Promise<{publicKey: Uint8Array, sharedKey: Uint8Array}>}
-   * @async
-   */
-
-
-  async function genPublicEphemeralKey(curve, Q) {
-    switch (curve.type) {
-      case 'curve25519':
-        {
-          const d = await getRandomBytes(32);
-          const {
-            secretKey,
-            sharedKey
-          } = await genPrivateEphemeralKey(curve, Q, null, d);
-          let {
-            publicKey
-          } = naclFastLight.box.keyPair.fromSecretKey(secretKey);
-          publicKey = util.concatUint8Array([new Uint8Array([0x40]), publicKey]);
-          return {
-            publicKey,
-            sharedKey
-          }; // Note: sharedKey is little-endian here, unlike below
-        }
-
-      case 'web':
-        if (curve.web && util.getWebCrypto()) {
-          try {
-            return await webPublicEphemeralKey(curve, Q);
-          } catch (err) {
-            util.printDebugError(err);
-          }
-        }
-
-        break;
-
-      case 'node':
-        return nodePublicEphemeralKey(curve, Q);
-    }
-
-    return ellipticPublicEphemeralKey(curve, Q);
-  }
-  /**
-   * Encrypt and wrap a session key
-   *
-   * @param {module:type/oid} oid - Elliptic curve object identifier
-   * @param {module:type/kdf_params} kdfParams - KDF params including cipher and algorithm to use
-   * @param {Uint8Array} data - Unpadded session key data
-   * @param {Uint8Array} Q - Recipient public key
-   * @param {Uint8Array} fingerprint - Recipient fingerprint
-   * @returns {Promise<{publicKey: Uint8Array, wrappedKey: Uint8Array}>}
-   * @async
-   */
-
-
-  async function encrypt$3(oid, kdfParams, data, Q, fingerprint) {
-    const m = encode$1(data);
-    const curve = new Curve(oid);
-    const {
-      publicKey,
-      sharedKey
-    } = await genPublicEphemeralKey(curve, Q);
-    const param = buildEcdhParam(enums.publicKey.ecdh, oid, kdfParams, fingerprint);
-    const cipherAlgo = enums.read(enums.symmetric, kdfParams.cipher);
-    const Z = await kdf(kdfParams.hash, sharedKey, cipher[cipherAlgo].keySize, param);
-    const wrappedKey = wrap(Z, m);
-    return {
-      publicKey,
-      wrappedKey
-    };
-  }
-  /**
-   * Generate ECDHE secret from private key and public part of ephemeral key
-   *
-   * @param {Curve} curve - Elliptic curve object
-   * @param {Uint8Array} V - Public part of ephemeral key
-   * @param {Uint8Array} Q - Recipient public key
-   * @param {Uint8Array} d - Recipient private key
-   * @returns {Promise<{secretKey: Uint8Array, sharedKey: Uint8Array}>}
-   * @async
-   */
-
-
-  async function genPrivateEphemeralKey(curve, V, Q, d) {
-    if (d.length !== curve.payloadSize) {
-      const privateKey = new Uint8Array(curve.payloadSize);
-      privateKey.set(d, curve.payloadSize - d.length);
-      d = privateKey;
-    }
-
-    switch (curve.type) {
-      case 'curve25519':
-        {
-          const secretKey = d.slice().reverse();
-          const sharedKey = naclFastLight.scalarMult(secretKey, V.subarray(1));
-          return {
-            secretKey,
-            sharedKey
-          }; // Note: sharedKey is little-endian here, unlike below
-        }
-
-      case 'web':
-        if (curve.web && util.getWebCrypto()) {
-          try {
-            return await webPrivateEphemeralKey(curve, V, Q, d);
-          } catch (err) {
-            util.printDebugError(err);
-          }
-        }
-
-        break;
-
-      case 'node':
-        return nodePrivateEphemeralKey(curve, V, d);
-    }
-
-    return ellipticPrivateEphemeralKey(curve, V, d);
-  }
-  /**
-   * Decrypt and unwrap the value derived from session key
-   *
-   * @param {module:type/oid} oid - Elliptic curve object identifier
-   * @param {module:type/kdf_params} kdfParams - KDF params including cipher and algorithm to use
-   * @param {Uint8Array} V - Public part of ephemeral key
-   * @param {Uint8Array} C - Encrypted and wrapped value derived from session key
-   * @param {Uint8Array} Q - Recipient public key
-   * @param {Uint8Array} d - Recipient private key
-   * @param {Uint8Array} fingerprint - Recipient fingerprint
-   * @returns {Promise<Uint8Array>} Value derived from session key.
-   * @async
-   */
-
-
-  async function decrypt$3(oid, kdfParams, V, C, Q, d, fingerprint) {
-    const curve = new Curve(oid);
-    const {
-      sharedKey
-    } = await genPrivateEphemeralKey(curve, V, Q, d);
-    const param = buildEcdhParam(enums.publicKey.ecdh, oid, kdfParams, fingerprint);
-    const cipherAlgo = enums.read(enums.symmetric, kdfParams.cipher);
-    let err;
-
-    for (let i = 0; i < 3; i++) {
-      try {
-        // Work around old go crypto bug and old OpenPGP.js bug, respectively.
-        const Z = await kdf(kdfParams.hash, sharedKey, cipher[cipherAlgo].keySize, param, i === 1, i === 2);
-        return decode$1(unwrap(Z, C));
-      } catch (e) {
-        err = e;
-      }
-    }
-
-    throw err;
-  }
-  /**
-   * Generate ECDHE secret from private key and public part of ephemeral key using webCrypto
-   *
-   * @param {Curve} curve - Elliptic curve object
-   * @param {Uint8Array} V - Public part of ephemeral key
-   * @param {Uint8Array} Q - Recipient public key
-   * @param {Uint8Array} d - Recipient private key
-   * @returns {Promise<{secretKey: Uint8Array, sharedKey: Uint8Array}>}
-   * @async
-   */
-
-
-  async function webPrivateEphemeralKey(curve, V, Q, d) {
-    const recipient = privateToJWK$1(curve.payloadSize, curve.web.web, Q, d);
-    let privateKey = webCrypto$8.importKey('jwk', recipient, {
-      name: 'ECDH',
-      namedCurve: curve.web.web
-    }, true, ['deriveKey', 'deriveBits']);
-    const jwk = rawPublicToJWK(curve.payloadSize, curve.web.web, V);
-    let sender = webCrypto$8.importKey('jwk', jwk, {
-      name: 'ECDH',
-      namedCurve: curve.web.web
-    }, true, []);
-    [privateKey, sender] = await Promise.all([privateKey, sender]);
-    let S = webCrypto$8.deriveBits({
-      name: 'ECDH',
-      namedCurve: curve.web.web,
-      public: sender
-    }, privateKey, curve.web.sharedSize);
-    let secret = webCrypto$8.exportKey('jwk', privateKey);
-    [S, secret] = await Promise.all([S, secret]);
-    const sharedKey = new Uint8Array(S);
-    const secretKey = b64ToUint8Array(secret.d);
-    return {
-      secretKey,
-      sharedKey
-    };
-  }
-  /**
-   * Generate ECDHE ephemeral key and secret from public key using webCrypto
-   *
-   * @param {Curve} curve - Elliptic curve object
-   * @param {Uint8Array} Q - Recipient public key
-   * @returns {Promise<{publicKey: Uint8Array, sharedKey: Uint8Array}>}
-   * @async
-   */
-
-
-  async function webPublicEphemeralKey(curve, Q) {
-    const jwk = rawPublicToJWK(curve.payloadSize, curve.web.web, Q);
-    let keyPair = webCrypto$8.generateKey({
-      name: 'ECDH',
-      namedCurve: curve.web.web
-    }, true, ['deriveKey', 'deriveBits']);
-    let recipient = webCrypto$8.importKey('jwk', jwk, {
-      name: 'ECDH',
-      namedCurve: curve.web.web
-    }, false, []);
-    [keyPair, recipient] = await Promise.all([keyPair, recipient]);
-    let s = webCrypto$8.deriveBits({
-      name: 'ECDH',
-      namedCurve: curve.web.web,
-      public: recipient
-    }, keyPair.privateKey, curve.web.sharedSize);
-    let p = webCrypto$8.exportKey('jwk', keyPair.publicKey);
-    [s, p] = await Promise.all([s, p]);
-    const sharedKey = new Uint8Array(s);
-    const publicKey = new Uint8Array(jwkToRawPublic(p));
-    return {
-      publicKey,
-      sharedKey
-    };
-  }
-  /**
-   * Generate ECDHE secret from private key and public part of ephemeral key using indutny/elliptic
-   *
-   * @param {Curve} curve - Elliptic curve object
-   * @param {Uint8Array} V - Public part of ephemeral key
-   * @param {Uint8Array} d - Recipient private key
-   * @returns {Promise<{secretKey: Uint8Array, sharedKey: Uint8Array}>}
-   * @async
-   */
-
-
-  async function ellipticPrivateEphemeralKey(curve, V, d) {
-    const indutnyCurve = await getIndutnyCurve(curve.name);
-    V = keyFromPublic(indutnyCurve, V);
-    d = keyFromPrivate(indutnyCurve, d);
-    const secretKey = new Uint8Array(d.getPrivate());
-    const S = d.derive(V.getPublic());
-    const len = indutnyCurve.curve.p.byteLength();
-    const sharedKey = S.toArrayLike(Uint8Array, 'be', len);
-    return {
-      secretKey,
-      sharedKey
-    };
-  }
-  /**
-   * Generate ECDHE ephemeral key and secret from public key using indutny/elliptic
-   *
-   * @param {Curve} curve - Elliptic curve object
-   * @param {Uint8Array} Q - Recipient public key
-   * @returns {Promise<{publicKey: Uint8Array, sharedKey: Uint8Array}>}
-   * @async
-   */
-
-
-  async function ellipticPublicEphemeralKey(curve, Q) {
-    const indutnyCurve = await getIndutnyCurve(curve.name);
-    const v = await curve.genKeyPair();
-    Q = keyFromPublic(indutnyCurve, Q);
-    const V = keyFromPrivate(indutnyCurve, v.privateKey);
-    const publicKey = v.publicKey;
-    const S = V.derive(Q.getPublic());
-    const len = indutnyCurve.curve.p.byteLength();
-    const sharedKey = S.toArrayLike(Uint8Array, 'be', len);
-    return {
-      publicKey,
-      sharedKey
-    };
-  }
-  /**
-   * Generate ECDHE secret from private key and public part of ephemeral key using nodeCrypto
-   *
-   * @param {Curve} curve - Elliptic curve object
-   * @param {Uint8Array} V - Public part of ephemeral key
-   * @param {Uint8Array} d - Recipient private key
-   * @returns {Promise<{secretKey: Uint8Array, sharedKey: Uint8Array}>}
-   * @async
-   */
-
-
-  async function nodePrivateEphemeralKey(curve, V, d) {
-    const recipient = nodeCrypto$9.createECDH(curve.node.node);
-    recipient.setPrivateKey(d);
-    const sharedKey = new Uint8Array(recipient.computeSecret(V));
-    const secretKey = new Uint8Array(recipient.getPrivateKey());
-    return {
-      secretKey,
-      sharedKey
-    };
-  }
-  /**
-   * Generate ECDHE ephemeral key and secret from public key using nodeCrypto
-   *
-   * @param {Curve} curve - Elliptic curve object
-   * @param {Uint8Array} Q - Recipient public key
-   * @returns {Promise<{publicKey: Uint8Array, sharedKey: Uint8Array}>}
-   * @async
-   */
-
-
-  async function nodePublicEphemeralKey(curve, Q) {
-    const sender = nodeCrypto$9.createECDH(curve.node.node);
-    sender.generateKeys();
-    const sharedKey = new Uint8Array(sender.computeSecret(Q));
-    const publicKey = new Uint8Array(sender.getPublicKey());
-    return {
-      publicKey,
-      sharedKey
-    };
-  }
-
-  var ecdh = /*#__PURE__*/Object.freeze({
-    __proto__: null,
-    validateParams: validateParams$4,
-    encrypt: encrypt$3,
-    decrypt: decrypt$3
-  }); // OpenPGP.js - An OpenPGP implementation in javascript
-
-  var elliptic = /*#__PURE__*/Object.freeze({
-    __proto__: null,
-    Curve: Curve,
-    ecdh: ecdh,
-    ecdsa: ecdsa,
-    eddsa: eddsa,
-    generate: generate$1,
-    getPreferredHashAlgo: getPreferredHashAlgo
-  }); // GPG4Browsers - An OpenPGP implementation in javascript
-
-  /*
-    TODO regarding the hash function, read:
-     https://tools.ietf.org/html/rfc4880#section-13.6
-     https://tools.ietf.org/html/rfc4880#section-14
-  */
-
-  /**
-   * DSA Sign function
-   * @param {Integer} hashAlgo
-   * @param {Uint8Array} hashed
-   * @param {Uint8Array} g
-   * @param {Uint8Array} p
-   * @param {Uint8Array} q
-   * @param {Uint8Array} x
-   * @returns {Promise<{ r: Uint8Array, s: Uint8Array }>}
-   * @async
-   */
-
-  async function sign$3(hashAlgo, hashed, g, p, q, x) {
-    const BigInteger = await util.getBigInteger();
-    const one = new BigInteger(1);
-    p = new BigInteger(p);
-    q = new BigInteger(q);
-    g = new BigInteger(g);
-    x = new BigInteger(x);
-    let k;
-    let r;
-    let s;
-    let t;
-    g = g.mod(p);
-    x = x.mod(q); // If the output size of the chosen hash is larger than the number of
-    // bits of q, the hash result is truncated to fit by taking the number
-    // of leftmost bits equal to the number of bits of q.  This (possibly
-    // truncated) hash function result is treated as a number and used
-    // directly in the DSA signature algorithm.
-
-    const h = new BigInteger(hashed.subarray(0, q.byteLength())).mod(q); // FIPS-186-4, section 4.6:
-    // The values of r and s shall be checked to determine if r = 0 or s = 0.
-    // If either r = 0 or s = 0, a new value of k shall be generated, and the
-    // signature shall be recalculated. It is extremely unlikely that r = 0
-    // or s = 0 if signatures are generated properly.
-
-    while (true) {
-      // See Appendix B here: https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-4.pdf
-      k = await getRandomBigInteger(one, q); // returns in [1, q-1]
-
-      r = g.modExp(k, p).imod(q); // (g**k mod p) mod q
-
-      if (r.isZero()) {
-        continue;
-      }
-
-      const xr = x.mul(r).imod(q);
-      t = h.add(xr).imod(q); // H(m) + x*r mod q
-
-      s = k.modInv(q).imul(t).imod(q); // k**-1 * (H(m) + x*r) mod q
-
-      if (s.isZero()) {
-        continue;
-      }
-
-      break;
-    }
-
-    return {
-      r: r.toUint8Array('be', q.byteLength()),
-      s: s.toUint8Array('be', q.byteLength())
-    };
-  }
-  /**
-   * DSA Verify function
-   * @param {Integer} hashAlgo
-   * @param {Uint8Array} r
-   * @param {Uint8Array} s
-   * @param {Uint8Array} hashed
-   * @param {Uint8Array} g
-   * @param {Uint8Array} p
-   * @param {Uint8Array} q
-   * @param {Uint8Array} y
-   * @returns {boolean}
-   * @async
-   */
-
-
-  async function verify$3(hashAlgo, r, s, hashed, g, p, q, y) {
-    const BigInteger = await util.getBigInteger();
-    const zero = new BigInteger(0);
-    r = new BigInteger(r);
-    s = new BigInteger(s);
-    p = new BigInteger(p);
-    q = new BigInteger(q);
-    g = new BigInteger(g);
-    y = new BigInteger(y);
-
-    if (r.lte(zero) || r.gte(q) || s.lte(zero) || s.gte(q)) {
-      util.printDebug('invalid DSA Signature');
-      return false;
-    }
-
-    const h = new BigInteger(hashed.subarray(0, q.byteLength())).imod(q);
-    const w = s.modInv(q); // s**-1 mod q
-
-    if (w.isZero()) {
-      util.printDebug('invalid DSA Signature');
-      return false;
-    }
-
-    g = g.mod(p);
-    y = y.mod(p);
-    const u1 = h.mul(w).imod(q); // H(m) * w mod q
-
-    const u2 = r.mul(w).imod(q); // r * w mod q
-
-    const t1 = g.modExp(u1, p); // g**u1 mod p
-
-    const t2 = y.modExp(u2, p); // y**u2 mod p
-
-    const v = t1.mul(t2).imod(p).imod(q); // (g**u1 * y**u2 mod p) mod q
-
-    return v.equal(r);
-  }
-  /**
-   * Validate DSA parameters
-   * @param {Uint8Array} p - DSA prime
-   * @param {Uint8Array} q - DSA group order
-   * @param {Uint8Array} g - DSA sub-group generator
-   * @param {Uint8Array} y - DSA public key
-   * @param {Uint8Array} x - DSA private key
-   * @returns {Promise<Boolean>} Whether params are valid.
-   * @async
-   */
-
-
-  async function validateParams$5(p, q, g, y, x) {
-    const BigInteger = await util.getBigInteger();
-    p = new BigInteger(p);
-    q = new BigInteger(q);
-    g = new BigInteger(g);
-    y = new BigInteger(y);
-    const one = new BigInteger(1); // Check that 1 < g < p
-
-    if (g.lte(one) || g.gte(p)) {
-      return false;
-    }
-    /**
-     * Check that subgroup order q divides p-1
-     */
-
-
-    if (!p.dec().mod(q).isZero()) {
-      return false;
-    }
-    /**
-     * g has order q
-     * Check that g ** q = 1 mod p
-     */
-
-
-    if (!g.modExp(q, p).isOne()) {
-      return false;
-    }
-    /**
-     * Check q is large and probably prime (we mainly want to avoid small factors)
-     */
-
-
-    const qSize = new BigInteger(q.bitLength());
-    const n150 = new BigInteger(150);
-
-    if (qSize.lt(n150) || !(await isProbablePrime(q, null, 32))) {
-      return false;
-    }
-    /**
-     * Re-derive public key y' = g ** x mod p
-     * Expect y == y'
-     *
-     * Blinded exponentiation computes g**{rq + x} to compare to y
-     */
-
-
-    x = new BigInteger(x);
-    const two = new BigInteger(2);
-    const r = await getRandomBigInteger(two.leftShift(qSize.dec()), two.leftShift(qSize)); // draw r of same size as q
-
-    const rqx = q.mul(r).add(x);
-
-    if (!y.equal(g.modExp(rqx, p))) {
-      return false;
-    }
-
-    return true;
-  }
-
-  var dsa = /*#__PURE__*/Object.freeze({
-    __proto__: null,
-    sign: sign$3,
-    verify: verify$3,
-    validateParams: validateParams$5
-  });
-  /**
-   * @fileoverview Asymmetric cryptography functions
-   * @module crypto/public_key
-   * @private
-   */
-
-  var publicKey = {
-    /** @see module:crypto/public_key/rsa */
-    rsa: rsa,
-
-    /** @see module:crypto/public_key/elgamal */
-    elgamal: elgamal,
-
-    /** @see module:crypto/public_key/elliptic */
-    elliptic: elliptic,
-
-    /** @see module:crypto/public_key/dsa */
-    dsa: dsa,
-
-    /** @see tweetnacl */
-    nacl: naclFastLight
-  };
-  /**
-   * @fileoverview Provides functions for asymmetric signing and signature verification
-   * @module crypto/signature
-   * @private
-   */
-
-  /**
-   * Parse signature in binary form to get the parameters.
-   * The returned values are only padded for EdDSA, since in the other cases their expected length
-   * depends on the key params, hence we delegate the padding to the signature verification function.
-   * See {@link https://tools.ietf.org/html/rfc4880#section-9.1|RFC 4880 9.1}
-   * See {@link https://tools.ietf.org/html/rfc4880#section-5.2.2|RFC 4880 5.2.2.}
-   * @param {module:enums.publicKey} algo - Public key algorithm
-   * @param {Uint8Array} signature - Data for which the signature was created
-   * @returns {Promise<Object>} True if signature is valid.
-   * @async
-   */
-
-  function parseSignatureParams(algo, signature) {
-    let read = 0;
-
-    switch (algo) {
-      // Algorithm-Specific Fields for RSA signatures:
-      // -  MPI of RSA signature value m**d mod n.
-      case enums.publicKey.rsaEncryptSign:
-      case enums.publicKey.rsaEncrypt:
-      case enums.publicKey.rsaSign:
-        {
-          const s = util.readMPI(signature.subarray(read)); // The signature needs to be the same length as the public key modulo n.
-          // We pad s on signature verification, where we have access to n.
-
-          return {
-            s
-          };
-        }
-      // Algorithm-Specific Fields for DSA or ECDSA signatures:
-      // -  MPI of DSA or ECDSA value r.
-      // -  MPI of DSA or ECDSA value s.
-
-      case enums.publicKey.dsa:
-      case enums.publicKey.ecdsa:
-        {
-          const r = util.readMPI(signature.subarray(read));
-          read += r.length + 2;
-          const s = util.readMPI(signature.subarray(read));
-          return {
-            r,
-            s
-          };
-        }
-      // Algorithm-Specific Fields for EdDSA signatures:
-      // -  MPI of an EC point r.
-      // -  EdDSA value s, in MPI, in the little endian representation
-
-      case enums.publicKey.eddsa:
-        {
-          // When parsing little-endian MPI data, we always need to left-pad it, as done with big-endian values:
-          // https://www.ietf.org/archive/id/draft-ietf-openpgp-rfc4880bis-10.html#section-3.2-9
-          let r = util.readMPI(signature.subarray(read));
-          read += r.length + 2;
-          r = util.leftPad(r, 32);
-          let s = util.readMPI(signature.subarray(read));
-          s = util.leftPad(s, 32);
-          return {
-            r,
-            s
-          };
-        }
-
-      default:
-        throw new Error('Invalid signature algorithm.');
-    }
-  }
-  /**
-   * Verifies the signature provided for data using specified algorithms and public key parameters.
-   * See {@link https://tools.ietf.org/html/rfc4880#section-9.1|RFC 4880 9.1}
-   * and {@link https://tools.ietf.org/html/rfc4880#section-9.4|RFC 4880 9.4}
-   * for public key and hash algorithms.
-   * @param {module:enums.publicKey} algo - Public key algorithm
-   * @param {module:enums.hash} hashAlgo - Hash algorithm
-   * @param {Object} signature - Named algorithm-specific signature parameters
-   * @param {Object} publicParams - Algorithm-specific public key parameters
-   * @param {Uint8Array} data - Data for which the signature was created
-   * @param {Uint8Array} hashed - The hashed data
-   * @returns {Promise<Boolean>} True if signature is valid.
-   * @async
-   */
-
-
-  async function verify$4(algo, hashAlgo, signature, publicParams, data, hashed) {
-    switch (algo) {
-      case enums.publicKey.rsaEncryptSign:
-      case enums.publicKey.rsaEncrypt:
-      case enums.publicKey.rsaSign:
-        {
-          const {
-            n,
-            e
-          } = publicParams;
-          const s = util.leftPad(signature.s, n.length); // padding needed for webcrypto and node crypto
-
-          return publicKey.rsa.verify(hashAlgo, data, s, n, e, hashed);
-        }
-
-      case enums.publicKey.dsa:
-        {
-          const {
-            g,
-            p,
-            q,
-            y
-          } = publicParams;
-          const {
-            r,
-            s
-          } = signature; // no need to pad, since we always handle them as BigIntegers
-
-          return publicKey.dsa.verify(hashAlgo, r, s, hashed, g, p, q, y);
-        }
-
-      case enums.publicKey.ecdsa:
-        {
-          const {
-            oid,
-            Q
-          } = publicParams;
-          const curveSize = new publicKey.elliptic.Curve(oid).payloadSize; // padding needed for webcrypto
-
-          const r = util.leftPad(signature.r, curveSize);
-          const s = util.leftPad(signature.s, curveSize);
-          return publicKey.elliptic.ecdsa.verify(oid, hashAlgo, {
-            r,
-            s
-          }, data, Q, hashed);
-        }
-
-      case enums.publicKey.eddsa:
-        {
-          const {
-            oid,
-            Q
-          } = publicParams; // signature already padded on parsing
-
-          return publicKey.elliptic.eddsa.verify(oid, hashAlgo, signature, data, Q, hashed);
-        }
-
-      default:
-        throw new Error('Invalid signature algorithm.');
-    }
-  }
-  /**
-   * Creates a signature on data using specified algorithms and private key parameters.
-   * See {@link https://tools.ietf.org/html/rfc4880#section-9.1|RFC 4880 9.1}
-   * and {@link https://tools.ietf.org/html/rfc4880#section-9.4|RFC 4880 9.4}
-   * for public key and hash algorithms.
-   * @param {module:enums.publicKey} algo - Public key algorithm
-   * @param {module:enums.hash} hashAlgo - Hash algorithm
-   * @param {Object} publicKeyParams - Algorithm-specific public and private key parameters
-   * @param {Object} privateKeyParams - Algorithm-specific public and private key parameters
-   * @param {Uint8Array} data - Data to be signed
-   * @param {Uint8Array} hashed - The hashed data
-   * @returns {Promise<Object>} Signature                      Object containing named signature parameters.
-   * @async
-   */
-
-
-  async function sign$4(algo, hashAlgo, publicKeyParams, privateKeyParams, data, hashed) {
-    if (!publicKeyParams || !privateKeyParams) {
-      throw new Error('Missing key parameters');
-    }
-
-    switch (algo) {
-      case enums.publicKey.rsaEncryptSign:
-      case enums.publicKey.rsaEncrypt:
-      case enums.publicKey.rsaSign:
-        {
-          const {
-            n,
-            e
-          } = publicKeyParams;
-          const {
-            d,
-            p,
-            q,
-            u
-          } = privateKeyParams;
-          const s = await publicKey.rsa.sign(hashAlgo, data, n, e, d, p, q, u, hashed);
-          return {
-            s
-          };
-        }
-
-      case enums.publicKey.dsa:
-        {
-          const {
-            g,
-            p,
-            q
-          } = publicKeyParams;
-          const {
-            x
-          } = privateKeyParams;
-          return publicKey.dsa.sign(hashAlgo, hashed, g, p, q, x);
-        }
-
-      case enums.publicKey.elgamal:
-        {
-          throw new Error('Signing with Elgamal is not defined in the OpenPGP standard.');
-        }
-
-      case enums.publicKey.ecdsa:
-        {
-          const {
-            oid,
-            Q
-          } = publicKeyParams;
-          const {
-            d
-          } = privateKeyParams;
-          return publicKey.elliptic.ecdsa.sign(oid, hashAlgo, data, Q, d, hashed);
-        }
-
-      case enums.publicKey.eddsa:
-        {
-          const {
-            oid,
-            Q
-          } = publicKeyParams;
-          const {
-            seed
-          } = privateKeyParams;
-          return publicKey.elliptic.eddsa.sign(oid, hashAlgo, data, Q, seed, hashed);
-        }
-
-      default:
-        throw new Error('Invalid signature algorithm.');
-    }
-  }
-
-  var signature = /*#__PURE__*/Object.freeze({
-    __proto__: null,
-    parseSignatureParams: parseSignatureParams,
-    verify: verify$4,
-    sign: sign$4
-  }); // OpenPGP.js - An OpenPGP implementation in javascript
-
   class ECDHSymmetricKey {
     constructor(data) {
       if (typeof data === 'undefined') {
@@ -15095,12 +14353,15 @@ var openpgp = function (exports) {
    * @param {Object} privateKeyParams - Algorithm-specific private key parameters
    * @param {Object} sessionKeyParams - Encrypted session key parameters
    * @param {Uint8Array} fingerprint - Recipient fingerprint
+   * @param {Uint8Array} [randomPayload] - Data to return on decryption error, instead of throwing
+   *                                    (needed for constant-time processing in RSA and ElGamal)
    * @returns {Promise<Uint8Array>} Decrypted data.
+   * @throws {Error} on sensitive decryption error, unless `randomPayload` is given
    * @async
    */
 
 
-  async function publicKeyDecrypt(algo, publicKeyParams, privateKeyParams, sessionKeyParams, fingerprint) {
+  async function publicKeyDecrypt(algo, publicKeyParams, privateKeyParams, sessionKeyParams, fingerprint, randomPayload) {
     switch (algo) {
       case enums.publicKey.rsaEncryptSign:
       case enums.publicKey.rsaEncrypt:
@@ -15118,7 +14379,7 @@ var openpgp = function (exports) {
             q,
             u
           } = privateKeyParams;
-          return publicKey.rsa.decrypt(c, n, e, d, p, q, u);
+          return publicKey.rsa.decrypt(c, n, e, d, p, q, u, randomPayload);
         }
 
       case enums.publicKey.elgamal:
@@ -15129,7 +14390,7 @@ var openpgp = function (exports) {
           } = sessionKeyParams;
           const p = publicKeyParams.p;
           const x = privateKeyParams.x;
-          return publicKey.elgamal.decrypt(c1, c2, p, x);
+          return publicKey.elgamal.decrypt(c1, c2, p, x, randomPayload);
         }
 
       case enums.publicKey.ecdh:
@@ -15531,7 +14792,7 @@ var openpgp = function (exports) {
    */
 
 
-  async function validateParams$6(algo, publicParams, privateParams) {
+  async function validateParams$4(algo, publicParams, privateParams) {
     if (!publicParams || !privateParams) {
       throw new Error('Missing key parameters');
     }
@@ -15621,7 +14882,10 @@ var openpgp = function (exports) {
 
 
   async function getPrefixRandom(algo) {
-    const prefixrandom = await getRandomBytes(cipher[algo].blockSize);
+    const {
+      blockSize
+    } = getCipher(algo);
+    const prefixrandom = await getRandomBytes(blockSize);
     const repeat = new Uint8Array([prefixrandom[prefixrandom.length - 2], prefixrandom[prefixrandom.length - 1]]);
     return util.concat([prefixrandom, repeat]);
   }
@@ -15635,7 +14899,34 @@ var openpgp = function (exports) {
 
 
   function generateSessionKey(algo) {
-    return getRandomBytes(cipher[algo].keySize);
+    const {
+      keySize
+    } = getCipher(algo);
+    return getRandomBytes(keySize);
+  }
+  /**
+   * Get implementation of the given AEAD mode
+   * @param {enums.aead} algo
+   * @returns {Object}
+   * @throws {Error} on invalid algo
+   */
+
+
+  function getAEADMode(algo) {
+    const algoName = enums.read(enums.aead, algo);
+    return mode[algoName];
+  }
+  /**
+   * Get implementation of the given cipher
+   * @param {enums.symmetric} algo
+   * @returns {Object}
+   * @throws {Error} on invalid algo
+   */
+
+
+  function getCipher(algo) {
+    const algoName = enums.read(enums.symmetric, algo);
+    return cipher[algoName];
   }
 
   var crypto$1 = /*#__PURE__*/Object.freeze({
@@ -15647,9 +14938,864 @@ var openpgp = function (exports) {
     parseEncSessionKeyParams: parseEncSessionKeyParams,
     serializeParams: serializeParams,
     generateParams: generateParams,
-    validateParams: validateParams$6,
+    validateParams: validateParams$4,
     getPrefixRandom: getPrefixRandom,
-    generateSessionKey: generateSessionKey
+    generateSessionKey: generateSessionKey,
+    getAEADMode: getAEADMode,
+    getCipher: getCipher
+  }); // OpenPGP.js - An OpenPGP implementation in javascript
+
+  const webCrypto$8 = util.getWebCrypto();
+  const nodeCrypto$9 = util.getNodeCrypto();
+  /**
+   * Validate ECDH parameters
+   * @param {module:type/oid} oid - Elliptic curve object identifier
+   * @param {Uint8Array} Q - ECDH public point
+   * @param {Uint8Array} d - ECDH secret scalar
+   * @returns {Promise<Boolean>} Whether params are valid.
+   * @async
+   */
+
+  async function validateParams$5(oid, Q, d) {
+    return validateStandardParams(enums.publicKey.ecdh, oid, Q, d);
+  } // Build Param for ECDH algorithm (RFC 6637)
+
+
+  function buildEcdhParam(public_algo, oid, kdfParams, fingerprint) {
+    return util.concatUint8Array([oid.write(), new Uint8Array([public_algo]), kdfParams.write(), util.stringToUint8Array('Anonymous Sender    '), fingerprint.subarray(0, 20)]);
+  } // Key Derivation Function (RFC 6637)
+
+
+  async function kdf(hashAlgo, X, length, param, stripLeading = false, stripTrailing = false) {
+    // Note: X is little endian for Curve25519, big-endian for all others.
+    // This is not ideal, but the RFC's are unclear
+    // https://tools.ietf.org/html/draft-ietf-openpgp-rfc4880bis-02#appendix-B
+    let i;
+
+    if (stripLeading) {
+      // Work around old go crypto bug
+      for (i = 0; i < X.length && X[i] === 0; i++);
+
+      X = X.subarray(i);
+    }
+
+    if (stripTrailing) {
+      // Work around old OpenPGP.js bug
+      for (i = X.length - 1; i >= 0 && X[i] === 0; i--);
+
+      X = X.subarray(0, i + 1);
+    }
+
+    const digest = await hash.digest(hashAlgo, util.concatUint8Array([new Uint8Array([0, 0, 0, 1]), X, param]));
+    return digest.subarray(0, length);
+  }
+  /**
+   * Generate ECDHE ephemeral key and secret from public key
+   *
+   * @param {Curve} curve - Elliptic curve object
+   * @param {Uint8Array} Q - Recipient public key
+   * @returns {Promise<{publicKey: Uint8Array, sharedKey: Uint8Array}>}
+   * @async
+   */
+
+
+  async function genPublicEphemeralKey(curve, Q) {
+    switch (curve.type) {
+      case 'curve25519':
+        {
+          const d = await getRandomBytes(32);
+          const {
+            secretKey,
+            sharedKey
+          } = await genPrivateEphemeralKey(curve, Q, null, d);
+          let {
+            publicKey
+          } = naclFastLight.box.keyPair.fromSecretKey(secretKey);
+          publicKey = util.concatUint8Array([new Uint8Array([0x40]), publicKey]);
+          return {
+            publicKey,
+            sharedKey
+          }; // Note: sharedKey is little-endian here, unlike below
+        }
+
+      case 'web':
+        if (curve.web && util.getWebCrypto()) {
+          try {
+            return await webPublicEphemeralKey(curve, Q);
+          } catch (err) {
+            util.printDebugError(err);
+          }
+        }
+
+        break;
+
+      case 'node':
+        return nodePublicEphemeralKey(curve, Q);
+    }
+
+    return ellipticPublicEphemeralKey(curve, Q);
+  }
+  /**
+   * Encrypt and wrap a session key
+   *
+   * @param {module:type/oid} oid - Elliptic curve object identifier
+   * @param {module:type/kdf_params} kdfParams - KDF params including cipher and algorithm to use
+   * @param {Uint8Array} data - Unpadded session key data
+   * @param {Uint8Array} Q - Recipient public key
+   * @param {Uint8Array} fingerprint - Recipient fingerprint
+   * @returns {Promise<{publicKey: Uint8Array, wrappedKey: Uint8Array}>}
+   * @async
+   */
+
+
+  async function encrypt$3(oid, kdfParams, data, Q, fingerprint) {
+    const m = encode$1(data);
+    const curve = new Curve(oid);
+    const {
+      publicKey,
+      sharedKey
+    } = await genPublicEphemeralKey(curve, Q);
+    const param = buildEcdhParam(enums.publicKey.ecdh, oid, kdfParams, fingerprint);
+    const {
+      keySize
+    } = getCipher(kdfParams.cipher);
+    const Z = await kdf(kdfParams.hash, sharedKey, keySize, param);
+    const wrappedKey = wrap(Z, m);
+    return {
+      publicKey,
+      wrappedKey
+    };
+  }
+  /**
+   * Generate ECDHE secret from private key and public part of ephemeral key
+   *
+   * @param {Curve} curve - Elliptic curve object
+   * @param {Uint8Array} V - Public part of ephemeral key
+   * @param {Uint8Array} Q - Recipient public key
+   * @param {Uint8Array} d - Recipient private key
+   * @returns {Promise<{secretKey: Uint8Array, sharedKey: Uint8Array}>}
+   * @async
+   */
+
+
+  async function genPrivateEphemeralKey(curve, V, Q, d) {
+    if (d.length !== curve.payloadSize) {
+      const privateKey = new Uint8Array(curve.payloadSize);
+      privateKey.set(d, curve.payloadSize - d.length);
+      d = privateKey;
+    }
+
+    switch (curve.type) {
+      case 'curve25519':
+        {
+          const secretKey = d.slice().reverse();
+          const sharedKey = naclFastLight.scalarMult(secretKey, V.subarray(1));
+          return {
+            secretKey,
+            sharedKey
+          }; // Note: sharedKey is little-endian here, unlike below
+        }
+
+      case 'web':
+        if (curve.web && util.getWebCrypto()) {
+          try {
+            return await webPrivateEphemeralKey(curve, V, Q, d);
+          } catch (err) {
+            util.printDebugError(err);
+          }
+        }
+
+        break;
+
+      case 'node':
+        return nodePrivateEphemeralKey(curve, V, d);
+    }
+
+    return ellipticPrivateEphemeralKey(curve, V, d);
+  }
+  /**
+   * Decrypt and unwrap the value derived from session key
+   *
+   * @param {module:type/oid} oid - Elliptic curve object identifier
+   * @param {module:type/kdf_params} kdfParams - KDF params including cipher and algorithm to use
+   * @param {Uint8Array} V - Public part of ephemeral key
+   * @param {Uint8Array} C - Encrypted and wrapped value derived from session key
+   * @param {Uint8Array} Q - Recipient public key
+   * @param {Uint8Array} d - Recipient private key
+   * @param {Uint8Array} fingerprint - Recipient fingerprint
+   * @returns {Promise<Uint8Array>} Value derived from session key.
+   * @async
+   */
+
+
+  async function decrypt$3(oid, kdfParams, V, C, Q, d, fingerprint) {
+    const curve = new Curve(oid);
+    const {
+      sharedKey
+    } = await genPrivateEphemeralKey(curve, V, Q, d);
+    const param = buildEcdhParam(enums.publicKey.ecdh, oid, kdfParams, fingerprint);
+    const {
+      keySize
+    } = getCipher(kdfParams.cipher);
+    let err;
+
+    for (let i = 0; i < 3; i++) {
+      try {
+        // Work around old go crypto bug and old OpenPGP.js bug, respectively.
+        const Z = await kdf(kdfParams.hash, sharedKey, keySize, param, i === 1, i === 2);
+        return decode$1(unwrap(Z, C));
+      } catch (e) {
+        err = e;
+      }
+    }
+
+    throw err;
+  }
+  /**
+   * Generate ECDHE secret from private key and public part of ephemeral key using webCrypto
+   *
+   * @param {Curve} curve - Elliptic curve object
+   * @param {Uint8Array} V - Public part of ephemeral key
+   * @param {Uint8Array} Q - Recipient public key
+   * @param {Uint8Array} d - Recipient private key
+   * @returns {Promise<{secretKey: Uint8Array, sharedKey: Uint8Array}>}
+   * @async
+   */
+
+
+  async function webPrivateEphemeralKey(curve, V, Q, d) {
+    const recipient = privateToJWK$1(curve.payloadSize, curve.web.web, Q, d);
+    let privateKey = webCrypto$8.importKey('jwk', recipient, {
+      name: 'ECDH',
+      namedCurve: curve.web.web
+    }, true, ['deriveKey', 'deriveBits']);
+    const jwk = rawPublicToJWK(curve.payloadSize, curve.web.web, V);
+    let sender = webCrypto$8.importKey('jwk', jwk, {
+      name: 'ECDH',
+      namedCurve: curve.web.web
+    }, true, []);
+    [privateKey, sender] = await Promise.all([privateKey, sender]);
+    let S = webCrypto$8.deriveBits({
+      name: 'ECDH',
+      namedCurve: curve.web.web,
+      public: sender
+    }, privateKey, curve.web.sharedSize);
+    let secret = webCrypto$8.exportKey('jwk', privateKey);
+    [S, secret] = await Promise.all([S, secret]);
+    const sharedKey = new Uint8Array(S);
+    const secretKey = b64ToUint8Array(secret.d);
+    return {
+      secretKey,
+      sharedKey
+    };
+  }
+  /**
+   * Generate ECDHE ephemeral key and secret from public key using webCrypto
+   *
+   * @param {Curve} curve - Elliptic curve object
+   * @param {Uint8Array} Q - Recipient public key
+   * @returns {Promise<{publicKey: Uint8Array, sharedKey: Uint8Array}>}
+   * @async
+   */
+
+
+  async function webPublicEphemeralKey(curve, Q) {
+    const jwk = rawPublicToJWK(curve.payloadSize, curve.web.web, Q);
+    let keyPair = webCrypto$8.generateKey({
+      name: 'ECDH',
+      namedCurve: curve.web.web
+    }, true, ['deriveKey', 'deriveBits']);
+    let recipient = webCrypto$8.importKey('jwk', jwk, {
+      name: 'ECDH',
+      namedCurve: curve.web.web
+    }, false, []);
+    [keyPair, recipient] = await Promise.all([keyPair, recipient]);
+    let s = webCrypto$8.deriveBits({
+      name: 'ECDH',
+      namedCurve: curve.web.web,
+      public: recipient
+    }, keyPair.privateKey, curve.web.sharedSize);
+    let p = webCrypto$8.exportKey('jwk', keyPair.publicKey);
+    [s, p] = await Promise.all([s, p]);
+    const sharedKey = new Uint8Array(s);
+    const publicKey = new Uint8Array(jwkToRawPublic(p));
+    return {
+      publicKey,
+      sharedKey
+    };
+  }
+  /**
+   * Generate ECDHE secret from private key and public part of ephemeral key using indutny/elliptic
+   *
+   * @param {Curve} curve - Elliptic curve object
+   * @param {Uint8Array} V - Public part of ephemeral key
+   * @param {Uint8Array} d - Recipient private key
+   * @returns {Promise<{secretKey: Uint8Array, sharedKey: Uint8Array}>}
+   * @async
+   */
+
+
+  async function ellipticPrivateEphemeralKey(curve, V, d) {
+    const indutnyCurve = await getIndutnyCurve(curve.name);
+    V = keyFromPublic(indutnyCurve, V);
+    d = keyFromPrivate(indutnyCurve, d);
+    const secretKey = new Uint8Array(d.getPrivate());
+    const S = d.derive(V.getPublic());
+    const len = indutnyCurve.curve.p.byteLength();
+    const sharedKey = S.toArrayLike(Uint8Array, 'be', len);
+    return {
+      secretKey,
+      sharedKey
+    };
+  }
+  /**
+   * Generate ECDHE ephemeral key and secret from public key using indutny/elliptic
+   *
+   * @param {Curve} curve - Elliptic curve object
+   * @param {Uint8Array} Q - Recipient public key
+   * @returns {Promise<{publicKey: Uint8Array, sharedKey: Uint8Array}>}
+   * @async
+   */
+
+
+  async function ellipticPublicEphemeralKey(curve, Q) {
+    const indutnyCurve = await getIndutnyCurve(curve.name);
+    const v = await curve.genKeyPair();
+    Q = keyFromPublic(indutnyCurve, Q);
+    const V = keyFromPrivate(indutnyCurve, v.privateKey);
+    const publicKey = v.publicKey;
+    const S = V.derive(Q.getPublic());
+    const len = indutnyCurve.curve.p.byteLength();
+    const sharedKey = S.toArrayLike(Uint8Array, 'be', len);
+    return {
+      publicKey,
+      sharedKey
+    };
+  }
+  /**
+   * Generate ECDHE secret from private key and public part of ephemeral key using nodeCrypto
+   *
+   * @param {Curve} curve - Elliptic curve object
+   * @param {Uint8Array} V - Public part of ephemeral key
+   * @param {Uint8Array} d - Recipient private key
+   * @returns {Promise<{secretKey: Uint8Array, sharedKey: Uint8Array}>}
+   * @async
+   */
+
+
+  async function nodePrivateEphemeralKey(curve, V, d) {
+    const recipient = nodeCrypto$9.createECDH(curve.node.node);
+    recipient.setPrivateKey(d);
+    const sharedKey = new Uint8Array(recipient.computeSecret(V));
+    const secretKey = new Uint8Array(recipient.getPrivateKey());
+    return {
+      secretKey,
+      sharedKey
+    };
+  }
+  /**
+   * Generate ECDHE ephemeral key and secret from public key using nodeCrypto
+   *
+   * @param {Curve} curve - Elliptic curve object
+   * @param {Uint8Array} Q - Recipient public key
+   * @returns {Promise<{publicKey: Uint8Array, sharedKey: Uint8Array}>}
+   * @async
+   */
+
+
+  async function nodePublicEphemeralKey(curve, Q) {
+    const sender = nodeCrypto$9.createECDH(curve.node.node);
+    sender.generateKeys();
+    const sharedKey = new Uint8Array(sender.computeSecret(Q));
+    const publicKey = new Uint8Array(sender.getPublicKey());
+    return {
+      publicKey,
+      sharedKey
+    };
+  }
+
+  var ecdh = /*#__PURE__*/Object.freeze({
+    __proto__: null,
+    validateParams: validateParams$5,
+    encrypt: encrypt$3,
+    decrypt: decrypt$3
+  }); // OpenPGP.js - An OpenPGP implementation in javascript
+
+  var elliptic = /*#__PURE__*/Object.freeze({
+    __proto__: null,
+    Curve: Curve,
+    ecdh: ecdh,
+    ecdsa: ecdsa,
+    eddsa: eddsa,
+    generate: generate$1,
+    getPreferredHashAlgo: getPreferredHashAlgo
+  }); // GPG4Browsers - An OpenPGP implementation in javascript
+
+  /*
+    TODO regarding the hash function, read:
+     https://tools.ietf.org/html/rfc4880#section-13.6
+     https://tools.ietf.org/html/rfc4880#section-14
+  */
+
+  /**
+   * DSA Sign function
+   * @param {Integer} hashAlgo
+   * @param {Uint8Array} hashed
+   * @param {Uint8Array} g
+   * @param {Uint8Array} p
+   * @param {Uint8Array} q
+   * @param {Uint8Array} x
+   * @returns {Promise<{ r: Uint8Array, s: Uint8Array }>}
+   * @async
+   */
+
+  async function sign$3(hashAlgo, hashed, g, p, q, x) {
+    const BigInteger = await util.getBigInteger();
+    const one = new BigInteger(1);
+    p = new BigInteger(p);
+    q = new BigInteger(q);
+    g = new BigInteger(g);
+    x = new BigInteger(x);
+    let k;
+    let r;
+    let s;
+    let t;
+    g = g.mod(p);
+    x = x.mod(q); // If the output size of the chosen hash is larger than the number of
+    // bits of q, the hash result is truncated to fit by taking the number
+    // of leftmost bits equal to the number of bits of q.  This (possibly
+    // truncated) hash function result is treated as a number and used
+    // directly in the DSA signature algorithm.
+
+    const h = new BigInteger(hashed.subarray(0, q.byteLength())).mod(q); // FIPS-186-4, section 4.6:
+    // The values of r and s shall be checked to determine if r = 0 or s = 0.
+    // If either r = 0 or s = 0, a new value of k shall be generated, and the
+    // signature shall be recalculated. It is extremely unlikely that r = 0
+    // or s = 0 if signatures are generated properly.
+
+    while (true) {
+      // See Appendix B here: https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-4.pdf
+      k = await getRandomBigInteger(one, q); // returns in [1, q-1]
+
+      r = g.modExp(k, p).imod(q); // (g**k mod p) mod q
+
+      if (r.isZero()) {
+        continue;
+      }
+
+      const xr = x.mul(r).imod(q);
+      t = h.add(xr).imod(q); // H(m) + x*r mod q
+
+      s = k.modInv(q).imul(t).imod(q); // k**-1 * (H(m) + x*r) mod q
+
+      if (s.isZero()) {
+        continue;
+      }
+
+      break;
+    }
+
+    return {
+      r: r.toUint8Array('be', q.byteLength()),
+      s: s.toUint8Array('be', q.byteLength())
+    };
+  }
+  /**
+   * DSA Verify function
+   * @param {Integer} hashAlgo
+   * @param {Uint8Array} r
+   * @param {Uint8Array} s
+   * @param {Uint8Array} hashed
+   * @param {Uint8Array} g
+   * @param {Uint8Array} p
+   * @param {Uint8Array} q
+   * @param {Uint8Array} y
+   * @returns {boolean}
+   * @async
+   */
+
+
+  async function verify$3(hashAlgo, r, s, hashed, g, p, q, y) {
+    const BigInteger = await util.getBigInteger();
+    const zero = new BigInteger(0);
+    r = new BigInteger(r);
+    s = new BigInteger(s);
+    p = new BigInteger(p);
+    q = new BigInteger(q);
+    g = new BigInteger(g);
+    y = new BigInteger(y);
+
+    if (r.lte(zero) || r.gte(q) || s.lte(zero) || s.gte(q)) {
+      util.printDebug('invalid DSA Signature');
+      return false;
+    }
+
+    const h = new BigInteger(hashed.subarray(0, q.byteLength())).imod(q);
+    const w = s.modInv(q); // s**-1 mod q
+
+    if (w.isZero()) {
+      util.printDebug('invalid DSA Signature');
+      return false;
+    }
+
+    g = g.mod(p);
+    y = y.mod(p);
+    const u1 = h.mul(w).imod(q); // H(m) * w mod q
+
+    const u2 = r.mul(w).imod(q); // r * w mod q
+
+    const t1 = g.modExp(u1, p); // g**u1 mod p
+
+    const t2 = y.modExp(u2, p); // y**u2 mod p
+
+    const v = t1.mul(t2).imod(p).imod(q); // (g**u1 * y**u2 mod p) mod q
+
+    return v.equal(r);
+  }
+  /**
+   * Validate DSA parameters
+   * @param {Uint8Array} p - DSA prime
+   * @param {Uint8Array} q - DSA group order
+   * @param {Uint8Array} g - DSA sub-group generator
+   * @param {Uint8Array} y - DSA public key
+   * @param {Uint8Array} x - DSA private key
+   * @returns {Promise<Boolean>} Whether params are valid.
+   * @async
+   */
+
+
+  async function validateParams$6(p, q, g, y, x) {
+    const BigInteger = await util.getBigInteger();
+    p = new BigInteger(p);
+    q = new BigInteger(q);
+    g = new BigInteger(g);
+    y = new BigInteger(y);
+    const one = new BigInteger(1); // Check that 1 < g < p
+
+    if (g.lte(one) || g.gte(p)) {
+      return false;
+    }
+    /**
+     * Check that subgroup order q divides p-1
+     */
+
+
+    if (!p.dec().mod(q).isZero()) {
+      return false;
+    }
+    /**
+     * g has order q
+     * Check that g ** q = 1 mod p
+     */
+
+
+    if (!g.modExp(q, p).isOne()) {
+      return false;
+    }
+    /**
+     * Check q is large and probably prime (we mainly want to avoid small factors)
+     */
+
+
+    const qSize = new BigInteger(q.bitLength());
+    const n150 = new BigInteger(150);
+
+    if (qSize.lt(n150) || !(await isProbablePrime(q, null, 32))) {
+      return false;
+    }
+    /**
+     * Re-derive public key y' = g ** x mod p
+     * Expect y == y'
+     *
+     * Blinded exponentiation computes g**{rq + x} to compare to y
+     */
+
+
+    x = new BigInteger(x);
+    const two = new BigInteger(2);
+    const r = await getRandomBigInteger(two.leftShift(qSize.dec()), two.leftShift(qSize)); // draw r of same size as q
+
+    const rqx = q.mul(r).add(x);
+
+    if (!y.equal(g.modExp(rqx, p))) {
+      return false;
+    }
+
+    return true;
+  }
+
+  var dsa = /*#__PURE__*/Object.freeze({
+    __proto__: null,
+    sign: sign$3,
+    verify: verify$3,
+    validateParams: validateParams$6
+  });
+  /**
+   * @fileoverview Asymmetric cryptography functions
+   * @module crypto/public_key
+   * @private
+   */
+
+  var publicKey = {
+    /** @see module:crypto/public_key/rsa */
+    rsa: rsa,
+
+    /** @see module:crypto/public_key/elgamal */
+    elgamal: elgamal,
+
+    /** @see module:crypto/public_key/elliptic */
+    elliptic: elliptic,
+
+    /** @see module:crypto/public_key/dsa */
+    dsa: dsa,
+
+    /** @see tweetnacl */
+    nacl: naclFastLight
+  };
+  /**
+   * @fileoverview Provides functions for asymmetric signing and signature verification
+   * @module crypto/signature
+   * @private
+   */
+
+  /**
+   * Parse signature in binary form to get the parameters.
+   * The returned values are only padded for EdDSA, since in the other cases their expected length
+   * depends on the key params, hence we delegate the padding to the signature verification function.
+   * See {@link https://tools.ietf.org/html/rfc4880#section-9.1|RFC 4880 9.1}
+   * See {@link https://tools.ietf.org/html/rfc4880#section-5.2.2|RFC 4880 5.2.2.}
+   * @param {module:enums.publicKey} algo - Public key algorithm
+   * @param {Uint8Array} signature - Data for which the signature was created
+   * @returns {Promise<Object>} True if signature is valid.
+   * @async
+   */
+
+  function parseSignatureParams(algo, signature) {
+    let read = 0;
+
+    switch (algo) {
+      // Algorithm-Specific Fields for RSA signatures:
+      // -  MPI of RSA signature value m**d mod n.
+      case enums.publicKey.rsaEncryptSign:
+      case enums.publicKey.rsaEncrypt:
+      case enums.publicKey.rsaSign:
+        {
+          const s = util.readMPI(signature.subarray(read)); // The signature needs to be the same length as the public key modulo n.
+          // We pad s on signature verification, where we have access to n.
+
+          return {
+            s
+          };
+        }
+      // Algorithm-Specific Fields for DSA or ECDSA signatures:
+      // -  MPI of DSA or ECDSA value r.
+      // -  MPI of DSA or ECDSA value s.
+
+      case enums.publicKey.dsa:
+      case enums.publicKey.ecdsa:
+        {
+          const r = util.readMPI(signature.subarray(read));
+          read += r.length + 2;
+          const s = util.readMPI(signature.subarray(read));
+          return {
+            r,
+            s
+          };
+        }
+      // Algorithm-Specific Fields for EdDSA signatures:
+      // -  MPI of an EC point r.
+      // -  EdDSA value s, in MPI, in the little endian representation
+
+      case enums.publicKey.eddsa:
+        {
+          // When parsing little-endian MPI data, we always need to left-pad it, as done with big-endian values:
+          // https://www.ietf.org/archive/id/draft-ietf-openpgp-rfc4880bis-10.html#section-3.2-9
+          let r = util.readMPI(signature.subarray(read));
+          read += r.length + 2;
+          r = util.leftPad(r, 32);
+          let s = util.readMPI(signature.subarray(read));
+          s = util.leftPad(s, 32);
+          return {
+            r,
+            s
+          };
+        }
+
+      default:
+        throw new Error('Invalid signature algorithm.');
+    }
+  }
+  /**
+   * Verifies the signature provided for data using specified algorithms and public key parameters.
+   * See {@link https://tools.ietf.org/html/rfc4880#section-9.1|RFC 4880 9.1}
+   * and {@link https://tools.ietf.org/html/rfc4880#section-9.4|RFC 4880 9.4}
+   * for public key and hash algorithms.
+   * @param {module:enums.publicKey} algo - Public key algorithm
+   * @param {module:enums.hash} hashAlgo - Hash algorithm
+   * @param {Object} signature - Named algorithm-specific signature parameters
+   * @param {Object} publicParams - Algorithm-specific public key parameters
+   * @param {Uint8Array} data - Data for which the signature was created
+   * @param {Uint8Array} hashed - The hashed data
+   * @returns {Promise<Boolean>} True if signature is valid.
+   * @async
+   */
+
+
+  async function verify$4(algo, hashAlgo, signature, publicParams, data, hashed) {
+    switch (algo) {
+      case enums.publicKey.rsaEncryptSign:
+      case enums.publicKey.rsaEncrypt:
+      case enums.publicKey.rsaSign:
+        {
+          const {
+            n,
+            e
+          } = publicParams;
+          const s = util.leftPad(signature.s, n.length); // padding needed for webcrypto and node crypto
+
+          return publicKey.rsa.verify(hashAlgo, data, s, n, e, hashed);
+        }
+
+      case enums.publicKey.dsa:
+        {
+          const {
+            g,
+            p,
+            q,
+            y
+          } = publicParams;
+          const {
+            r,
+            s
+          } = signature; // no need to pad, since we always handle them as BigIntegers
+
+          return publicKey.dsa.verify(hashAlgo, r, s, hashed, g, p, q, y);
+        }
+
+      case enums.publicKey.ecdsa:
+        {
+          const {
+            oid,
+            Q
+          } = publicParams;
+          const curveSize = new publicKey.elliptic.Curve(oid).payloadSize; // padding needed for webcrypto
+
+          const r = util.leftPad(signature.r, curveSize);
+          const s = util.leftPad(signature.s, curveSize);
+          return publicKey.elliptic.ecdsa.verify(oid, hashAlgo, {
+            r,
+            s
+          }, data, Q, hashed);
+        }
+
+      case enums.publicKey.eddsa:
+        {
+          const {
+            oid,
+            Q
+          } = publicParams; // signature already padded on parsing
+
+          return publicKey.elliptic.eddsa.verify(oid, hashAlgo, signature, data, Q, hashed);
+        }
+
+      default:
+        throw new Error('Invalid signature algorithm.');
+    }
+  }
+  /**
+   * Creates a signature on data using specified algorithms and private key parameters.
+   * See {@link https://tools.ietf.org/html/rfc4880#section-9.1|RFC 4880 9.1}
+   * and {@link https://tools.ietf.org/html/rfc4880#section-9.4|RFC 4880 9.4}
+   * for public key and hash algorithms.
+   * @param {module:enums.publicKey} algo - Public key algorithm
+   * @param {module:enums.hash} hashAlgo - Hash algorithm
+   * @param {Object} publicKeyParams - Algorithm-specific public and private key parameters
+   * @param {Object} privateKeyParams - Algorithm-specific public and private key parameters
+   * @param {Uint8Array} data - Data to be signed
+   * @param {Uint8Array} hashed - The hashed data
+   * @returns {Promise<Object>} Signature                      Object containing named signature parameters.
+   * @async
+   */
+
+
+  async function sign$4(algo, hashAlgo, publicKeyParams, privateKeyParams, data, hashed) {
+    if (!publicKeyParams || !privateKeyParams) {
+      throw new Error('Missing key parameters');
+    }
+
+    switch (algo) {
+      case enums.publicKey.rsaEncryptSign:
+      case enums.publicKey.rsaEncrypt:
+      case enums.publicKey.rsaSign:
+        {
+          const {
+            n,
+            e
+          } = publicKeyParams;
+          const {
+            d,
+            p,
+            q,
+            u
+          } = privateKeyParams;
+          const s = await publicKey.rsa.sign(hashAlgo, data, n, e, d, p, q, u, hashed);
+          return {
+            s
+          };
+        }
+
+      case enums.publicKey.dsa:
+        {
+          const {
+            g,
+            p,
+            q
+          } = publicKeyParams;
+          const {
+            x
+          } = privateKeyParams;
+          return publicKey.dsa.sign(hashAlgo, hashed, g, p, q, x);
+        }
+
+      case enums.publicKey.elgamal:
+        {
+          throw new Error('Signing with Elgamal is not defined in the OpenPGP standard.');
+        }
+
+      case enums.publicKey.ecdsa:
+        {
+          const {
+            oid,
+            Q
+          } = publicKeyParams;
+          const {
+            d
+          } = privateKeyParams;
+          return publicKey.elliptic.ecdsa.sign(oid, hashAlgo, data, Q, d, hashed);
+        }
+
+      case enums.publicKey.eddsa:
+        {
+          const {
+            oid,
+            Q
+          } = publicKeyParams;
+          const {
+            seed
+          } = privateKeyParams;
+          return publicKey.elliptic.eddsa.sign(oid, hashAlgo, data, Q, seed, hashed);
+        }
+
+      default:
+        throw new Error('Invalid signature algorithm.');
+    }
+  }
+
+  var signature = /*#__PURE__*/Object.freeze({
+    __proto__: null,
+    parseSignatureParams: parseSignatureParams,
+    verify: verify$4,
+    sign: sign$4
   });
   /**
    * @fileoverview Provides access to all cryptographic primitives used in OpenPGP.js
@@ -24084,7 +24230,7 @@ var openpgp = function (exports) {
 
 
     constructor(date = new Date()) {
-      this.format = 'utf8'; // default format for literal data packets
+      this.format = enums.literal.utf8; // default format for literal data packets
 
       this.date = util.normalizeDate(date);
       this.text = null; // textual data representation
@@ -24097,11 +24243,11 @@ var openpgp = function (exports) {
      * Set the packet data to a javascript native string, end of line
      * will be normalized to \r\n and by default text is converted to UTF8
      * @param {String | ReadableStream<String>} text - Any native javascript string
-     * @param {utf8|binary|text|mime} [format] - The format of the string of bytes
+     * @param {enums.literal} [format] - The format of the string of bytes
      */
 
 
-    setText(text, format = 'utf8') {
+    setText(text, format = enums.literal.utf8) {
       this.format = format;
       this.text = text;
       this.data = null;
@@ -24125,7 +24271,7 @@ var openpgp = function (exports) {
     /**
      * Set the packet data to value represented by the provided string of bytes.
      * @param {Uint8Array | ReadableStream<Uint8Array>} bytes - The string of bytes
-     * @param {utf8|binary|text|mime} format - The format of the string of bytes
+     * @param {enums.literal} format - The format of the string of bytes
      */
 
 
@@ -24183,7 +24329,8 @@ var openpgp = function (exports) {
     async read(bytes) {
       await parse(bytes, async reader => {
         // - A one-octet field that describes how the data is formatted.
-        const format = enums.read(enums.literal, await reader.readByte());
+        const format = await reader.readByte(); // enums.literal
+
         const filename_len = await reader.readByte();
         this.filename = util.decodeUTF8(await reader.readBytes(filename_len));
         this.date = util.readDate(await reader.readBytes(4));
@@ -24202,7 +24349,7 @@ var openpgp = function (exports) {
     writeHeader() {
       const filename = util.encodeUTF8(this.filename);
       const filename_length = new Uint8Array([filename.length]);
-      const format = new Uint8Array([enums.write(enums.literal, this.format)]);
+      const format = new Uint8Array([this.format]);
       const date = util.writeDate(this.date);
       return util.concatUint8Array([format, filename_length, filename, date]);
     }
@@ -24552,8 +24699,14 @@ var openpgp = function (exports) {
 
     constructor() {
       this.version = null;
+      /** @type {enums.signature} */
+
       this.signatureType = null;
+      /** @type {enums.hash} */
+
       this.hashAlgorithm = null;
+      /** @type {enums.publicKey} */
+
       this.publicKeyAlgorithm = null;
       this.signatureData = null;
       this.unhashedSubpackets = [];
@@ -24668,17 +24821,13 @@ var openpgp = function (exports) {
 
 
     async sign(key, data, date = new Date(), detached = false) {
-      const signatureType = enums.write(enums.signature, this.signatureType);
-      const publicKeyAlgorithm = enums.write(enums.publicKey, this.publicKeyAlgorithm);
-      const hashAlgorithm = enums.write(enums.hash, this.hashAlgorithm);
-
       if (key.version === 5) {
         this.version = 5;
       } else {
         this.version = 4;
       }
 
-      const arr = [new Uint8Array([this.version, signatureType, publicKeyAlgorithm, hashAlgorithm])];
+      const arr = [new Uint8Array([this.version, this.signatureType, this.publicKeyAlgorithm, this.hashAlgorithm])];
       this.created = util.normalizeDate(date);
       this.issuerKeyVersion = key.version;
       this.issuerFingerprint = key.getFingerprintBytes();
@@ -24686,11 +24835,11 @@ var openpgp = function (exports) {
 
       arr.push(this.writeHashedSubPackets());
       this.signatureData = util.concat(arr);
-      const toHash = this.toHash(signatureType, data, detached);
-      const hash = await this.hash(signatureType, data, toHash, detached);
+      const toHash = this.toHash(this.signatureType, data, detached);
+      const hash = await this.hash(this.signatureType, data, toHash, detached);
       this.signedHashValue = slice(clone(hash), 0, 2);
 
-      const signed = async () => mod.signature.sign(publicKeyAlgorithm, hashAlgorithm, key.publicParams, key.privateParams, toHash, await readToEnd(hash));
+      const signed = async () => mod.signature.sign(this.publicKeyAlgorithm, this.hashAlgorithm, key.publicParams, key.privateParams, toHash, await readToEnd(hash));
 
       if (util.isStream(hash)) {
         this.params = signed();
@@ -25196,9 +25345,8 @@ var openpgp = function (exports) {
     }
 
     async hash(signatureType, data, toHash, detached = false) {
-      const hashAlgorithm = enums.write(enums.hash, this.hashAlgorithm);
       if (!toHash) toHash = this.toHash(signatureType, data, detached);
-      return mod.hash.digest(hashAlgorithm, toHash);
+      return mod.hash.digest(this.hashAlgorithm, toHash);
     }
     /**
      * verifies the signature packet. Note: not all signature types are implemented
@@ -25215,14 +25363,11 @@ var openpgp = function (exports) {
 
 
     async verify(key, signatureType, data, date = new Date(), detached = false, config = defaultConfig) {
-      const publicKeyAlgorithm = enums.write(enums.publicKey, this.publicKeyAlgorithm);
-      const hashAlgorithm = enums.write(enums.hash, this.hashAlgorithm);
-
       if (!this.issuerKeyID.equals(key.getKeyID())) {
         throw new Error('Signature was not issued by the given public key');
       }
 
-      if (publicKeyAlgorithm !== enums.write(enums.publicKey, key.algorithm)) {
+      if (this.publicKeyAlgorithm !== key.algorithm) {
         throw new Error('Public key algorithm used to sign signature does not match issuer key algorithm.');
       }
 
@@ -25249,7 +25394,7 @@ var openpgp = function (exports) {
         }
 
         this.params = await this.params;
-        this[verified] = await mod.signature.verify(publicKeyAlgorithm, hashAlgorithm, this.params, key.publicParams, toHash, hash);
+        this[verified] = await mod.signature.verify(this.publicKeyAlgorithm, this.hashAlgorithm, this.params, key.publicParams, toHash, hash);
 
         if (!this[verified]) {
           throw new Error('Signature verification failed');
@@ -25266,12 +25411,12 @@ var openpgp = function (exports) {
         throw new Error('Signature is expired');
       }
 
-      if (config.rejectHashAlgorithms.has(hashAlgorithm)) {
-        throw new Error('Insecure hash algorithm: ' + enums.read(enums.hash, hashAlgorithm).toUpperCase());
+      if (config.rejectHashAlgorithms.has(this.hashAlgorithm)) {
+        throw new Error('Insecure hash algorithm: ' + enums.read(enums.hash, this.hashAlgorithm).toUpperCase());
       }
 
-      if (config.rejectMessageHashAlgorithms.has(hashAlgorithm) && [enums.signature.binary, enums.signature.text].includes(this.signatureType)) {
-        throw new Error('Insecure message hash algorithm: ' + enums.read(enums.hash, hashAlgorithm).toUpperCase());
+      if (config.rejectMessageHashAlgorithms.has(this.hashAlgorithm) && [enums.signature.binary, enums.signature.text].includes(this.signatureType)) {
+        throw new Error('Insecure message hash algorithm: ' + enums.read(enums.hash, this.hashAlgorithm).toUpperCase());
       }
 
       this.rawNotations.forEach(({
@@ -25358,18 +25503,21 @@ var openpgp = function (exports) {
        * A one-octet signature type.
        * Signature types are described in
        * {@link https://tools.ietf.org/html/rfc4880#section-5.2.1|RFC4880 Section 5.2.1}.
-       */
+       * @type {enums.signature}
+        */
 
       this.signatureType = null;
       /**
        * A one-octet number describing the hash algorithm used.
        * @see {@link https://tools.ietf.org/html/rfc4880#section-9.4|RFC4880 9.4}
+       * @type {enums.hash}
        */
 
       this.hashAlgorithm = null;
       /**
        * A one-octet number describing the public-key algorithm used.
        * @see {@link https://tools.ietf.org/html/rfc4880#section-9.1|RFC4880 9.1}
+       * @type {enums.publicKey}
        */
 
       this.publicKeyAlgorithm = null;
@@ -25425,7 +25573,7 @@ var openpgp = function (exports) {
 
 
     write() {
-      const start = new Uint8Array([VERSION, enums.write(enums.signature, this.signatureType), enums.write(enums.hash, this.hashAlgorithm), enums.write(enums.publicKey, this.publicKeyAlgorithm)]);
+      const start = new Uint8Array([VERSION, this.signatureType, this.hashAlgorithm, this.publicKeyAlgorithm]);
       const end = new Uint8Array([this.flags]);
       return util.concatUint8Array([start, this.issuerKeyID.write(), end]);
     }
@@ -25711,10 +25859,10 @@ var openpgp = function (exports) {
       this.packets = null;
       /**
        * Compression algorithm
-       * @type {compression}
+       * @type {enums.compression}
        */
 
-      this.algorithm = enums.read(enums.compression, config.preferredCompressionAlgorithm);
+      this.algorithm = config.preferredCompressionAlgorithm;
       /**
        * Compressed packet data
        * @type {Uint8Array | ReadableStream<Uint8Array>}
@@ -25737,7 +25885,7 @@ var openpgp = function (exports) {
     async read(bytes, config = defaultConfig) {
       await parse(bytes, async reader => {
         // One octet that gives the algorithm used to compress the packet.
-        this.algorithm = enums.read(enums.compression, await reader.readByte()); // Compressed data, which makes up the remainder of the packet.
+        this.algorithm = await reader.readByte(); // Compressed data, which makes up the remainder of the packet.
 
         this.compressed = reader.remainder();
         await this.decompress(config);
@@ -25754,7 +25902,7 @@ var openpgp = function (exports) {
         this.compress();
       }
 
-      return util.concat([new Uint8Array([enums.write(enums.compression, this.algorithm)]), this.compressed]);
+      return util.concat([new Uint8Array([this.algorithm]), this.compressed]);
     }
     /**
      * Decompression method for decompressing the compressed data
@@ -25764,11 +25912,14 @@ var openpgp = function (exports) {
 
 
     async decompress(config = defaultConfig) {
-      if (!decompress_fns[this.algorithm]) {
-        throw new Error(this.algorithm + ' decompression not supported');
+      const compressionName = enums.read(enums.compression, this.algorithm);
+      const decompressionFn = decompress_fns[compressionName];
+
+      if (!decompressionFn) {
+        throw new Error(`${compressionName} decompression not supported`);
       }
 
-      this.packets = await PacketList.fromBinary(decompress_fns[this.algorithm](this.compressed), allowedPackets, config);
+      this.packets = await PacketList.fromBinary(decompressionFn(this.compressed), allowedPackets, config);
     }
     /**
      * Compress the packet data (member decompressedData)
@@ -25776,11 +25927,14 @@ var openpgp = function (exports) {
 
 
     compress() {
-      if (!compress_fns[this.algorithm]) {
-        throw new Error(this.algorithm + ' compression not supported');
+      const compressionName = enums.read(enums.compression, this.algorithm);
+      const compressionFn = compress_fns[compressionName];
+
+      if (!compressionFn) {
+        throw new Error(`${compressionName} compression not supported`);
       }
 
-      this.compressed = compress_fns[this.algorithm](this.packets.write(), this.deflateLevel);
+      this.compressed = compressionFn(this.packets.write(), this.deflateLevel);
     }
 
   } //////////////////////////
@@ -25912,15 +26066,19 @@ var openpgp = function (exports) {
     }
     /**
      * Encrypt the payload in the packet.
-     * @param {String} sessionKeyAlgorithm - The selected symmetric encryption algorithm to be used e.g. 'aes128'
+     * @param {enums.symmetric} sessionKeyAlgorithm - The symmetric encryption algorithm to use
      * @param {Uint8Array} key - The key of cipher blocksize length to be used
      * @param {Object} [config] - Full configuration, defaults to openpgp.config
      * @returns {Promise<Boolean>}
+     * @throws {Error} on encryption failure
      * @async
      */
 
 
     async encrypt(sessionKeyAlgorithm, key, config = defaultConfig) {
+      const {
+        blockSize
+      } = mod.getCipher(sessionKeyAlgorithm);
       let bytes = this.packets.write();
       if (isArrayStream(bytes)) bytes = await readToEnd(bytes);
       const prefix = await mod.getPrefixRandom(sessionKeyAlgorithm);
@@ -25929,23 +26087,27 @@ var openpgp = function (exports) {
       const tohash = util.concat([prefix, bytes, mdc]);
       const hash = await mod.hash.sha1(passiveClone(tohash));
       const plaintext = util.concat([tohash, hash]);
-      this.encrypted = await mod.mode.cfb.encrypt(sessionKeyAlgorithm, key, plaintext, new Uint8Array(mod.cipher[sessionKeyAlgorithm].blockSize), config);
+      this.encrypted = await mod.mode.cfb.encrypt(sessionKeyAlgorithm, key, plaintext, new Uint8Array(blockSize), config);
       return true;
     }
     /**
      * Decrypts the encrypted data contained in the packet.
-     * @param {String} sessionKeyAlgorithm - The selected symmetric encryption algorithm to be used e.g. 'aes128'
+     * @param {enums.symmetric} sessionKeyAlgorithm - The selected symmetric encryption algorithm to be used
      * @param {Uint8Array} key - The key of cipher blocksize length to be used
      * @param {Object} [config] - Full configuration, defaults to openpgp.config
      * @returns {Promise<Boolean>}
+     * @throws {Error} on decryption failure
      * @async
      */
 
 
     async decrypt(sessionKeyAlgorithm, key, config = defaultConfig) {
+      const {
+        blockSize
+      } = mod.getCipher(sessionKeyAlgorithm);
       let encrypted = clone(this.encrypted);
       if (isArrayStream(encrypted)) encrypted = await readToEnd(encrypted);
-      const decrypted = await mod.mode.cfb.decrypt(sessionKeyAlgorithm, key, encrypted, new Uint8Array(mod.cipher[sessionKeyAlgorithm].blockSize)); // there must be a modification detection code packet as the
+      const decrypted = await mod.mode.cfb.decrypt(sessionKeyAlgorithm, key, encrypted, new Uint8Array(blockSize)); // there must be a modification detection code packet as the
       // last packet and everything gets hashed except the hash itself
 
       const realHash = slice(passiveClone(decrypted), -20);
@@ -25957,7 +26119,7 @@ var openpgp = function (exports) {
 
         return new Uint8Array();
       });
-      const bytes = slice(tohash, mod.cipher[sessionKeyAlgorithm].blockSize + 2); // Remove random prefix
+      const bytes = slice(tohash, blockSize + 2); // Remove random prefix
 
       let packetbytes = slice(bytes, 0, -2); // Remove MDC packet
 
@@ -25993,9 +26155,12 @@ var openpgp = function (exports) {
 
     constructor() {
       this.version = VERSION$2;
-      this.cipherAlgo = null;
-      this.aeadAlgorithm = 'eax';
-      this.aeadAlgo = null;
+      /** @type {enums.symmetric} */
+
+      this.cipherAlgorithm = null;
+      /** @type {enums.aead} */
+
+      this.aeadAlgorithm = enums.aead.eax;
       this.chunkSizeByte = null;
       this.iv = null;
       this.encrypted = null;
@@ -26004,6 +26169,7 @@ var openpgp = function (exports) {
     /**
      * Parse an encrypted payload of bytes in the order: version, IV, ciphertext (see specification)
      * @param {Uint8Array | ReadableStream<Uint8Array>} bytes
+     * @throws {Error} on parsing failure
      */
 
 
@@ -26016,10 +26182,10 @@ var openpgp = function (exports) {
           throw new UnsupportedError(`Version ${version} of the AEAD-encrypted data packet is not supported.`);
         }
 
-        this.cipherAlgo = await reader.readByte();
-        this.aeadAlgo = await reader.readByte();
+        this.cipherAlgorithm = await reader.readByte();
+        this.aeadAlgorithm = await reader.readByte();
         this.chunkSizeByte = await reader.readByte();
-        const mode = mod.mode[enums.read(enums.aead, this.aeadAlgo)];
+        const mode = mod.getAEADMode(this.aeadAlgorithm);
         this.iv = await reader.readBytes(mode.ivLength);
         this.encrypted = reader.remainder();
       });
@@ -26031,11 +26197,11 @@ var openpgp = function (exports) {
 
 
     write() {
-      return util.concat([new Uint8Array([this.version, this.cipherAlgo, this.aeadAlgo, this.chunkSizeByte]), this.iv, this.encrypted]);
+      return util.concat([new Uint8Array([this.version, this.cipherAlgorithm, this.aeadAlgorithm, this.chunkSizeByte]), this.iv, this.encrypted]);
     }
     /**
      * Decrypt the encrypted payload.
-     * @param {String} sessionKeyAlgorithm - The session key's cipher algorithm e.g. 'aes128'
+     * @param {enums.symmetric} sessionKeyAlgorithm - The session key's cipher algorithm
      * @param {Uint8Array} key - The session key used to encrypt the payload
      * @param {Object} [config] - Full configuration, defaults to openpgp.config
      * @throws {Error} if decryption was not successful
@@ -26047,8 +26213,8 @@ var openpgp = function (exports) {
       this.packets = await PacketList.fromBinary(await this.crypt('decrypt', key, clone(this.encrypted)), allowedPackets$2, config);
     }
     /**
-     * Encrypt the packet list payload.
-     * @param {String} sessionKeyAlgorithm - The session key's cipher algorithm e.g. 'aes128'
+     * Encrypt the packet payload.
+     * @param {enums.symmetric} sessionKeyAlgorithm - The session key's cipher algorithm
      * @param {Uint8Array} key - The session key used to encrypt the payload
      * @param {Object} [config] - Full configuration, defaults to openpgp.config
      * @throws {Error} if encryption was not successful
@@ -26057,10 +26223,11 @@ var openpgp = function (exports) {
 
 
     async encrypt(sessionKeyAlgorithm, key, config = defaultConfig) {
-      this.cipherAlgo = enums.write(enums.symmetric, sessionKeyAlgorithm);
-      this.aeadAlgo = enums.write(enums.aead, this.aeadAlgorithm);
-      const mode = mod.mode[enums.read(enums.aead, this.aeadAlgo)];
-      this.iv = await mod.random.getRandomBytes(mode.ivLength); // generate new random IV
+      this.cipherAlgorithm = sessionKeyAlgorithm;
+      const {
+        ivLength
+      } = mod.getAEADMode(this.aeadAlgorithm);
+      this.iv = await mod.random.getRandomBytes(ivLength); // generate new random IV
 
       this.chunkSizeByte = config.aeadChunkSizeByte;
       const data = this.packets.write();
@@ -26077,9 +26244,8 @@ var openpgp = function (exports) {
 
 
     async crypt(fn, key, data) {
-      const cipher = enums.read(enums.symmetric, this.cipherAlgo);
-      const mode = mod.mode[enums.read(enums.aead, this.aeadAlgo)];
-      const modeInstance = await mode(cipher, key);
+      const mode = mod.getAEADMode(this.aeadAlgorithm);
+      const modeInstance = await mode(this.cipherAlgorithm, key);
       const tagLengthIfDecrypting = fn === 'decrypt' ? mode.tagLength : 0;
       const tagLengthIfEncrypting = fn === 'encrypt' ? mode.tagLength : 0;
       const chunkSize = 2 ** (this.chunkSizeByte + 6) + tagLengthIfDecrypting; // ((uint64_t)1 << (c + 6))
@@ -26089,7 +26255,7 @@ var openpgp = function (exports) {
       const adataTagArray = new Uint8Array(adataBuffer);
       const adataView = new DataView(adataBuffer);
       const chunkIndexArray = new Uint8Array(adataBuffer, 5, 8);
-      adataArray.set([0xC0 | AEADEncryptedDataPacket.tag, this.version, this.cipherAlgo, this.aeadAlgo, this.chunkSizeByte], 0);
+      adataArray.set([0xC0 | AEADEncryptedDataPacket.tag, this.version, this.cipherAlgorithm, this.aeadAlgorithm, this.chunkSizeByte], 0);
       let chunkIndex = 0;
       let latestPromise = Promise.resolve();
       let cryptedBytes = 0;
@@ -26187,6 +26353,11 @@ var openpgp = function (exports) {
       this.publicKeyID = new KeyID();
       this.publicKeyAlgorithm = null;
       this.sessionKey = null;
+      /**
+       * Algorithm to encrypt the message with
+       * @type {enums.symmetric}
+       */
+
       this.sessionKeyAlgorithm = null;
       /** @type {Object} */
 
@@ -26207,9 +26378,8 @@ var openpgp = function (exports) {
       }
 
       this.publicKeyID.read(bytes.subarray(1, bytes.length));
-      this.publicKeyAlgorithm = enums.read(enums.publicKey, bytes[9]);
-      const algo = enums.write(enums.publicKey, this.publicKeyAlgorithm);
-      this.encrypted = mod.parseEncSessionKeyParams(algo, bytes.subarray(10));
+      this.publicKeyAlgorithm = bytes[9];
+      this.encrypted = mod.parseEncSessionKeyParams(this.publicKeyAlgorithm, bytes.subarray(10));
     }
     /**
      * Create a binary representation of a tag 1 packet
@@ -26219,8 +26389,7 @@ var openpgp = function (exports) {
 
 
     write() {
-      const algo = enums.write(enums.publicKey, this.publicKeyAlgorithm);
-      const arr = [new Uint8Array([this.version]), this.publicKeyID.write(), new Uint8Array([enums.write(enums.publicKey, this.publicKeyAlgorithm)]), mod.serializeParams(algo, this.encrypted)];
+      const arr = [new Uint8Array([this.version]), this.publicKeyID.write(), new Uint8Array([this.publicKeyAlgorithm]), mod.serializeParams(this.publicKeyAlgorithm, this.encrypted)];
       return util.concatUint8Array(arr);
     }
     /**
@@ -26237,31 +26406,44 @@ var openpgp = function (exports) {
       this.encrypted = await mod.publicKeyEncrypt(algo, key.publicParams, data, key.getFingerprintBytes());
     }
     /**
-     * Decrypts the session key (only for public key encrypted session key
-     * packets (tag 1)
+     * Decrypts the session key (only for public key encrypted session key packets (tag 1)
      * @param {SecretKeyPacket} key - decrypted private key
-     * @throws {Error} if decryption failed
+     * @param {Object} [randomSessionKey] - Bogus session key to use in case of sensitive decryption error, or if the decrypted session key is of a different type/size.
+     *                                      This is needed for constant-time processing. Expected object of the form: { sessionKey: Uint8Array, sessionKeyAlgorithm: enums.symmetric }
+     * @throws {Error} if decryption failed, unless `randomSessionKey` is given
      * @async
      */
 
 
-    async decrypt(key) {
-      const algo = enums.write(enums.publicKey, this.publicKeyAlgorithm);
-      const keyAlgo = enums.write(enums.publicKey, key.algorithm); // check that session key algo matches the secret key algo
-
-      if (algo !== keyAlgo) {
+    async decrypt(key, randomSessionKey) {
+      // check that session key algo matches the secret key algo
+      if (this.publicKeyAlgorithm !== key.algorithm) {
         throw new Error('Decryption error');
       }
 
-      const decoded = await mod.publicKeyDecrypt(algo, key.publicParams, key.privateParams, this.encrypted, key.getFingerprintBytes());
-      const checksum = decoded.subarray(decoded.length - 2);
+      const randomPayload = randomSessionKey ? util.concatUint8Array([new Uint8Array([randomSessionKey.sessionKeyAlgorithm]), randomSessionKey.sessionKey, util.writeChecksum(randomSessionKey.sessionKey)]) : null;
+      const decoded = await mod.publicKeyDecrypt(this.publicKeyAlgorithm, key.publicParams, key.privateParams, this.encrypted, key.getFingerprintBytes(), randomPayload);
+      const symmetricAlgoByte = decoded[0];
       const sessionKey = decoded.subarray(1, decoded.length - 2);
+      const checksum = decoded.subarray(decoded.length - 2);
+      const computedChecksum = util.writeChecksum(sessionKey);
+      const isValidChecksum = computedChecksum[0] === checksum[0] & computedChecksum[1] === checksum[1];
 
-      if (!util.equalsUint8Array(checksum, util.writeChecksum(sessionKey))) {
-        throw new Error('Decryption error');
+      if (randomSessionKey) {
+        // We must not leak info about the validity of the decrypted checksum or cipher algo.
+        // The decrypted session key must be of the same algo and size as the random session key, otherwise we discard it and use the random data.
+        const isValidPayload = isValidChecksum & symmetricAlgoByte === randomSessionKey.sessionKeyAlgorithm & sessionKey.length === randomSessionKey.sessionKey.length;
+        this.sessionKeyAlgorithm = util.selectUint8(isValidPayload, symmetricAlgoByte, randomSessionKey.sessionKeyAlgorithm);
+        this.sessionKey = util.selectUint8Array(isValidPayload, sessionKey, randomSessionKey.sessionKey);
       } else {
-        this.sessionKey = sessionKey;
-        this.sessionKeyAlgorithm = enums.read(enums.symmetric, decoded[0]);
+        const isValidPayload = isValidChecksum && enums.read(enums.symmetric, symmetricAlgoByte);
+
+        if (isValidPayload) {
+          this.sessionKey = sessionKey;
+          this.sessionKeyAlgorithm = symmetricAlgoByte;
+        } else {
+          throw new Error('Decryption error');
+        }
       }
     }
 
@@ -26273,16 +26455,22 @@ var openpgp = function (exports) {
      * @param {Object} [config] - Full configuration, defaults to openpgp.config
      */
     constructor(config = defaultConfig) {
-      /** @type {module:enums.hash} */
-      this.algorithm = 'sha256';
-      /** @type {module:enums.s2k} */
+      /**
+       * Hash function identifier, or 0 for gnu-dummy keys
+       * @type {module:enums.hash | 0}
+       */
+      this.algorithm = enums.hash.sha256;
+      /**
+       * enums.s2k identifier or 'gnu-dummy'
+       * @type {String}
+       */
 
       this.type = 'iterated';
       /** @type {Integer} */
 
       this.c = config.s2kIterationCountByte;
       /** Eight bytes of salt in a binary string.
-       * @type {String}
+       * @type {Uint8Array}
        */
 
       this.salt = null;
@@ -26295,7 +26483,7 @@ var openpgp = function (exports) {
     }
     /**
      * Parsing function for a string-to-key specifier ({@link https://tools.ietf.org/html/rfc4880#section-3.7|RFC 4880 3.7}).
-     * @param {String} bytes - Payload of string-to-key specifier
+     * @param {Uint8Array} bytes - Payload of string-to-key specifier
      * @returns {Integer} Actual length of the object.
      */
 
@@ -26304,10 +26492,6 @@ var openpgp = function (exports) {
       let i = 0;
       this.type = enums.read(enums.s2k, bytes[i++]);
       this.algorithm = bytes[i++];
-
-      if (this.type !== 'gnu') {
-        this.algorithm = enums.read(enums.hash, this.algorithm);
-      }
 
       switch (this.type) {
         case 'simple':
@@ -26359,7 +26543,7 @@ var openpgp = function (exports) {
         return new Uint8Array([101, 0, ...util.stringToUint8Array('GNU'), 1]);
       }
 
-      const arr = [new Uint8Array([enums.write(enums.s2k, this.type), enums.write(enums.hash, this.algorithm)])];
+      const arr = [new Uint8Array([enums.write(enums.s2k, this.type), this.algorithm])];
 
       switch (this.type) {
         case 'simple':
@@ -26395,7 +26579,6 @@ var openpgp = function (exports) {
 
     async produceKey(passphrase, numBytes) {
       passphrase = util.encodeUTF8(passphrase);
-      const algorithm = enums.write(enums.hash, this.algorithm);
       const arr = [];
       let rlength = 0;
       let prefixlen = 0;
@@ -26434,7 +26617,7 @@ var openpgp = function (exports) {
             throw new Error('Unknown s2k type.');
         }
 
-        const result = await mod.hash.digest(algorithm, toHash);
+        const result = await mod.hash.digest(this.algorithm, toHash);
         arr.push(result);
         rlength += result.length;
         prefixlen++;
@@ -26472,9 +26655,24 @@ var openpgp = function (exports) {
     constructor(config = defaultConfig) {
       this.version = config.aeadProtect ? 5 : 4;
       this.sessionKey = null;
+      /**
+       * Algorithm to encrypt the session key with
+       * @type {enums.symmetric}
+       */
+
       this.sessionKeyEncryptionAlgorithm = null;
-      this.sessionKeyAlgorithm = 'aes256';
-      this.aeadAlgorithm = enums.read(enums.aead, config.preferredAEADAlgorithm);
+      /**
+       * Algorithm to encrypt the message with
+       * @type {enums.symmetric}
+       */
+
+      this.sessionKeyAlgorithm = enums.symmetric.aes256;
+      /**
+       * AEAD mode to encrypt the session key with (if AEAD protection is enabled)
+       * @type {enums.aead}
+       */
+
+      this.aeadAlgorithm = enums.write(enums.aead, config.preferredAEADAlgorithm);
       this.encrypted = null;
       this.s2k = null;
       this.iv = null;
@@ -26496,11 +26694,11 @@ var openpgp = function (exports) {
       } // A one-octet number describing the symmetric algorithm used.
 
 
-      const algo = enums.read(enums.symmetric, bytes[offset++]);
+      const algo = bytes[offset++];
 
       if (this.version === 5) {
         // A one-octet AEAD algorithm.
-        this.aeadAlgorithm = enums.read(enums.aead, bytes[offset++]);
+        this.aeadAlgorithm = bytes[offset++];
       } // A string-to-key (S2K) specifier, length as defined above.
 
 
@@ -26508,7 +26706,7 @@ var openpgp = function (exports) {
       offset += this.s2k.read(bytes.subarray(offset, bytes.length));
 
       if (this.version === 5) {
-        const mode = mod.mode[this.aeadAlgorithm]; // A starting initialization vector of size specified by the AEAD
+        const mode = mod.getAEADMode(this.aeadAlgorithm); // A starting initialization vector of size specified by the AEAD
         // algorithm.
 
         this.iv = bytes.subarray(offset, offset += mode.ivLength);
@@ -26535,9 +26733,9 @@ var openpgp = function (exports) {
       let bytes;
 
       if (this.version === 5) {
-        bytes = util.concatUint8Array([new Uint8Array([this.version, enums.write(enums.symmetric, algo), enums.write(enums.aead, this.aeadAlgorithm)]), this.s2k.write(), this.iv, this.encrypted]);
+        bytes = util.concatUint8Array([new Uint8Array([this.version, algo, this.aeadAlgorithm]), this.s2k.write(), this.iv, this.encrypted]);
       } else {
-        bytes = util.concatUint8Array([new Uint8Array([this.version, enums.write(enums.symmetric, algo)]), this.s2k.write()]);
+        bytes = util.concatUint8Array([new Uint8Array([this.version, algo]), this.s2k.write()]);
 
         if (this.encrypted !== null) {
           bytes = util.concatUint8Array([bytes, this.encrypted]);
@@ -26547,7 +26745,7 @@ var openpgp = function (exports) {
       return bytes;
     }
     /**
-     * Decrypts the session key
+     * Decrypts the session key with the given passphrase
      * @param {String} passphrase - The passphrase in string form
      * @throws {Error} if decryption was not successful
      * @async
@@ -26556,24 +26754,27 @@ var openpgp = function (exports) {
 
     async decrypt(passphrase) {
       const algo = this.sessionKeyEncryptionAlgorithm !== null ? this.sessionKeyEncryptionAlgorithm : this.sessionKeyAlgorithm;
-      const length = mod.cipher[algo].keySize;
-      const key = await this.s2k.produceKey(passphrase, length);
+      const {
+        blockSize,
+        keySize
+      } = mod.getCipher(algo);
+      const key = await this.s2k.produceKey(passphrase, keySize);
 
       if (this.version === 5) {
-        const mode = mod.mode[this.aeadAlgorithm];
-        const adata = new Uint8Array([0xC0 | SymEncryptedSessionKeyPacket.tag, this.version, enums.write(enums.symmetric, this.sessionKeyEncryptionAlgorithm), enums.write(enums.aead, this.aeadAlgorithm)]);
+        const mode = mod.getAEADMode(this.aeadAlgorithm);
+        const adata = new Uint8Array([0xC0 | SymEncryptedSessionKeyPacket.tag, this.version, this.sessionKeyEncryptionAlgorithm, this.aeadAlgorithm]);
         const modeInstance = await mode(algo, key);
         this.sessionKey = await modeInstance.decrypt(this.encrypted, this.iv, adata);
       } else if (this.encrypted !== null) {
-        const decrypted = await mod.mode.cfb.decrypt(algo, key, this.encrypted, new Uint8Array(mod.cipher[algo].blockSize));
-        this.sessionKeyAlgorithm = enums.read(enums.symmetric, decrypted[0]);
+        const decrypted = await mod.mode.cfb.decrypt(algo, key, this.encrypted, new Uint8Array(blockSize));
+        this.sessionKeyAlgorithm = enums.write(enums.symmetric, decrypted[0]);
         this.sessionKey = decrypted.subarray(1, decrypted.length);
       } else {
         this.sessionKey = key;
       }
     }
     /**
-     * Encrypts the session key
+     * Encrypts the session key with the given passphrase
      * @param {String} passphrase - The passphrase in string form
      * @param {Object} [config] - Full configuration, defaults to openpgp.config
      * @throws {Error} if encryption was not successful
@@ -26586,24 +26787,26 @@ var openpgp = function (exports) {
       this.sessionKeyEncryptionAlgorithm = algo;
       this.s2k = new S2K(config);
       this.s2k.salt = await mod.random.getRandomBytes(8);
-      const length = mod.cipher[algo].keySize;
-      const key = await this.s2k.produceKey(passphrase, length);
+      const {
+        blockSize,
+        keySize
+      } = mod.getCipher(algo);
+      const encryptionKey = await this.s2k.produceKey(passphrase, keySize);
 
       if (this.sessionKey === null) {
         this.sessionKey = await mod.generateSessionKey(this.sessionKeyAlgorithm);
       }
 
       if (this.version === 5) {
-        const mode = mod.mode[this.aeadAlgorithm];
+        const mode = mod.getAEADMode(this.aeadAlgorithm);
         this.iv = await mod.random.getRandomBytes(mode.ivLength); // generate new random IV
 
-        const adata = new Uint8Array([0xC0 | SymEncryptedSessionKeyPacket.tag, this.version, enums.write(enums.symmetric, this.sessionKeyEncryptionAlgorithm), enums.write(enums.aead, this.aeadAlgorithm)]);
-        const modeInstance = await mode(algo, key);
-        this.encrypted = await modeInstance.encrypt(this.sessionKey, this.iv, adata);
+        const associatedData = new Uint8Array([0xC0 | SymEncryptedSessionKeyPacket.tag, this.version, this.sessionKeyEncryptionAlgorithm, this.aeadAlgorithm]);
+        const modeInstance = await mode(algo, encryptionKey);
+        this.encrypted = await modeInstance.encrypt(this.sessionKey, this.iv, associatedData);
       } else {
-        const algo_enum = new Uint8Array([enums.write(enums.symmetric, this.sessionKeyAlgorithm)]);
-        const private_key = util.concatUint8Array([algo_enum, this.sessionKey]);
-        this.encrypted = await mod.mode.cfb.encrypt(algo, key, private_key, new Uint8Array(mod.cipher[algo].blockSize), config);
+        const toEncrypt = util.concatUint8Array([new Uint8Array([this.sessionKeyAlgorithm]), this.sessionKey]);
+        this.encrypted = await mod.mode.cfb.encrypt(algo, encryptionKey, toEncrypt, new Uint8Array(blockSize), config);
       }
     }
 
@@ -26646,7 +26849,7 @@ var openpgp = function (exports) {
       this.created = util.normalizeDate(date);
       /**
        * Public key algorithm.
-       * @type {String}
+       * @type {enums.publicKey}
        */
 
       this.algorithm = null;
@@ -26719,8 +26922,7 @@ var openpgp = function (exports) {
         this.created = util.readDate(bytes.subarray(pos, pos + 4));
         pos += 4; // - A one-octet number denoting the public-key algorithm of this key.
 
-        this.algorithm = enums.read(enums.publicKey, bytes[pos++]);
-        const algo = enums.write(enums.publicKey, this.algorithm);
+        this.algorithm = bytes[pos++];
 
         if (this.version === 5) {
           // - A four-octet scalar octet count for the following key material.
@@ -26732,7 +26934,7 @@ var openpgp = function (exports) {
           const {
             read,
             publicParams
-          } = mod.parsePublicKeyParams(algo, bytes.subarray(pos));
+          } = mod.parsePublicKeyParams(this.algorithm, bytes.subarray(pos));
           this.publicParams = publicParams;
           pos += read;
         } catch (err) {
@@ -26758,9 +26960,8 @@ var openpgp = function (exports) {
       arr.push(new Uint8Array([this.version]));
       arr.push(util.writeDate(this.created)); // A one-octet number denoting the public-key algorithm of this key
 
-      const algo = enums.write(enums.publicKey, this.algorithm);
-      arr.push(new Uint8Array([algo]));
-      const params = mod.serializeParams(algo, this.publicParams);
+      arr.push(new Uint8Array([this.algorithm]));
+      const params = mod.serializeParams(this.algorithm, this.publicParams);
 
       if (this.version === 5) {
         // A four-octet scalar octet count for the following key material
@@ -26882,7 +27083,7 @@ var openpgp = function (exports) {
 
     getAlgorithmInfo() {
       const result = {};
-      result.algorithm = this.algorithm; // RSA, DSA or ElGamal public modulo
+      result.algorithm = enums.read(enums.publicKey, this.algorithm); // RSA, DSA or ElGamal public modulo
 
       const modulo = this.publicParams.n || this.publicParams.p;
 
@@ -26965,8 +27166,11 @@ var openpgp = function (exports) {
         throw new Error('Message is not authenticated.');
       }
 
+      const {
+        blockSize
+      } = mod.getCipher(sessionKeyAlgorithm);
       const encrypted = await readToEnd(clone(this.encrypted));
-      const decrypted = await mod.mode.cfb.decrypt(sessionKeyAlgorithm, key, encrypted.subarray(mod.cipher[sessionKeyAlgorithm].blockSize + 2), encrypted.subarray(2, mod.cipher[sessionKeyAlgorithm].blockSize + 2));
+      const decrypted = await mod.mode.cfb.decrypt(sessionKeyAlgorithm, key, encrypted.subarray(blockSize + 2), encrypted.subarray(2, blockSize + 2));
       this.packets = await PacketList.fromBinary(decrypted, allowedPackets$3, config);
     }
     /**
@@ -26980,11 +27184,14 @@ var openpgp = function (exports) {
      */
 
 
-    async encrypt(algo, key, config = defaultConfig) {
+    async encrypt(sessionKeyAlgorithm, key, config = defaultConfig) {
       const data = this.packets.write();
-      const prefix = await mod.getPrefixRandom(algo);
-      const FRE = await mod.mode.cfb.encrypt(algo, key, prefix, new Uint8Array(mod.cipher[algo].blockSize), config);
-      const ciphertext = await mod.mode.cfb.encrypt(algo, key, data, FRE.subarray(2), config);
+      const {
+        blockSize
+      } = mod.getCipher(sessionKeyAlgorithm);
+      const prefix = await mod.getPrefixRandom(sessionKeyAlgorithm);
+      const FRE = await mod.mode.cfb.encrypt(sessionKeyAlgorithm, key, prefix, new Uint8Array(blockSize), config);
+      const ciphertext = await mod.mode.cfb.encrypt(sessionKeyAlgorithm, key, data, FRE.subarray(2), config);
       this.encrypted = util.concat([FRE, ciphertext]);
     }
 
@@ -27200,7 +27407,7 @@ var openpgp = function (exports) {
       this.isEncrypted = null;
       /**
        * S2K usage
-       * @type {Integer}
+       * @type {enums.symmetric}
        */
 
       this.s2kUsage = 0;
@@ -27211,14 +27418,14 @@ var openpgp = function (exports) {
 
       this.s2k = null;
       /**
-       * Symmetric algorithm
-       * @type {String}
+       * Symmetric algorithm to encrypt the key with
+       * @type {enums.symmetric}
        */
 
       this.symmetric = null;
       /**
-       * AEAD algorithm
-       * @type {String}
+       * AEAD algorithm to encrypt the key with (if AEAD protection is enabled)
+       * @type {enums.aead}
        */
 
       this.aead = null;
@@ -27233,7 +27440,7 @@ var openpgp = function (exports) {
     /**
      * Internal parser for private keys as specified in
      * {@link https://tools.ietf.org/html/draft-ietf-openpgp-rfc4880bis-04#section-5.5.3|RFC4880bis-04 section 5.5.3}
-     * @param {String} bytes - Input string to read the packet from
+     * @param {Uint8Array} bytes - Input string to read the packet from
      * @async
      */
 
@@ -27255,13 +27462,11 @@ var openpgp = function (exports) {
 
 
       if (this.s2kUsage === 255 || this.s2kUsage === 254 || this.s2kUsage === 253) {
-        this.symmetric = bytes[i++];
-        this.symmetric = enums.read(enums.symmetric, this.symmetric); // - [Optional] If string-to-key usage octet was 253, a one-octet
+        this.symmetric = bytes[i++]; // - [Optional] If string-to-key usage octet was 253, a one-octet
         //   AEAD algorithm.
 
         if (this.s2kUsage === 253) {
           this.aead = bytes[i++];
-          this.aead = enums.read(enums.aead, this.aead);
         } // - [Optional] If string-to-key usage octet was 255, 254, or 253, a
         //   string-to-key specifier.  The length of the string-to-key
         //   specifier is implied by its type, as described above.
@@ -27275,14 +27480,13 @@ var openpgp = function (exports) {
         }
       } else if (this.s2kUsage) {
         this.symmetric = this.s2kUsage;
-        this.symmetric = enums.read(enums.symmetric, this.symmetric);
       } // - [Optional] If secret data is encrypted (string-to-key usage octet
       //   not zero), an Initial Vector (IV) of the same length as the
       //   cipher's block size.
 
 
       if (this.s2kUsage) {
-        this.iv = bytes.subarray(i, i + mod.cipher[this.symmetric].blockSize);
+        this.iv = bytes.subarray(i, i + mod.getCipher(this.symmetric).blockSize);
         i += this.iv.length;
       } // - Only for a version 5 packet, a four-octet scalar octet count for
       //   the following key material.
@@ -27306,10 +27510,9 @@ var openpgp = function (exports) {
         }
 
         try {
-          const algo = enums.write(enums.publicKey, this.algorithm);
           const {
             privateParams
-          } = mod.parsePrivateKeyParams(algo, cleartext, this.publicParams);
+          } = mod.parsePrivateKeyParams(this.algorithm, cleartext, this.publicParams);
           this.privateParams = privateParams;
         } catch (err) {
           throw new Error('Error reading MPIs');
@@ -27329,11 +27532,11 @@ var openpgp = function (exports) {
       //   one- octet symmetric encryption algorithm.
 
       if (this.s2kUsage === 255 || this.s2kUsage === 254 || this.s2kUsage === 253) {
-        optionalFieldsArr.push(enums.write(enums.symmetric, this.symmetric)); // - [Optional] If string-to-key usage octet was 253, a one-octet
+        optionalFieldsArr.push(this.symmetric); // - [Optional] If string-to-key usage octet was 253, a one-octet
         //   AEAD algorithm.
 
         if (this.s2kUsage === 253) {
-          optionalFieldsArr.push(enums.write(enums.aead, this.aead));
+          optionalFieldsArr.push(this.aead);
         } // - [Optional] If string-to-key usage octet was 255, 254, or 253, a
         //   string-to-key specifier.  The length of the string-to-key
         //   specifier is implied by its type, as described above.
@@ -27357,8 +27560,7 @@ var openpgp = function (exports) {
 
       if (!this.isDummy()) {
         if (!this.s2kUsage) {
-          const algo = enums.write(enums.publicKey, this.algorithm);
-          this.keyMaterial = mod.serializeParams(algo, this.privateParams);
+          this.keyMaterial = mod.serializeParams(this.algorithm, this.privateParams);
         }
 
         if (this.version === 5) {
@@ -27416,7 +27618,7 @@ var openpgp = function (exports) {
       this.s2k.c = 0;
       this.s2k.type = 'gnu-dummy';
       this.s2kUsage = 254;
-      this.symmetric = 'aes256';
+      this.symmetric = enums.symmetric.aes256;
     }
     /**
      * Encrypt the payload. By default, we use aes256 and iterated, salted string
@@ -27448,17 +27650,18 @@ var openpgp = function (exports) {
 
       this.s2k = new S2K(config);
       this.s2k.salt = await mod.random.getRandomBytes(8);
-      const algo = enums.write(enums.publicKey, this.algorithm);
-      const cleartext = mod.serializeParams(algo, this.privateParams);
-      this.symmetric = 'aes256';
+      const cleartext = mod.serializeParams(this.algorithm, this.privateParams);
+      this.symmetric = enums.symmetric.aes256;
       const key = await produceEncryptionKey(this.s2k, passphrase, this.symmetric);
-      const blockLen = mod.cipher[this.symmetric].blockSize;
-      this.iv = await mod.random.getRandomBytes(blockLen);
+      const {
+        blockSize
+      } = mod.getCipher(this.symmetric);
+      this.iv = await mod.random.getRandomBytes(blockSize);
 
       if (config.aeadProtect) {
         this.s2kUsage = 253;
-        this.aead = 'eax';
-        const mode = mod.mode[this.aead];
+        this.aead = enums.aead.eax;
+        const mode = mod.getAEADMode(this.aead);
         const modeInstance = await mode(this.symmetric, key);
         this.keyMaterial = await modeInstance.encrypt(cleartext, this.iv.subarray(0, mode.ivLength), new Uint8Array());
       } else {
@@ -27499,10 +27702,10 @@ var openpgp = function (exports) {
       let cleartext;
 
       if (this.s2kUsage === 253) {
-        const mode = mod.mode[this.aead];
+        const mode = mod.getAEADMode(this.aead);
+        const modeInstance = await mode(this.symmetric, key);
 
         try {
-          const modeInstance = await mode(this.symmetric, key);
           cleartext = await modeInstance.decrypt(this.keyMaterial, this.iv.subarray(0, mode.ivLength), new Uint8Array());
         } catch (err) {
           if (err.message === 'Authentication tag mismatch') {
@@ -27522,10 +27725,9 @@ var openpgp = function (exports) {
       }
 
       try {
-        const algo = enums.write(enums.publicKey, this.algorithm);
         const {
           privateParams
-        } = mod.parsePrivateKeyParams(algo, cleartext, this.publicParams);
+        } = mod.parsePrivateKeyParams(this.algorithm, cleartext, this.publicParams);
         this.privateParams = privateParams;
       } catch (err) {
         throw new Error('Error reading MPIs');
@@ -27551,12 +27753,11 @@ var openpgp = function (exports) {
         throw new Error('Key is not decrypted');
       }
 
-      const algo = enums.write(enums.publicKey, this.algorithm);
       let validParams;
 
       try {
         // this can throw if some parameters are undefined
-        validParams = await mod.validateParams(algo, this.publicParams, this.privateParams);
+        validParams = await mod.validateParams(this.algorithm, this.publicParams, this.privateParams);
       } catch (_) {
         validParams = false;
       }
@@ -27567,11 +27768,10 @@ var openpgp = function (exports) {
     }
 
     async generate(bits, curve) {
-      const algo = enums.write(enums.publicKey, this.algorithm);
       const {
         privateParams,
         publicParams
-      } = await mod.generateParams(algo, bits, curve);
+      } = await mod.generateParams(this.algorithm, bits, curve);
       this.privateParams = privateParams;
       this.publicParams = publicParams;
       this.isEncrypted = false;
@@ -27598,7 +27798,10 @@ var openpgp = function (exports) {
   }
 
   async function produceEncryptionKey(s2k, passphrase, algorithm) {
-    return s2k.produceKey(passphrase, mod.cipher[algorithm].keySize);
+    const {
+      keySize
+    } = mod.getCipher(algorithm);
+    return s2k.produceKey(passphrase, keySize);
   }
 
   var emailAddresses = createCommonjsModule(function (module) {
@@ -28895,7 +29098,7 @@ var openpgp = function (exports) {
   async function generateSecretSubkey(options, config) {
     const secretSubkeyPacket = new SecretSubkeyPacket(options.date, config);
     secretSubkeyPacket.packets = null;
-    secretSubkeyPacket.algorithm = enums.read(enums.publicKey, options.algorithm);
+    secretSubkeyPacket.algorithm = enums.write(enums.publicKey, options.algorithm);
     await secretSubkeyPacket.generate(options.rsaBits, options.curve);
     await secretSubkeyPacket.computeFingerprintAndKeyID();
     return secretSubkeyPacket;
@@ -28904,7 +29107,7 @@ var openpgp = function (exports) {
   async function generateSecretKey(options, config) {
     const secretKeyPacket = new SecretKeyPacket(options.date, config);
     secretKeyPacket.packets = null;
-    secretKeyPacket.algorithm = enums.read(enums.publicKey, options.algorithm);
+    secretKeyPacket.algorithm = enums.write(enums.publicKey, options.algorithm);
     await secretKeyPacket.generate(options.rsaBits, options.curve, options.config);
     await secretKeyPacket.computeFingerprintAndKeyID();
     return secretKeyPacket;
@@ -28994,7 +29197,7 @@ var openpgp = function (exports) {
    * @param {Date} [date] - Use the given date for verification instead of the current time
    * @param {Object} [userID] - User ID
    * @param {Object} config - full configuration
-   * @returns {Promise<String>}
+   * @returns {Promise<enums.hash>}
    * @async
    */
 
@@ -29018,9 +29221,9 @@ var openpgp = function (exports) {
       case SecretSubkeyPacket.prototype:
       case PublicSubkeyPacket.prototype:
         switch (keyPacket.algorithm) {
-          case 'ecdh':
-          case 'ecdsa':
-          case 'eddsa':
+          case enums.publicKey.ecdh:
+          case enums.publicKey.ecdsa:
+          case enums.publicKey.eddsa:
             prefAlgo = mod.publicKey.elliptic.getPreferredHashAlgo(keyPacket.publicParams.oid);
         }
 
@@ -29030,7 +29233,7 @@ var openpgp = function (exports) {
   }
   /**
    * Returns the preferred symmetric/aead/compression algorithm for a set of keys
-   * @param {symmetric|aead|compression} type - Type of preference to return
+   * @param {'symmetric'|'aead'|'compression'} type - Type of preference to return
    * @param {Array<Key>} [keys] - Set of keys
    * @param {Date} [date] - Use the given date for verification instead of the current time
    * @param {Array} [userIDs] - User IDs
@@ -29254,12 +29457,12 @@ var openpgp = function (exports) {
   }
 
   function isValidSigningKeyPacket(keyPacket, signature) {
-    const keyAlgo = enums.write(enums.publicKey, keyPacket.algorithm);
+    const keyAlgo = keyPacket.algorithm;
     return keyAlgo !== enums.publicKey.rsaEncrypt && keyAlgo !== enums.publicKey.elgamal && keyAlgo !== enums.publicKey.ecdh && (!signature.keyFlags || (signature.keyFlags[0] & enums.keyFlags.signData) !== 0);
   }
 
   function isValidEncryptionKeyPacket(keyPacket, signature) {
-    const keyAlgo = enums.write(enums.publicKey, keyPacket.algorithm);
+    const keyAlgo = keyPacket.algorithm;
     return keyAlgo !== enums.publicKey.dsa && keyAlgo !== enums.publicKey.rsaSign && keyAlgo !== enums.publicKey.ecdsa && keyAlgo !== enums.publicKey.eddsa && (!signature.keyFlags || (signature.keyFlags[0] & enums.keyFlags.encryptCommunication) !== 0 || (signature.keyFlags[0] & enums.keyFlags.encryptStorage) !== 0);
   }
 
@@ -29282,12 +29485,11 @@ var openpgp = function (exports) {
 
   function checkKeyRequirements(keyPacket, config) {
     const keyAlgo = enums.write(enums.publicKey, keyPacket.algorithm);
+    const algoInfo = keyPacket.getAlgorithmInfo();
 
     if (config.rejectPublicKeyAlgorithms.has(keyAlgo)) {
-      throw new Error(`${keyPacket.algorithm} keys are considered too weak.`);
+      throw new Error(`${algoInfo.algorithm} keys are considered too weak.`);
     }
-
-    const algoInfo = keyPacket.getAlgorithmInfo();
 
     switch (keyAlgo) {
       case enums.publicKey.rsaEncryptSign:
@@ -29303,7 +29505,7 @@ var openpgp = function (exports) {
       case enums.publicKey.eddsa:
       case enums.publicKey.ecdh:
         if (config.rejectCurves.has(algoInfo.curve)) {
-          throw new Error(`Support for ${keyPacket.algorithm} keys using curve ${algoInfo.curve} is disabled.`);
+          throw new Error(`Support for ${algoInfo.algorithm} keys using curve ${algoInfo.curve} is disabled.`);
         }
 
         break;
@@ -30853,6 +31055,7 @@ var openpgp = function (exports) {
       defaultOptions.curve = defaultOptions.curve || 'curve25519';
       options = sanitizeKeyOptions(options, defaultOptions);
       const keyPacket = await generateSecretSubkey(options);
+      checkKeyRequirements(keyPacket, config);
       const bindingSignature = await createBindingSignature(keyPacket, secretKeyPacket, options, config);
       const packetList = this.toPacketList();
       packetList.push(keyPacket, bindingSignature);
@@ -31406,7 +31609,7 @@ var openpgp = function (exports) {
 
 
     async decrypt(decryptionKeys, passwords, sessionKeys, date = new Date(), config = defaultConfig) {
-      const keyObjs = sessionKeys || (await this.decryptSessionKeys(decryptionKeys, passwords, date, config));
+      const sessionKeyObjects = sessionKeys || (await this.decryptSessionKeys(decryptionKeys, passwords, date, config));
       const symEncryptedPacketlist = this.packets.filterByTag(enums.packet.symmetricallyEncryptedData, enums.packet.symEncryptedIntegrityProtectedData, enums.packet.aeadEncryptedData);
 
       if (symEncryptedPacketlist.length === 0) {
@@ -31415,13 +31618,17 @@ var openpgp = function (exports) {
 
       const symEncryptedPacket = symEncryptedPacketlist[0];
       let exception = null;
-      const decryptedPromise = Promise.all(keyObjs.map(async keyObj => {
-        if (!keyObj || !util.isUint8Array(keyObj.data) || !util.isString(keyObj.algorithm)) {
+      const decryptedPromise = Promise.all(sessionKeyObjects.map(async ({
+        algorithm: algorithmName,
+        data
+      }) => {
+        if (!util.isUint8Array(data) || !util.isString(algorithmName)) {
           throw new Error('Invalid session key for decryption.');
         }
 
         try {
-          await symEncryptedPacket.decrypt(keyObj.algorithm, keyObj.data, config);
+          const algo = enums.write(enums.symmetric, algorithmName);
+          await symEncryptedPacket.decrypt(algo, data, config);
         } catch (e) {
           util.printDebugError(e);
           exception = e;
@@ -31457,13 +31664,13 @@ var openpgp = function (exports) {
 
 
     async decryptSessionKeys(decryptionKeys, passwords, date = new Date(), config = defaultConfig) {
-      let keyPackets = [];
+      let decryptedSessionKeyPackets = [];
       let exception;
 
       if (passwords) {
-        const symESKeyPacketlist = this.packets.filterByTag(enums.packet.symEncryptedSessionKey);
+        const skeskPackets = this.packets.filterByTag(enums.packet.symEncryptedSessionKey);
 
-        if (symESKeyPacketlist.length === 0) {
+        if (skeskPackets.length === 0) {
           throw new Error('No symmetrically encrypted session key packet found.');
         }
 
@@ -31471,28 +31678,28 @@ var openpgp = function (exports) {
           let packets;
 
           if (i) {
-            packets = await PacketList.fromBinary(symESKeyPacketlist.write(), allowedSymSessionKeyPackets, config);
+            packets = await PacketList.fromBinary(skeskPackets.write(), allowedSymSessionKeyPackets, config);
           } else {
-            packets = symESKeyPacketlist;
+            packets = skeskPackets;
           }
 
-          await Promise.all(packets.map(async function (keyPacket) {
+          await Promise.all(packets.map(async function (skeskPacket) {
             try {
-              await keyPacket.decrypt(password);
-              keyPackets.push(keyPacket);
+              await skeskPacket.decrypt(password);
+              decryptedSessionKeyPackets.push(skeskPacket);
             } catch (err) {
               util.printDebugError(err);
             }
           }));
         }));
       } else if (decryptionKeys) {
-        const pkESKeyPacketlist = this.packets.filterByTag(enums.packet.publicKeyEncryptedSessionKey);
+        const pkeskPackets = this.packets.filterByTag(enums.packet.publicKeyEncryptedSessionKey);
 
-        if (pkESKeyPacketlist.length === 0) {
+        if (pkeskPackets.length === 0) {
           throw new Error('No public key encrypted session key packet found.');
         }
 
-        await Promise.all(pkESKeyPacketlist.map(async function (keyPacket) {
+        await Promise.all(pkeskPackets.map(async function (pkeskPacket) {
           await Promise.all(decryptionKeys.map(async function (decryptionKey) {
             let algos = [enums.symmetric.aes256, // Old OpenPGP.js default fallback
             enums.symmetric.aes128, // RFC4880bis fallback
@@ -31509,7 +31716,7 @@ var openpgp = function (exports) {
             } catch (e) {} // do not check key expiration to allow decryption of old messages
 
 
-            const decryptionKeyPackets = (await decryptionKey.getDecryptionKeys(keyPacket.publicKeyID, null, undefined, config)).map(key => key.keyPacket);
+            const decryptionKeyPackets = (await decryptionKey.getDecryptionKeys(pkeskPacket.publicKeyID, null, undefined, config)).map(key => key.keyPacket);
             await Promise.all(decryptionKeyPackets.map(async function (decryptionKeyPacket) {
               if (!decryptionKeyPacket || decryptionKeyPacket.isDummy()) {
                 return;
@@ -31517,35 +31724,69 @@ var openpgp = function (exports) {
 
               if (!decryptionKeyPacket.isDecrypted()) {
                 throw new Error('Decryption key is not decrypted.');
-              }
+              } // To hinder CCA attacks against PKCS1, we carry out a constant-time decryption flow if the `constantTimePKCS1Decryption` config option is set.
 
-              try {
-                await keyPacket.decrypt(decryptionKeyPacket);
 
-                if (!algos.includes(enums.write(enums.symmetric, keyPacket.sessionKeyAlgorithm))) {
-                  throw new Error('A non-preferred symmetric algorithm was used.');
+              const doConstantTimeDecryption = config.constantTimePKCS1Decryption && (pkeskPacket.publicKeyAlgorithm === enums.publicKey.rsaEncrypt || pkeskPacket.publicKeyAlgorithm === enums.publicKey.rsaEncryptSign || pkeskPacket.publicKeyAlgorithm === enums.publicKey.rsaSign || pkeskPacket.publicKeyAlgorithm === enums.publicKey.elgamal);
+
+              if (doConstantTimeDecryption) {
+                // The goal is to not reveal whether PKESK decryption (specifically the PKCS1 decoding step) failed, hence, we always proceed to decrypt the message,
+                // either with the successfully decrypted session key, or with a randomly generated one.
+                // Since the SEIP/AEAD's symmetric algorithm and key size are stored in the encrypted portion of the PKESK, and the execution flow cannot depend on
+                // the decrypted payload, we always assume the message to be encrypted with one of the symmetric algorithms specified in `config.constantTimePKCS1DecryptionSupportedSymmetricAlgorithms`:
+                // - If the PKESK decryption succeeds, and the session key cipher is in the supported set, then we try to decrypt the data with the decrypted session key as well as with the
+                // randomly generated keys of the remaining key types.
+                // - If the PKESK decryptions fails, or if it succeeds but support for the cipher is not enabled, then we discard the session key and try to decrypt the data using only the randomly
+                // generated session keys.
+                // NB: as a result, if the data is encrypted with a non-suported cipher, decryption will always fail.
+                const serialisedPKESK = pkeskPacket.write(); // make copies to be able to decrypt the PKESK packet multiple times
+
+                await Promise.all(Array.from(config.constantTimePKCS1DecryptionSupportedSymmetricAlgorithms).map(async sessionKeyAlgorithm => {
+                  const pkeskPacketCopy = new PublicKeyEncryptedSessionKeyPacket();
+                  pkeskPacketCopy.read(serialisedPKESK);
+                  const randomSessionKey = {
+                    sessionKeyAlgorithm,
+                    sessionKey: await mod.generateSessionKey(sessionKeyAlgorithm)
+                  };
+
+                  try {
+                    await pkeskPacketCopy.decrypt(decryptionKeyPacket, randomSessionKey);
+                    decryptedSessionKeyPackets.push(pkeskPacketCopy);
+                  } catch (err) {
+                    // `decrypt` can still throw some non-security-sensitive errors
+                    util.printDebugError(err);
+                    exception = err;
+                  }
+                }));
+              } else {
+                try {
+                  await pkeskPacket.decrypt(decryptionKeyPacket);
+
+                  if (!algos.includes(enums.write(enums.symmetric, pkeskPacket.sessionKeyAlgorithm))) {
+                    throw new Error('A non-preferred symmetric algorithm was used.');
+                  }
+
+                  decryptedSessionKeyPackets.push(pkeskPacket);
+                } catch (err) {
+                  util.printDebugError(err);
+                  exception = err;
                 }
-
-                keyPackets.push(keyPacket);
-              } catch (err) {
-                util.printDebugError(err);
-                exception = err;
               }
             }));
           }));
-          cancel(keyPacket.encrypted); // Don't keep copy of encrypted data in memory.
+          cancel(pkeskPacket.encrypted); // Don't keep copy of encrypted data in memory.
 
-          keyPacket.encrypted = null;
+          pkeskPacket.encrypted = null;
         }));
       } else {
         throw new Error('No key or password specified.');
       }
 
-      if (keyPackets.length) {
+      if (decryptedSessionKeyPackets.length > 0) {
         // Return only unique session keys
-        if (keyPackets.length > 1) {
+        if (decryptedSessionKeyPackets.length > 1) {
           const seen = new Set();
-          keyPackets = keyPackets.filter(item => {
+          decryptedSessionKeyPackets = decryptedSessionKeyPackets.filter(item => {
             const k = item.sessionKeyAlgorithm + util.uint8ArrayToString(item.sessionKey);
 
             if (seen.has(k)) {
@@ -31557,9 +31798,9 @@ var openpgp = function (exports) {
           });
         }
 
-        return keyPackets.map(packet => ({
+        return decryptedSessionKeyPackets.map(packet => ({
           data: packet.sessionKey,
-          algorithm: packet.sessionKeyAlgorithm
+          algorithm: enums.read(enums.symmetric, packet.sessionKeyAlgorithm)
         }));
       }
 
@@ -31615,13 +31856,14 @@ var openpgp = function (exports) {
 
 
     static async generateSessionKey(encryptionKeys = [], date = new Date(), userIDs = [], config = defaultConfig) {
-      const algorithm = enums.read(enums.symmetric, await getPreferredAlgo('symmetric', encryptionKeys, date, userIDs, config));
-      const aeadAlgorithm = config.aeadProtect && (await isAEADSupported(encryptionKeys, date, userIDs, config)) ? enums.read(enums.aead, await getPreferredAlgo('aead', encryptionKeys, date, userIDs, config)) : undefined;
-      const sessionKeyData = await mod.generateSessionKey(algorithm);
+      const algo = await getPreferredAlgo('symmetric', encryptionKeys, date, userIDs, config);
+      const algorithmName = enums.read(enums.symmetric, algo);
+      const aeadAlgorithmName = config.aeadProtect && (await isAEADSupported(encryptionKeys, date, userIDs, config)) ? enums.read(enums.aead, await getPreferredAlgo('aead', encryptionKeys, date, userIDs, config)) : undefined;
+      const sessionKeyData = await mod.generateSessionKey(algo);
       return {
         data: sessionKeyData,
-        algorithm,
-        aeadAlgorithm
+        algorithm: algorithmName,
+        aeadAlgorithm: aeadAlgorithmName
       };
     }
     /**
@@ -31654,20 +31896,21 @@ var openpgp = function (exports) {
 
       const {
         data: sessionKeyData,
-        algorithm,
-        aeadAlgorithm
+        algorithm: algorithmName,
+        aeadAlgorithm: aeadAlgorithmName
       } = sessionKey;
-      const msg = await Message.encryptSessionKey(sessionKeyData, algorithm, aeadAlgorithm, encryptionKeys, passwords, wildcard, encryptionKeyIDs, date, userIDs, config);
+      const msg = await Message.encryptSessionKey(sessionKeyData, algorithmName, aeadAlgorithmName, encryptionKeys, passwords, wildcard, encryptionKeyIDs, date, userIDs, config);
       let symEncryptedPacket;
 
-      if (aeadAlgorithm) {
+      if (aeadAlgorithmName) {
         symEncryptedPacket = new AEADEncryptedDataPacket();
-        symEncryptedPacket.aeadAlgorithm = aeadAlgorithm;
+        symEncryptedPacket.aeadAlgorithm = enums.write(enums.aead, aeadAlgorithmName);
       } else {
         symEncryptedPacket = new SymEncryptedIntegrityProtectedDataPacket();
       }
 
       symEncryptedPacket.packets = this.packets;
+      const algorithm = enums.write(enums.symmetric, algorithmName);
       await symEncryptedPacket.encrypt(algorithm, sessionKeyData, config);
       msg.packets.push(symEncryptedPacket);
       symEncryptedPacket.packets = new PacketList(); // remove packets after encryption
@@ -31677,8 +31920,8 @@ var openpgp = function (exports) {
     /**
      * Encrypt a session key either with public keys, passwords, or both at once.
      * @param {Uint8Array} sessionKey - session key for encryption
-     * @param {String} algorithm - session key algorithm
-     * @param {String} [aeadAlgorithm] - AEAD algorithm, e.g. 'eax' or 'ocb'
+     * @param {String} algorithmName - session key algorithm
+     * @param {String} [aeadAlgorithmName] - AEAD algorithm, e.g. 'eax' or 'ocb'
      * @param {Array<PublicKey>} [encryptionKeys] - Public key(s) for message encryption
      * @param {Array<String>} [passwords] - For message encryption
      * @param {Boolean} [wildcard] - Use a key ID of 0 instead of the public key IDs
@@ -31691,8 +31934,10 @@ var openpgp = function (exports) {
      */
 
 
-    static async encryptSessionKey(sessionKey, algorithm, aeadAlgorithm, encryptionKeys, passwords, wildcard = false, encryptionKeyIDs = [], date = new Date(), userIDs = [], config = defaultConfig) {
+    static async encryptSessionKey(sessionKey, algorithmName, aeadAlgorithmName, encryptionKeys, passwords, wildcard = false, encryptionKeyIDs = [], date = new Date(), userIDs = [], config = defaultConfig) {
       const packetlist = new PacketList();
+      const algorithm = enums.write(enums.symmetric, algorithmName);
+      const aeadAlgorithm = aeadAlgorithmName && enums.write(enums.aead, aeadAlgorithmName);
 
       if (encryptionKeys) {
         const results = await Promise.all(encryptionKeys.map(async function (primaryKey, i) {
@@ -31836,7 +32081,7 @@ var openpgp = function (exports) {
       }
 
       const compressed = new CompressedDataPacket(config);
-      compressed.algorithm = enums.read(enums.compression, algo);
+      compressed.algorithm = algo;
       compressed.packets = this.packets;
       const packetList = new PacketList();
       packetList.push(compressed);
@@ -32261,9 +32506,9 @@ var openpgp = function (exports) {
     const literalDataPacket = new LiteralDataPacket(date);
 
     if (text !== undefined) {
-      literalDataPacket.setText(input, format);
+      literalDataPacket.setText(input, enums.write(enums.literal, format));
     } else {
-      literalDataPacket.setBytes(input, format);
+      literalDataPacket.setBytes(input, enums.write(enums.literal, format));
     }
 
     if (filename !== undefined) {
