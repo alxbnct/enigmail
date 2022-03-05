@@ -83,7 +83,7 @@ function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (O
 
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { (0, _defineProperty2.default)(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
 
-/*! OpenPGP.js v5.1.0 - 2022-01-24 - this is LGPL licensed code, see LICENSE/our website https://openpgpjs.org/ for more information. */
+/*! OpenPGP.js v5.2.0 - 2022-03-02 - this is LGPL licensed code, see LICENSE/our website https://openpgpjs.org/ for more information. */
 var openpgp = function (exports) {
   'use strict';
 
@@ -1009,8 +1009,8 @@ var openpgp = function (exports) {
 
       });
       const pipeDonePromise = pipe(input, incoming.writable);
-      const outgoing = transformWithCancel(async function () {
-        incomingTransformController.error(new Error('Readable side was canceled.'));
+      const outgoing = transformWithCancel(async function (reason) {
+        incomingTransformController.error(reason);
         await pipeDonePromise;
         await new Promise(setTimeout);
       });
@@ -2257,7 +2257,7 @@ var openpgp = function (exports) {
         return os.cpus().length;
       }
 
-      return navigator.hardwareConcurrency || 1;
+      return typeof navigator !== 'undefined' && navigator.hardwareConcurrency || 1;
     },
     isEmailAddress: function (data) {
       if (!util.isString(data)) {
@@ -3300,7 +3300,7 @@ var openpgp = function (exports) {
      * @memberof module:config
      * @property {String} versionString A version string to be included in armored messages
      */
-    versionString: 'OpenPGP.js 5.1.0',
+    versionString: 'OpenPGP.js 5.2.0',
 
     /**
      * @memberof module:config
@@ -9441,7 +9441,7 @@ var openpgp = function (exports) {
     // Use JS fallbacks
     hashFunctions = {
       md5: md5,
-      sha1: asmcryptoHash(Sha1, (!navigator.userAgent || navigator.userAgent.indexOf('Edge') === -1) && 'SHA-1'),
+      sha1: asmcryptoHash(Sha1, 'SHA-1'),
       sha224: hashjsHash(_224),
       sha256: asmcryptoHash(Sha256, 'SHA-256'),
       sha384: hashjsHash(_384, 'SHA-384'),
@@ -9962,8 +9962,8 @@ var openpgp = function (exports) {
   }
 
   async function CTR(key) {
-    if (util.getWebCrypto() && key.length !== 24 && ( // WebCrypto (no 192 bit support) see: https://www.chromium.org/blink/webcrypto#TOC-AES-support
-    !navigator.userAgent || navigator.userAgent.indexOf('Edge') === -1)) {
+    if (util.getWebCrypto() && key.length !== 24 // WebCrypto (no 192 bit support) see: https://www.chromium.org/blink/webcrypto#TOC-AES-support
+    ) {
       key = await webCrypto$3.importKey('raw', key, {
         name: 'AES-CTR',
         length: key.length * 8
@@ -10646,10 +10646,8 @@ var openpgp = function (exports) {
 
       return {
         encrypt: async function (pt, iv, adata = new Uint8Array()) {
-          if (!pt.length || // iOS does not support GCM-en/decrypting empty messages
-          // Also, synchronous en/decryption might be faster in this case.
-          !adata.length && navigator.userAgent && navigator.userAgent.indexOf('Edge') !== -1 // Edge does not support GCM-en/decrypting without ADATA
-          ) {
+          if (!pt.length) {
+            // iOS does not support GCM-en/decrypting empty messages
             return AES_GCM.encrypt(pt, key, iv, adata);
           }
 
@@ -10662,10 +10660,8 @@ var openpgp = function (exports) {
           return new Uint8Array(ct);
         },
         decrypt: async function (ct, iv, adata = new Uint8Array()) {
-          if (ct.length === tagLength$2 || // iOS does not support GCM-en/decrypting empty messages
-          // Also, synchronous en/decryption might be faster in this case.
-          !adata.length && navigator.userAgent && navigator.userAgent.indexOf('Edge') !== -1 // Edge does not support GCM-en/decrypting without ADATA
-          ) {
+          if (ct.length === tagLength$2) {
+            // iOS does not support GCM-en/decrypting empty messages
             return AES_GCM.decrypt(ct, key, iv, adata);
           }
 
@@ -12645,7 +12641,8 @@ var openpgp = function (exports) {
      * We swap them in privateToJWK, so it usually works out, but nevertheless,
      * not all OpenPGP keys are compatible with this requirement.
      * OpenPGP.js used to generate RSA keys the wrong way around (p > q), and still
-     * does if the underlying Web Crypto does so (e.g. old MS Edge 50% of the time).
+     * does if the underlying Web Crypto does so (though the tested implementations
+     * don't do so).
      */
     const jwk = await privateToJWK(n, e, d, p, q, u);
     const algo = {
@@ -12654,12 +12651,8 @@ var openpgp = function (exports) {
         name: hashName
       }
     };
-    const key = await webCrypto$5.importKey('jwk', jwk, algo, false, ['sign']); // add hash field for ms edge support
-
-    return new Uint8Array(await webCrypto$5.sign({
-      'name': 'RSASSA-PKCS1-v1_5',
-      'hash': hashName
-    }, key, data));
+    const key = await webCrypto$5.importKey('jwk', jwk, algo, false, ['sign']);
+    return new Uint8Array(await webCrypto$5.sign('RSASSA-PKCS1-v1_5', key, data));
   }
 
   async function nodeSign(hashAlgo, data, n, e, d, p, q, u) {
@@ -12730,12 +12723,8 @@ var openpgp = function (exports) {
       hash: {
         name: hashName
       }
-    }, false, ['verify']); // add hash field for ms edge support
-
-    return webCrypto$5.verify({
-      'name': 'RSASSA-PKCS1-v1_5',
-      'hash': hashName
-    }, key, s, data);
+    }, false, ['verify']);
+    return webCrypto$5.verify('RSASSA-PKCS1-v1_5', key, s, data);
   }
 
   async function nodeVerify(hashAlgo, data, s, n, e) {
@@ -25353,7 +25342,7 @@ var openpgp = function (exports) {
      * @param {PublicSubkeyPacket|PublicKeyPacket|
      *         SecretSubkeyPacket|SecretKeyPacket} key - the public key to verify the signature
      * @param {module:enums.signature} signatureType - Expected signature type
-     * @param {String|Object} data - Data which on the signature applies
+     * @param {Uint8Array|Object} data - Data which on the signature applies
      * @param {Date} [date] - Use the given date instead of the current time to check for signature validity and expiration
      * @param {Boolean} [detached] - Whether to verify a detached signature
      * @param {Object} [config] - Full configuration, defaults to openpgp.config
