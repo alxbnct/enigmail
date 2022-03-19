@@ -83,7 +83,7 @@ function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (O
 
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { (0, _defineProperty2.default)(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
 
-/*! OpenPGP.js v5.2.0 - 2022-03-02 - this is LGPL licensed code, see LICENSE/our website https://openpgpjs.org/ for more information. */
+/*! OpenPGP.js v5.2.1 - 2022-03-15 - this is LGPL licensed code, see LICENSE/our website https://openpgpjs.org/ for more information. */
 var openpgp = function (exports) {
   'use strict';
 
@@ -3300,7 +3300,7 @@ var openpgp = function (exports) {
      * @memberof module:config
      * @property {String} versionString A version string to be included in armored messages
      */
-    versionString: 'OpenPGP.js 5.2.0',
+    versionString: 'OpenPGP.js 5.2.1',
 
     /**
      * @memberof module:config
@@ -9565,1190 +9565,8 @@ var openpgp = function (exports) {
       return joinBytes(r1, r2);
     }
 
-  } // Modified by ProtonTech AG
-
-
-  const webCrypto$1 = util.getWebCrypto();
-  const nodeCrypto$1 = util.getNodeCrypto();
-  const knownAlgos = nodeCrypto$1 ? nodeCrypto$1.getCiphers() : [];
-  const nodeAlgos = {
-    idea: knownAlgos.includes('idea-cfb') ? 'idea-cfb' : undefined,
-
-    /* Unused, not implemented */
-    tripledes: knownAlgos.includes('des-ede3-cfb') ? 'des-ede3-cfb' : undefined,
-    cast5: knownAlgos.includes('cast5-cfb') ? 'cast5-cfb' : undefined,
-    blowfish: knownAlgos.includes('bf-cfb') ? 'bf-cfb' : undefined,
-    aes128: knownAlgos.includes('aes-128-cfb') ? 'aes-128-cfb' : undefined,
-    aes192: knownAlgos.includes('aes-192-cfb') ? 'aes-192-cfb' : undefined,
-    aes256: knownAlgos.includes('aes-256-cfb') ? 'aes-256-cfb' : undefined
-    /* twofish is not implemented in OpenSSL */
-
-  };
-  /**
-   * CFB encryption
-   * @param {enums.symmetric} algo - block cipher algorithm
-   * @param {Uint8Array} key
-   * @param {MaybeStream<Uint8Array>} plaintext
-   * @param {Uint8Array} iv
-   * @param {Object} config - full configuration, defaults to openpgp.config
-   * @returns MaybeStream<Uint8Array>
-   */
-
-  async function encrypt(algo, key, plaintext, iv, config) {
-    const algoName = enums.read(enums.symmetric, algo);
-
-    if (util.getNodeCrypto() && nodeAlgos[algoName]) {
-      // Node crypto library.
-      return nodeEncrypt(algo, key, plaintext, iv);
-    }
-
-    if (algoName.substr(0, 3) === 'aes') {
-      return aesEncrypt(algo, key, plaintext, iv, config);
-    }
-
-    const cipherfn = new cipher[algoName](key);
-    const block_size = cipherfn.blockSize;
-    const blockc = iv.slice();
-    let pt = new Uint8Array();
-
-    const process = chunk => {
-      if (chunk) {
-        pt = util.concatUint8Array([pt, chunk]);
-      }
-
-      const ciphertext = new Uint8Array(pt.length);
-      let i;
-      let j = 0;
-
-      while (chunk ? pt.length >= block_size : pt.length) {
-        const encblock = cipherfn.encrypt(blockc);
-
-        for (i = 0; i < block_size; i++) {
-          blockc[i] = pt[i] ^ encblock[i];
-          ciphertext[j++] = blockc[i];
-        }
-
-        pt = pt.subarray(block_size);
-      }
-
-      return ciphertext.subarray(0, j);
-    };
-
-    return transform(plaintext, process, process);
-  }
-  /**
-   * CFB decryption
-   * @param {enums.symmetric} algo - block cipher algorithm
-   * @param {Uint8Array} key
-   * @param {MaybeStream<Uint8Array>} ciphertext
-   * @param {Uint8Array} iv
-   * @returns MaybeStream<Uint8Array>
-   */
-
-
-  async function decrypt(algo, key, ciphertext, iv) {
-    const algoName = enums.read(enums.symmetric, algo);
-
-    if (util.getNodeCrypto() && nodeAlgos[algoName]) {
-      // Node crypto library.
-      return nodeDecrypt(algo, key, ciphertext, iv);
-    }
-
-    if (algoName.substr(0, 3) === 'aes') {
-      return aesDecrypt(algo, key, ciphertext, iv);
-    }
-
-    const cipherfn = new cipher[algoName](key);
-    const block_size = cipherfn.blockSize;
-    let blockp = iv;
-    let ct = new Uint8Array();
-
-    const process = chunk => {
-      if (chunk) {
-        ct = util.concatUint8Array([ct, chunk]);
-      }
-
-      const plaintext = new Uint8Array(ct.length);
-      let i;
-      let j = 0;
-
-      while (chunk ? ct.length >= block_size : ct.length) {
-        const decblock = cipherfn.encrypt(blockp);
-        blockp = ct;
-
-        for (i = 0; i < block_size; i++) {
-          plaintext[j++] = blockp[i] ^ decblock[i];
-        }
-
-        ct = ct.subarray(block_size);
-      }
-
-      return plaintext.subarray(0, j);
-    };
-
-    return transform(ciphertext, process, process);
   }
 
-  function aesEncrypt(algo, key, pt, iv, config) {
-    if (util.getWebCrypto() && key.length !== 24 && // Chrome doesn't support 192 bit keys, see https://www.chromium.org/blink/webcrypto#TOC-AES-support
-    !util.isStream(pt) && pt.length >= 3000 * config.minBytesForWebCrypto // Default to a 3MB minimum. Chrome is pretty slow for small messages, see: https://bugs.chromium.org/p/chromium/issues/detail?id=701188#c2
-    ) {
-      // Web Crypto
-      return webEncrypt(algo, key, pt, iv);
-    } // asm.js fallback
-
-
-    const cfb = new AES_CFB(key, iv);
-    return transform(pt, value => cfb.aes.AES_Encrypt_process(value), () => cfb.aes.AES_Encrypt_finish());
-  }
-
-  function aesDecrypt(algo, key, ct, iv) {
-    if (util.isStream(ct)) {
-      const cfb = new AES_CFB(key, iv);
-      return transform(ct, value => cfb.aes.AES_Decrypt_process(value), () => cfb.aes.AES_Decrypt_finish());
-    }
-
-    return AES_CFB.decrypt(ct, key, iv);
-  }
-
-  function xorMut(a, b) {
-    for (let i = 0; i < a.length; i++) {
-      a[i] = a[i] ^ b[i];
-    }
-  }
-
-  async function webEncrypt(algo, key, pt, iv) {
-    const ALGO = 'AES-CBC';
-
-    const _key = await webCrypto$1.importKey('raw', key, {
-      name: ALGO
-    }, false, ['encrypt']);
-
-    const {
-      blockSize
-    } = crypto.getCipher(algo);
-    const cbc_pt = util.concatUint8Array([new Uint8Array(blockSize), pt]);
-    const ct = new Uint8Array(await webCrypto$1.encrypt({
-      name: ALGO,
-      iv
-    }, _key, cbc_pt)).subarray(0, pt.length);
-    xorMut(ct, pt);
-    return ct;
-  }
-
-  function nodeEncrypt(algo, key, pt, iv) {
-    const algoName = enums.read(enums.symmetric, algo);
-    const cipherObj = new nodeCrypto$1.createCipheriv(nodeAlgos[algoName], key, iv);
-    return transform(pt, value => new Uint8Array(cipherObj.update(value)));
-  }
-
-  function nodeDecrypt(algo, key, ct, iv) {
-    const algoName = enums.read(enums.symmetric, algo);
-    const decipherObj = new nodeCrypto$1.createDecipheriv(nodeAlgos[algoName], key, iv);
-    return transform(ct, value => new Uint8Array(decipherObj.update(value)));
-  }
-
-  var cfb = /*#__PURE__*/Object.freeze({
-    __proto__: null,
-    encrypt: encrypt,
-    decrypt: decrypt
-  });
-
-  class AES_CTR {
-    static encrypt(data, key, nonce) {
-      return new AES_CTR(key, nonce).encrypt(data);
-    }
-
-    static decrypt(data, key, nonce) {
-      return new AES_CTR(key, nonce).encrypt(data);
-    }
-
-    constructor(key, nonce, aes) {
-      this.aes = aes ? aes : new AES(key, undefined, false, 'CTR');
-      delete this.aes.padding;
-      this.AES_CTR_set_options(nonce);
-    }
-
-    encrypt(data) {
-      const r1 = this.aes.AES_Encrypt_process(data);
-      const r2 = this.aes.AES_Encrypt_finish();
-      return joinBytes(r1, r2);
-    }
-
-    decrypt(data) {
-      const r1 = this.aes.AES_Encrypt_process(data);
-      const r2 = this.aes.AES_Encrypt_finish();
-      return joinBytes(r1, r2);
-    }
-
-    AES_CTR_set_options(nonce, counter, size) {
-      let {
-        asm
-      } = this.aes.acquire_asm();
-
-      if (size !== undefined) {
-        if (size < 8 || size > 48) throw new IllegalArgumentError('illegal counter size');
-        let mask = Math.pow(2, size) - 1;
-        asm.set_mask(0, 0, mask / 0x100000000 | 0, mask | 0);
-      } else {
-        size = 48;
-        asm.set_mask(0, 0, 0xffff, 0xffffffff);
-      }
-
-      if (nonce !== undefined) {
-        let len = nonce.length;
-        if (!len || len > 16) throw new IllegalArgumentError('illegal nonce size');
-        let view = new DataView(new ArrayBuffer(16));
-        new Uint8Array(view.buffer).set(nonce);
-        asm.set_nonce(view.getUint32(0), view.getUint32(4), view.getUint32(8), view.getUint32(12));
-      } else {
-        throw new Error('nonce is required');
-      }
-
-      if (counter !== undefined) {
-        if (counter < 0 || counter >= Math.pow(2, size)) throw new IllegalArgumentError('illegal counter value');
-        asm.set_counter(0, 0, counter / 0x100000000 | 0, counter | 0);
-      }
-    }
-
-  }
-
-  class AES_CBC {
-    static encrypt(data, key, padding = true, iv) {
-      return new AES_CBC(key, iv, padding).encrypt(data);
-    }
-
-    static decrypt(data, key, padding = true, iv) {
-      return new AES_CBC(key, iv, padding).decrypt(data);
-    }
-
-    constructor(key, iv, padding = true, aes) {
-      this.aes = aes ? aes : new AES(key, iv, padding, 'CBC');
-    }
-
-    encrypt(data) {
-      const r1 = this.aes.AES_Encrypt_process(data);
-      const r2 = this.aes.AES_Encrypt_finish();
-      return joinBytes(r1, r2);
-    }
-
-    decrypt(data) {
-      const r1 = this.aes.AES_Decrypt_process(data);
-      const r2 = this.aes.AES_Decrypt_finish();
-      return joinBytes(r1, r2);
-    }
-
-  }
-  /**
-   * @fileoverview This module implements AES-CMAC on top of
-   * native AES-CBC using either the WebCrypto API or Node.js' crypto API.
-   * @module crypto/cmac
-   * @private
-   */
-
-
-  const webCrypto$2 = util.getWebCrypto();
-  const nodeCrypto$2 = util.getNodeCrypto();
-  /**
-   * This implementation of CMAC is based on the description of OMAC in
-   * http://web.cs.ucdavis.edu/~rogaway/papers/eax.pdf. As per that
-   * document:
-   *
-   * We have made a small modification to the OMAC algorithm as it was
-   * originally presented, changing one of its two constants.
-   * Specifically, the constant 4 at line 85 was the constant 1/2 (the
-   * multiplicative inverse of 2) in the original definition of OMAC [14].
-   * The OMAC authors indicate that they will promulgate this modification
-   * [15], which slightly simplifies implementations.
-   */
-
-  const blockLength = 16;
-  /**
-   * xor `padding` into the end of `data`. This function implements "the
-   * operation xor→ [which] xors the shorter string into the end of longer
-   * one". Since data is always as least as long as padding, we can
-   * simplify the implementation.
-   * @param {Uint8Array} data
-   * @param {Uint8Array} padding
-   */
-
-  function rightXORMut(data, padding) {
-    const offset = data.length - blockLength;
-
-    for (let i = 0; i < blockLength; i++) {
-      data[i + offset] ^= padding[i];
-    }
-
-    return data;
-  }
-
-  function pad(data, padding, padding2) {
-    // if |M| in {n, 2n, 3n, ...}
-    if (data.length && data.length % blockLength === 0) {
-      // then return M xor→ B,
-      return rightXORMut(data, padding);
-    } // else return (M || 10^(n−1−(|M| mod n))) xor→ P
-
-
-    const padded = new Uint8Array(data.length + (blockLength - data.length % blockLength));
-    padded.set(data);
-    padded[data.length] = 0b10000000;
-    return rightXORMut(padded, padding2);
-  }
-
-  const zeroBlock = new Uint8Array(blockLength);
-
-  async function CMAC(key) {
-    const cbc = await CBC(key); // L ← E_K(0^n); B ← 2L; P ← 4L
-
-    const padding = util.double(await cbc(zeroBlock));
-    const padding2 = util.double(padding);
-    return async function (data) {
-      // return CBC_K(pad(M; B, P))
-      return (await cbc(pad(data, padding, padding2))).subarray(-blockLength);
-    };
-  }
-
-  async function CBC(key) {
-    if (util.getWebCrypto() && key.length !== 24) {
-      // WebCrypto (no 192 bit support) see: https://www.chromium.org/blink/webcrypto#TOC-AES-support
-      key = await webCrypto$2.importKey('raw', key, {
-        name: 'AES-CBC',
-        length: key.length * 8
-      }, false, ['encrypt']);
-      return async function (pt) {
-        const ct = await webCrypto$2.encrypt({
-          name: 'AES-CBC',
-          iv: zeroBlock,
-          length: blockLength * 8
-        }, key, pt);
-        return new Uint8Array(ct).subarray(0, ct.byteLength - blockLength);
-      };
-    }
-
-    if (util.getNodeCrypto()) {
-      // Node crypto library
-      return async function (pt) {
-        const en = new nodeCrypto$2.createCipheriv('aes-' + key.length * 8 + '-cbc', key, zeroBlock);
-        const ct = en.update(pt);
-        return new Uint8Array(ct);
-      };
-    } // asm.js fallback
-
-
-    return async function (pt) {
-      return AES_CBC.encrypt(pt, key, false, zeroBlock);
-    };
-  } // OpenPGP.js - An OpenPGP implementation in javascript
-
-
-  const webCrypto$3 = util.getWebCrypto();
-  const nodeCrypto$3 = util.getNodeCrypto();
-  const Buffer$1 = util.getNodeBuffer();
-  const blockLength$1 = 16;
-  const ivLength = blockLength$1;
-  const tagLength = blockLength$1;
-  const zero = new Uint8Array(blockLength$1);
-  const one = new Uint8Array(blockLength$1);
-  one[blockLength$1 - 1] = 1;
-  const two = new Uint8Array(blockLength$1);
-  two[blockLength$1 - 1] = 2;
-
-  async function OMAC(key) {
-    const cmac = await CMAC(key);
-    return function (t, message) {
-      return cmac(util.concatUint8Array([t, message]));
-    };
-  }
-
-  async function CTR(key) {
-    if (util.getWebCrypto() && key.length !== 24 // WebCrypto (no 192 bit support) see: https://www.chromium.org/blink/webcrypto#TOC-AES-support
-    ) {
-      key = await webCrypto$3.importKey('raw', key, {
-        name: 'AES-CTR',
-        length: key.length * 8
-      }, false, ['encrypt']);
-      return async function (pt, iv) {
-        const ct = await webCrypto$3.encrypt({
-          name: 'AES-CTR',
-          counter: iv,
-          length: blockLength$1 * 8
-        }, key, pt);
-        return new Uint8Array(ct);
-      };
-    }
-
-    if (util.getNodeCrypto()) {
-      // Node crypto library
-      return async function (pt, iv) {
-        const en = new nodeCrypto$3.createCipheriv('aes-' + key.length * 8 + '-ctr', key, iv);
-        const ct = Buffer$1.concat([en.update(pt), en.final()]);
-        return new Uint8Array(ct);
-      };
-    } // asm.js fallback
-
-
-    return async function (pt, iv) {
-      return AES_CTR.encrypt(pt, key, iv);
-    };
-  }
-  /**
-   * Class to en/decrypt using EAX mode.
-   * @param {enums.symmetric} cipher - The symmetric cipher algorithm to use
-   * @param {Uint8Array} key - The encryption key
-   */
-
-
-  async function EAX(cipher, key) {
-    if (cipher !== enums.symmetric.aes128 && cipher !== enums.symmetric.aes192 && cipher !== enums.symmetric.aes256) {
-      throw new Error('EAX mode supports only AES cipher');
-    }
-
-    const [omac, ctr] = await Promise.all([OMAC(key), CTR(key)]);
-    return {
-      /**
-       * Encrypt plaintext input.
-       * @param {Uint8Array} plaintext - The cleartext input to be encrypted
-       * @param {Uint8Array} nonce - The nonce (16 bytes)
-       * @param {Uint8Array} adata - Associated data to sign
-       * @returns {Promise<Uint8Array>} The ciphertext output.
-       */
-      encrypt: async function (plaintext, nonce, adata) {
-        const [omacNonce, omacAdata] = await Promise.all([omac(zero, nonce), omac(one, adata)]);
-        const ciphered = await ctr(plaintext, omacNonce);
-        const omacCiphered = await omac(two, ciphered);
-        const tag = omacCiphered; // Assumes that omac(*).length === tagLength.
-
-        for (let i = 0; i < tagLength; i++) {
-          tag[i] ^= omacAdata[i] ^ omacNonce[i];
-        }
-
-        return util.concatUint8Array([ciphered, tag]);
-      },
-
-      /**
-       * Decrypt ciphertext input.
-       * @param {Uint8Array} ciphertext - The ciphertext input to be decrypted
-       * @param {Uint8Array} nonce - The nonce (16 bytes)
-       * @param {Uint8Array} adata - Associated data to verify
-       * @returns {Promise<Uint8Array>} The plaintext output.
-       */
-      decrypt: async function (ciphertext, nonce, adata) {
-        if (ciphertext.length < tagLength) throw new Error('Invalid EAX ciphertext');
-        const ciphered = ciphertext.subarray(0, -tagLength);
-        const ctTag = ciphertext.subarray(-tagLength);
-        const [omacNonce, omacAdata, omacCiphered] = await Promise.all([omac(zero, nonce), omac(one, adata), omac(two, ciphered)]);
-        const tag = omacCiphered; // Assumes that omac(*).length === tagLength.
-
-        for (let i = 0; i < tagLength; i++) {
-          tag[i] ^= omacAdata[i] ^ omacNonce[i];
-        }
-
-        if (!util.equalsUint8Array(ctTag, tag)) throw new Error('Authentication tag mismatch');
-        const plaintext = await ctr(ciphered, omacNonce);
-        return plaintext;
-      }
-    };
-  }
-  /**
-   * Get EAX nonce as defined by {@link https://tools.ietf.org/html/draft-ietf-openpgp-rfc4880bis-04#section-5.16.1|RFC4880bis-04, section 5.16.1}.
-   * @param {Uint8Array} iv - The initialization vector (16 bytes)
-   * @param {Uint8Array} chunkIndex - The chunk index (8 bytes)
-   */
-
-
-  EAX.getNonce = function (iv, chunkIndex) {
-    const nonce = iv.slice();
-
-    for (let i = 0; i < chunkIndex.length; i++) {
-      nonce[8 + i] ^= chunkIndex[i];
-    }
-
-    return nonce;
-  };
-
-  EAX.blockLength = blockLength$1;
-  EAX.ivLength = ivLength;
-  EAX.tagLength = tagLength; // OpenPGP.js - An OpenPGP implementation in javascript
-
-  const blockLength$2 = 16;
-  const ivLength$1 = 15; // https://tools.ietf.org/html/draft-ietf-openpgp-rfc4880bis-04#section-5.16.2:
-  // While OCB [RFC7253] allows the authentication tag length to be of any
-  // number up to 128 bits long, this document requires a fixed
-  // authentication tag length of 128 bits (16 octets) for simplicity.
-
-  const tagLength$1 = 16;
-
-  function ntz(n) {
-    let ntz = 0;
-
-    for (let i = 1; (n & i) === 0; i <<= 1) {
-      ntz++;
-    }
-
-    return ntz;
-  }
-
-  function xorMut$1(S, T) {
-    for (let i = 0; i < S.length; i++) {
-      S[i] ^= T[i];
-    }
-
-    return S;
-  }
-
-  function xor(S, T) {
-    return xorMut$1(S.slice(), T);
-  }
-
-  const zeroBlock$1 = new Uint8Array(blockLength$2);
-  const one$1 = new Uint8Array([1]);
-  /**
-   * Class to en/decrypt using OCB mode.
-   * @param {enums.symmetric} cipher - The symmetric cipher algorithm to use
-   * @param {Uint8Array} key - The encryption key
-   */
-
-  async function OCB(cipher$1, key) {
-    let maxNtz = 0;
-    let encipher;
-    let decipher;
-    let mask;
-    constructKeyVariables(cipher$1, key);
-
-    function constructKeyVariables(cipher$1, key) {
-      const cipherName = enums.read(enums.symmetric, cipher$1);
-      const aes = new cipher[cipherName](key);
-      encipher = aes.encrypt.bind(aes);
-      decipher = aes.decrypt.bind(aes);
-      const mask_x = encipher(zeroBlock$1);
-      const mask_$ = util.double(mask_x);
-      mask = [];
-      mask[0] = util.double(mask_$);
-      mask.x = mask_x;
-      mask.$ = mask_$;
-    }
-
-    function extendKeyVariables(text, adata) {
-      const newMaxNtz = util.nbits(Math.max(text.length, adata.length) / blockLength$2 | 0) - 1;
-
-      for (let i = maxNtz + 1; i <= newMaxNtz; i++) {
-        mask[i] = util.double(mask[i - 1]);
-      }
-
-      maxNtz = newMaxNtz;
-    }
-
-    function hash(adata) {
-      if (!adata.length) {
-        // Fast path
-        return zeroBlock$1;
-      } //
-      // Consider A as a sequence of 128-bit blocks
-      //
-
-
-      const m = adata.length / blockLength$2 | 0;
-      const offset = new Uint8Array(blockLength$2);
-      const sum = new Uint8Array(blockLength$2);
-
-      for (let i = 0; i < m; i++) {
-        xorMut$1(offset, mask[ntz(i + 1)]);
-        xorMut$1(sum, encipher(xor(offset, adata)));
-        adata = adata.subarray(blockLength$2);
-      } //
-      // Process any final partial block; compute final hash value
-      //
-
-
-      if (adata.length) {
-        xorMut$1(offset, mask.x);
-        const cipherInput = new Uint8Array(blockLength$2);
-        cipherInput.set(adata, 0);
-        cipherInput[adata.length] = 0b10000000;
-        xorMut$1(cipherInput, offset);
-        xorMut$1(sum, encipher(cipherInput));
-      }
-
-      return sum;
-    }
-    /**
-     * Encrypt/decrypt data.
-     * @param {encipher|decipher} fn - Encryption/decryption block cipher function
-     * @param {Uint8Array} text - The cleartext or ciphertext (without tag) input
-     * @param {Uint8Array} nonce - The nonce (15 bytes)
-     * @param {Uint8Array} adata - Associated data to sign
-     * @returns {Promise<Uint8Array>} The ciphertext or plaintext output, with tag appended in both cases.
-     */
-
-
-    function crypt(fn, text, nonce, adata) {
-      //
-      // Consider P as a sequence of 128-bit blocks
-      //
-      const m = text.length / blockLength$2 | 0; //
-      // Key-dependent variables
-      //
-
-      extendKeyVariables(text, adata); //
-      // Nonce-dependent and per-encryption variables
-      //
-      //    Nonce = num2str(TAGLEN mod 128,7) || zeros(120-bitlen(N)) || 1 || N
-      // Note: We assume here that tagLength mod 16 == 0.
-
-      const paddedNonce = util.concatUint8Array([zeroBlock$1.subarray(0, ivLength$1 - nonce.length), one$1, nonce]); //    bottom = str2num(Nonce[123..128])
-
-      const bottom = paddedNonce[blockLength$2 - 1] & 0b111111; //    Ktop = ENCIPHER(K, Nonce[1..122] || zeros(6))
-
-      paddedNonce[blockLength$2 - 1] &= 0b11000000;
-      const kTop = encipher(paddedNonce); //    Stretch = Ktop || (Ktop[1..64] xor Ktop[9..72])
-
-      const stretched = util.concatUint8Array([kTop, xor(kTop.subarray(0, 8), kTop.subarray(1, 9))]); //    Offset_0 = Stretch[1+bottom..128+bottom]
-
-      const offset = util.shiftRight(stretched.subarray(0 + (bottom >> 3), 17 + (bottom >> 3)), 8 - (bottom & 7)).subarray(1); //    Checksum_0 = zeros(128)
-
-      const checksum = new Uint8Array(blockLength$2);
-      const ct = new Uint8Array(text.length + tagLength$1); //
-      // Process any whole blocks
-      //
-
-      let i;
-      let pos = 0;
-
-      for (i = 0; i < m; i++) {
-        // Offset_i = Offset_{i-1} xor L_{ntz(i)}
-        xorMut$1(offset, mask[ntz(i + 1)]); // C_i = Offset_i xor ENCIPHER(K, P_i xor Offset_i)
-        // P_i = Offset_i xor DECIPHER(K, C_i xor Offset_i)
-
-        ct.set(xorMut$1(fn(xor(offset, text)), offset), pos); // Checksum_i = Checksum_{i-1} xor P_i
-
-        xorMut$1(checksum, fn === encipher ? text : ct.subarray(pos));
-        text = text.subarray(blockLength$2);
-        pos += blockLength$2;
-      } //
-      // Process any final partial block and compute raw tag
-      //
-
-
-      if (text.length) {
-        // Offset_* = Offset_m xor L_*
-        xorMut$1(offset, mask.x); // Pad = ENCIPHER(K, Offset_*)
-
-        const padding = encipher(offset); // C_* = P_* xor Pad[1..bitlen(P_*)]
-
-        ct.set(xor(text, padding), pos); // Checksum_* = Checksum_m xor (P_* || 1 || new Uint8Array(127-bitlen(P_*)))
-
-        const xorInput = new Uint8Array(blockLength$2);
-        xorInput.set(fn === encipher ? text : ct.subarray(pos, -tagLength$1), 0);
-        xorInput[text.length] = 0b10000000;
-        xorMut$1(checksum, xorInput);
-        pos += text.length;
-      } // Tag = ENCIPHER(K, Checksum_* xor Offset_* xor L_$) xor HASH(K,A)
-
-
-      const tag = xorMut$1(encipher(xorMut$1(xorMut$1(checksum, offset), mask.$)), hash(adata)); //
-      // Assemble ciphertext
-      //
-      // C = C_1 || C_2 || ... || C_m || C_* || Tag[1..TAGLEN]
-
-      ct.set(tag, pos);
-      return ct;
-    }
-
-    return {
-      /**
-       * Encrypt plaintext input.
-       * @param {Uint8Array} plaintext - The cleartext input to be encrypted
-       * @param {Uint8Array} nonce - The nonce (15 bytes)
-       * @param {Uint8Array} adata - Associated data to sign
-       * @returns {Promise<Uint8Array>} The ciphertext output.
-       */
-      encrypt: async function (plaintext, nonce, adata) {
-        return crypt(encipher, plaintext, nonce, adata);
-      },
-
-      /**
-       * Decrypt ciphertext input.
-       * @param {Uint8Array} ciphertext - The ciphertext input to be decrypted
-       * @param {Uint8Array} nonce - The nonce (15 bytes)
-       * @param {Uint8Array} adata - Associated data to sign
-       * @returns {Promise<Uint8Array>} The ciphertext output.
-       */
-      decrypt: async function (ciphertext, nonce, adata) {
-        if (ciphertext.length < tagLength$1) throw new Error('Invalid OCB ciphertext');
-        const tag = ciphertext.subarray(-tagLength$1);
-        ciphertext = ciphertext.subarray(0, -tagLength$1);
-        const crypted = crypt(decipher, ciphertext, nonce, adata); // if (Tag[1..TAGLEN] == T)
-
-        if (util.equalsUint8Array(tag, crypted.subarray(-tagLength$1))) {
-          return crypted.subarray(0, -tagLength$1);
-        }
-
-        throw new Error('Authentication tag mismatch');
-      }
-    };
-  }
-  /**
-   * Get OCB nonce as defined by {@link https://tools.ietf.org/html/draft-ietf-openpgp-rfc4880bis-04#section-5.16.2|RFC4880bis-04, section 5.16.2}.
-   * @param {Uint8Array} iv - The initialization vector (15 bytes)
-   * @param {Uint8Array} chunkIndex - The chunk index (8 bytes)
-   */
-
-
-  OCB.getNonce = function (iv, chunkIndex) {
-    const nonce = iv.slice();
-
-    for (let i = 0; i < chunkIndex.length; i++) {
-      nonce[7 + i] ^= chunkIndex[i];
-    }
-
-    return nonce;
-  };
-
-  OCB.blockLength = blockLength$2;
-  OCB.ivLength = ivLength$1;
-  OCB.tagLength = tagLength$1;
-  const _AES_GCM_data_maxLength = 68719476704; // 2^36 - 2^5
-
-  class AES_GCM {
-    constructor(key, nonce, adata, tagSize = 16, aes) {
-      this.tagSize = tagSize;
-      this.gamma0 = 0;
-      this.counter = 1;
-      this.aes = aes ? aes : new AES(key, undefined, false, 'CTR');
-      let {
-        asm,
-        heap
-      } = this.aes.acquire_asm(); // Init GCM
-
-      asm.gcm_init(); // Tag size
-
-      if (this.tagSize < 4 || this.tagSize > 16) throw new IllegalArgumentError('illegal tagSize value'); // Nonce
-
-      const noncelen = nonce.length || 0;
-      const noncebuf = new Uint8Array(16);
-
-      if (noncelen !== 12) {
-        this._gcm_mac_process(nonce);
-
-        heap[0] = 0;
-        heap[1] = 0;
-        heap[2] = 0;
-        heap[3] = 0;
-        heap[4] = 0;
-        heap[5] = 0;
-        heap[6] = 0;
-        heap[7] = 0;
-        heap[8] = 0;
-        heap[9] = 0;
-        heap[10] = 0;
-        heap[11] = noncelen >>> 29;
-        heap[12] = noncelen >>> 21 & 255;
-        heap[13] = noncelen >>> 13 & 255;
-        heap[14] = noncelen >>> 5 & 255;
-        heap[15] = noncelen << 3 & 255;
-        asm.mac(AES_asm.MAC.GCM, AES_asm.HEAP_DATA, 16);
-        asm.get_iv(AES_asm.HEAP_DATA);
-        asm.set_iv(0, 0, 0, 0);
-        noncebuf.set(heap.subarray(0, 16));
-      } else {
-        noncebuf.set(nonce);
-        noncebuf[15] = 1;
-      }
-
-      const nonceview = new DataView(noncebuf.buffer);
-      this.gamma0 = nonceview.getUint32(12);
-      asm.set_nonce(nonceview.getUint32(0), nonceview.getUint32(4), nonceview.getUint32(8), 0);
-      asm.set_mask(0, 0, 0, 0xffffffff); // Associated data
-
-      if (adata !== undefined) {
-        if (adata.length > _AES_GCM_data_maxLength) throw new IllegalArgumentError('illegal adata length');
-
-        if (adata.length) {
-          this.adata = adata;
-
-          this._gcm_mac_process(adata);
-        } else {
-          this.adata = undefined;
-        }
-      } else {
-        this.adata = undefined;
-      } // Counter
-
-
-      if (this.counter < 1 || this.counter > 0xffffffff) throw new RangeError('counter must be a positive 32-bit integer');
-      asm.set_counter(0, 0, 0, this.gamma0 + this.counter | 0);
-    }
-
-    static encrypt(cleartext, key, nonce, adata, tagsize) {
-      return new AES_GCM(key, nonce, adata, tagsize).encrypt(cleartext);
-    }
-
-    static decrypt(ciphertext, key, nonce, adata, tagsize) {
-      return new AES_GCM(key, nonce, adata, tagsize).decrypt(ciphertext);
-    }
-
-    encrypt(data) {
-      return this.AES_GCM_encrypt(data);
-    }
-
-    decrypt(data) {
-      return this.AES_GCM_decrypt(data);
-    }
-
-    AES_GCM_Encrypt_process(data) {
-      let dpos = 0;
-      let dlen = data.length || 0;
-      let {
-        asm,
-        heap
-      } = this.aes.acquire_asm();
-      let counter = this.counter;
-      let pos = this.aes.pos;
-      let len = this.aes.len;
-      let rpos = 0;
-      let rlen = len + dlen & -16;
-      let wlen = 0;
-      if ((counter - 1 << 4) + len + dlen > _AES_GCM_data_maxLength) throw new RangeError('counter overflow');
-      const result = new Uint8Array(rlen);
-
-      while (dlen > 0) {
-        wlen = _heap_write(heap, pos + len, data, dpos, dlen);
-        len += wlen;
-        dpos += wlen;
-        dlen -= wlen;
-        wlen = asm.cipher(AES_asm.ENC.CTR, AES_asm.HEAP_DATA + pos, len);
-        wlen = asm.mac(AES_asm.MAC.GCM, AES_asm.HEAP_DATA + pos, wlen);
-        if (wlen) result.set(heap.subarray(pos, pos + wlen), rpos);
-        counter += wlen >>> 4;
-        rpos += wlen;
-
-        if (wlen < len) {
-          pos += wlen;
-          len -= wlen;
-        } else {
-          pos = 0;
-          len = 0;
-        }
-      }
-
-      this.counter = counter;
-      this.aes.pos = pos;
-      this.aes.len = len;
-      return result;
-    }
-
-    AES_GCM_Encrypt_finish() {
-      let {
-        asm,
-        heap
-      } = this.aes.acquire_asm();
-      let counter = this.counter;
-      let tagSize = this.tagSize;
-      let adata = this.adata;
-      let pos = this.aes.pos;
-      let len = this.aes.len;
-      const result = new Uint8Array(len + tagSize);
-      asm.cipher(AES_asm.ENC.CTR, AES_asm.HEAP_DATA + pos, len + 15 & -16);
-      if (len) result.set(heap.subarray(pos, pos + len));
-      let i = len;
-
-      for (; i & 15; i++) heap[pos + i] = 0;
-
-      asm.mac(AES_asm.MAC.GCM, AES_asm.HEAP_DATA + pos, i);
-      const alen = adata !== undefined ? adata.length : 0;
-      const clen = (counter - 1 << 4) + len;
-      heap[0] = 0;
-      heap[1] = 0;
-      heap[2] = 0;
-      heap[3] = alen >>> 29;
-      heap[4] = alen >>> 21;
-      heap[5] = alen >>> 13 & 255;
-      heap[6] = alen >>> 5 & 255;
-      heap[7] = alen << 3 & 255;
-      heap[8] = heap[9] = heap[10] = 0;
-      heap[11] = clen >>> 29;
-      heap[12] = clen >>> 21 & 255;
-      heap[13] = clen >>> 13 & 255;
-      heap[14] = clen >>> 5 & 255;
-      heap[15] = clen << 3 & 255;
-      asm.mac(AES_asm.MAC.GCM, AES_asm.HEAP_DATA, 16);
-      asm.get_iv(AES_asm.HEAP_DATA);
-      asm.set_counter(0, 0, 0, this.gamma0);
-      asm.cipher(AES_asm.ENC.CTR, AES_asm.HEAP_DATA, 16);
-      result.set(heap.subarray(0, tagSize), len);
-      this.counter = 1;
-      this.aes.pos = 0;
-      this.aes.len = 0;
-      return result;
-    }
-
-    AES_GCM_Decrypt_process(data) {
-      let dpos = 0;
-      let dlen = data.length || 0;
-      let {
-        asm,
-        heap
-      } = this.aes.acquire_asm();
-      let counter = this.counter;
-      let tagSize = this.tagSize;
-      let pos = this.aes.pos;
-      let len = this.aes.len;
-      let rpos = 0;
-      let rlen = len + dlen > tagSize ? len + dlen - tagSize & -16 : 0;
-      let tlen = len + dlen - rlen;
-      let wlen = 0;
-      if ((counter - 1 << 4) + len + dlen > _AES_GCM_data_maxLength) throw new RangeError('counter overflow');
-      const result = new Uint8Array(rlen);
-
-      while (dlen > tlen) {
-        wlen = _heap_write(heap, pos + len, data, dpos, dlen - tlen);
-        len += wlen;
-        dpos += wlen;
-        dlen -= wlen;
-        wlen = asm.mac(AES_asm.MAC.GCM, AES_asm.HEAP_DATA + pos, wlen);
-        wlen = asm.cipher(AES_asm.DEC.CTR, AES_asm.HEAP_DATA + pos, wlen);
-        if (wlen) result.set(heap.subarray(pos, pos + wlen), rpos);
-        counter += wlen >>> 4;
-        rpos += wlen;
-        pos = 0;
-        len = 0;
-      }
-
-      if (dlen > 0) {
-        len += _heap_write(heap, 0, data, dpos, dlen);
-      }
-
-      this.counter = counter;
-      this.aes.pos = pos;
-      this.aes.len = len;
-      return result;
-    }
-
-    AES_GCM_Decrypt_finish() {
-      let {
-        asm,
-        heap
-      } = this.aes.acquire_asm();
-      let tagSize = this.tagSize;
-      let adata = this.adata;
-      let counter = this.counter;
-      let pos = this.aes.pos;
-      let len = this.aes.len;
-      let rlen = len - tagSize;
-      if (len < tagSize) throw new IllegalStateError('authentication tag not found');
-      const result = new Uint8Array(rlen);
-      const atag = new Uint8Array(heap.subarray(pos + rlen, pos + len));
-      let i = rlen;
-
-      for (; i & 15; i++) heap[pos + i] = 0;
-
-      asm.mac(AES_asm.MAC.GCM, AES_asm.HEAP_DATA + pos, i);
-      asm.cipher(AES_asm.DEC.CTR, AES_asm.HEAP_DATA + pos, i);
-      if (rlen) result.set(heap.subarray(pos, pos + rlen));
-      const alen = adata !== undefined ? adata.length : 0;
-      const clen = (counter - 1 << 4) + len - tagSize;
-      heap[0] = 0;
-      heap[1] = 0;
-      heap[2] = 0;
-      heap[3] = alen >>> 29;
-      heap[4] = alen >>> 21;
-      heap[5] = alen >>> 13 & 255;
-      heap[6] = alen >>> 5 & 255;
-      heap[7] = alen << 3 & 255;
-      heap[8] = heap[9] = heap[10] = 0;
-      heap[11] = clen >>> 29;
-      heap[12] = clen >>> 21 & 255;
-      heap[13] = clen >>> 13 & 255;
-      heap[14] = clen >>> 5 & 255;
-      heap[15] = clen << 3 & 255;
-      asm.mac(AES_asm.MAC.GCM, AES_asm.HEAP_DATA, 16);
-      asm.get_iv(AES_asm.HEAP_DATA);
-      asm.set_counter(0, 0, 0, this.gamma0);
-      asm.cipher(AES_asm.ENC.CTR, AES_asm.HEAP_DATA, 16);
-      let acheck = 0;
-
-      for (let i = 0; i < tagSize; ++i) acheck |= atag[i] ^ heap[i];
-
-      if (acheck) throw new SecurityError('data integrity check failed');
-      this.counter = 1;
-      this.aes.pos = 0;
-      this.aes.len = 0;
-      return result;
-    }
-
-    AES_GCM_decrypt(data) {
-      const result1 = this.AES_GCM_Decrypt_process(data);
-      const result2 = this.AES_GCM_Decrypt_finish();
-      const result = new Uint8Array(result1.length + result2.length);
-      if (result1.length) result.set(result1);
-      if (result2.length) result.set(result2, result1.length);
-      return result;
-    }
-
-    AES_GCM_encrypt(data) {
-      const result1 = this.AES_GCM_Encrypt_process(data);
-      const result2 = this.AES_GCM_Encrypt_finish();
-      const result = new Uint8Array(result1.length + result2.length);
-      if (result1.length) result.set(result1);
-      if (result2.length) result.set(result2, result1.length);
-      return result;
-    }
-
-    _gcm_mac_process(data) {
-      let {
-        asm,
-        heap
-      } = this.aes.acquire_asm();
-      let dpos = 0;
-      let dlen = data.length || 0;
-      let wlen = 0;
-
-      while (dlen > 0) {
-        wlen = _heap_write(heap, 0, data, dpos, dlen);
-        dpos += wlen;
-        dlen -= wlen;
-
-        while (wlen & 15) heap[wlen++] = 0;
-
-        asm.mac(AES_asm.MAC.GCM, AES_asm.HEAP_DATA, wlen);
-      }
-    }
-
-  } // OpenPGP.js - An OpenPGP implementation in javascript
-
-
-  const webCrypto$4 = util.getWebCrypto();
-  const nodeCrypto$4 = util.getNodeCrypto();
-  const Buffer$2 = util.getNodeBuffer();
-  const blockLength$3 = 16;
-  const ivLength$2 = 12; // size of the IV in bytes
-
-  const tagLength$2 = 16; // size of the tag in bytes
-
-  const ALGO = 'AES-GCM';
-  /**
-   * Class to en/decrypt using GCM mode.
-   * @param {enums.symmetric} cipher - The symmetric cipher algorithm to use
-   * @param {Uint8Array} key - The encryption key
-   */
-
-  async function GCM(cipher, key) {
-    if (cipher !== enums.symmetric.aes128 && cipher !== enums.symmetric.aes192 && cipher !== enums.symmetric.aes256) {
-      throw new Error('GCM mode supports only AES cipher');
-    }
-
-    if (util.getWebCrypto() && key.length !== 24) {
-      // WebCrypto (no 192 bit support) see: https://www.chromium.org/blink/webcrypto#TOC-AES-support
-      const _key = await webCrypto$4.importKey('raw', key, {
-        name: ALGO
-      }, false, ['encrypt', 'decrypt']);
-
-      return {
-        encrypt: async function (pt, iv, adata = new Uint8Array()) {
-          if (!pt.length) {
-            // iOS does not support GCM-en/decrypting empty messages
-            return AES_GCM.encrypt(pt, key, iv, adata);
-          }
-
-          const ct = await webCrypto$4.encrypt({
-            name: ALGO,
-            iv,
-            additionalData: adata,
-            tagLength: tagLength$2 * 8
-          }, _key, pt);
-          return new Uint8Array(ct);
-        },
-        decrypt: async function (ct, iv, adata = new Uint8Array()) {
-          if (ct.length === tagLength$2) {
-            // iOS does not support GCM-en/decrypting empty messages
-            return AES_GCM.decrypt(ct, key, iv, adata);
-          }
-
-          const pt = await webCrypto$4.decrypt({
-            name: ALGO,
-            iv,
-            additionalData: adata,
-            tagLength: tagLength$2 * 8
-          }, _key, ct);
-          return new Uint8Array(pt);
-        }
-      };
-    }
-
-    if (util.getNodeCrypto()) {
-      // Node crypto library
-      return {
-        encrypt: async function (pt, iv, adata = new Uint8Array()) {
-          const en = new nodeCrypto$4.createCipheriv('aes-' + key.length * 8 + '-gcm', key, iv);
-          en.setAAD(adata);
-          const ct = Buffer$2.concat([en.update(pt), en.final(), en.getAuthTag()]); // append auth tag to ciphertext
-
-          return new Uint8Array(ct);
-        },
-        decrypt: async function (ct, iv, adata = new Uint8Array()) {
-          const de = new nodeCrypto$4.createDecipheriv('aes-' + key.length * 8 + '-gcm', key, iv);
-          de.setAAD(adata);
-          de.setAuthTag(ct.slice(ct.length - tagLength$2, ct.length)); // read auth tag at end of ciphertext
-
-          const pt = Buffer$2.concat([de.update(ct.slice(0, ct.length - tagLength$2)), de.final()]);
-          return new Uint8Array(pt);
-        }
-      };
-    }
-
-    return {
-      encrypt: async function (pt, iv, adata) {
-        return AES_GCM.encrypt(pt, key, iv, adata);
-      },
-      decrypt: async function (ct, iv, adata) {
-        return AES_GCM.decrypt(ct, key, iv, adata);
-      }
-    };
-  }
-  /**
-   * Get GCM nonce. Note: this operation is not defined by the standard.
-   * A future version of the standard may define GCM mode differently,
-   * hopefully under a different ID (we use Private/Experimental algorithm
-   * ID 100) so that we can maintain backwards compatibility.
-   * @param {Uint8Array} iv - The initialization vector (12 bytes)
-   * @param {Uint8Array} chunkIndex - The chunk index (8 bytes)
-   */
-
-
-  GCM.getNonce = function (iv, chunkIndex) {
-    const nonce = iv.slice();
-
-    for (let i = 0; i < chunkIndex.length; i++) {
-      nonce[4 + i] ^= chunkIndex[i];
-    }
-
-    return nonce;
-  };
-
-  GCM.blockLength = blockLength$3;
-  GCM.ivLength = ivLength$2;
-  GCM.tagLength = tagLength$2;
-  /**
-   * @fileoverview Cipher modes
-   * @module crypto/mode
-   * @private
-   */
-
-  var mode = {
-    /** @see module:crypto/mode/cfb */
-    cfb: cfb,
-
-    /** @see module:crypto/mode/gcm */
-    gcm: GCM,
-    experimentalGCM: GCM,
-
-    /** @see module:crypto/mode/eax */
-    eax: EAX,
-
-    /** @see module:crypto/mode/ocb */
-    ocb: OCB
-  };
   var naclFastLight = createCommonjsModule(function (module) {
     /*jshint bitwise: false*/
     (function (nacl) {
@@ -11862,7 +10680,7 @@ var openpgp = function (exports) {
     })(module.exports ? module.exports : self.nacl = self.nacl || {});
   }); // GPG4Browsers - An OpenPGP implementation in javascript
 
-  const nodeCrypto$5 = util.getNodeCrypto();
+  const nodeCrypto$1 = util.getNodeCrypto();
   /**
    * Buffer for secure random numbers
    */
@@ -11955,8 +10773,8 @@ var openpgp = function (exports) {
 
     if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
       crypto.getRandomValues(buf);
-    } else if (nodeCrypto$5) {
-      const bytes = nodeCrypto$5.randomBytes(buf.length);
+    } else if (nodeCrypto$1) {
+      const bytes = nodeCrypto$1.randomBytes(buf.length);
       buf.set(bytes);
     } else if (randomBuffer.buffer) {
       await randomBuffer.get(buf);
@@ -12331,9 +11149,9 @@ var openpgp = function (exports) {
     emsaEncode: emsaEncode
   }); // GPG4Browsers - An OpenPGP implementation in javascript
 
-  const webCrypto$5 = util.getWebCrypto();
-  const nodeCrypto$6 = util.getNodeCrypto();
-  const asn1 = nodeCrypto$6 ? void 'asn1.js' : undefined;
+  const webCrypto$1 = util.getWebCrypto();
+  const nodeCrypto$2 = util.getNodeCrypto();
+  const asn1 = nodeCrypto$2 ? void 'asn1.js' : undefined;
   /* eslint-disable no-invalid-this */
 
   const RSAPrivateKey = util.detectNode() ? asn1.define('RSAPrivateKey', function () {
@@ -12424,9 +11242,9 @@ var openpgp = function (exports) {
    */
 
 
-  async function encrypt$1(data, n, e) {
+  async function encrypt(data, n, e) {
     if (util.getNodeCrypto()) {
-      return nodeEncrypt$1(data, n, e);
+      return nodeEncrypt(data, n, e);
     }
 
     return bnEncrypt(data, n, e);
@@ -12448,9 +11266,9 @@ var openpgp = function (exports) {
    */
 
 
-  async function decrypt$1(data, n, e, d, p, q, u, randomPayload) {
+  async function decrypt(data, n, e, d, p, q, u, randomPayload) {
     if (util.getNodeCrypto()) {
-      return nodeDecrypt$1(data, n, e, d, p, q, u, randomPayload);
+      return nodeDecrypt(data, n, e, d, p, q, u, randomPayload);
     }
 
     return bnDecrypt(data, n, e, d, p, q, u, randomPayload);
@@ -12486,10 +11304,10 @@ var openpgp = function (exports) {
 
         }
       };
-      const keyPair = await webCrypto$5.generateKey(keyGenOpt, true, ['sign', 'verify']); // export the generated keys as JsonWebKey (JWK)
+      const keyPair = await webCrypto$1.generateKey(keyGenOpt, true, ['sign', 'verify']); // export the generated keys as JsonWebKey (JWK)
       // https://tools.ietf.org/html/draft-ietf-jose-json-web-key-33
 
-      const jwk = await webCrypto$5.exportKey('jwk', keyPair.privateKey); // map JWK parameters to corresponding OpenPGP names
+      const jwk = await webCrypto$1.exportKey('jwk', keyPair.privateKey); // map JWK parameters to corresponding OpenPGP names
 
       return {
         n: b64ToUint8Array(jwk.n),
@@ -12501,7 +11319,7 @@ var openpgp = function (exports) {
         // Since p and q are switched in places, u is the inverse of jwk.q
         u: b64ToUint8Array(jwk.qi)
       };
-    } else if (util.getNodeCrypto() && nodeCrypto$6.generateKeyPair && RSAPrivateKey) {
+    } else if (util.getNodeCrypto() && nodeCrypto$2.generateKeyPair && RSAPrivateKey) {
       const opts = {
         modulusLength: bits,
         publicExponent: e.toNumber(),
@@ -12514,7 +11332,7 @@ var openpgp = function (exports) {
           format: 'der'
         }
       };
-      const prv = await new Promise((resolve, reject) => nodeCrypto$6.generateKeyPair('rsa', opts, (err, _, der) => {
+      const prv = await new Promise((resolve, reject) => nodeCrypto$2.generateKeyPair('rsa', opts, (err, _, der) => {
         if (err) {
           reject(err);
         } else {
@@ -12651,8 +11469,8 @@ var openpgp = function (exports) {
         name: hashName
       }
     };
-    const key = await webCrypto$5.importKey('jwk', jwk, algo, false, ['sign']);
-    return new Uint8Array(await webCrypto$5.sign('RSASSA-PKCS1-v1_5', key, data));
+    const key = await webCrypto$1.importKey('jwk', jwk, algo, false, ['sign']);
+    return new Uint8Array(await webCrypto$1.sign('RSASSA-PKCS1-v1_5', key, data));
   }
 
   async function nodeSign(hashAlgo, data, n, e, d, p, q, u) {
@@ -12668,7 +11486,7 @@ var openpgp = function (exports) {
 
     const dp = dBNum.mod(pBNum.subn(1)); // d mod (p-1)
 
-    const sign = nodeCrypto$6.createSign(enums.read(enums.hash, hashAlgo));
+    const sign = nodeCrypto$2.createSign(enums.read(enums.hash, hashAlgo));
     sign.write(data);
     sign.end();
     const keyObject = {
@@ -12685,7 +11503,7 @@ var openpgp = function (exports) {
       coefficient: new BN(u)
     };
 
-    if (typeof nodeCrypto$6.createPrivateKey !== 'undefined') {
+    if (typeof nodeCrypto$2.createPrivateKey !== 'undefined') {
       //from version 11.6.0 Node supports der encoded key objects
       const der = RSAPrivateKey.encode(keyObject, 'der');
       return new Uint8Array(sign.sign({
@@ -12718,13 +11536,13 @@ var openpgp = function (exports) {
 
   async function webVerify(hashName, data, s, n, e) {
     const jwk = publicToJWK(n, e);
-    const key = await webCrypto$5.importKey('jwk', jwk, {
+    const key = await webCrypto$1.importKey('jwk', jwk, {
       name: 'RSASSA-PKCS1-v1_5',
       hash: {
         name: hashName
       }
     }, false, ['verify']);
-    return webCrypto$5.verify('RSASSA-PKCS1-v1_5', key, s, data);
+    return webCrypto$1.verify('RSASSA-PKCS1-v1_5', key, s, data);
   }
 
   async function nodeVerify(hashAlgo, data, s, n, e) {
@@ -12733,7 +11551,7 @@ var openpgp = function (exports) {
     } = await Promise.resolve().then(function () {
       return bn$1;
     });
-    const verify = nodeCrypto$6.createVerify(enums.read(enums.hash, hashAlgo));
+    const verify = nodeCrypto$2.createVerify(enums.read(enums.hash, hashAlgo));
     verify.write(data);
     verify.end();
     const keyObject = {
@@ -12742,7 +11560,7 @@ var openpgp = function (exports) {
     };
     let key;
 
-    if (typeof nodeCrypto$6.createPrivateKey !== 'undefined') {
+    if (typeof nodeCrypto$2.createPrivateKey !== 'undefined') {
       //from version 11.6.0 Node supports der encoded key objects
       const der = RSAPublicKey.encode(keyObject, 'der');
       key = {
@@ -12763,7 +11581,7 @@ var openpgp = function (exports) {
     }
   }
 
-  async function nodeEncrypt$1(data, n, e) {
+  async function nodeEncrypt(data, n, e) {
     const {
       default: BN
     } = await Promise.resolve().then(function () {
@@ -12775,13 +11593,13 @@ var openpgp = function (exports) {
     };
     let key;
 
-    if (typeof nodeCrypto$6.createPrivateKey !== 'undefined') {
+    if (typeof nodeCrypto$2.createPrivateKey !== 'undefined') {
       const der = RSAPublicKey.encode(keyObject, 'der');
       key = {
         key: der,
         format: 'der',
         type: 'pkcs1',
-        padding: nodeCrypto$6.constants.RSA_PKCS1_PADDING
+        padding: nodeCrypto$2.constants.RSA_PKCS1_PADDING
       };
     } else {
       const pem = RSAPublicKey.encode(keyObject, 'pem', {
@@ -12789,11 +11607,11 @@ var openpgp = function (exports) {
       });
       key = {
         key: pem,
-        padding: nodeCrypto$6.constants.RSA_PKCS1_PADDING
+        padding: nodeCrypto$2.constants.RSA_PKCS1_PADDING
       };
     }
 
-    return new Uint8Array(nodeCrypto$6.publicEncrypt(key, data));
+    return new Uint8Array(nodeCrypto$2.publicEncrypt(key, data));
   }
 
   async function bnEncrypt(data, n, e) {
@@ -12809,7 +11627,7 @@ var openpgp = function (exports) {
     return data.modExp(e, n).toUint8Array('be', n.byteLength());
   }
 
-  async function nodeDecrypt$1(data, n, e, d, p, q, u, randomPayload) {
+  async function nodeDecrypt(data, n, e, d, p, q, u, randomPayload) {
     const {
       default: BN
     } = await Promise.resolve().then(function () {
@@ -12837,13 +11655,13 @@ var openpgp = function (exports) {
     };
     let key;
 
-    if (typeof nodeCrypto$6.createPrivateKey !== 'undefined') {
+    if (typeof nodeCrypto$2.createPrivateKey !== 'undefined') {
       const der = RSAPrivateKey.encode(keyObject, 'der');
       key = {
         key: der,
         format: 'der',
         type: 'pkcs1',
-        padding: nodeCrypto$6.constants.RSA_PKCS1_PADDING
+        padding: nodeCrypto$2.constants.RSA_PKCS1_PADDING
       };
     } else {
       const pem = RSAPrivateKey.encode(keyObject, 'pem', {
@@ -12851,12 +11669,12 @@ var openpgp = function (exports) {
       });
       key = {
         key: pem,
-        padding: nodeCrypto$6.constants.RSA_PKCS1_PADDING
+        padding: nodeCrypto$2.constants.RSA_PKCS1_PADDING
       };
     }
 
     try {
-      return new Uint8Array(nodeCrypto$6.privateDecrypt(key, data));
+      return new Uint8Array(nodeCrypto$2.privateDecrypt(key, data));
     } catch (err) {
       if (randomPayload) {
         return randomPayload;
@@ -12957,8 +11775,8 @@ var openpgp = function (exports) {
     __proto__: null,
     sign: sign,
     verify: verify,
-    encrypt: encrypt$1,
-    decrypt: decrypt$1,
+    encrypt: encrypt,
+    decrypt: decrypt,
     generate: generate,
     validateParams: validateParams
   }); // GPG4Browsers - An OpenPGP implementation in javascript
@@ -12974,7 +11792,7 @@ var openpgp = function (exports) {
    * @async
    */
 
-  async function encrypt$2(data, p, g, y) {
+  async function encrypt$1(data, p, g, y) {
     const BigInteger = await util.getBigInteger();
     p = new BigInteger(p);
     g = new BigInteger(g);
@@ -13003,7 +11821,7 @@ var openpgp = function (exports) {
    */
 
 
-  async function decrypt$2(c1, c2, p, x, randomPayload) {
+  async function decrypt$1(c1, c2, p, x, randomPayload) {
     const BigInteger = await util.getBigInteger();
     c1 = new BigInteger(c1);
     c2 = new BigInteger(c2);
@@ -13094,8 +11912,8 @@ var openpgp = function (exports) {
 
   var elgamal = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    encrypt: encrypt$2,
-    decrypt: decrypt$2,
+    encrypt: encrypt$1,
+    decrypt: decrypt$1,
     validateParams: validateParams$1
   }); // OpenPGP.js - An OpenPGP implementation in javascript
 
@@ -13209,15 +12027,15 @@ var openpgp = function (exports) {
   } // OpenPGP.js - An OpenPGP implementation in javascript
 
 
-  const webCrypto$6 = util.getWebCrypto();
-  const nodeCrypto$7 = util.getNodeCrypto();
+  const webCrypto$2 = util.getWebCrypto();
+  const nodeCrypto$3 = util.getNodeCrypto();
   const webCurves = {
     'p256': 'P-256',
     'p384': 'P-384',
     'p521': 'P-521'
   };
-  const knownCurves = nodeCrypto$7 ? nodeCrypto$7.getCurves() : [];
-  const nodeCurves = nodeCrypto$7 ? {
+  const knownCurves = nodeCrypto$3 ? nodeCrypto$3.getCurves() : [];
+  const nodeCurves = nodeCrypto$3 ? {
     secp256k1: knownCurves.includes('secp256k1') ? 'secp256k1' : undefined,
     p256: knownCurves.includes('prime256v1') ? 'prime256v1' : undefined,
     p384: knownCurves.includes('secp384r1') ? 'secp384r1' : undefined,
@@ -13502,12 +12320,12 @@ var openpgp = function (exports) {
 
   async function webGenKeyPair(name) {
     // Note: keys generated with ECDSA and ECDH are structurally equivalent
-    const webCryptoKey = await webCrypto$6.generateKey({
+    const webCryptoKey = await webCrypto$2.generateKey({
       name: 'ECDSA',
       namedCurve: webCurves[name]
     }, true, ['sign', 'verify']);
-    const privateKey = await webCrypto$6.exportKey('jwk', webCryptoKey.privateKey);
-    const publicKey = await webCrypto$6.exportKey('jwk', webCryptoKey.publicKey);
+    const privateKey = await webCrypto$2.exportKey('jwk', webCryptoKey.privateKey);
+    const publicKey = await webCrypto$2.exportKey('jwk', webCryptoKey.publicKey);
     return {
       publicKey: jwkToRawPublic(publicKey),
       privateKey: b64ToUint8Array(privateKey.d)
@@ -13516,7 +12334,7 @@ var openpgp = function (exports) {
 
   async function nodeGenKeyPair(name) {
     // Note: ECDSA and ECDH key generation is structurally equivalent
-    const ecdh = nodeCrypto$7.createECDH(nodeCurves[name]);
+    const ecdh = nodeCrypto$3.createECDH(nodeCurves[name]);
     await ecdh.generateKeys();
     return {
       publicKey: new Uint8Array(ecdh.getPublicKey()),
@@ -13584,8 +12402,8 @@ var openpgp = function (exports) {
   } // OpenPGP.js - An OpenPGP implementation in javascript
 
 
-  const webCrypto$7 = util.getWebCrypto();
-  const nodeCrypto$8 = util.getNodeCrypto();
+  const webCrypto$3 = util.getWebCrypto();
+  const nodeCrypto$4 = util.getNodeCrypto();
   /**
    * Sign a message using the provided key
    * @param {module:type/oid} oid - Elliptic curve object identifier
@@ -13752,14 +12570,14 @@ var openpgp = function (exports) {
   async function webSign$1(curve, hashAlgo, message, keyPair) {
     const len = curve.payloadSize;
     const jwk = privateToJWK$1(curve.payloadSize, webCurves[curve.name], keyPair.publicKey, keyPair.privateKey);
-    const key = await webCrypto$7.importKey('jwk', jwk, {
+    const key = await webCrypto$3.importKey('jwk', jwk, {
       'name': 'ECDSA',
       'namedCurve': webCurves[curve.name],
       'hash': {
         name: enums.read(enums.webHash, curve.hash)
       }
     }, false, ['sign']);
-    const signature = new Uint8Array(await webCrypto$7.sign({
+    const signature = new Uint8Array(await webCrypto$3.sign({
       'name': 'ECDSA',
       'namedCurve': webCurves[curve.name],
       'hash': {
@@ -13777,7 +12595,7 @@ var openpgp = function (exports) {
     s
   }, message, publicKey) {
     const jwk = rawPublicToJWK(curve.payloadSize, webCurves[curve.name], publicKey);
-    const key = await webCrypto$7.importKey('jwk', jwk, {
+    const key = await webCrypto$3.importKey('jwk', jwk, {
       'name': 'ECDSA',
       'namedCurve': webCurves[curve.name],
       'hash': {
@@ -13785,7 +12603,7 @@ var openpgp = function (exports) {
       }
     }, false, ['verify']);
     const signature = util.concatUint8Array([r, s]).buffer;
-    return webCrypto$7.verify({
+    return webCrypto$3.verify({
       'name': 'ECDSA',
       'namedCurve': webCurves[curve.name],
       'hash': {
@@ -13795,7 +12613,7 @@ var openpgp = function (exports) {
   }
 
   async function nodeSign$1(curve, hashAlgo, message, keyPair) {
-    const sign = nodeCrypto$8.createSign(enums.read(enums.hash, hashAlgo));
+    const sign = nodeCrypto$4.createSign(enums.read(enums.hash, hashAlgo));
     sign.write(message);
     sign.end();
     const key = ECPrivateKey.encode({
@@ -13821,7 +12639,7 @@ var openpgp = function (exports) {
     } = await Promise.resolve().then(function () {
       return bn$1;
     });
-    const verify = nodeCrypto$8.createVerify(enums.read(enums.hash, hashAlgo));
+    const verify = nodeCrypto$4.createVerify(enums.read(enums.hash, hashAlgo));
     verify.write(message);
     verify.end();
     const key = SubjectPublicKeyInfo.encode({
@@ -13852,17 +12670,17 @@ var openpgp = function (exports) {
   /* eslint-disable no-invalid-this */
 
 
-  const asn1$1 = nodeCrypto$8 ? void 'asn1.js' : undefined;
-  const ECDSASignature = nodeCrypto$8 ? asn1$1.define('ECDSASignature', function () {
+  const asn1$1 = nodeCrypto$4 ? void 'asn1.js' : undefined;
+  const ECDSASignature = nodeCrypto$4 ? asn1$1.define('ECDSASignature', function () {
     this.seq().obj(this.key('r').int(), this.key('s').int());
   }) : undefined;
-  const ECPrivateKey = nodeCrypto$8 ? asn1$1.define('ECPrivateKey', function () {
+  const ECPrivateKey = nodeCrypto$4 ? asn1$1.define('ECPrivateKey', function () {
     this.seq().obj(this.key('version').int(), this.key('privateKey').octstr(), this.key('parameters').explicit(0).optional().any(), this.key('publicKey').explicit(1).optional().bitstr());
   }) : undefined;
-  const AlgorithmIdentifier = nodeCrypto$8 ? asn1$1.define('AlgorithmIdentifier', function () {
+  const AlgorithmIdentifier = nodeCrypto$4 ? asn1$1.define('AlgorithmIdentifier', function () {
     this.seq().obj(this.key('algorithm').objid(), this.key('parameters').optional().any());
   }) : undefined;
-  const SubjectPublicKeyInfo = nodeCrypto$8 ? asn1$1.define('SubjectPublicKeyInfo', function () {
+  const SubjectPublicKeyInfo = nodeCrypto$4 ? asn1$1.define('SubjectPublicKeyInfo', function () {
     this.seq().obj(this.key('algorithm').use(AlgorithmIdentifier), this.key('subjectPublicKey').bitstr());
   }) : undefined;
   var ecdsa = /*#__PURE__*/Object.freeze({
@@ -14158,6 +12976,614 @@ var openpgp = function (exports) {
     encode: encode$1,
     decode: decode$1
   }); // OpenPGP.js - An OpenPGP implementation in javascript
+
+  const webCrypto$4 = util.getWebCrypto();
+  const nodeCrypto$5 = util.getNodeCrypto();
+  /**
+   * Validate ECDH parameters
+   * @param {module:type/oid} oid - Elliptic curve object identifier
+   * @param {Uint8Array} Q - ECDH public point
+   * @param {Uint8Array} d - ECDH secret scalar
+   * @returns {Promise<Boolean>} Whether params are valid.
+   * @async
+   */
+
+  async function validateParams$4(oid, Q, d) {
+    return validateStandardParams(enums.publicKey.ecdh, oid, Q, d);
+  } // Build Param for ECDH algorithm (RFC 6637)
+
+
+  function buildEcdhParam(public_algo, oid, kdfParams, fingerprint) {
+    return util.concatUint8Array([oid.write(), new Uint8Array([public_algo]), kdfParams.write(), util.stringToUint8Array('Anonymous Sender    '), fingerprint.subarray(0, 20)]);
+  } // Key Derivation Function (RFC 6637)
+
+
+  async function kdf(hashAlgo, X, length, param, stripLeading = false, stripTrailing = false) {
+    // Note: X is little endian for Curve25519, big-endian for all others.
+    // This is not ideal, but the RFC's are unclear
+    // https://tools.ietf.org/html/draft-ietf-openpgp-rfc4880bis-02#appendix-B
+    let i;
+
+    if (stripLeading) {
+      // Work around old go crypto bug
+      for (i = 0; i < X.length && X[i] === 0; i++);
+
+      X = X.subarray(i);
+    }
+
+    if (stripTrailing) {
+      // Work around old OpenPGP.js bug
+      for (i = X.length - 1; i >= 0 && X[i] === 0; i--);
+
+      X = X.subarray(0, i + 1);
+    }
+
+    const digest = await hash.digest(hashAlgo, util.concatUint8Array([new Uint8Array([0, 0, 0, 1]), X, param]));
+    return digest.subarray(0, length);
+  }
+  /**
+   * Generate ECDHE ephemeral key and secret from public key
+   *
+   * @param {Curve} curve - Elliptic curve object
+   * @param {Uint8Array} Q - Recipient public key
+   * @returns {Promise<{publicKey: Uint8Array, sharedKey: Uint8Array}>}
+   * @async
+   */
+
+
+  async function genPublicEphemeralKey(curve, Q) {
+    switch (curve.type) {
+      case 'curve25519':
+        {
+          const d = await getRandomBytes(32);
+          const {
+            secretKey,
+            sharedKey
+          } = await genPrivateEphemeralKey(curve, Q, null, d);
+          let {
+            publicKey
+          } = naclFastLight.box.keyPair.fromSecretKey(secretKey);
+          publicKey = util.concatUint8Array([new Uint8Array([0x40]), publicKey]);
+          return {
+            publicKey,
+            sharedKey
+          }; // Note: sharedKey is little-endian here, unlike below
+        }
+
+      case 'web':
+        if (curve.web && util.getWebCrypto()) {
+          try {
+            return await webPublicEphemeralKey(curve, Q);
+          } catch (err) {
+            util.printDebugError(err);
+          }
+        }
+
+        break;
+
+      case 'node':
+        return nodePublicEphemeralKey(curve, Q);
+    }
+
+    return ellipticPublicEphemeralKey(curve, Q);
+  }
+  /**
+   * Encrypt and wrap a session key
+   *
+   * @param {module:type/oid} oid - Elliptic curve object identifier
+   * @param {module:type/kdf_params} kdfParams - KDF params including cipher and algorithm to use
+   * @param {Uint8Array} data - Unpadded session key data
+   * @param {Uint8Array} Q - Recipient public key
+   * @param {Uint8Array} fingerprint - Recipient fingerprint
+   * @returns {Promise<{publicKey: Uint8Array, wrappedKey: Uint8Array}>}
+   * @async
+   */
+
+
+  async function encrypt$2(oid, kdfParams, data, Q, fingerprint) {
+    const m = encode$1(data);
+    const curve = new Curve(oid);
+    const {
+      publicKey,
+      sharedKey
+    } = await genPublicEphemeralKey(curve, Q);
+    const param = buildEcdhParam(enums.publicKey.ecdh, oid, kdfParams, fingerprint);
+    const {
+      keySize
+    } = getCipher(kdfParams.cipher);
+    const Z = await kdf(kdfParams.hash, sharedKey, keySize, param);
+    const wrappedKey = wrap(Z, m);
+    return {
+      publicKey,
+      wrappedKey
+    };
+  }
+  /**
+   * Generate ECDHE secret from private key and public part of ephemeral key
+   *
+   * @param {Curve} curve - Elliptic curve object
+   * @param {Uint8Array} V - Public part of ephemeral key
+   * @param {Uint8Array} Q - Recipient public key
+   * @param {Uint8Array} d - Recipient private key
+   * @returns {Promise<{secretKey: Uint8Array, sharedKey: Uint8Array}>}
+   * @async
+   */
+
+
+  async function genPrivateEphemeralKey(curve, V, Q, d) {
+    if (d.length !== curve.payloadSize) {
+      const privateKey = new Uint8Array(curve.payloadSize);
+      privateKey.set(d, curve.payloadSize - d.length);
+      d = privateKey;
+    }
+
+    switch (curve.type) {
+      case 'curve25519':
+        {
+          const secretKey = d.slice().reverse();
+          const sharedKey = naclFastLight.scalarMult(secretKey, V.subarray(1));
+          return {
+            secretKey,
+            sharedKey
+          }; // Note: sharedKey is little-endian here, unlike below
+        }
+
+      case 'web':
+        if (curve.web && util.getWebCrypto()) {
+          try {
+            return await webPrivateEphemeralKey(curve, V, Q, d);
+          } catch (err) {
+            util.printDebugError(err);
+          }
+        }
+
+        break;
+
+      case 'node':
+        return nodePrivateEphemeralKey(curve, V, d);
+    }
+
+    return ellipticPrivateEphemeralKey(curve, V, d);
+  }
+  /**
+   * Decrypt and unwrap the value derived from session key
+   *
+   * @param {module:type/oid} oid - Elliptic curve object identifier
+   * @param {module:type/kdf_params} kdfParams - KDF params including cipher and algorithm to use
+   * @param {Uint8Array} V - Public part of ephemeral key
+   * @param {Uint8Array} C - Encrypted and wrapped value derived from session key
+   * @param {Uint8Array} Q - Recipient public key
+   * @param {Uint8Array} d - Recipient private key
+   * @param {Uint8Array} fingerprint - Recipient fingerprint
+   * @returns {Promise<Uint8Array>} Value derived from session key.
+   * @async
+   */
+
+
+  async function decrypt$2(oid, kdfParams, V, C, Q, d, fingerprint) {
+    const curve = new Curve(oid);
+    const {
+      sharedKey
+    } = await genPrivateEphemeralKey(curve, V, Q, d);
+    const param = buildEcdhParam(enums.publicKey.ecdh, oid, kdfParams, fingerprint);
+    const {
+      keySize
+    } = getCipher(kdfParams.cipher);
+    let err;
+
+    for (let i = 0; i < 3; i++) {
+      try {
+        // Work around old go crypto bug and old OpenPGP.js bug, respectively.
+        const Z = await kdf(kdfParams.hash, sharedKey, keySize, param, i === 1, i === 2);
+        return decode$1(unwrap(Z, C));
+      } catch (e) {
+        err = e;
+      }
+    }
+
+    throw err;
+  }
+  /**
+   * Generate ECDHE secret from private key and public part of ephemeral key using webCrypto
+   *
+   * @param {Curve} curve - Elliptic curve object
+   * @param {Uint8Array} V - Public part of ephemeral key
+   * @param {Uint8Array} Q - Recipient public key
+   * @param {Uint8Array} d - Recipient private key
+   * @returns {Promise<{secretKey: Uint8Array, sharedKey: Uint8Array}>}
+   * @async
+   */
+
+
+  async function webPrivateEphemeralKey(curve, V, Q, d) {
+    const recipient = privateToJWK$1(curve.payloadSize, curve.web.web, Q, d);
+    let privateKey = webCrypto$4.importKey('jwk', recipient, {
+      name: 'ECDH',
+      namedCurve: curve.web.web
+    }, true, ['deriveKey', 'deriveBits']);
+    const jwk = rawPublicToJWK(curve.payloadSize, curve.web.web, V);
+    let sender = webCrypto$4.importKey('jwk', jwk, {
+      name: 'ECDH',
+      namedCurve: curve.web.web
+    }, true, []);
+    [privateKey, sender] = await Promise.all([privateKey, sender]);
+    let S = webCrypto$4.deriveBits({
+      name: 'ECDH',
+      namedCurve: curve.web.web,
+      public: sender
+    }, privateKey, curve.web.sharedSize);
+    let secret = webCrypto$4.exportKey('jwk', privateKey);
+    [S, secret] = await Promise.all([S, secret]);
+    const sharedKey = new Uint8Array(S);
+    const secretKey = b64ToUint8Array(secret.d);
+    return {
+      secretKey,
+      sharedKey
+    };
+  }
+  /**
+   * Generate ECDHE ephemeral key and secret from public key using webCrypto
+   *
+   * @param {Curve} curve - Elliptic curve object
+   * @param {Uint8Array} Q - Recipient public key
+   * @returns {Promise<{publicKey: Uint8Array, sharedKey: Uint8Array}>}
+   * @async
+   */
+
+
+  async function webPublicEphemeralKey(curve, Q) {
+    const jwk = rawPublicToJWK(curve.payloadSize, curve.web.web, Q);
+    let keyPair = webCrypto$4.generateKey({
+      name: 'ECDH',
+      namedCurve: curve.web.web
+    }, true, ['deriveKey', 'deriveBits']);
+    let recipient = webCrypto$4.importKey('jwk', jwk, {
+      name: 'ECDH',
+      namedCurve: curve.web.web
+    }, false, []);
+    [keyPair, recipient] = await Promise.all([keyPair, recipient]);
+    let s = webCrypto$4.deriveBits({
+      name: 'ECDH',
+      namedCurve: curve.web.web,
+      public: recipient
+    }, keyPair.privateKey, curve.web.sharedSize);
+    let p = webCrypto$4.exportKey('jwk', keyPair.publicKey);
+    [s, p] = await Promise.all([s, p]);
+    const sharedKey = new Uint8Array(s);
+    const publicKey = new Uint8Array(jwkToRawPublic(p));
+    return {
+      publicKey,
+      sharedKey
+    };
+  }
+  /**
+   * Generate ECDHE secret from private key and public part of ephemeral key using indutny/elliptic
+   *
+   * @param {Curve} curve - Elliptic curve object
+   * @param {Uint8Array} V - Public part of ephemeral key
+   * @param {Uint8Array} d - Recipient private key
+   * @returns {Promise<{secretKey: Uint8Array, sharedKey: Uint8Array}>}
+   * @async
+   */
+
+
+  async function ellipticPrivateEphemeralKey(curve, V, d) {
+    const indutnyCurve = await getIndutnyCurve(curve.name);
+    V = keyFromPublic(indutnyCurve, V);
+    d = keyFromPrivate(indutnyCurve, d);
+    const secretKey = new Uint8Array(d.getPrivate());
+    const S = d.derive(V.getPublic());
+    const len = indutnyCurve.curve.p.byteLength();
+    const sharedKey = S.toArrayLike(Uint8Array, 'be', len);
+    return {
+      secretKey,
+      sharedKey
+    };
+  }
+  /**
+   * Generate ECDHE ephemeral key and secret from public key using indutny/elliptic
+   *
+   * @param {Curve} curve - Elliptic curve object
+   * @param {Uint8Array} Q - Recipient public key
+   * @returns {Promise<{publicKey: Uint8Array, sharedKey: Uint8Array}>}
+   * @async
+   */
+
+
+  async function ellipticPublicEphemeralKey(curve, Q) {
+    const indutnyCurve = await getIndutnyCurve(curve.name);
+    const v = await curve.genKeyPair();
+    Q = keyFromPublic(indutnyCurve, Q);
+    const V = keyFromPrivate(indutnyCurve, v.privateKey);
+    const publicKey = v.publicKey;
+    const S = V.derive(Q.getPublic());
+    const len = indutnyCurve.curve.p.byteLength();
+    const sharedKey = S.toArrayLike(Uint8Array, 'be', len);
+    return {
+      publicKey,
+      sharedKey
+    };
+  }
+  /**
+   * Generate ECDHE secret from private key and public part of ephemeral key using nodeCrypto
+   *
+   * @param {Curve} curve - Elliptic curve object
+   * @param {Uint8Array} V - Public part of ephemeral key
+   * @param {Uint8Array} d - Recipient private key
+   * @returns {Promise<{secretKey: Uint8Array, sharedKey: Uint8Array}>}
+   * @async
+   */
+
+
+  async function nodePrivateEphemeralKey(curve, V, d) {
+    const recipient = nodeCrypto$5.createECDH(curve.node.node);
+    recipient.setPrivateKey(d);
+    const sharedKey = new Uint8Array(recipient.computeSecret(V));
+    const secretKey = new Uint8Array(recipient.getPrivateKey());
+    return {
+      secretKey,
+      sharedKey
+    };
+  }
+  /**
+   * Generate ECDHE ephemeral key and secret from public key using nodeCrypto
+   *
+   * @param {Curve} curve - Elliptic curve object
+   * @param {Uint8Array} Q - Recipient public key
+   * @returns {Promise<{publicKey: Uint8Array, sharedKey: Uint8Array}>}
+   * @async
+   */
+
+
+  async function nodePublicEphemeralKey(curve, Q) {
+    const sender = nodeCrypto$5.createECDH(curve.node.node);
+    sender.generateKeys();
+    const sharedKey = new Uint8Array(sender.computeSecret(Q));
+    const publicKey = new Uint8Array(sender.getPublicKey());
+    return {
+      publicKey,
+      sharedKey
+    };
+  }
+
+  var ecdh = /*#__PURE__*/Object.freeze({
+    __proto__: null,
+    validateParams: validateParams$4,
+    encrypt: encrypt$2,
+    decrypt: decrypt$2
+  }); // OpenPGP.js - An OpenPGP implementation in javascript
+
+  var elliptic = /*#__PURE__*/Object.freeze({
+    __proto__: null,
+    Curve: Curve,
+    ecdh: ecdh,
+    ecdsa: ecdsa,
+    eddsa: eddsa,
+    generate: generate$1,
+    getPreferredHashAlgo: getPreferredHashAlgo
+  }); // GPG4Browsers - An OpenPGP implementation in javascript
+
+  /*
+    TODO regarding the hash function, read:
+     https://tools.ietf.org/html/rfc4880#section-13.6
+     https://tools.ietf.org/html/rfc4880#section-14
+  */
+
+  /**
+   * DSA Sign function
+   * @param {Integer} hashAlgo
+   * @param {Uint8Array} hashed
+   * @param {Uint8Array} g
+   * @param {Uint8Array} p
+   * @param {Uint8Array} q
+   * @param {Uint8Array} x
+   * @returns {Promise<{ r: Uint8Array, s: Uint8Array }>}
+   * @async
+   */
+
+  async function sign$3(hashAlgo, hashed, g, p, q, x) {
+    const BigInteger = await util.getBigInteger();
+    const one = new BigInteger(1);
+    p = new BigInteger(p);
+    q = new BigInteger(q);
+    g = new BigInteger(g);
+    x = new BigInteger(x);
+    let k;
+    let r;
+    let s;
+    let t;
+    g = g.mod(p);
+    x = x.mod(q); // If the output size of the chosen hash is larger than the number of
+    // bits of q, the hash result is truncated to fit by taking the number
+    // of leftmost bits equal to the number of bits of q.  This (possibly
+    // truncated) hash function result is treated as a number and used
+    // directly in the DSA signature algorithm.
+
+    const h = new BigInteger(hashed.subarray(0, q.byteLength())).mod(q); // FIPS-186-4, section 4.6:
+    // The values of r and s shall be checked to determine if r = 0 or s = 0.
+    // If either r = 0 or s = 0, a new value of k shall be generated, and the
+    // signature shall be recalculated. It is extremely unlikely that r = 0
+    // or s = 0 if signatures are generated properly.
+
+    while (true) {
+      // See Appendix B here: https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-4.pdf
+      k = await getRandomBigInteger(one, q); // returns in [1, q-1]
+
+      r = g.modExp(k, p).imod(q); // (g**k mod p) mod q
+
+      if (r.isZero()) {
+        continue;
+      }
+
+      const xr = x.mul(r).imod(q);
+      t = h.add(xr).imod(q); // H(m) + x*r mod q
+
+      s = k.modInv(q).imul(t).imod(q); // k**-1 * (H(m) + x*r) mod q
+
+      if (s.isZero()) {
+        continue;
+      }
+
+      break;
+    }
+
+    return {
+      r: r.toUint8Array('be', q.byteLength()),
+      s: s.toUint8Array('be', q.byteLength())
+    };
+  }
+  /**
+   * DSA Verify function
+   * @param {Integer} hashAlgo
+   * @param {Uint8Array} r
+   * @param {Uint8Array} s
+   * @param {Uint8Array} hashed
+   * @param {Uint8Array} g
+   * @param {Uint8Array} p
+   * @param {Uint8Array} q
+   * @param {Uint8Array} y
+   * @returns {boolean}
+   * @async
+   */
+
+
+  async function verify$3(hashAlgo, r, s, hashed, g, p, q, y) {
+    const BigInteger = await util.getBigInteger();
+    const zero = new BigInteger(0);
+    r = new BigInteger(r);
+    s = new BigInteger(s);
+    p = new BigInteger(p);
+    q = new BigInteger(q);
+    g = new BigInteger(g);
+    y = new BigInteger(y);
+
+    if (r.lte(zero) || r.gte(q) || s.lte(zero) || s.gte(q)) {
+      util.printDebug('invalid DSA Signature');
+      return false;
+    }
+
+    const h = new BigInteger(hashed.subarray(0, q.byteLength())).imod(q);
+    const w = s.modInv(q); // s**-1 mod q
+
+    if (w.isZero()) {
+      util.printDebug('invalid DSA Signature');
+      return false;
+    }
+
+    g = g.mod(p);
+    y = y.mod(p);
+    const u1 = h.mul(w).imod(q); // H(m) * w mod q
+
+    const u2 = r.mul(w).imod(q); // r * w mod q
+
+    const t1 = g.modExp(u1, p); // g**u1 mod p
+
+    const t2 = y.modExp(u2, p); // y**u2 mod p
+
+    const v = t1.mul(t2).imod(p).imod(q); // (g**u1 * y**u2 mod p) mod q
+
+    return v.equal(r);
+  }
+  /**
+   * Validate DSA parameters
+   * @param {Uint8Array} p - DSA prime
+   * @param {Uint8Array} q - DSA group order
+   * @param {Uint8Array} g - DSA sub-group generator
+   * @param {Uint8Array} y - DSA public key
+   * @param {Uint8Array} x - DSA private key
+   * @returns {Promise<Boolean>} Whether params are valid.
+   * @async
+   */
+
+
+  async function validateParams$5(p, q, g, y, x) {
+    const BigInteger = await util.getBigInteger();
+    p = new BigInteger(p);
+    q = new BigInteger(q);
+    g = new BigInteger(g);
+    y = new BigInteger(y);
+    const one = new BigInteger(1); // Check that 1 < g < p
+
+    if (g.lte(one) || g.gte(p)) {
+      return false;
+    }
+    /**
+     * Check that subgroup order q divides p-1
+     */
+
+
+    if (!p.dec().mod(q).isZero()) {
+      return false;
+    }
+    /**
+     * g has order q
+     * Check that g ** q = 1 mod p
+     */
+
+
+    if (!g.modExp(q, p).isOne()) {
+      return false;
+    }
+    /**
+     * Check q is large and probably prime (we mainly want to avoid small factors)
+     */
+
+
+    const qSize = new BigInteger(q.bitLength());
+    const n150 = new BigInteger(150);
+
+    if (qSize.lt(n150) || !(await isProbablePrime(q, null, 32))) {
+      return false;
+    }
+    /**
+     * Re-derive public key y' = g ** x mod p
+     * Expect y == y'
+     *
+     * Blinded exponentiation computes g**{rq + x} to compare to y
+     */
+
+
+    x = new BigInteger(x);
+    const two = new BigInteger(2);
+    const r = await getRandomBigInteger(two.leftShift(qSize.dec()), two.leftShift(qSize)); // draw r of same size as q
+
+    const rqx = q.mul(r).add(x);
+
+    if (!y.equal(g.modExp(rqx, p))) {
+      return false;
+    }
+
+    return true;
+  }
+
+  var dsa = /*#__PURE__*/Object.freeze({
+    __proto__: null,
+    sign: sign$3,
+    verify: verify$3,
+    validateParams: validateParams$5
+  });
+  /**
+   * @fileoverview Asymmetric cryptography functions
+   * @module crypto/public_key
+   * @private
+   */
+
+  var publicKey = {
+    /** @see module:crypto/public_key/rsa */
+    rsa: rsa,
+
+    /** @see module:crypto/public_key/elgamal */
+    elgamal: elgamal,
+
+    /** @see module:crypto/public_key/elliptic */
+    elliptic: elliptic,
+
+    /** @see module:crypto/public_key/dsa */
+    dsa: dsa,
+
+    /** @see tweetnacl */
+    nacl: naclFastLight
+  }; // OpenPGP.js - An OpenPGP implementation in javascript
 
   class ECDHSymmetricKey {
     constructor(data) {
@@ -14781,7 +14207,7 @@ var openpgp = function (exports) {
    */
 
 
-  async function validateParams$4(algo, publicParams, privateParams) {
+  async function validateParams$6(algo, publicParams, privateParams) {
     if (!publicParams || !privateParams) {
       throw new Error('Missing key parameters');
     }
@@ -14927,619 +14353,1193 @@ var openpgp = function (exports) {
     parseEncSessionKeyParams: parseEncSessionKeyParams,
     serializeParams: serializeParams,
     generateParams: generateParams,
-    validateParams: validateParams$4,
+    validateParams: validateParams$6,
     getPrefixRandom: getPrefixRandom,
     generateSessionKey: generateSessionKey,
     getAEADMode: getAEADMode,
     getCipher: getCipher
-  }); // OpenPGP.js - An OpenPGP implementation in javascript
+  }); // Modified by ProtonTech AG
 
-  const webCrypto$8 = util.getWebCrypto();
-  const nodeCrypto$9 = util.getNodeCrypto();
+  const webCrypto$5 = util.getWebCrypto();
+  const nodeCrypto$6 = util.getNodeCrypto();
+  const knownAlgos = nodeCrypto$6 ? nodeCrypto$6.getCiphers() : [];
+  const nodeAlgos = {
+    idea: knownAlgos.includes('idea-cfb') ? 'idea-cfb' : undefined,
+
+    /* Unused, not implemented */
+    tripledes: knownAlgos.includes('des-ede3-cfb') ? 'des-ede3-cfb' : undefined,
+    cast5: knownAlgos.includes('cast5-cfb') ? 'cast5-cfb' : undefined,
+    blowfish: knownAlgos.includes('bf-cfb') ? 'bf-cfb' : undefined,
+    aes128: knownAlgos.includes('aes-128-cfb') ? 'aes-128-cfb' : undefined,
+    aes192: knownAlgos.includes('aes-192-cfb') ? 'aes-192-cfb' : undefined,
+    aes256: knownAlgos.includes('aes-256-cfb') ? 'aes-256-cfb' : undefined
+    /* twofish is not implemented in OpenSSL */
+
+  };
   /**
-   * Validate ECDH parameters
-   * @param {module:type/oid} oid - Elliptic curve object identifier
-   * @param {Uint8Array} Q - ECDH public point
-   * @param {Uint8Array} d - ECDH secret scalar
-   * @returns {Promise<Boolean>} Whether params are valid.
-   * @async
+   * CFB encryption
+   * @param {enums.symmetric} algo - block cipher algorithm
+   * @param {Uint8Array} key
+   * @param {MaybeStream<Uint8Array>} plaintext
+   * @param {Uint8Array} iv
+   * @param {Object} config - full configuration, defaults to openpgp.config
+   * @returns MaybeStream<Uint8Array>
    */
 
-  async function validateParams$5(oid, Q, d) {
-    return validateStandardParams(enums.publicKey.ecdh, oid, Q, d);
-  } // Build Param for ECDH algorithm (RFC 6637)
+  async function encrypt$3(algo, key, plaintext, iv, config) {
+    const algoName = enums.read(enums.symmetric, algo);
 
-
-  function buildEcdhParam(public_algo, oid, kdfParams, fingerprint) {
-    return util.concatUint8Array([oid.write(), new Uint8Array([public_algo]), kdfParams.write(), util.stringToUint8Array('Anonymous Sender    '), fingerprint.subarray(0, 20)]);
-  } // Key Derivation Function (RFC 6637)
-
-
-  async function kdf(hashAlgo, X, length, param, stripLeading = false, stripTrailing = false) {
-    // Note: X is little endian for Curve25519, big-endian for all others.
-    // This is not ideal, but the RFC's are unclear
-    // https://tools.ietf.org/html/draft-ietf-openpgp-rfc4880bis-02#appendix-B
-    let i;
-
-    if (stripLeading) {
-      // Work around old go crypto bug
-      for (i = 0; i < X.length && X[i] === 0; i++);
-
-      X = X.subarray(i);
+    if (util.getNodeCrypto() && nodeAlgos[algoName]) {
+      // Node crypto library.
+      return nodeEncrypt$1(algo, key, plaintext, iv);
     }
 
-    if (stripTrailing) {
-      // Work around old OpenPGP.js bug
-      for (i = X.length - 1; i >= 0 && X[i] === 0; i--);
-
-      X = X.subarray(0, i + 1);
+    if (algoName.substr(0, 3) === 'aes') {
+      return aesEncrypt(algo, key, plaintext, iv, config);
     }
 
-    const digest = await hash.digest(hashAlgo, util.concatUint8Array([new Uint8Array([0, 0, 0, 1]), X, param]));
-    return digest.subarray(0, length);
-  }
-  /**
-   * Generate ECDHE ephemeral key and secret from public key
-   *
-   * @param {Curve} curve - Elliptic curve object
-   * @param {Uint8Array} Q - Recipient public key
-   * @returns {Promise<{publicKey: Uint8Array, sharedKey: Uint8Array}>}
-   * @async
-   */
+    const cipherfn = new cipher[algoName](key);
+    const block_size = cipherfn.blockSize;
+    const blockc = iv.slice();
+    let pt = new Uint8Array();
 
-
-  async function genPublicEphemeralKey(curve, Q) {
-    switch (curve.type) {
-      case 'curve25519':
-        {
-          const d = await getRandomBytes(32);
-          const {
-            secretKey,
-            sharedKey
-          } = await genPrivateEphemeralKey(curve, Q, null, d);
-          let {
-            publicKey
-          } = naclFastLight.box.keyPair.fromSecretKey(secretKey);
-          publicKey = util.concatUint8Array([new Uint8Array([0x40]), publicKey]);
-          return {
-            publicKey,
-            sharedKey
-          }; // Note: sharedKey is little-endian here, unlike below
-        }
-
-      case 'web':
-        if (curve.web && util.getWebCrypto()) {
-          try {
-            return await webPublicEphemeralKey(curve, Q);
-          } catch (err) {
-            util.printDebugError(err);
-          }
-        }
-
-        break;
-
-      case 'node':
-        return nodePublicEphemeralKey(curve, Q);
-    }
-
-    return ellipticPublicEphemeralKey(curve, Q);
-  }
-  /**
-   * Encrypt and wrap a session key
-   *
-   * @param {module:type/oid} oid - Elliptic curve object identifier
-   * @param {module:type/kdf_params} kdfParams - KDF params including cipher and algorithm to use
-   * @param {Uint8Array} data - Unpadded session key data
-   * @param {Uint8Array} Q - Recipient public key
-   * @param {Uint8Array} fingerprint - Recipient fingerprint
-   * @returns {Promise<{publicKey: Uint8Array, wrappedKey: Uint8Array}>}
-   * @async
-   */
-
-
-  async function encrypt$3(oid, kdfParams, data, Q, fingerprint) {
-    const m = encode$1(data);
-    const curve = new Curve(oid);
-    const {
-      publicKey,
-      sharedKey
-    } = await genPublicEphemeralKey(curve, Q);
-    const param = buildEcdhParam(enums.publicKey.ecdh, oid, kdfParams, fingerprint);
-    const {
-      keySize
-    } = getCipher(kdfParams.cipher);
-    const Z = await kdf(kdfParams.hash, sharedKey, keySize, param);
-    const wrappedKey = wrap(Z, m);
-    return {
-      publicKey,
-      wrappedKey
-    };
-  }
-  /**
-   * Generate ECDHE secret from private key and public part of ephemeral key
-   *
-   * @param {Curve} curve - Elliptic curve object
-   * @param {Uint8Array} V - Public part of ephemeral key
-   * @param {Uint8Array} Q - Recipient public key
-   * @param {Uint8Array} d - Recipient private key
-   * @returns {Promise<{secretKey: Uint8Array, sharedKey: Uint8Array}>}
-   * @async
-   */
-
-
-  async function genPrivateEphemeralKey(curve, V, Q, d) {
-    if (d.length !== curve.payloadSize) {
-      const privateKey = new Uint8Array(curve.payloadSize);
-      privateKey.set(d, curve.payloadSize - d.length);
-      d = privateKey;
-    }
-
-    switch (curve.type) {
-      case 'curve25519':
-        {
-          const secretKey = d.slice().reverse();
-          const sharedKey = naclFastLight.scalarMult(secretKey, V.subarray(1));
-          return {
-            secretKey,
-            sharedKey
-          }; // Note: sharedKey is little-endian here, unlike below
-        }
-
-      case 'web':
-        if (curve.web && util.getWebCrypto()) {
-          try {
-            return await webPrivateEphemeralKey(curve, V, Q, d);
-          } catch (err) {
-            util.printDebugError(err);
-          }
-        }
-
-        break;
-
-      case 'node':
-        return nodePrivateEphemeralKey(curve, V, d);
-    }
-
-    return ellipticPrivateEphemeralKey(curve, V, d);
-  }
-  /**
-   * Decrypt and unwrap the value derived from session key
-   *
-   * @param {module:type/oid} oid - Elliptic curve object identifier
-   * @param {module:type/kdf_params} kdfParams - KDF params including cipher and algorithm to use
-   * @param {Uint8Array} V - Public part of ephemeral key
-   * @param {Uint8Array} C - Encrypted and wrapped value derived from session key
-   * @param {Uint8Array} Q - Recipient public key
-   * @param {Uint8Array} d - Recipient private key
-   * @param {Uint8Array} fingerprint - Recipient fingerprint
-   * @returns {Promise<Uint8Array>} Value derived from session key.
-   * @async
-   */
-
-
-  async function decrypt$3(oid, kdfParams, V, C, Q, d, fingerprint) {
-    const curve = new Curve(oid);
-    const {
-      sharedKey
-    } = await genPrivateEphemeralKey(curve, V, Q, d);
-    const param = buildEcdhParam(enums.publicKey.ecdh, oid, kdfParams, fingerprint);
-    const {
-      keySize
-    } = getCipher(kdfParams.cipher);
-    let err;
-
-    for (let i = 0; i < 3; i++) {
-      try {
-        // Work around old go crypto bug and old OpenPGP.js bug, respectively.
-        const Z = await kdf(kdfParams.hash, sharedKey, keySize, param, i === 1, i === 2);
-        return decode$1(unwrap(Z, C));
-      } catch (e) {
-        err = e;
+    const process = chunk => {
+      if (chunk) {
+        pt = util.concatUint8Array([pt, chunk]);
       }
+
+      const ciphertext = new Uint8Array(pt.length);
+      let i;
+      let j = 0;
+
+      while (chunk ? pt.length >= block_size : pt.length) {
+        const encblock = cipherfn.encrypt(blockc);
+
+        for (i = 0; i < block_size; i++) {
+          blockc[i] = pt[i] ^ encblock[i];
+          ciphertext[j++] = blockc[i];
+        }
+
+        pt = pt.subarray(block_size);
+      }
+
+      return ciphertext.subarray(0, j);
+    };
+
+    return transform(plaintext, process, process);
+  }
+  /**
+   * CFB decryption
+   * @param {enums.symmetric} algo - block cipher algorithm
+   * @param {Uint8Array} key
+   * @param {MaybeStream<Uint8Array>} ciphertext
+   * @param {Uint8Array} iv
+   * @returns MaybeStream<Uint8Array>
+   */
+
+
+  async function decrypt$3(algo, key, ciphertext, iv) {
+    const algoName = enums.read(enums.symmetric, algo);
+
+    if (util.getNodeCrypto() && nodeAlgos[algoName]) {
+      // Node crypto library.
+      return nodeDecrypt$1(algo, key, ciphertext, iv);
     }
 
-    throw err;
-  }
-  /**
-   * Generate ECDHE secret from private key and public part of ephemeral key using webCrypto
-   *
-   * @param {Curve} curve - Elliptic curve object
-   * @param {Uint8Array} V - Public part of ephemeral key
-   * @param {Uint8Array} Q - Recipient public key
-   * @param {Uint8Array} d - Recipient private key
-   * @returns {Promise<{secretKey: Uint8Array, sharedKey: Uint8Array}>}
-   * @async
-   */
+    if (algoName.substr(0, 3) === 'aes') {
+      return aesDecrypt(algo, key, ciphertext, iv);
+    }
 
+    const cipherfn = new cipher[algoName](key);
+    const block_size = cipherfn.blockSize;
+    let blockp = iv;
+    let ct = new Uint8Array();
 
-  async function webPrivateEphemeralKey(curve, V, Q, d) {
-    const recipient = privateToJWK$1(curve.payloadSize, curve.web.web, Q, d);
-    let privateKey = webCrypto$8.importKey('jwk', recipient, {
-      name: 'ECDH',
-      namedCurve: curve.web.web
-    }, true, ['deriveKey', 'deriveBits']);
-    const jwk = rawPublicToJWK(curve.payloadSize, curve.web.web, V);
-    let sender = webCrypto$8.importKey('jwk', jwk, {
-      name: 'ECDH',
-      namedCurve: curve.web.web
-    }, true, []);
-    [privateKey, sender] = await Promise.all([privateKey, sender]);
-    let S = webCrypto$8.deriveBits({
-      name: 'ECDH',
-      namedCurve: curve.web.web,
-      public: sender
-    }, privateKey, curve.web.sharedSize);
-    let secret = webCrypto$8.exportKey('jwk', privateKey);
-    [S, secret] = await Promise.all([S, secret]);
-    const sharedKey = new Uint8Array(S);
-    const secretKey = b64ToUint8Array(secret.d);
-    return {
-      secretKey,
-      sharedKey
+    const process = chunk => {
+      if (chunk) {
+        ct = util.concatUint8Array([ct, chunk]);
+      }
+
+      const plaintext = new Uint8Array(ct.length);
+      let i;
+      let j = 0;
+
+      while (chunk ? ct.length >= block_size : ct.length) {
+        const decblock = cipherfn.encrypt(blockp);
+        blockp = ct;
+
+        for (i = 0; i < block_size; i++) {
+          plaintext[j++] = blockp[i] ^ decblock[i];
+        }
+
+        ct = ct.subarray(block_size);
+      }
+
+      return plaintext.subarray(0, j);
     };
-  }
-  /**
-   * Generate ECDHE ephemeral key and secret from public key using webCrypto
-   *
-   * @param {Curve} curve - Elliptic curve object
-   * @param {Uint8Array} Q - Recipient public key
-   * @returns {Promise<{publicKey: Uint8Array, sharedKey: Uint8Array}>}
-   * @async
-   */
 
-
-  async function webPublicEphemeralKey(curve, Q) {
-    const jwk = rawPublicToJWK(curve.payloadSize, curve.web.web, Q);
-    let keyPair = webCrypto$8.generateKey({
-      name: 'ECDH',
-      namedCurve: curve.web.web
-    }, true, ['deriveKey', 'deriveBits']);
-    let recipient = webCrypto$8.importKey('jwk', jwk, {
-      name: 'ECDH',
-      namedCurve: curve.web.web
-    }, false, []);
-    [keyPair, recipient] = await Promise.all([keyPair, recipient]);
-    let s = webCrypto$8.deriveBits({
-      name: 'ECDH',
-      namedCurve: curve.web.web,
-      public: recipient
-    }, keyPair.privateKey, curve.web.sharedSize);
-    let p = webCrypto$8.exportKey('jwk', keyPair.publicKey);
-    [s, p] = await Promise.all([s, p]);
-    const sharedKey = new Uint8Array(s);
-    const publicKey = new Uint8Array(jwkToRawPublic(p));
-    return {
-      publicKey,
-      sharedKey
-    };
-  }
-  /**
-   * Generate ECDHE secret from private key and public part of ephemeral key using indutny/elliptic
-   *
-   * @param {Curve} curve - Elliptic curve object
-   * @param {Uint8Array} V - Public part of ephemeral key
-   * @param {Uint8Array} d - Recipient private key
-   * @returns {Promise<{secretKey: Uint8Array, sharedKey: Uint8Array}>}
-   * @async
-   */
-
-
-  async function ellipticPrivateEphemeralKey(curve, V, d) {
-    const indutnyCurve = await getIndutnyCurve(curve.name);
-    V = keyFromPublic(indutnyCurve, V);
-    d = keyFromPrivate(indutnyCurve, d);
-    const secretKey = new Uint8Array(d.getPrivate());
-    const S = d.derive(V.getPublic());
-    const len = indutnyCurve.curve.p.byteLength();
-    const sharedKey = S.toArrayLike(Uint8Array, 'be', len);
-    return {
-      secretKey,
-      sharedKey
-    };
-  }
-  /**
-   * Generate ECDHE ephemeral key and secret from public key using indutny/elliptic
-   *
-   * @param {Curve} curve - Elliptic curve object
-   * @param {Uint8Array} Q - Recipient public key
-   * @returns {Promise<{publicKey: Uint8Array, sharedKey: Uint8Array}>}
-   * @async
-   */
-
-
-  async function ellipticPublicEphemeralKey(curve, Q) {
-    const indutnyCurve = await getIndutnyCurve(curve.name);
-    const v = await curve.genKeyPair();
-    Q = keyFromPublic(indutnyCurve, Q);
-    const V = keyFromPrivate(indutnyCurve, v.privateKey);
-    const publicKey = v.publicKey;
-    const S = V.derive(Q.getPublic());
-    const len = indutnyCurve.curve.p.byteLength();
-    const sharedKey = S.toArrayLike(Uint8Array, 'be', len);
-    return {
-      publicKey,
-      sharedKey
-    };
-  }
-  /**
-   * Generate ECDHE secret from private key and public part of ephemeral key using nodeCrypto
-   *
-   * @param {Curve} curve - Elliptic curve object
-   * @param {Uint8Array} V - Public part of ephemeral key
-   * @param {Uint8Array} d - Recipient private key
-   * @returns {Promise<{secretKey: Uint8Array, sharedKey: Uint8Array}>}
-   * @async
-   */
-
-
-  async function nodePrivateEphemeralKey(curve, V, d) {
-    const recipient = nodeCrypto$9.createECDH(curve.node.node);
-    recipient.setPrivateKey(d);
-    const sharedKey = new Uint8Array(recipient.computeSecret(V));
-    const secretKey = new Uint8Array(recipient.getPrivateKey());
-    return {
-      secretKey,
-      sharedKey
-    };
-  }
-  /**
-   * Generate ECDHE ephemeral key and secret from public key using nodeCrypto
-   *
-   * @param {Curve} curve - Elliptic curve object
-   * @param {Uint8Array} Q - Recipient public key
-   * @returns {Promise<{publicKey: Uint8Array, sharedKey: Uint8Array}>}
-   * @async
-   */
-
-
-  async function nodePublicEphemeralKey(curve, Q) {
-    const sender = nodeCrypto$9.createECDH(curve.node.node);
-    sender.generateKeys();
-    const sharedKey = new Uint8Array(sender.computeSecret(Q));
-    const publicKey = new Uint8Array(sender.getPublicKey());
-    return {
-      publicKey,
-      sharedKey
-    };
+    return transform(ciphertext, process, process);
   }
 
-  var ecdh = /*#__PURE__*/Object.freeze({
+  function aesEncrypt(algo, key, pt, iv, config) {
+    if (util.getWebCrypto() && key.length !== 24 && // Chrome doesn't support 192 bit keys, see https://www.chromium.org/blink/webcrypto#TOC-AES-support
+    !util.isStream(pt) && pt.length >= 3000 * config.minBytesForWebCrypto // Default to a 3MB minimum. Chrome is pretty slow for small messages, see: https://bugs.chromium.org/p/chromium/issues/detail?id=701188#c2
+    ) {
+      // Web Crypto
+      return webEncrypt(algo, key, pt, iv);
+    } // asm.js fallback
+
+
+    const cfb = new AES_CFB(key, iv);
+    return transform(pt, value => cfb.aes.AES_Encrypt_process(value), () => cfb.aes.AES_Encrypt_finish());
+  }
+
+  function aesDecrypt(algo, key, ct, iv) {
+    if (util.isStream(ct)) {
+      const cfb = new AES_CFB(key, iv);
+      return transform(ct, value => cfb.aes.AES_Decrypt_process(value), () => cfb.aes.AES_Decrypt_finish());
+    }
+
+    return AES_CFB.decrypt(ct, key, iv);
+  }
+
+  function xorMut(a, b) {
+    for (let i = 0; i < a.length; i++) {
+      a[i] = a[i] ^ b[i];
+    }
+  }
+
+  async function webEncrypt(algo, key, pt, iv) {
+    const ALGO = 'AES-CBC';
+
+    const _key = await webCrypto$5.importKey('raw', key, {
+      name: ALGO
+    }, false, ['encrypt']);
+
+    const {
+      blockSize
+    } = getCipher(algo);
+    const cbc_pt = util.concatUint8Array([new Uint8Array(blockSize), pt]);
+    const ct = new Uint8Array(await webCrypto$5.encrypt({
+      name: ALGO,
+      iv
+    }, _key, cbc_pt)).subarray(0, pt.length);
+    xorMut(ct, pt);
+    return ct;
+  }
+
+  function nodeEncrypt$1(algo, key, pt, iv) {
+    const algoName = enums.read(enums.symmetric, algo);
+    const cipherObj = new nodeCrypto$6.createCipheriv(nodeAlgos[algoName], key, iv);
+    return transform(pt, value => new Uint8Array(cipherObj.update(value)));
+  }
+
+  function nodeDecrypt$1(algo, key, ct, iv) {
+    const algoName = enums.read(enums.symmetric, algo);
+    const decipherObj = new nodeCrypto$6.createDecipheriv(nodeAlgos[algoName], key, iv);
+    return transform(ct, value => new Uint8Array(decipherObj.update(value)));
+  }
+
+  var cfb = /*#__PURE__*/Object.freeze({
     __proto__: null,
-    validateParams: validateParams$5,
     encrypt: encrypt$3,
     decrypt: decrypt$3
-  }); // OpenPGP.js - An OpenPGP implementation in javascript
-
-  var elliptic = /*#__PURE__*/Object.freeze({
-    __proto__: null,
-    Curve: Curve,
-    ecdh: ecdh,
-    ecdsa: ecdsa,
-    eddsa: eddsa,
-    generate: generate$1,
-    getPreferredHashAlgo: getPreferredHashAlgo
-  }); // GPG4Browsers - An OpenPGP implementation in javascript
-
-  /*
-    TODO regarding the hash function, read:
-     https://tools.ietf.org/html/rfc4880#section-13.6
-     https://tools.ietf.org/html/rfc4880#section-14
-  */
-
-  /**
-   * DSA Sign function
-   * @param {Integer} hashAlgo
-   * @param {Uint8Array} hashed
-   * @param {Uint8Array} g
-   * @param {Uint8Array} p
-   * @param {Uint8Array} q
-   * @param {Uint8Array} x
-   * @returns {Promise<{ r: Uint8Array, s: Uint8Array }>}
-   * @async
-   */
-
-  async function sign$3(hashAlgo, hashed, g, p, q, x) {
-    const BigInteger = await util.getBigInteger();
-    const one = new BigInteger(1);
-    p = new BigInteger(p);
-    q = new BigInteger(q);
-    g = new BigInteger(g);
-    x = new BigInteger(x);
-    let k;
-    let r;
-    let s;
-    let t;
-    g = g.mod(p);
-    x = x.mod(q); // If the output size of the chosen hash is larger than the number of
-    // bits of q, the hash result is truncated to fit by taking the number
-    // of leftmost bits equal to the number of bits of q.  This (possibly
-    // truncated) hash function result is treated as a number and used
-    // directly in the DSA signature algorithm.
-
-    const h = new BigInteger(hashed.subarray(0, q.byteLength())).mod(q); // FIPS-186-4, section 4.6:
-    // The values of r and s shall be checked to determine if r = 0 or s = 0.
-    // If either r = 0 or s = 0, a new value of k shall be generated, and the
-    // signature shall be recalculated. It is extremely unlikely that r = 0
-    // or s = 0 if signatures are generated properly.
-
-    while (true) {
-      // See Appendix B here: https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.186-4.pdf
-      k = await getRandomBigInteger(one, q); // returns in [1, q-1]
-
-      r = g.modExp(k, p).imod(q); // (g**k mod p) mod q
-
-      if (r.isZero()) {
-        continue;
-      }
-
-      const xr = x.mul(r).imod(q);
-      t = h.add(xr).imod(q); // H(m) + x*r mod q
-
-      s = k.modInv(q).imul(t).imod(q); // k**-1 * (H(m) + x*r) mod q
-
-      if (s.isZero()) {
-        continue;
-      }
-
-      break;
-    }
-
-    return {
-      r: r.toUint8Array('be', q.byteLength()),
-      s: s.toUint8Array('be', q.byteLength())
-    };
-  }
-  /**
-   * DSA Verify function
-   * @param {Integer} hashAlgo
-   * @param {Uint8Array} r
-   * @param {Uint8Array} s
-   * @param {Uint8Array} hashed
-   * @param {Uint8Array} g
-   * @param {Uint8Array} p
-   * @param {Uint8Array} q
-   * @param {Uint8Array} y
-   * @returns {boolean}
-   * @async
-   */
-
-
-  async function verify$3(hashAlgo, r, s, hashed, g, p, q, y) {
-    const BigInteger = await util.getBigInteger();
-    const zero = new BigInteger(0);
-    r = new BigInteger(r);
-    s = new BigInteger(s);
-    p = new BigInteger(p);
-    q = new BigInteger(q);
-    g = new BigInteger(g);
-    y = new BigInteger(y);
-
-    if (r.lte(zero) || r.gte(q) || s.lte(zero) || s.gte(q)) {
-      util.printDebug('invalid DSA Signature');
-      return false;
-    }
-
-    const h = new BigInteger(hashed.subarray(0, q.byteLength())).imod(q);
-    const w = s.modInv(q); // s**-1 mod q
-
-    if (w.isZero()) {
-      util.printDebug('invalid DSA Signature');
-      return false;
-    }
-
-    g = g.mod(p);
-    y = y.mod(p);
-    const u1 = h.mul(w).imod(q); // H(m) * w mod q
-
-    const u2 = r.mul(w).imod(q); // r * w mod q
-
-    const t1 = g.modExp(u1, p); // g**u1 mod p
-
-    const t2 = y.modExp(u2, p); // y**u2 mod p
-
-    const v = t1.mul(t2).imod(p).imod(q); // (g**u1 * y**u2 mod p) mod q
-
-    return v.equal(r);
-  }
-  /**
-   * Validate DSA parameters
-   * @param {Uint8Array} p - DSA prime
-   * @param {Uint8Array} q - DSA group order
-   * @param {Uint8Array} g - DSA sub-group generator
-   * @param {Uint8Array} y - DSA public key
-   * @param {Uint8Array} x - DSA private key
-   * @returns {Promise<Boolean>} Whether params are valid.
-   * @async
-   */
-
-
-  async function validateParams$6(p, q, g, y, x) {
-    const BigInteger = await util.getBigInteger();
-    p = new BigInteger(p);
-    q = new BigInteger(q);
-    g = new BigInteger(g);
-    y = new BigInteger(y);
-    const one = new BigInteger(1); // Check that 1 < g < p
-
-    if (g.lte(one) || g.gte(p)) {
-      return false;
-    }
-    /**
-     * Check that subgroup order q divides p-1
-     */
-
-
-    if (!p.dec().mod(q).isZero()) {
-      return false;
-    }
-    /**
-     * g has order q
-     * Check that g ** q = 1 mod p
-     */
-
-
-    if (!g.modExp(q, p).isOne()) {
-      return false;
-    }
-    /**
-     * Check q is large and probably prime (we mainly want to avoid small factors)
-     */
-
-
-    const qSize = new BigInteger(q.bitLength());
-    const n150 = new BigInteger(150);
-
-    if (qSize.lt(n150) || !(await isProbablePrime(q, null, 32))) {
-      return false;
-    }
-    /**
-     * Re-derive public key y' = g ** x mod p
-     * Expect y == y'
-     *
-     * Blinded exponentiation computes g**{rq + x} to compare to y
-     */
-
-
-    x = new BigInteger(x);
-    const two = new BigInteger(2);
-    const r = await getRandomBigInteger(two.leftShift(qSize.dec()), two.leftShift(qSize)); // draw r of same size as q
-
-    const rqx = q.mul(r).add(x);
-
-    if (!y.equal(g.modExp(rqx, p))) {
-      return false;
-    }
-
-    return true;
-  }
-
-  var dsa = /*#__PURE__*/Object.freeze({
-    __proto__: null,
-    sign: sign$3,
-    verify: verify$3,
-    validateParams: validateParams$6
   });
+
+  class AES_CTR {
+    static encrypt(data, key, nonce) {
+      return new AES_CTR(key, nonce).encrypt(data);
+    }
+
+    static decrypt(data, key, nonce) {
+      return new AES_CTR(key, nonce).encrypt(data);
+    }
+
+    constructor(key, nonce, aes) {
+      this.aes = aes ? aes : new AES(key, undefined, false, 'CTR');
+      delete this.aes.padding;
+      this.AES_CTR_set_options(nonce);
+    }
+
+    encrypt(data) {
+      const r1 = this.aes.AES_Encrypt_process(data);
+      const r2 = this.aes.AES_Encrypt_finish();
+      return joinBytes(r1, r2);
+    }
+
+    decrypt(data) {
+      const r1 = this.aes.AES_Encrypt_process(data);
+      const r2 = this.aes.AES_Encrypt_finish();
+      return joinBytes(r1, r2);
+    }
+
+    AES_CTR_set_options(nonce, counter, size) {
+      let {
+        asm
+      } = this.aes.acquire_asm();
+
+      if (size !== undefined) {
+        if (size < 8 || size > 48) throw new IllegalArgumentError('illegal counter size');
+        let mask = Math.pow(2, size) - 1;
+        asm.set_mask(0, 0, mask / 0x100000000 | 0, mask | 0);
+      } else {
+        size = 48;
+        asm.set_mask(0, 0, 0xffff, 0xffffffff);
+      }
+
+      if (nonce !== undefined) {
+        let len = nonce.length;
+        if (!len || len > 16) throw new IllegalArgumentError('illegal nonce size');
+        let view = new DataView(new ArrayBuffer(16));
+        new Uint8Array(view.buffer).set(nonce);
+        asm.set_nonce(view.getUint32(0), view.getUint32(4), view.getUint32(8), view.getUint32(12));
+      } else {
+        throw new Error('nonce is required');
+      }
+
+      if (counter !== undefined) {
+        if (counter < 0 || counter >= Math.pow(2, size)) throw new IllegalArgumentError('illegal counter value');
+        asm.set_counter(0, 0, counter / 0x100000000 | 0, counter | 0);
+      }
+    }
+
+  }
+
+  class AES_CBC {
+    static encrypt(data, key, padding = true, iv) {
+      return new AES_CBC(key, iv, padding).encrypt(data);
+    }
+
+    static decrypt(data, key, padding = true, iv) {
+      return new AES_CBC(key, iv, padding).decrypt(data);
+    }
+
+    constructor(key, iv, padding = true, aes) {
+      this.aes = aes ? aes : new AES(key, iv, padding, 'CBC');
+    }
+
+    encrypt(data) {
+      const r1 = this.aes.AES_Encrypt_process(data);
+      const r2 = this.aes.AES_Encrypt_finish();
+      return joinBytes(r1, r2);
+    }
+
+    decrypt(data) {
+      const r1 = this.aes.AES_Decrypt_process(data);
+      const r2 = this.aes.AES_Decrypt_finish();
+      return joinBytes(r1, r2);
+    }
+
+  }
   /**
-   * @fileoverview Asymmetric cryptography functions
-   * @module crypto/public_key
+   * @fileoverview This module implements AES-CMAC on top of
+   * native AES-CBC using either the WebCrypto API or Node.js' crypto API.
+   * @module crypto/cmac
    * @private
    */
 
-  var publicKey = {
-    /** @see module:crypto/public_key/rsa */
-    rsa: rsa,
 
-    /** @see module:crypto/public_key/elgamal */
-    elgamal: elgamal,
+  const webCrypto$6 = util.getWebCrypto();
+  const nodeCrypto$7 = util.getNodeCrypto();
+  /**
+   * This implementation of CMAC is based on the description of OMAC in
+   * http://web.cs.ucdavis.edu/~rogaway/papers/eax.pdf. As per that
+   * document:
+   *
+   * We have made a small modification to the OMAC algorithm as it was
+   * originally presented, changing one of its two constants.
+   * Specifically, the constant 4 at line 85 was the constant 1/2 (the
+   * multiplicative inverse of 2) in the original definition of OMAC [14].
+   * The OMAC authors indicate that they will promulgate this modification
+   * [15], which slightly simplifies implementations.
+   */
 
-    /** @see module:crypto/public_key/elliptic */
-    elliptic: elliptic,
+  const blockLength = 16;
+  /**
+   * xor `padding` into the end of `data`. This function implements "the
+   * operation xor→ [which] xors the shorter string into the end of longer
+   * one". Since data is always as least as long as padding, we can
+   * simplify the implementation.
+   * @param {Uint8Array} data
+   * @param {Uint8Array} padding
+   */
 
-    /** @see module:crypto/public_key/dsa */
-    dsa: dsa,
+  function rightXORMut(data, padding) {
+    const offset = data.length - blockLength;
 
-    /** @see tweetnacl */
-    nacl: naclFastLight
+    for (let i = 0; i < blockLength; i++) {
+      data[i + offset] ^= padding[i];
+    }
+
+    return data;
+  }
+
+  function pad(data, padding, padding2) {
+    // if |M| in {n, 2n, 3n, ...}
+    if (data.length && data.length % blockLength === 0) {
+      // then return M xor→ B,
+      return rightXORMut(data, padding);
+    } // else return (M || 10^(n−1−(|M| mod n))) xor→ P
+
+
+    const padded = new Uint8Array(data.length + (blockLength - data.length % blockLength));
+    padded.set(data);
+    padded[data.length] = 0b10000000;
+    return rightXORMut(padded, padding2);
+  }
+
+  const zeroBlock = new Uint8Array(blockLength);
+
+  async function CMAC(key) {
+    const cbc = await CBC(key); // L ← E_K(0^n); B ← 2L; P ← 4L
+
+    const padding = util.double(await cbc(zeroBlock));
+    const padding2 = util.double(padding);
+    return async function (data) {
+      // return CBC_K(pad(M; B, P))
+      return (await cbc(pad(data, padding, padding2))).subarray(-blockLength);
+    };
+  }
+
+  async function CBC(key) {
+    if (util.getWebCrypto() && key.length !== 24) {
+      // WebCrypto (no 192 bit support) see: https://www.chromium.org/blink/webcrypto#TOC-AES-support
+      key = await webCrypto$6.importKey('raw', key, {
+        name: 'AES-CBC',
+        length: key.length * 8
+      }, false, ['encrypt']);
+      return async function (pt) {
+        const ct = await webCrypto$6.encrypt({
+          name: 'AES-CBC',
+          iv: zeroBlock,
+          length: blockLength * 8
+        }, key, pt);
+        return new Uint8Array(ct).subarray(0, ct.byteLength - blockLength);
+      };
+    }
+
+    if (util.getNodeCrypto()) {
+      // Node crypto library
+      return async function (pt) {
+        const en = new nodeCrypto$7.createCipheriv('aes-' + key.length * 8 + '-cbc', key, zeroBlock);
+        const ct = en.update(pt);
+        return new Uint8Array(ct);
+      };
+    } // asm.js fallback
+
+
+    return async function (pt) {
+      return AES_CBC.encrypt(pt, key, false, zeroBlock);
+    };
+  } // OpenPGP.js - An OpenPGP implementation in javascript
+
+
+  const webCrypto$7 = util.getWebCrypto();
+  const nodeCrypto$8 = util.getNodeCrypto();
+  const Buffer$1 = util.getNodeBuffer();
+  const blockLength$1 = 16;
+  const ivLength = blockLength$1;
+  const tagLength = blockLength$1;
+  const zero = new Uint8Array(blockLength$1);
+  const one = new Uint8Array(blockLength$1);
+  one[blockLength$1 - 1] = 1;
+  const two = new Uint8Array(blockLength$1);
+  two[blockLength$1 - 1] = 2;
+
+  async function OMAC(key) {
+    const cmac = await CMAC(key);
+    return function (t, message) {
+      return cmac(util.concatUint8Array([t, message]));
+    };
+  }
+
+  async function CTR(key) {
+    if (util.getWebCrypto() && key.length !== 24 // WebCrypto (no 192 bit support) see: https://www.chromium.org/blink/webcrypto#TOC-AES-support
+    ) {
+      key = await webCrypto$7.importKey('raw', key, {
+        name: 'AES-CTR',
+        length: key.length * 8
+      }, false, ['encrypt']);
+      return async function (pt, iv) {
+        const ct = await webCrypto$7.encrypt({
+          name: 'AES-CTR',
+          counter: iv,
+          length: blockLength$1 * 8
+        }, key, pt);
+        return new Uint8Array(ct);
+      };
+    }
+
+    if (util.getNodeCrypto()) {
+      // Node crypto library
+      return async function (pt, iv) {
+        const en = new nodeCrypto$8.createCipheriv('aes-' + key.length * 8 + '-ctr', key, iv);
+        const ct = Buffer$1.concat([en.update(pt), en.final()]);
+        return new Uint8Array(ct);
+      };
+    } // asm.js fallback
+
+
+    return async function (pt, iv) {
+      return AES_CTR.encrypt(pt, key, iv);
+    };
+  }
+  /**
+   * Class to en/decrypt using EAX mode.
+   * @param {enums.symmetric} cipher - The symmetric cipher algorithm to use
+   * @param {Uint8Array} key - The encryption key
+   */
+
+
+  async function EAX(cipher, key) {
+    if (cipher !== enums.symmetric.aes128 && cipher !== enums.symmetric.aes192 && cipher !== enums.symmetric.aes256) {
+      throw new Error('EAX mode supports only AES cipher');
+    }
+
+    const [omac, ctr] = await Promise.all([OMAC(key), CTR(key)]);
+    return {
+      /**
+       * Encrypt plaintext input.
+       * @param {Uint8Array} plaintext - The cleartext input to be encrypted
+       * @param {Uint8Array} nonce - The nonce (16 bytes)
+       * @param {Uint8Array} adata - Associated data to sign
+       * @returns {Promise<Uint8Array>} The ciphertext output.
+       */
+      encrypt: async function (plaintext, nonce, adata) {
+        const [omacNonce, omacAdata] = await Promise.all([omac(zero, nonce), omac(one, adata)]);
+        const ciphered = await ctr(plaintext, omacNonce);
+        const omacCiphered = await omac(two, ciphered);
+        const tag = omacCiphered; // Assumes that omac(*).length === tagLength.
+
+        for (let i = 0; i < tagLength; i++) {
+          tag[i] ^= omacAdata[i] ^ omacNonce[i];
+        }
+
+        return util.concatUint8Array([ciphered, tag]);
+      },
+
+      /**
+       * Decrypt ciphertext input.
+       * @param {Uint8Array} ciphertext - The ciphertext input to be decrypted
+       * @param {Uint8Array} nonce - The nonce (16 bytes)
+       * @param {Uint8Array} adata - Associated data to verify
+       * @returns {Promise<Uint8Array>} The plaintext output.
+       */
+      decrypt: async function (ciphertext, nonce, adata) {
+        if (ciphertext.length < tagLength) throw new Error('Invalid EAX ciphertext');
+        const ciphered = ciphertext.subarray(0, -tagLength);
+        const ctTag = ciphertext.subarray(-tagLength);
+        const [omacNonce, omacAdata, omacCiphered] = await Promise.all([omac(zero, nonce), omac(one, adata), omac(two, ciphered)]);
+        const tag = omacCiphered; // Assumes that omac(*).length === tagLength.
+
+        for (let i = 0; i < tagLength; i++) {
+          tag[i] ^= omacAdata[i] ^ omacNonce[i];
+        }
+
+        if (!util.equalsUint8Array(ctTag, tag)) throw new Error('Authentication tag mismatch');
+        const plaintext = await ctr(ciphered, omacNonce);
+        return plaintext;
+      }
+    };
+  }
+  /**
+   * Get EAX nonce as defined by {@link https://tools.ietf.org/html/draft-ietf-openpgp-rfc4880bis-04#section-5.16.1|RFC4880bis-04, section 5.16.1}.
+   * @param {Uint8Array} iv - The initialization vector (16 bytes)
+   * @param {Uint8Array} chunkIndex - The chunk index (8 bytes)
+   */
+
+
+  EAX.getNonce = function (iv, chunkIndex) {
+    const nonce = iv.slice();
+
+    for (let i = 0; i < chunkIndex.length; i++) {
+      nonce[8 + i] ^= chunkIndex[i];
+    }
+
+    return nonce;
+  };
+
+  EAX.blockLength = blockLength$1;
+  EAX.ivLength = ivLength;
+  EAX.tagLength = tagLength; // OpenPGP.js - An OpenPGP implementation in javascript
+
+  const blockLength$2 = 16;
+  const ivLength$1 = 15; // https://tools.ietf.org/html/draft-ietf-openpgp-rfc4880bis-04#section-5.16.2:
+  // While OCB [RFC7253] allows the authentication tag length to be of any
+  // number up to 128 bits long, this document requires a fixed
+  // authentication tag length of 128 bits (16 octets) for simplicity.
+
+  const tagLength$1 = 16;
+
+  function ntz(n) {
+    let ntz = 0;
+
+    for (let i = 1; (n & i) === 0; i <<= 1) {
+      ntz++;
+    }
+
+    return ntz;
+  }
+
+  function xorMut$1(S, T) {
+    for (let i = 0; i < S.length; i++) {
+      S[i] ^= T[i];
+    }
+
+    return S;
+  }
+
+  function xor(S, T) {
+    return xorMut$1(S.slice(), T);
+  }
+
+  const zeroBlock$1 = new Uint8Array(blockLength$2);
+  const one$1 = new Uint8Array([1]);
+  /**
+   * Class to en/decrypt using OCB mode.
+   * @param {enums.symmetric} cipher - The symmetric cipher algorithm to use
+   * @param {Uint8Array} key - The encryption key
+   */
+
+  async function OCB(cipher$1, key) {
+    let maxNtz = 0;
+    let encipher;
+    let decipher;
+    let mask;
+    constructKeyVariables(cipher$1, key);
+
+    function constructKeyVariables(cipher$1, key) {
+      const cipherName = enums.read(enums.symmetric, cipher$1);
+      const aes = new cipher[cipherName](key);
+      encipher = aes.encrypt.bind(aes);
+      decipher = aes.decrypt.bind(aes);
+      const mask_x = encipher(zeroBlock$1);
+      const mask_$ = util.double(mask_x);
+      mask = [];
+      mask[0] = util.double(mask_$);
+      mask.x = mask_x;
+      mask.$ = mask_$;
+    }
+
+    function extendKeyVariables(text, adata) {
+      const newMaxNtz = util.nbits(Math.max(text.length, adata.length) / blockLength$2 | 0) - 1;
+
+      for (let i = maxNtz + 1; i <= newMaxNtz; i++) {
+        mask[i] = util.double(mask[i - 1]);
+      }
+
+      maxNtz = newMaxNtz;
+    }
+
+    function hash(adata) {
+      if (!adata.length) {
+        // Fast path
+        return zeroBlock$1;
+      } //
+      // Consider A as a sequence of 128-bit blocks
+      //
+
+
+      const m = adata.length / blockLength$2 | 0;
+      const offset = new Uint8Array(blockLength$2);
+      const sum = new Uint8Array(blockLength$2);
+
+      for (let i = 0; i < m; i++) {
+        xorMut$1(offset, mask[ntz(i + 1)]);
+        xorMut$1(sum, encipher(xor(offset, adata)));
+        adata = adata.subarray(blockLength$2);
+      } //
+      // Process any final partial block; compute final hash value
+      //
+
+
+      if (adata.length) {
+        xorMut$1(offset, mask.x);
+        const cipherInput = new Uint8Array(blockLength$2);
+        cipherInput.set(adata, 0);
+        cipherInput[adata.length] = 0b10000000;
+        xorMut$1(cipherInput, offset);
+        xorMut$1(sum, encipher(cipherInput));
+      }
+
+      return sum;
+    }
+    /**
+     * Encrypt/decrypt data.
+     * @param {encipher|decipher} fn - Encryption/decryption block cipher function
+     * @param {Uint8Array} text - The cleartext or ciphertext (without tag) input
+     * @param {Uint8Array} nonce - The nonce (15 bytes)
+     * @param {Uint8Array} adata - Associated data to sign
+     * @returns {Promise<Uint8Array>} The ciphertext or plaintext output, with tag appended in both cases.
+     */
+
+
+    function crypt(fn, text, nonce, adata) {
+      //
+      // Consider P as a sequence of 128-bit blocks
+      //
+      const m = text.length / blockLength$2 | 0; //
+      // Key-dependent variables
+      //
+
+      extendKeyVariables(text, adata); //
+      // Nonce-dependent and per-encryption variables
+      //
+      //    Nonce = num2str(TAGLEN mod 128,7) || zeros(120-bitlen(N)) || 1 || N
+      // Note: We assume here that tagLength mod 16 == 0.
+
+      const paddedNonce = util.concatUint8Array([zeroBlock$1.subarray(0, ivLength$1 - nonce.length), one$1, nonce]); //    bottom = str2num(Nonce[123..128])
+
+      const bottom = paddedNonce[blockLength$2 - 1] & 0b111111; //    Ktop = ENCIPHER(K, Nonce[1..122] || zeros(6))
+
+      paddedNonce[blockLength$2 - 1] &= 0b11000000;
+      const kTop = encipher(paddedNonce); //    Stretch = Ktop || (Ktop[1..64] xor Ktop[9..72])
+
+      const stretched = util.concatUint8Array([kTop, xor(kTop.subarray(0, 8), kTop.subarray(1, 9))]); //    Offset_0 = Stretch[1+bottom..128+bottom]
+
+      const offset = util.shiftRight(stretched.subarray(0 + (bottom >> 3), 17 + (bottom >> 3)), 8 - (bottom & 7)).subarray(1); //    Checksum_0 = zeros(128)
+
+      const checksum = new Uint8Array(blockLength$2);
+      const ct = new Uint8Array(text.length + tagLength$1); //
+      // Process any whole blocks
+      //
+
+      let i;
+      let pos = 0;
+
+      for (i = 0; i < m; i++) {
+        // Offset_i = Offset_{i-1} xor L_{ntz(i)}
+        xorMut$1(offset, mask[ntz(i + 1)]); // C_i = Offset_i xor ENCIPHER(K, P_i xor Offset_i)
+        // P_i = Offset_i xor DECIPHER(K, C_i xor Offset_i)
+
+        ct.set(xorMut$1(fn(xor(offset, text)), offset), pos); // Checksum_i = Checksum_{i-1} xor P_i
+
+        xorMut$1(checksum, fn === encipher ? text : ct.subarray(pos));
+        text = text.subarray(blockLength$2);
+        pos += blockLength$2;
+      } //
+      // Process any final partial block and compute raw tag
+      //
+
+
+      if (text.length) {
+        // Offset_* = Offset_m xor L_*
+        xorMut$1(offset, mask.x); // Pad = ENCIPHER(K, Offset_*)
+
+        const padding = encipher(offset); // C_* = P_* xor Pad[1..bitlen(P_*)]
+
+        ct.set(xor(text, padding), pos); // Checksum_* = Checksum_m xor (P_* || 1 || new Uint8Array(127-bitlen(P_*)))
+
+        const xorInput = new Uint8Array(blockLength$2);
+        xorInput.set(fn === encipher ? text : ct.subarray(pos, -tagLength$1), 0);
+        xorInput[text.length] = 0b10000000;
+        xorMut$1(checksum, xorInput);
+        pos += text.length;
+      } // Tag = ENCIPHER(K, Checksum_* xor Offset_* xor L_$) xor HASH(K,A)
+
+
+      const tag = xorMut$1(encipher(xorMut$1(xorMut$1(checksum, offset), mask.$)), hash(adata)); //
+      // Assemble ciphertext
+      //
+      // C = C_1 || C_2 || ... || C_m || C_* || Tag[1..TAGLEN]
+
+      ct.set(tag, pos);
+      return ct;
+    }
+
+    return {
+      /**
+       * Encrypt plaintext input.
+       * @param {Uint8Array} plaintext - The cleartext input to be encrypted
+       * @param {Uint8Array} nonce - The nonce (15 bytes)
+       * @param {Uint8Array} adata - Associated data to sign
+       * @returns {Promise<Uint8Array>} The ciphertext output.
+       */
+      encrypt: async function (plaintext, nonce, adata) {
+        return crypt(encipher, plaintext, nonce, adata);
+      },
+
+      /**
+       * Decrypt ciphertext input.
+       * @param {Uint8Array} ciphertext - The ciphertext input to be decrypted
+       * @param {Uint8Array} nonce - The nonce (15 bytes)
+       * @param {Uint8Array} adata - Associated data to sign
+       * @returns {Promise<Uint8Array>} The ciphertext output.
+       */
+      decrypt: async function (ciphertext, nonce, adata) {
+        if (ciphertext.length < tagLength$1) throw new Error('Invalid OCB ciphertext');
+        const tag = ciphertext.subarray(-tagLength$1);
+        ciphertext = ciphertext.subarray(0, -tagLength$1);
+        const crypted = crypt(decipher, ciphertext, nonce, adata); // if (Tag[1..TAGLEN] == T)
+
+        if (util.equalsUint8Array(tag, crypted.subarray(-tagLength$1))) {
+          return crypted.subarray(0, -tagLength$1);
+        }
+
+        throw new Error('Authentication tag mismatch');
+      }
+    };
+  }
+  /**
+   * Get OCB nonce as defined by {@link https://tools.ietf.org/html/draft-ietf-openpgp-rfc4880bis-04#section-5.16.2|RFC4880bis-04, section 5.16.2}.
+   * @param {Uint8Array} iv - The initialization vector (15 bytes)
+   * @param {Uint8Array} chunkIndex - The chunk index (8 bytes)
+   */
+
+
+  OCB.getNonce = function (iv, chunkIndex) {
+    const nonce = iv.slice();
+
+    for (let i = 0; i < chunkIndex.length; i++) {
+      nonce[7 + i] ^= chunkIndex[i];
+    }
+
+    return nonce;
+  };
+
+  OCB.blockLength = blockLength$2;
+  OCB.ivLength = ivLength$1;
+  OCB.tagLength = tagLength$1;
+  const _AES_GCM_data_maxLength = 68719476704; // 2^36 - 2^5
+
+  class AES_GCM {
+    constructor(key, nonce, adata, tagSize = 16, aes) {
+      this.tagSize = tagSize;
+      this.gamma0 = 0;
+      this.counter = 1;
+      this.aes = aes ? aes : new AES(key, undefined, false, 'CTR');
+      let {
+        asm,
+        heap
+      } = this.aes.acquire_asm(); // Init GCM
+
+      asm.gcm_init(); // Tag size
+
+      if (this.tagSize < 4 || this.tagSize > 16) throw new IllegalArgumentError('illegal tagSize value'); // Nonce
+
+      const noncelen = nonce.length || 0;
+      const noncebuf = new Uint8Array(16);
+
+      if (noncelen !== 12) {
+        this._gcm_mac_process(nonce);
+
+        heap[0] = 0;
+        heap[1] = 0;
+        heap[2] = 0;
+        heap[3] = 0;
+        heap[4] = 0;
+        heap[5] = 0;
+        heap[6] = 0;
+        heap[7] = 0;
+        heap[8] = 0;
+        heap[9] = 0;
+        heap[10] = 0;
+        heap[11] = noncelen >>> 29;
+        heap[12] = noncelen >>> 21 & 255;
+        heap[13] = noncelen >>> 13 & 255;
+        heap[14] = noncelen >>> 5 & 255;
+        heap[15] = noncelen << 3 & 255;
+        asm.mac(AES_asm.MAC.GCM, AES_asm.HEAP_DATA, 16);
+        asm.get_iv(AES_asm.HEAP_DATA);
+        asm.set_iv(0, 0, 0, 0);
+        noncebuf.set(heap.subarray(0, 16));
+      } else {
+        noncebuf.set(nonce);
+        noncebuf[15] = 1;
+      }
+
+      const nonceview = new DataView(noncebuf.buffer);
+      this.gamma0 = nonceview.getUint32(12);
+      asm.set_nonce(nonceview.getUint32(0), nonceview.getUint32(4), nonceview.getUint32(8), 0);
+      asm.set_mask(0, 0, 0, 0xffffffff); // Associated data
+
+      if (adata !== undefined) {
+        if (adata.length > _AES_GCM_data_maxLength) throw new IllegalArgumentError('illegal adata length');
+
+        if (adata.length) {
+          this.adata = adata;
+
+          this._gcm_mac_process(adata);
+        } else {
+          this.adata = undefined;
+        }
+      } else {
+        this.adata = undefined;
+      } // Counter
+
+
+      if (this.counter < 1 || this.counter > 0xffffffff) throw new RangeError('counter must be a positive 32-bit integer');
+      asm.set_counter(0, 0, 0, this.gamma0 + this.counter | 0);
+    }
+
+    static encrypt(cleartext, key, nonce, adata, tagsize) {
+      return new AES_GCM(key, nonce, adata, tagsize).encrypt(cleartext);
+    }
+
+    static decrypt(ciphertext, key, nonce, adata, tagsize) {
+      return new AES_GCM(key, nonce, adata, tagsize).decrypt(ciphertext);
+    }
+
+    encrypt(data) {
+      return this.AES_GCM_encrypt(data);
+    }
+
+    decrypt(data) {
+      return this.AES_GCM_decrypt(data);
+    }
+
+    AES_GCM_Encrypt_process(data) {
+      let dpos = 0;
+      let dlen = data.length || 0;
+      let {
+        asm,
+        heap
+      } = this.aes.acquire_asm();
+      let counter = this.counter;
+      let pos = this.aes.pos;
+      let len = this.aes.len;
+      let rpos = 0;
+      let rlen = len + dlen & -16;
+      let wlen = 0;
+      if ((counter - 1 << 4) + len + dlen > _AES_GCM_data_maxLength) throw new RangeError('counter overflow');
+      const result = new Uint8Array(rlen);
+
+      while (dlen > 0) {
+        wlen = _heap_write(heap, pos + len, data, dpos, dlen);
+        len += wlen;
+        dpos += wlen;
+        dlen -= wlen;
+        wlen = asm.cipher(AES_asm.ENC.CTR, AES_asm.HEAP_DATA + pos, len);
+        wlen = asm.mac(AES_asm.MAC.GCM, AES_asm.HEAP_DATA + pos, wlen);
+        if (wlen) result.set(heap.subarray(pos, pos + wlen), rpos);
+        counter += wlen >>> 4;
+        rpos += wlen;
+
+        if (wlen < len) {
+          pos += wlen;
+          len -= wlen;
+        } else {
+          pos = 0;
+          len = 0;
+        }
+      }
+
+      this.counter = counter;
+      this.aes.pos = pos;
+      this.aes.len = len;
+      return result;
+    }
+
+    AES_GCM_Encrypt_finish() {
+      let {
+        asm,
+        heap
+      } = this.aes.acquire_asm();
+      let counter = this.counter;
+      let tagSize = this.tagSize;
+      let adata = this.adata;
+      let pos = this.aes.pos;
+      let len = this.aes.len;
+      const result = new Uint8Array(len + tagSize);
+      asm.cipher(AES_asm.ENC.CTR, AES_asm.HEAP_DATA + pos, len + 15 & -16);
+      if (len) result.set(heap.subarray(pos, pos + len));
+      let i = len;
+
+      for (; i & 15; i++) heap[pos + i] = 0;
+
+      asm.mac(AES_asm.MAC.GCM, AES_asm.HEAP_DATA + pos, i);
+      const alen = adata !== undefined ? adata.length : 0;
+      const clen = (counter - 1 << 4) + len;
+      heap[0] = 0;
+      heap[1] = 0;
+      heap[2] = 0;
+      heap[3] = alen >>> 29;
+      heap[4] = alen >>> 21;
+      heap[5] = alen >>> 13 & 255;
+      heap[6] = alen >>> 5 & 255;
+      heap[7] = alen << 3 & 255;
+      heap[8] = heap[9] = heap[10] = 0;
+      heap[11] = clen >>> 29;
+      heap[12] = clen >>> 21 & 255;
+      heap[13] = clen >>> 13 & 255;
+      heap[14] = clen >>> 5 & 255;
+      heap[15] = clen << 3 & 255;
+      asm.mac(AES_asm.MAC.GCM, AES_asm.HEAP_DATA, 16);
+      asm.get_iv(AES_asm.HEAP_DATA);
+      asm.set_counter(0, 0, 0, this.gamma0);
+      asm.cipher(AES_asm.ENC.CTR, AES_asm.HEAP_DATA, 16);
+      result.set(heap.subarray(0, tagSize), len);
+      this.counter = 1;
+      this.aes.pos = 0;
+      this.aes.len = 0;
+      return result;
+    }
+
+    AES_GCM_Decrypt_process(data) {
+      let dpos = 0;
+      let dlen = data.length || 0;
+      let {
+        asm,
+        heap
+      } = this.aes.acquire_asm();
+      let counter = this.counter;
+      let tagSize = this.tagSize;
+      let pos = this.aes.pos;
+      let len = this.aes.len;
+      let rpos = 0;
+      let rlen = len + dlen > tagSize ? len + dlen - tagSize & -16 : 0;
+      let tlen = len + dlen - rlen;
+      let wlen = 0;
+      if ((counter - 1 << 4) + len + dlen > _AES_GCM_data_maxLength) throw new RangeError('counter overflow');
+      const result = new Uint8Array(rlen);
+
+      while (dlen > tlen) {
+        wlen = _heap_write(heap, pos + len, data, dpos, dlen - tlen);
+        len += wlen;
+        dpos += wlen;
+        dlen -= wlen;
+        wlen = asm.mac(AES_asm.MAC.GCM, AES_asm.HEAP_DATA + pos, wlen);
+        wlen = asm.cipher(AES_asm.DEC.CTR, AES_asm.HEAP_DATA + pos, wlen);
+        if (wlen) result.set(heap.subarray(pos, pos + wlen), rpos);
+        counter += wlen >>> 4;
+        rpos += wlen;
+        pos = 0;
+        len = 0;
+      }
+
+      if (dlen > 0) {
+        len += _heap_write(heap, 0, data, dpos, dlen);
+      }
+
+      this.counter = counter;
+      this.aes.pos = pos;
+      this.aes.len = len;
+      return result;
+    }
+
+    AES_GCM_Decrypt_finish() {
+      let {
+        asm,
+        heap
+      } = this.aes.acquire_asm();
+      let tagSize = this.tagSize;
+      let adata = this.adata;
+      let counter = this.counter;
+      let pos = this.aes.pos;
+      let len = this.aes.len;
+      let rlen = len - tagSize;
+      if (len < tagSize) throw new IllegalStateError('authentication tag not found');
+      const result = new Uint8Array(rlen);
+      const atag = new Uint8Array(heap.subarray(pos + rlen, pos + len));
+      let i = rlen;
+
+      for (; i & 15; i++) heap[pos + i] = 0;
+
+      asm.mac(AES_asm.MAC.GCM, AES_asm.HEAP_DATA + pos, i);
+      asm.cipher(AES_asm.DEC.CTR, AES_asm.HEAP_DATA + pos, i);
+      if (rlen) result.set(heap.subarray(pos, pos + rlen));
+      const alen = adata !== undefined ? adata.length : 0;
+      const clen = (counter - 1 << 4) + len - tagSize;
+      heap[0] = 0;
+      heap[1] = 0;
+      heap[2] = 0;
+      heap[3] = alen >>> 29;
+      heap[4] = alen >>> 21;
+      heap[5] = alen >>> 13 & 255;
+      heap[6] = alen >>> 5 & 255;
+      heap[7] = alen << 3 & 255;
+      heap[8] = heap[9] = heap[10] = 0;
+      heap[11] = clen >>> 29;
+      heap[12] = clen >>> 21 & 255;
+      heap[13] = clen >>> 13 & 255;
+      heap[14] = clen >>> 5 & 255;
+      heap[15] = clen << 3 & 255;
+      asm.mac(AES_asm.MAC.GCM, AES_asm.HEAP_DATA, 16);
+      asm.get_iv(AES_asm.HEAP_DATA);
+      asm.set_counter(0, 0, 0, this.gamma0);
+      asm.cipher(AES_asm.ENC.CTR, AES_asm.HEAP_DATA, 16);
+      let acheck = 0;
+
+      for (let i = 0; i < tagSize; ++i) acheck |= atag[i] ^ heap[i];
+
+      if (acheck) throw new SecurityError('data integrity check failed');
+      this.counter = 1;
+      this.aes.pos = 0;
+      this.aes.len = 0;
+      return result;
+    }
+
+    AES_GCM_decrypt(data) {
+      const result1 = this.AES_GCM_Decrypt_process(data);
+      const result2 = this.AES_GCM_Decrypt_finish();
+      const result = new Uint8Array(result1.length + result2.length);
+      if (result1.length) result.set(result1);
+      if (result2.length) result.set(result2, result1.length);
+      return result;
+    }
+
+    AES_GCM_encrypt(data) {
+      const result1 = this.AES_GCM_Encrypt_process(data);
+      const result2 = this.AES_GCM_Encrypt_finish();
+      const result = new Uint8Array(result1.length + result2.length);
+      if (result1.length) result.set(result1);
+      if (result2.length) result.set(result2, result1.length);
+      return result;
+    }
+
+    _gcm_mac_process(data) {
+      let {
+        asm,
+        heap
+      } = this.aes.acquire_asm();
+      let dpos = 0;
+      let dlen = data.length || 0;
+      let wlen = 0;
+
+      while (dlen > 0) {
+        wlen = _heap_write(heap, 0, data, dpos, dlen);
+        dpos += wlen;
+        dlen -= wlen;
+
+        while (wlen & 15) heap[wlen++] = 0;
+
+        asm.mac(AES_asm.MAC.GCM, AES_asm.HEAP_DATA, wlen);
+      }
+    }
+
+  } // OpenPGP.js - An OpenPGP implementation in javascript
+
+
+  const webCrypto$8 = util.getWebCrypto();
+  const nodeCrypto$9 = util.getNodeCrypto();
+  const Buffer$2 = util.getNodeBuffer();
+  const blockLength$3 = 16;
+  const ivLength$2 = 12; // size of the IV in bytes
+
+  const tagLength$2 = 16; // size of the tag in bytes
+
+  const ALGO = 'AES-GCM';
+  /**
+   * Class to en/decrypt using GCM mode.
+   * @param {enums.symmetric} cipher - The symmetric cipher algorithm to use
+   * @param {Uint8Array} key - The encryption key
+   */
+
+  async function GCM(cipher, key) {
+    if (cipher !== enums.symmetric.aes128 && cipher !== enums.symmetric.aes192 && cipher !== enums.symmetric.aes256) {
+      throw new Error('GCM mode supports only AES cipher');
+    }
+
+    if (util.getWebCrypto() && key.length !== 24) {
+      // WebCrypto (no 192 bit support) see: https://www.chromium.org/blink/webcrypto#TOC-AES-support
+      const _key = await webCrypto$8.importKey('raw', key, {
+        name: ALGO
+      }, false, ['encrypt', 'decrypt']);
+
+      return {
+        encrypt: async function (pt, iv, adata = new Uint8Array()) {
+          if (!pt.length) {
+            // iOS does not support GCM-en/decrypting empty messages
+            return AES_GCM.encrypt(pt, key, iv, adata);
+          }
+
+          const ct = await webCrypto$8.encrypt({
+            name: ALGO,
+            iv,
+            additionalData: adata,
+            tagLength: tagLength$2 * 8
+          }, _key, pt);
+          return new Uint8Array(ct);
+        },
+        decrypt: async function (ct, iv, adata = new Uint8Array()) {
+          if (ct.length === tagLength$2) {
+            // iOS does not support GCM-en/decrypting empty messages
+            return AES_GCM.decrypt(ct, key, iv, adata);
+          }
+
+          const pt = await webCrypto$8.decrypt({
+            name: ALGO,
+            iv,
+            additionalData: adata,
+            tagLength: tagLength$2 * 8
+          }, _key, ct);
+          return new Uint8Array(pt);
+        }
+      };
+    }
+
+    if (util.getNodeCrypto()) {
+      // Node crypto library
+      return {
+        encrypt: async function (pt, iv, adata = new Uint8Array()) {
+          const en = new nodeCrypto$9.createCipheriv('aes-' + key.length * 8 + '-gcm', key, iv);
+          en.setAAD(adata);
+          const ct = Buffer$2.concat([en.update(pt), en.final(), en.getAuthTag()]); // append auth tag to ciphertext
+
+          return new Uint8Array(ct);
+        },
+        decrypt: async function (ct, iv, adata = new Uint8Array()) {
+          const de = new nodeCrypto$9.createDecipheriv('aes-' + key.length * 8 + '-gcm', key, iv);
+          de.setAAD(adata);
+          de.setAuthTag(ct.slice(ct.length - tagLength$2, ct.length)); // read auth tag at end of ciphertext
+
+          const pt = Buffer$2.concat([de.update(ct.slice(0, ct.length - tagLength$2)), de.final()]);
+          return new Uint8Array(pt);
+        }
+      };
+    }
+
+    return {
+      encrypt: async function (pt, iv, adata) {
+        return AES_GCM.encrypt(pt, key, iv, adata);
+      },
+      decrypt: async function (ct, iv, adata) {
+        return AES_GCM.decrypt(ct, key, iv, adata);
+      }
+    };
+  }
+  /**
+   * Get GCM nonce. Note: this operation is not defined by the standard.
+   * A future version of the standard may define GCM mode differently,
+   * hopefully under a different ID (we use Private/Experimental algorithm
+   * ID 100) so that we can maintain backwards compatibility.
+   * @param {Uint8Array} iv - The initialization vector (12 bytes)
+   * @param {Uint8Array} chunkIndex - The chunk index (8 bytes)
+   */
+
+
+  GCM.getNonce = function (iv, chunkIndex) {
+    const nonce = iv.slice();
+
+    for (let i = 0; i < chunkIndex.length; i++) {
+      nonce[4 + i] ^= chunkIndex[i];
+    }
+
+    return nonce;
+  };
+
+  GCM.blockLength = blockLength$3;
+  GCM.ivLength = ivLength$2;
+  GCM.tagLength = tagLength$2;
+  /**
+   * @fileoverview Cipher modes
+   * @module crypto/mode
+   * @private
+   */
+
+  var mode = {
+    /** @see module:crypto/mode/cfb */
+    cfb: cfb,
+
+    /** @see module:crypto/mode/gcm */
+    gcm: GCM,
+    experimentalGCM: GCM,
+
+    /** @see module:crypto/mode/eax */
+    eax: EAX,
+
+    /** @see module:crypto/mode/ocb */
+    ocb: OCB
   };
   /**
    * @fileoverview Provides functions for asymmetric signing and signature verification
