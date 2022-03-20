@@ -62,7 +62,6 @@ var EnigmailMimeDecrypt = {
   emptyAttachment: function() {
     EnigmailLog.DEBUG("mimeDecrypt.jsm: emptyAttachment()\n");
 
-    let encPart = EnigmailLocale.getString("mimeDecrypt.encryptedPart.attachmentLabel");
     let concealed = EnigmailLocale.getString("mimeDecrypt.encryptedPart.concealedData");
     let retData =
       `Content-Type: text/html
