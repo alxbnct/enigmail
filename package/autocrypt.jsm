@@ -603,7 +603,7 @@ var EnigmailAutocrypt = {
     return new Promise((resolve, reject) => {
       let start = {},
         end = {};
-      let msgType = EnigmailArmor.locateArmoredBlock(attachmentData, 0, "", start, end, {});
+      EnigmailArmor.locateArmoredBlock(attachmentData, 0, "", start, end, {});
 
       openPGPjs.message.readArmored(attachmentData.substring(start.value, end.value)).then(encMessage => {
           let enc = {
@@ -614,28 +614,32 @@ var EnigmailAutocrypt = {
 
           return openPGPjs.decrypt(enc);
         })
-        .then(msg => {
+        .then(async function _f(msg) {
           EnigmailLog.DEBUG("autocrypt.jsm: handleBackupMessage: data: " + msg.data.length + "\n");
 
           let setupData = importSetupKey(msg.data);
           if (setupData) {
-            keyManagement.setKeyTrust(null, "0x" + setupData.fpr, "5")
-              .then(resultObj => {
-                if (resultObj.returnCode === 0) {
-                  let id = EnigmailStdlib.getIdentityForEmail(EnigmailFuncs.stripEmail(fromAddr).toLowerCase());
-                  let ac = EnigmailFuncs.getAccountForIdentity(id.identity);
-                  ac.incomingServer.setBoolValue("enableAutocrypt", true);
-                  ac.incomingServer.setIntValue("acPreferEncrypt", (setupData.preferEncrypt === "mutual" ? 1 : 0));
-                  id.identity.setCharAttribute("pgpkeyId", "0x" + setupData.fpr);
-                  id.identity.setBoolAttribute("enablePgp", true);
-                  id.identity.setBoolAttribute("pgpSignEncrypted", true);
-                  id.identity.setIntAttribute("pgpKeyMode", 1);
-                  resolve(setupData);
-                }
-                else {
-                  reject("keyImportFailed");
-                }
-              });
+            let resultObj = {
+              returnCode: 0
+            };
+
+            if (cApi.supportsFeature("ownertrust")) {
+              resultObj = await keyManagement.setKeyTrust(null, "0x" + setupData.fpr, "5");
+            }
+            if (resultObj.returnCode === 0) {
+              let id = EnigmailStdlib.getIdentityForEmail(EnigmailFuncs.stripEmail(fromAddr).toLowerCase());
+              let ac = EnigmailFuncs.getAccountForIdentity(id.identity);
+              ac.incomingServer.setBoolValue("enableAutocrypt", true);
+              ac.incomingServer.setIntValue("acPreferEncrypt", (setupData.preferEncrypt === "mutual" ? 1 : 0));
+              id.identity.setCharAttribute("pgpkeyId", "0x" + setupData.fpr);
+              id.identity.setBoolAttribute("enablePgp", true);
+              id.identity.setBoolAttribute("pgpSignEncrypted", true);
+              id.identity.setIntAttribute("pgpKeyMode", 1);
+              resolve(setupData);
+            }
+            else {
+              reject("keyImportFailed");
+            }
           }
           else {
             reject("keyImportFailed");
