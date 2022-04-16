@@ -1293,7 +1293,7 @@ function getExpirationTime(keyPacket, signature) {
   let expirationTime;
   try {
     // check V4 expiration time
-    if (signature.keyNeverExpires === false) {
+    if (signature.keyExpirationTime > 0) {
       expirationTime = keyPacket.created.getTime() + signature.keyExpirationTime * 1000;
     }
 
@@ -1347,23 +1347,34 @@ async function getKeyFlags(key) {
   let keyStatusCode = await getKeyStatusCode(key);
 
   for (let sk of key.getSubkeys()) {
+    let sigVerified = false;
     try {
       await sk.verify(key.primaryKey);
+      sigVerified = true;
     }
     catch (x) {}
 
     for (let sig in sk.bindingSignatures) {
-      let skNotExp = !isDataExpired(sk, sk.bindingSignatures[sig]);
+      let skNotExp = !isDataExpired(sk.keyPacket, sk.bindingSignatures[sig]);
       for (let flg in sk.bindingSignatures[sig].keyFlags) {
-        determineFlags(sk.bindingSignatures[sig].keyFlags[flg], sk.bindingSignatures[sig].verified && skNotExp && keyStatusCode === "f");
+        //determineFlags(sk.bindingSignatures[sig].keyFlags[flg], sk.bindingSignatures[sig].verified && skNotExp && keyStatusCode === "f");
+        determineFlags(sk.bindingSignatures[sig].keyFlags[flg], sigVerified && skNotExp && keyStatusCode === "f");
       }
     }
   }
 
   for (let usr of key.users) {
+    let usrVerified = false;
+    try {
+      await usr.verify();
+      usrVerified = true;
+    }
+    catch (x) {}
+
     for (let sig in usr.selfCertifications) {
       for (let flg in usr.selfCertifications[sig].keyFlags) {
-        determineFlags(usr.selfCertifications[sig].keyFlags[flg], usr.selfCertifications[sig].verified && keyStatusCode === "f");
+        //determineFlags(usr.selfCertifications[sig].keyFlags[flg], usr.selfCertifications[sig].verified && keyStatusCode === "f");
+        determineFlags(usr.selfCertifications[sig].keyFlags[flg], usrVerified && keyStatusCode === "f");
       }
     }
   }

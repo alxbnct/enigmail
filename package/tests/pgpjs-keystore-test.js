@@ -99,7 +99,7 @@ test(withTestGpgHome(asyncTest(async function readWrite() {
     Assert.equal(keyObj.keyTrust, "f", "keyTrust");
     Assert.equal(keyObj.expiryTime, 0, "expiryTime");
     Assert.equal(keyObj.ownerTrust, "f", "ownerTrust");
-    Assert.equal(keyObj.keyUseFor, "cse", "keyUseFor");
+    Assert.equal(keyObj.keyUseFor, "cCsSeE", "keyUseFor");
     Assert.equal(keyObj.algoSym, "RSA", "algoSym");
     Assert.equal(keyObj.keySize, 4096, "keySize");
     Assert.equal(keyObj.photoAvailable, false, "photoAvailable");
