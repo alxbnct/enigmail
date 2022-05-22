@@ -1,10 +1,2 @@
 content       enigmail                chrome/content/
 locale        enigmail    en-US       chrome/locale/en-US/
-
-
-# Skin for Postbox (Mac OS X and Windows)
-skin          enigmail    classic/1.0 chrome/skin/postbox/ platformversion>=51.0
-
-# Skin for Interlink (Linux and Windows)
-skin          enigmail    classic/1.0 chrome/skin/interlink/ platformversion<20.0
-skin          enigmail    photonic chrome/skin/photonic/ platformversion<20.0
