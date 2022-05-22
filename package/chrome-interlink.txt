@@ -1,3 +1,7 @@
+# Skin for Interlink (Linux and Windows)
+skin          enigmail    classic/1.0 chrome/skin/interlink/
+skin          enigmail    photonic chrome/skin/photonic/
+
 # Register Enigmail Service for Interink
 component {f4d4138e-dd4d-4cb0-b408-a41429d38e34} enigmail-startup.js
 contract @mozilla.org/enigmail/cline-handler;1 {f4d4138e-dd4d-4cb0-b408-a41429d38e34}

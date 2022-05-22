@@ -37,6 +37,7 @@ if [ "${targetTool}" = "itl" ]; then
   cat ${srcDir}/package/chrome-interlink.txt >> ${targetDir}/chrome.manifest
   startupFile=enigmail-startup.js
 else
+  cat ${srcDir}/package/chrome-postbox.txt >> ${targetDir}/chrome.manifest
   startupFile=bootstrap.js
 fi
 
