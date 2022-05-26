@@ -1386,63 +1386,13 @@ Enigmail.msg = {
     var node;
     var bodyElement = Enigmail.msg.getBodyElement(pbMessageIndex);
 
-    if (bodyElement.firstChild) {
-      node = bodyElement.firstChild;
-
-      while (node) {
-        if (node.nodeName == "DIV") {
-          // for safety reasons, we replace the complete visible message with
-          // the decrypted or signed part (bug 983)
-          node.innerHTML = EnigmailFuncs.formatPlaintextMsg(EnigmailData.convertToUnicode(messageContent, charset));
-          Enigmail.msg.movePEPsubject();
-          return;
-        }
-        node = node.nextSibling;
-      }
-
-      // if no <DIV> node is found, try with <PRE> (bug 24762)
-      node = bodyElement.firstChild;
-      while (node) {
-        if (node.nodeName == "PRE") {
-          node.innerHTML = EnigmailFuncs.formatPlaintextMsg(EnigmailData.convertToUnicode(messageContent, charset));
-          Enigmail.msg.movePEPsubject();
-          return;
-        }
-        node = node.nextSibling;
-      }
-
-      // HACK for MS-EXCHANGE-Server Problem:
-      // - remove empty text/plain part
-      //   and set message content as inner text
-      // - missing:
-      //   - signal in statusFlags so that we warn in Enigmail.hdrView.updateHdrIcons()
-      if (this.buggyExchangeEmailContent) {
-        if (this.displayBuggyExchangeMail()) {
-          return;
-        }
-
-        EnigmailLog.DEBUG("enigmailMessengerOverlay: messageParseCallback: got broken MS-Exchange mime message\n");
-        messageContent = messageContent.replace(/^\s{0,2}Content-Transfer-Encoding: quoted-printable\s*Content-Type: text\/plain;\s*charset=windows-1252/i, "");
-        node = bodyElement.firstChild;
-        while (node) {
-          if (node.nodeName == "DIV") {
-            node.innerHTML = EnigmailFuncs.formatPlaintextMsg(EnigmailData.convertToUnicode(messageContent, charset));
-            Enigmail.hdrView.updateHdrIcons(exitCode, statusFlags, keyIdObj.value, userIdObj.value,
-              sigDetailsObj.value,
-              errorMsg,
-              null, // blockSeparation
-              encToDetailsObj.value,
-              "buggyMailFormat");
-            return;
-          }
-          node = node.nextSibling;
-        }
-      }
-
+    // remove all child elements of the body and replace it with the new message
+    while (bodyElement.firstChild) {
+      bodyElement.removeChild(bodyElement.firstChild);
     }
 
-    EnigmailLog.ERROR("enigmailMessengerOverlay.js: no node found to replace message display\n");
-
+    bodyElement.innerHTML = EnigmailFuncs.formatPlaintextMsg(EnigmailData.convertToUnicode(messageContent, charset));
+    Enigmail.msg.movePEPsubject();
     return;
   },
 
