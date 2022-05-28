@@ -1012,7 +1012,7 @@ async function getKeyMetadata(key) {
   keyObj.userId = prim ? prim.userID.userID : "n/a";
   keyObj.photoAvailable = false;
 
-  keyObj.userIds = [];
+  keyObj.userIds = [{}];
 
   for (let i in key.users) {
     let trustLevel = "f";
@@ -1038,12 +1038,19 @@ async function getKeyMetadata(key) {
       ++uatNum;
     }
     else {
-      keyObj.userIds.push({
+      let uidObj = {
         userId: key.users[i].userID.userID,
         keyTrust: trustLevel,
         uidFpr: "",
         type: "uid"
-      });
+      };
+
+      if (key.users[i].userID.userID === keyObj.userId || keyObj.userId === "n/a") {
+        keyObj.userIds[0] = uidObj;
+      }
+      else {
+        keyObj.userIds.push(uidObj);
+      }
     }
   }
 
