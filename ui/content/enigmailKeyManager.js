@@ -1813,7 +1813,7 @@ var gKeyListView = {
       // does a user ID (partially) match?
       for (let idx = 0; idx < keyObj.userIds.length; idx++) {
         uid = keyObj.userIds[idx].userId;
-        if (uid.toLowerCase().indexOf(searchTxt) >= 0) {
+        if (uid && (uid.toLowerCase().indexOf(searchTxt) >= 0)) {
           showKey = true;
         }
       }
