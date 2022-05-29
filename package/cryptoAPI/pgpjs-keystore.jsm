@@ -583,13 +583,12 @@ const keyStoreDatabase = {
       });
 
       try {
-        await key.update(oldKey);
+        key = await key.update(oldKey);
       }
       catch (x) {
         // if the keys can't be merged, try to update the old key with the new one
         try {
-          await oldKey.update(key);
-          key = oldKey;
+          key = await oldKey.update(key);
         }
         catch (x) {
           // if we have a private key, keep it, otherwise use the new key
